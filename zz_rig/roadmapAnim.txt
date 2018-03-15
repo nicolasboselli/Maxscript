@@ -1,0 +1,16 @@
+ feuille de route anim
+-pour dupliquer une spine strech il faut faire une selection en partant des controller les plus « contraints » et en remontant la hièrarchie jusqu’à la spline. Si la hierarchie n’est pas respecter les knots se lie avec les controller copis.
+
+Pour compenser : 
+1 créer un script qui enregistre la hierarchie sous la forme d’un array
+2 créer un script qui relinke la spline d’origine avec les controllers qui correpondent
+
+- créer le squelette d'animation en parallèle du squelette de skin
+- valider le renaming pour eviter les doublons dans une scène
+- créer un script de retargetting entre le squelette d'anim et le squelette de skin.
+
+
+Spine stretch refinable basé sur une spline
+Création de la spine à partir des bones : 1 script
+Redefinition de la spine pour ajouter des points de contrôle : 1 script
+

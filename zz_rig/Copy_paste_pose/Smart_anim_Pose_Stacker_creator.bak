@@ -1,0 +1,55 @@
+-- amelioration: enregistrer les valeurs d'une pose d'animation dans une structure
+-- stocker ces structures dans un array, sous forme de string
+-- les stocker de manière persistante dans la scene
+-- les retrouver a partir de l'array de string
+ 
+struct person (name, height, age, sex)
+bill = person name: "Bill" height:72 age:34 sex:#male
+jane =  person name: "jane" height:72 age:34 sex:#femelle
+
+
+pose_stacker = undefined
+
+getPropNames bill
+
+people = #(bill, jane)
+
+test[1].sex
+#
+yo = #voiture
+
+PS = point name: (uniquename "PS_")
+pose_stacker = attributes pose_stacker_tracks 
+(
+	parameters main 
+	(
+		---- une piste pour enregistrer le nombre eelements de chaque pose #intergertab
+-- 		stack_number type:#indextab tabSizeVariable:true 
+		---- une piste pour enregistrer les objets de references #nodetab
+-- 		stack_ref  type:#nodetab tabSizeVariable:true
+		---- une piste pour enregistrer les rotations #point4tab
+-- 		stack_rotation type:#point4tab tabSizeVariable:true
+		---- une piste pour enregistrer les positions #point3tab
+-- 		stack_position type:#point3tab tabSizeVariable:true
+		-- une piste pour enregistrer les sets de selection #nodetab
+-- 		stack_selection type:#nodetab tabSizeVariable:true
+		-- une piste pour enregistrer les noms des poses #nodetab
+-- 		stack_pose_name type:#stringtab tabSizeVariable:true
+	)
+)	
+-- custAttributes.add s supervisors
+custAttributes.add PS  pose_stacker
+
+test = custAttributes.get $  1 
+soustest = custAttributes.getDef  test
+soustest.defData
+
+soustest.defData = people
+
+PS.pose_stacker_tracks.stack_number
+test.stack_number
+
+test.source
+
+$.pose_stacker_tracks = 50
+

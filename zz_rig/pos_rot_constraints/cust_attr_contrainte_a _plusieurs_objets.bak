@@ -1,0 +1,53 @@
+--création d'un modifier vide
+modPanel.addModToSelection (emptymodifier ()) ui:on
+
+-- definition de la selection	
+	
+	
+-- definition des custom attributes
+def = attributes boton
+(
+-- definition de paramètres
+parameters main rollout:test
+(
+	)
+-- definition de l'interface
+rollout test "Untitled" 
+(
+	button btn1 "Button1" pos:[31,103] width:90 height:52
+	button btn2 "Button2" pos:[31,50] width:90 height:52
+	
+	on btn1 pressed do 
+	(
+$point_bn_ctr012.pos.controller.position_constraint.controller.setweight 1 0
+$point_bn_ctr012.pos.controller.position_constraint.controller.setweight 2 100
+$point_bn_ctr012.rotation.controller.orientation_constraint.controller.setweight 1 0
+$point_bn_ctr012.rotation.controller.orientation_constraint.controller.setweight 2 100	
+	)
+	
+		on btn2 pressed do 
+	(
+$point_bn_ctr012.pos.controller.position_constraint.controller.setweight 1 100
+$point_bn_ctr012.pos.controller.position_constraint.controller.setweight 2 0
+$point_bn_ctr012.rotation.controller.orientation_constraint.controller.setweight 1 100
+$point_bn_ctr012.rotation.controller.orientation_constraint.controller.setweight 2 0
+	)
+)
+	
+)
+	
+
+-- ajout des parametres au modifier vide
+custAttributes.add $.modifiers[#'Attribute Holder'] def
+
+
+--------------------------------------
+--------------------------------------
+-- creation d'un custom attribute de contrainte de position evolutif
+-- 1 appliquer le custom à l'objet visé 
+-- 2 prévoir un cadre ou enregistrer les position visées.
+---- avec un bouton pick prevoir de selectionner les objets.
+---- quand on pique sur un objet l'objet est memorisé dans la liste (dans un array?) 
+---- et on crée sur l'objet porteur une contrainte position et une contrainte orientation à l'obejt piqué
+-- 3  quand on clique sur un element de la selection l'objet se locke dessus , les contraintes positions et rotation à l'obejt monte à 100
+

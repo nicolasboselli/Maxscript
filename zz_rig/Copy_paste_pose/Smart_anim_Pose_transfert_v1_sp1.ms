@@ -1,0 +1,483 @@
+-- plus: remplacer la listbox par une multibox
+-- prévoir l ajout de piste nulle
+-- prévoir la suppression d'objet de la selection
+-- prévoir le up et le down par 10
+-- plus: prevoir de réappliquer plusieurs fois le transfert de pose pour compenser le lien de parenté. calculer la boucle exacte
+
+rollout1 = rollout poseTransfertRLT "transfert de poses"
+(
+
+	local refDataObj = undefined 
+	local sourceArr = #()
+	local targetArr = #()
+	local sourceID = #()
+	local targetID = #()
+	
+	local trackArr = #()
+	
+-- 	functions
+	-- 	admin listbox
+		-- 	ajouter un abjet à la liste
+		function addObjToListFN theListBox theArray =
+		(
+			for o in ($selection as array) do  append theArray o 
+			theArray = makeUniqueArray theArray
+			theListBox.items = for o in theArray collect o.name
+			return theArray
+		)
+			
+		-- 	supprimer un objet de la liste
+		function delObjInListFN theListBox theArray =
+		(
+			deleteItem theArray theListBox.selection
+			if theListBox.selection > theArray.count then  theListBox.selection = theArray.count
+			theListBox.items = for o in theArray collect o.name
+			return theArray
+		)
+		
+		function delObjsInListFN theListBox theArray theSel =
+		(
+			for i = 1 to theSel.count  do deleteitem theArray theSel[1]
+			return theArray
+		)
+		-- 	faire monter un objet dans la liste
+
+		function upObjsInListFN theListBox theArray theSel theOtherList =
+		(
+					local theNewSel = theSel
+					try
+					(
+						for o in theSel do
+						(
+							
+							bakBone = theArray[o]
+							print bakBone
+							print (o - 1)
+							insertitem bakBone theArray (o - 1)
+							deleteitem theArray  (o + 1)
+			-- 				insertitem blankbone bonesTargetAr o
+							
+							theListBox.items = for o in theArray collect o.name
+						)
+						theSel = for o in theSel collect (o - 1)
+						theOtherList.selection = theSel as bitarray
+						theListBox.selection = theSel as bitarray
+					)catch(print "limite haute")
+					local theNewSel = theSel
+					return theNewSel
+		)
+		
+		-- 	faire descendre un objet dans la liste
+		
+		function downObjsInListFN theListBox theArray theSel theOtherList =
+		(
+			try
+			(
+				for i = theSel.count to 1 by -1 do
+				(
+	-- 				print bonesTargetAr[tgtSel[i]+ 1]
+					bakBone = theArray[theSel[i]+ 1]
+					deleteitem theArray (theSel[i]+1)
+					insertitem bakBone theArray (theSel[i])
+					theListBox.items = for o in theArray collect o.name
+				)
+				theSel = for o in theSel collect (o + 1)
+				theOtherList.selection = theSel as bitarray
+				theListBox.selection = theSel as bitarray
+				
+			)catch(print "limite basse")
+		)
+
+		
+		-- 	nettoyer la liste
+		function clearListFN theListBox theArray =
+		(
+			theArray = #()
+			theListBox.items = for o in theArray collect o.name
+			return theArray
+		)
+	-- admin mapping
+		function saveMappingFN idMap =
+		(
+		)
+		
+		function loadMappingFN idMap =
+		(
+		)
+		
+		-- classer par nom
+		function sortByNameFN v1 v2 =
+		(
+			stricmp v1.name v2.name
+		)
+	
+-- 		compte le nombre d'étage dans la hiérarchie
+		fn mountSplineHierarchyFN selArr =
+		(
+			hiRank = 0
+			
+			do
+			(
+				parentArr = #()
+
+				for o in selArr do
+				(
+					if (o.parent != undefined) do append  parentArr o.parent
+				)
+				selArr = parentArr
+
+				if (selArr.count > 0) do
+				(
+					hiRank += 1
+		-- 			print hiRank
+				)
+
+			)while(selArr.count > 0)
+			
+			return hiRank
+
+		)
+		
+-- 	UI
+	group "save mapping"
+	( 
+		button saveMap1BT "M1" across: 2
+		button saveMap2BT "M2"
+-- 		button saveMap3BT "M3"
+	)
+	
+	group "load mapping"
+	(
+		button loadMap1BT "M1" across: 2
+		button loadMap2BT "M2"
+-- 		button loadMap3BT "M3"
+	)
+	
+	
+	group "mapping"
+	(
+		pickbutton chooseRefPB "selectionner la reference"
+		multilistbox sourceSetLB "set des sources" across: 2 height: 30
+		multilistbox targetSetLB "set de targets" height: 30
+		edittext sourceNumET "Nombre de sources:" across: 2 readonly: true
+		edittext targetNumET "Nombre de target:" readonly: true
+		button sortSourceByNameBT "sort" across: 2
+		button sortTargetByNameBT "sort" 
+	)	
+	
+	group "sources commandes"
+	(
+		button addSourceBT "add" across: 7
+		button delSourceBT "remove" enabled: false
+		button upSourceBT "up"
+		button downSourceBT "down"
+		button clearSourceBT "Clear"
+		button selSourceInScBT "Select" 
+		button loadGhostAsSourceBT "load ghost"
+	)
+	
+	group "target commandes"
+	(
+		button addTgtBT "add" across: 7
+		button delTgtBT "remove" enabled: true
+		button upTgtBT "up"
+		button downTgtBT "down"
+		button clearTargetBT "Clear"
+		button selTargetInScB "Select"
+		button loadGhostAsTargetBT "Load Ghost"
+	)
+	
+	button compareBT "compare" enabled: false visible: false
+	button TransPoseBT "Transfert de la Poses!" across: 2
+	button TransParentBT "Transfert des parents!" enabled: true
+	button TransChildBT "Transfert des enfants!" enabled: true across: 2
+	button TransPisteBT "Transfert des Pistes!"
+	button BakPisteBT "Undo transfert de piste"
+-- 	events
+
+	
+	
+	
+	on saveMap1BT pressed do
+	(
+		global sourceArr1 = sourceArr
+		global targetArr1 = targetArr
+	)
+	
+	on loadMap1BT pressed do
+	(
+		sourceArr = execute "sourceArr1"
+		targetArr = execute "targetArr1"
+		
+		sourceSetLB.items = for o in sourceArr collect o.name
+		sourceNumET.text = sourceArr.count as string
+		
+		targetSetLB.items = for o in targetArr collect o.name
+		targetNumET.text = targetArr.count as string
+	)
+	
+	on saveMap2BT pressed do
+	(
+		global sourceArr2 = sourceArr
+		global targetArr2 = targetArr
+	)
+	
+	on loadMap2BT pressed do
+	(
+		sourceArr = execute "sourceArr2"
+		targetArr = execute "targetArr2"
+		
+		sourceSetLB.items = for o in sourceArr collect o.name
+		sourceNumET.text = sourceArr.count as string
+		
+		targetSetLB.items = for o in targetArr collect o.name
+		targetNumET.text = targetArr.count as string
+	)
+	
+	
+	
+	on poseTransfertRLT open do
+	(
+		sourceSetLB.items = for o in sourceArr collect o.name
+		sourceNumET.text = sourceArr.count as string
+		
+		targetSetLB.items = for o in targetArr collect o.name
+		targetNumET.text = targetArr.count as string
+	)
+
+	
+	on chooseRefPB picked obj do
+	(
+		refDataObj =  obj
+		chooseRefPB.text = refDataObj.name
+	)
+	
+	on sortSourceByNameBT pressed do
+	(
+		qsort sourceArr sortByNameFN
+		
+		sourceSetLB.items = for o in sourceArr collect o.name
+		sourceNumET.text = sourceArr.count as string
+	)
+	
+	on sortTargetByNameBT pressed do
+	(
+				qsort targetArr sortByNameFN
+		
+		targetSetLB.items = for o in targetArr collect o.name
+		targetNumET.text = targetArr.count as string
+	)
+	
+-- 	gestion sources
+	
+-- 	add
+	on addSourceBT pressed do
+	(		
+		sourceArr = addObjToListFN sourceSetLB sourceArr
+		sourceNumET.text = sourceArr.count as string
+	)
+	
+-- 	delete	
+	on sourceSetLB selectionEnd do
+	(
+		sourceID = sourceSetLB.selection as array
+		print (sourceID as String)
+		targetSetLB.selection = sourceID as bitArray
+	)
+	
+	on sourceSetLB doubleclicked elt do
+	(
+		print elt
+		select #(targetArr[elt],sourceArr[elt])
+	)
+	
+	on delSourceBT pressed do
+	(
+		sourceArr = delObjInListFN sourceSetLB sourceArr
+		sourceNumET.text = sourceArr.count as string
+	)
+-- 	monter
+	on upSourceBT pressed do
+	(
+		sourceID  = sourceSetLB.selection as array
+		upObjsInListFN sourceSetLB sourceArr sourceID TargetSetLB
+	)
+	
+-- 	descendre
+	on downSourceBT pressed do
+	(
+		sourceID  = sourceSetLB.selection as array
+		downObjsInListFN sourceSetLB sourceArr sourceID TargetSetLB
+-- 		sourceArr = downObjInListFN sourceSetLB sourceArr
+-- 		sourceNumET.text = sourceArr.count as string
+	)
+	
+-- 	nettoyer
+	on clearSourceBT pressed do
+	(
+		sourceArr = clearListFN sourceSetLB sourceArr
+		sourceNumET.text = sourceArr.count as string
+	)
+	
+-- 	selectionner
+	on selSourceInScBT pressed do
+	(
+		sourceID = sourceSetLB.selection as array
+		select (for o in sourceID collect sourceArr[o])
+-- 		select sourceArr[sourceSetLB.selection]
+	)
+	
+	on loadGhostAsSourceBT pressed do
+	(
+		print "youhou"
+		sourceArr = theGhostArray
+		
+		sourceSetLB.items = for o in sourceArr collect o.name
+		sourceNumET.text = sourceArr.count as string
+	)
+	
+-- 	gestion target
+	
+-- 	add
+	on TargetSetLB selectionEnd do
+	(
+		targetID = targetSetLB.selection as array
+		print (targetID as String)
+		sourceSetLB.selection = targetID as bitArray
+		targetID = targetSetLB.selection as array
+	)
+	
+		on TargetSetLB doubleclicked elt do
+	(
+		print elt
+		select #(targetArr[elt],sourceArr[elt])
+	)
+	
+
+	on addTgtBT pressed do
+	(
+		targetArr  = addObjToListFN targetSetLB targetArr
+		targetNumET.text = targetArr.count as string
+		targetID = targetSetLB.selection as array
+	)
+	
+-- 	delete
+	on  delTgtBT pressed do
+	(
+		targetID = targetSetLB.selection as array
+		targetArr = delObjsInListFN targetSetLB targetArr targetID 
+		targetNumET.text = targetArr.count as string	
+		targetSetLB.items = for o in targetArr collect o.name
+	)
+
+
+-- 	monter
+	on upTgtBT pressed do
+	(
+		targetID = targetSetLB.selection as array
+		upObjsInListFN targetSetLB targetArr targetID sourceSetLB
+		targetID = targetSetLB.selection as array
+-- 		targetID = upObjsInListFN targetSetLB targetArr targetID sourceSetLB
+-- 		targetNumET.text = targetArr.count as string
+	)
+	
+-- 	descendre
+	on downTgtBT pressed do
+	(
+		targetID = targetSetLB.selection as array
+		downObjsInListFN targetSetLB targetArr targetID sourceSetLB
+		targetID = targetSetLB.selection as array
+-- 		targetArr = downObjInListFN targetSetLB targetArr
+-- 		targetNumET.text = targetArr.count as string	
+	)
+	
+-- 	nettoyer
+	on  clearTargetBT pressed do
+	(
+		targetArr = clearListFN targetSetLB targetArr
+		targetNumET.text = targetArr.count as string	
+	)
+	
+	on selTargetInScB pressed do
+	(
+		targetID = targetSetLB.selection as array
+		select (for o in targetID collect targetArr[o])
+	)
+	
+		
+	on loadGhostAsTargetBT pressed do
+	(		
+		targetArr = theGhostArray
+
+		targetSetLB.items = for o in targetArr collect o.name
+		targetNumET.text = targetArr.count as string
+	)
+	
+	
+-- 	compare
+	on compareBT pressed do
+	(
+		select #(targetArr[targetSetLB.selection],sourceArr[sourceSetLB.selection])
+	)
+	
+-- 	apply
+	on TransPoseBT pressed do
+	(
+		-- compte le nombre d'étage dans la hierarchie
+		for i = 1 to  (mountSplineHierarchyFN targetArr) do
+		(
+			for i = 1 to sourceArr.count do 
+			(
+	-- 			transfertPoseFN  targetArr[i] sourceArr[i]
+				targetArr[i].rotation = in coordsys world sourceArr[i].rotation
+				targetArr[i].position = in coordsys world sourceArr[i].position
+			)
+		)
+	)
+	
+	on TransParentBT pressed do
+	(
+		for i = 1 to sourceArr.count do
+		(
+			targetArr[i].parent = sourceArr[i].parent
+		)
+-- 		for o in sourceArr collect
+	)
+	
+	on TransChildBT pressed do
+	(
+		-- a limiter au spline
+		/*
+		for i = 1 to sourceArr.count do
+		(
+			for child in sourceArr[i].children do child.parent = targetArr[i]
+		)
+		*/
+	)
+	
+	on TransPisteBT pressed do
+	(
+		trackArr = for i = 1 to targetArr.count collect targetArr[i].transform.controller
+		
+		for i = 1 to  sourceArr.count do 
+		(
+			targetArr[i].transform.controller = copy sourceArr[i].transform.controller
+		)
+	)
+
+	
+	on BakPisteBT pressed do
+	(
+		for i = 1 to trackArr.count do
+		(
+			targetArr[i].transform.controller = trackArrcount[i]
+		)
+	)
+)
+-- createdialog poseTransfertRLT width: 500
+
+newWindows = newRolloutFloater "Transfert de poses"  500 800
+
+
+addRollout  rollout1 newWindows
+-- addRollout  rollout2 newWindows

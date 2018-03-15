@@ -1,0 +1,17 @@
+(
+s = $ as array
+ref = $robot_recorder
+s_rot = for o in s collect in coordsys ref o.rotation
+s_pos = for o in s collect in coordsys ref o.position
+)
+
+(
+ animate on
+  (
+  ref = $robot_recorder
+  for i=1 to s_rot.count do in coordsys ref s[i].rotation = s_rot[i]
+  for i=1 to s_rot.count do in coordsys ref s[i].position = s_pos[i]
+  )
+)
+
+-- ameliorer le script pour qu'il fonctionne sur une plage de clefs

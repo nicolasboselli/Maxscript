@@ -1,0 +1,28 @@
+--- bones tunés aux helpers
+bn = $ as array
+
+bn_pts = for i = 1 to bn.count collect point ()
+-- contrainte position des bones
+for i = 1 to bn_pts.count do
+	( 
+	bn_pts[i].pos = bn[i].pos
+	bn[i].pos.controller = Position_xyz ()
+	bn[i].pos.controller = Position_Constraint ()
+	bn[i].pos.controller.constraints.appendtarget bn_pts[i] 100
+	)
+
+-- contrainte rotation des bones
+yo = bn_pts.count-1
+for i = 1 to yo do
+	(
+		
+	bn[i].rotation.controller = LookAt_Constraint ()
+	bn[i].rotation.controller.constraints.appendTarget bn_pts[i+1] 100 
+	bn[i].rotation.controller.upnode_world = off
+	bn[i].rotation.controller.pickUpNode = bn_pts[i]
+	bn[i].rotation.controller.upnode_ctrl = 1
+	bn[i].rotation.controller.viewline_length_abs = off
+	bn[i].rotation.controller.lookat_vector_length = 0
+	)
+	
+-- parenter les helpers

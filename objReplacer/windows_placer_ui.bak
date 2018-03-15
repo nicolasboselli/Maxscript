@@ -1,0 +1,174 @@
+filein "objReplacerDef.ms"
+/*
+fn centerizeGroupFN =
+(
+	print "start"
+	 local target
+	 local source
+	 local sel = selection as array
+	
+	if sel.count > 1 do
+	(
+		for s in sel do
+		(
+			if classof s == editable_poly and s.parent == undefined then 
+			(
+				target = s
+				print s
+			)
+			else if classof s == dummy then
+			(
+				source = s 
+				print s
+			)
+			else
+			(
+				print "bouh"
+			)
+		)
+		
+		if target != undefined and source != undefined do
+		(
+			source.center = target.center
+			print"centered"
+		)
+	)
+	print "done"
+)
+*/
+
+try(destroydialog objReplacerRLT)catch()
+rollout objReplacerRLT "objects replacer"
+(
+	--vars
+	local modFFD
+	local refObj = undefined
+	local targetArr = undefined
+	-- function
+	
+	fn checkReferenceFn =
+	(
+		sel = selection as array
+		
+		if (sel.count == 1) then
+		(
+			local correctFFD = truew
+			/*
+			for modTmp in sel[1].modifiers do
+			(
+				if classof modTmp == FFD_2x2x2 do
+				(
+					correctFFD = true
+					break
+				)
+			)
+			*/
+			if correctFFD == true then
+			(
+				sel[1]
+				print "selection conform"
+			)
+			else
+			(
+				print "your selection neeeds one ffd box"
+				undefined
+			)
+	
+		)
+		else if (sel.count > 1) then
+		(
+			local isgroup = False
+			local tmpDummy
+			
+			for s in sel do 
+				if (classof s == dummy) do 
+				(
+					tmpDummy = s
+					isgroup = true
+					break
+				)
+			
+			if isgroup == true then
+			(
+				print "selection is a group" 
+				return tmpDummy
+			)
+			else
+			(
+				return undefined
+			)
+		)
+		
+		else
+		(
+			print "select one object only."
+			return undefined
+		)
+	)
+	
+	fn checkTargetSelectionFN =
+	(
+		local tgtSel = selection as array
+		return tgtSel
+	)
+	
+	-- ui
+	button addRefBT "ref>>"
+	edittext refnameET readonly: true
+-- 	button replaceBT "replace!"
+
+-- 	button centerBT "center selection"
+	
+	button replaceV2BT "replace!"
+	button replaceV3BT "replace! v3" enabled: false
+	
+	-- connections
+	on addRefBT pressed do
+	(
+		refObj = checkReferenceFn()
+		if refObj != undefined then 
+		(
+			format "reference selected : %\n"  refObj
+			refnameET.text = refObj.name
+		)
+		else 
+		(
+			"correct your selection"
+		)
+	)
+	
+	on replaceV2BT pressed do
+	(
+		targetArr = checkTargetSelectionFN()
+		if refObj !=undefined and targetArr != undefined then
+		(
+			for s in targetArr do
+			(
+				if (s != refObj) then
+				(
+					print refObj
+					print s
+					res = replaceRefDef refObj s
+					print ("result:" + res.name)
+					
+					res.center = s.center
+				)
+				else
+				(
+					print "reference and target are the same object"
+				)
+			)
+		)
+		else
+		(
+			print "check your selections."
+		)
+	)
+	
+	
+	on replaceV3BT pressed do
+	(
+-- 		create group on selection
+	)
+)
+createdialog objReplacerRLT

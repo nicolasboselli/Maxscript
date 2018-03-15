@@ -1,0 +1,44 @@
+fn detach_face_fenetre s =
+(
+
+edges_list = s.EditablePoly.getSelection #edge
+
+polyop.capHolesByEdge s edges_list
+s.ConvertSelection #edge #face
+
+s.EditablePoly.ShrinkSelection selLevel: #face
+
+fenetres_list = s.EditablePoly.getSelection #face
+
+polyop.detachFaces s fenetres_list delete:true asNode:true name: (uniquename "fenetre") 
+)
+
+
+if selection == undefined then "selectionne un objet ou des ouvertures"
+else
+(
+	if (modPanel.getCurrentObject() == undefined) then  max modify mode
+	
+	case of
+	(
+		(subobjectLevel == 0):
+		(
+			s_array = selection as array
+			for s in s_array do 
+			(
+				select s
+				s.EditablePoly.SetSelection #Edge ((polyOp.getOpenEdges s) as bitarray)
+				detach_face_fenetre s
+			)
+		)
+			
+		(subobjectLevel == 3):
+		(
+			s = $
+			detach_face_fenetre s
+		)
+		
+		default: print "selectionner des objets ou des ouvertures"
+	)
+)
+	

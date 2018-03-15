@@ -1,0 +1,25 @@
+/* ajoute des helpers controler par le spinner du modifier de transfer fk/ik*/
+/* s'applique au helper fk target */
+
+rollout controlTransfertRLT "control transfert"
+(
+	local controlNode
+-- 	UI
+	edittext controlTransRef "control:" readonly: true
+	button addTransBT "add transfert"
+	
+-- 	events
+	on controlTransfertRLT open do
+	(
+		controlNode = $
+		controlTransRef.text = controlNode.name
+	)
+	
+	on addTransBT pressed do
+	(
+		append controlNode.modifiers[1].stack_relais $
+	)
+
+)
+
+createdialog controlTransfertRLT

@@ -1,0 +1,5 @@
+sel = #($)
+for s in sel do
+(
+	s.wirecolor = orange
+)

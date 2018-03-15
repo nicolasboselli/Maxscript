@@ -1,0 +1,1 @@
+ "C:\Program Files\Autodesk\3ds Max 2015\3dsmax.exe" -U MAXScript "D:\githubDEV_maxscript\00_wipsceneManagement\testLoadScript.ms"  pause

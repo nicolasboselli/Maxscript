@@ -1,0 +1,105 @@
+-- DEBUG : 
+--avec la declaration des pose comme local variable les poses ne se mettent pas à jour, ne s'enregistre pas. 
+--Sans la declarations des pose en local variable la valuer des poses n'est plus relative au rollout. 
+--elles sont accessibles depuis l'interface maxscript generale.
+-- la fonction execute ne fonctionne pas sur des variable déclarées en local.
+-- la fonction execute prend en compte des variables declaré dans max, il ne prend pas les variables locales. pour que ça fonctionne dans un execute il faut ecrire "nonm_du_rollout"."nom_de_la_variable"
+
+
+
+
+
+rollout Copy_Paste_Pose "Copy Paste Pose" width:200 height:320
+	(
+	button copy_pose "Copy Pose" pos:[10,50] width:80 height:30
+	button paste_pose "Paste Pose" pos:[100,50] width:80 height:30
+    button btn3 "Select Ref" pos:[10,90] width:80 height:30
+	button btn4 "Select Array" pos:[100,90] width:80 height:30
+	pickButton btn5 "Select ref" pos:[10,10] width:170 height:30
+	listBox lbx1 "poses" pos:[10,130] width:170 height:5 items: #()
+	
+	-- print test
+	button print_pose_1 "pose 1" pos:[10,230] width:80 height:30
+	button print_pose_2 "pose 2" pos:[100,230] width:80 height:30
+	button print_pose_count "count" pos:[10,270] width:80 height:30
+
+	
+
+		
+	
+	on copy_pose pressed  do
+(
+		if ref == undefined then print "select ref first!"	else 
+		(
+		if $ == undefined then print "select array first!" else
+			(
+			-- enregistrement du nom de la pose
+			lbx1.items = append lbx1.items	("pose_"  + ((lbx1.items.count + 1) as string))
+			-- collecte des valeurs de la pose
+			if $selection.count == 1 then s = $ else s = $ as array
+			s_rot = for o in s collect in coordsys ref o.rotation
+			s_pos = for o in s collect in coordsys ref o.position
+			
+			--execute ("print "dirladada"")
+			--execute ((pose_1 = #(s,s_rot,s_pos)) as string )
+			--execute ("pose_1 = #(s,s_rot,s_pos)") 
+			--pose_2 = 6
+			
+			-- creation de la variable pose qui contient sous forme d'array la selection d'objet pris en compte dans la pose et leur position et leur orientations
+			create_pose = stringstream ""
+			format "pose_% = #(s,s_rot,s_pos)" lbx1.items.count to: create_pose
+			close create_pose
+			execute (create_pose as string)
+			print (execute (create_pose as string))
+			
+			
+			)
+		)
+)
+
+on print_pose_1 pressed do 
+	(
+	print pose_1
+	)
+
+on print_pose_2 pressed do print pose_2
+on print_pose_count pressed do print lbx1.items.count
+	
+	on paste_pose pressed  do
+(
+	if s_rot == undefined then print "copy pose first!" else
+	(
+		animate on
+		(
+		for i=1 to s_rot.count do in coordsys ref s[i].rotation = s_rot[i]
+		for i=1 to s_rot.count do in coordsys ref s[i].position = s_pos[i]
+		)
+	)
+)
+
+
+	on btn3 pressed do
+(
+	if ref == undefined then print "select ref first!"	else select ref
+)
+
+	on btn4 pressed do
+(
+	if s == undefined then print "copy first!"	else select s
+)
+
+	on btn5 picked obj do
+(
+	if obj != undefined do
+(
+ref = obj
+btn5.text = obj.name
+	)
+)
+
+
+)
+Createdialog Copy_Paste_Pose
+
+
+pose_3

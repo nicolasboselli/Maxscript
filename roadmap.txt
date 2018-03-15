@@ -1,0 +1,415 @@
+=============================== SCRIPT MANAGEMENT
+-- TODO:
+	-- create script outliner
+		-- display functions lists
+		-- display filein 
+		-- display imported function (showsource)
+		
+	-- script to generate icon
+
+
+-- scripts explorer
+	- bug: on "enter folder" on script, script opened
+	maj:
+	x - add access to ini file
+	 - enter folder on double click
+	 - back folder in list
+	 - back folder on back touch
+	 - manager many set of favorites
+	 - copy/cut/paste file
+
+-- favorites launcher
+	-- maj:
+		-- remove favorite
+		-- catch obsolete path
+		-- manage different favorites
+		x-- crash on first opening, when fav list ini is empty
+		-- init first fav list with core list
+		-- save favorite in xml
+
+-- install script
+		x-- install script explorer macro
+		x-- install script launcher
+		x-- init script ini file
+		x-- init root script value
+	-- maj:
+		-- looking for core script list in script folder to init script list
+		-- use xml instead of ini file to list scripts favorite
+		-- create one function to return script root
+
+=============================== PLANS MANAGEMENT
+-- TODO:
+	-- add transform tool
+	-- group all tools in one rollout
+
+-- create_plane_ui
+
+-- plan_opacity
+
+-- planresizer:
+	maj:
+	-- add deletion system
+	-- add root and target system selection
+	-- separate ui and function
+
+	-- make distance interactive(event)
+	-- make ui interactive to scaler deletion
+
+	x-- add tool to pick root position  and target position 
+	-- scale resizer with map
+	-- calculate dimension on bounding box and do not use plane size anymore
+	
+-- transfer uvw map
+	-- tool to clone plane on selection
+
+
+
+=============================== ARCHVIZ MODELING
+-- todo: 
+	-- toolbox to change sweep value
+	
+	-- function to clean spline knot
+	-- function to clean vertex on border
+	-- function to make wall with chamfered sides
+	
+	-- mod to split knot
+	
+	-- add "swiftloop"
+	-- create the inside box/walls on batiment
+
+-- misc / (modeling tools):
+	-- make floor
+		x-- bug: crash on multiple selection(0.5h: add select selection)
+		-- maj: how to use editablepoly without select mesh? 
+		
+	-- debord balcon:
+		-- maj:
+			-- parametric size
+			-- optional inbetween edge
+			-- automatic edge extraction 
+			
+
+-- GF_UI "windows manager"
+	-- maj:
+		x-- make base windows settable and consequence (3h)
+		-- simplify mesh selection send to functions
+
+-- edge to sweep
+	-- x bug: can't remove vertices with edge(2h: change convert type, check vertex to del, bug when use remove on fn def and use function after)
+	-- maj: get sweep profile from sweep editor(to do)
+
+
+		
+-- rembardecopieur
+	-- maj: 
+		x-- add above and below sweep (3h)
+		-- make addSweepAboveDef independant from ui, add parameters
+		-- rename "rembarde_master" and "copy_rembarde"
+		-- see what to do with cleanCopyFN and ConvertToReelSplineFN
+		-- on add reference, find the masterSpline
+	
+-- post inbeetweener
+	-- maj: 
+		x-- add min distance treshold (0.5h)
+		
+-- post corner
+	-- debug:
+		-- doesn't create the first or the last post
+		
+-- supaslice:
+	-- bug 2015: snap on grid index is 4 and not 3 (snapMode.setOSnapItemActive 4 1 true)
+	x-- add to armadas suite
+	-- slice option
+	-- supaslice vertical/horizontal
+	
+-- extrusion box:
+	-- add to armadas suite
+
+
+=============================== MATERIALS MANAGEMENT =========================
+-- demultimat/ material tools:
+	x-- make ui
+	x-- collect multimat in medit material
+	-- refresh scene material
+	x-- explode from material id (def done)
+
+	x-- make skin from id mat
+	x -- split from edge angle
+	
+	-- maj: 
+		-- multiple page on "collect material selection
+		-- tansfert material on selection
+		-- found missing bitmap
+			-- remap founded bitmap
+		
+	-- debug: multiple page doesn't work on "collect scene material" with only vray mat.
+	
+	
+-- vray material lib:
+	-- debug:
+		-- save material lib doesn't work
+	
+	-- maj:
+		x-- material collector 
+		x-- material listener
+		-- (uv associate)
+		x- delete material
+		-- (map material in list with material in editor)
+		-- save libray after addition (autosave)
+		-- render thumbnail
+
+-- asset external:
+	-- x ref
+	-- bitmap
+	-- proxy
+		-- vrremap
+	-- ies
+	-- background
+	-- animation cache 
+
+================================== VRAY RENDERING =================
+--todo:
+	-- quickssave render: precompleted dialog box
+	-- lock render on  camera
+	-- explore render folder
+	-- open render in xnview or photoshop
+	-- matte render
+	
+	-- render checker to avoid error: missing texture, uv, ref, proxy, setting, save path, net render, dr 
+
+x-- found vray version
+
+-- vray base setting
+	x-- correct setting
+	x-- add plane
+	
+-- vraySelAphaMask \ vray pass render
+	bug: when load vray night on render occlu setting save bat render presset
+	x-- vray night:
+		-- def: presset for auto illum rendering
+		-- with toggle on vray night stay permanent with toggle off vray night is pre/post script to differents rendering
+	x-- render alpha
+		-- desync with vray night
+		x-- on selection
+		x-- on material
+		-- use opacity map
+	x-- render occlu
+		-- sync with vray night
+		-- on scene
+		x-- apply material
+		-- param of occlu mat
+		-- exclu/exclude object from vray dirt
+	-- zdepht
+	-- wirecolor
+	-- autoillum pass, one color by material
+	-- direct shadow?
+
+================================= ASSET MANAGEMENT===============
+
+-- IDEA:
+	-- when publishing or creating asset do create temporary file and use it to create version with unified asset publishing method
+		-- where is temporary file?
+		-- use temporary as clipboard
+	-- create production  manager
+
+
+-- ASSETEDITOR / assetOpenerUI.ms
+	todo:
+		/- use asset manager current path for all operation:
+				x-- asset creation from scene
+				x-- asset creation from selection
+				x-- asset publishing
+				/-- asset updating
+				
+		x- ignore "zz_ressources3D", use folder.
+			-- create folder explorer
+		
+		/- UI: 
+			/- clean asset creation popup,
+			x- close popup after creation, 
+			-- make publishing in popup
+			
+		x- dev: create an array for displayed assets to sort assets
+		
+		/- filter by name
+			-- add * add begining and end of search	
+			
+		x-- filter by status (all, approved, wip, retake, archived)
+			-- add ignore achive
+			
+		-- function to clean wip folder
+		-- function to delete old increment
+		-- function to package assets(zip)
+		(-- function to hide asset (.ini => .bak). tools to revert) replace by archive status
+		-- bookmark for asset tools you work on?
+		-- basket for selection to export(selection set)
+		-- bookmark for assets to import
+		-- place all asset controller one ONE layer
+		
+		-- import as xref
+		-- make controller addition toggle
+		-- options to add group on asset imported
+		-- keep instance on import
+		-- options to ignore object on cache_layer
+		-- switch asset
+		
+		-- generate ready to import file outside of the asset folder
+		-- generate big thumbnail outside of the asset folder
+		
+		-- send a selection to someone else
+		-- chat in 3dsmax
+		
+		-- when publishing do update wip
+
+	external:
+		-- ASSETSCANNER: 
+			-- scan folders and return only asset with info file and available arbo under gender classement
+			-- generate html with thumbnail
+			-- manage status, wip folder cleaner, old version cleaning
+		
+		-- AUTO-GENERATE asset on folder path
+
+	--SAVE SELECTION as asset /assetCreatorFromSelectionUI.ms
+		x-- one dialog box for each creation
+		x-- close on creation
+		x-- open as wip
+		
+	-- SAVE SCENE as asset/ assetPublisheUI.ms
+		x- one dialog box for each creation
+
+
+	-- EDIT ASSET:
+		x-- copy file in wip and open
+		-- load 3ds max new instance
+		
+	-- MERGE ASSET:
+		(-- merge top scene + children)
+		-- debug: complete object properties properly
+		-- maj: 
+			-- add optionnal parent ctrl
+			-- optional camera and sun import
+			-- optional "cache_layer" import
+		
+	-- publish new asset
+		x- versionning the assets
+		-- maj: one dialog box for each publishing
+
+	-- ASSET TOOLS...
+		(-- topscene name = file name + ctrl)
+		todo:
+			-- create cache_layer
+			-- create "ready to import" file
+			
+		x-- add texture in folder
+			-- collect ressource with network path in associate textures folder
+			
+		x-- create vrmeshes in folder
+		x- collect vrmeshes in folder
+		
+		x-- create thumbnail
+
+
+	-- UPDATE TOOLS...
+		x- check if update is possible
+		x-- import last version of asset
+		
+		-- debug:
+			-- find new asset
+			
+		-- maj: 
+			x- make vrmesh gestion apart, make only vrmeshes from asset
+			-- delete folder selection (?)
+			-- list assets in scene and for each asset list instance
+		
+================================= SCENE MANAGEMENT
+x-- createCtrl
+	-- debug: crash on group
+	--add control on bouding box selection
+
+-- auto selection script
+	-- select all hierarchy under selection
+	-- select head of hierarchy
+	
+x-- parent 
+	-- manage hierarchy like in maya
+
+-- xform in place
+	-- use reset xform on parent
+
+-- instance replacer (fusion with object replacer)
+	
+
+-- BOXERIZE
+	x-- create box from plane
+	-- create box on one selection, make recursive
+	-- create box on one selection set
+	-- create box on one group, make recursive
+	-- toggle selection orientation or world orient
+
+-- REORIENTATOR
+	-- reorient pivot
+	
+-- OBJECT REPLACER(windows_placer_ui)
+	-- debug: work whitout ffd and group on selection, create group on selection and delete it, include ctrl asset on group, find head of hierrarchy on selection
+	-- maj: 
+		-- no ffd on selection
+		-- add group on selection before duplication, delete group on copy
+		-- make it compatible with asset(helper)
+		x- scale the object instead of use ffd
+		
+		-- map xyz pivot orientation
+
+
+================================== RIG ===========================
+
+
+
+-- bones
+	-- make it like maya joint
+	-- pos rot and scale constraint
+	-- orient end freeze joint
+	-- symetrize joints
+	-- keep bone original place on rig deletion
+-- parent multiple
+-- body rig
+	-- ik/fk with stretch, resize and snap ik>fk and fk to ik.
+	-- ik/ fk spline stretchable
+	-- ribbon 
+-- facial rig
+	-- bones on morph system
+-- morphs
+	-- make symetry
+-- corrective morphs
+	-- corrective morph on the fly
+	-- 
+-- tool to visualize parent and constraint
+-- skin
+	-- transfer weight
+	-- copy paste weight from one point to another
+-- character node
+
+
+================================== ANIMATION =====================
+-- pose library
+-- copy/paste curve in graph editor
+-- retarget animation
+-- channel box
+-- picker
+
+================================= MAXSCRIPT PROBLEMATIC ============
+Problems:
+-- subrollout or roller floater that is the question
+x-- event (for sweep)
+/-- tool (for loop tool)
+x-- make scripts undoable
+x-- test relative path "..\" (doesn't work)
+x-- preview
+x-- pick on scene
+-- dotnet
+	-- listview
+	-- datagridview
+	-- drag and drop
+-- xml
+
+-- open new 3dsmax instance, load file and execute script from maxscript
+-- open new 3dsmax instance, load file and execute script from command line

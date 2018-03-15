@@ -1,0 +1,91 @@
+mobilPointAr = #()
+ikTgtAr = #()
+fkTgtAr = #()
+
+pas = 0
+
+for i = 1 to 3 do 
+(
+	mobilTemp = point pos: [0,pas,0] name:(uniquename "mobilPoint") box: on wirecolor:(color 255 0 0)
+	ikTgtTemp = point  pos: [-50,pas,0]  name:(uniquename "IK target") box: on wirecolor:(color 0 255 0)
+	fkTgtTemp = point pos: [50,pas,0]  name:(uniquename "FK target") box: on wirecolor:(color 0 0 255)
+	
+	append mobilPointAr mobilTemp
+	append ikTgtAr ikTgtTemp
+	append fkTgtAr fkTgtTemp
+	
+	pas -= 50
+)
+
+
+ctrPoint = point pos: [0,50,0]  name:(uniquename "FK target") box: on wirecolor:(color 255 255 0)
+
+for i = 1 to 3 do
+(
+mobilPointAr[i].controller.pos.controller = position_xyz ()
+mobilPointAr[i].controller.pos.controller = position_constraint ()
+mobilPointAr[i].controller.pos.controller.constraints.appendTarget ikTgtAr[i] 100
+mobilPointAr[i].controller.pos.controller.constraints.appendTarget fkTgtAr[i] 100
+
+mobilPointAr[i].controller.rotation.controller = Euler_XYZ ()
+mobilPointAr[i].controller.rotation.controller = Orientation_Constraint ()
+mobilPointAr[i].controller.rotation.controller.constraints.appendTarget ikTgtAr[i] 100
+mobilPointAr[i].controller.rotation.controller.constraints.appendTarget fkTgtAr[i] 100
+)
+
+-- definition des custom attributes
+
+def = attributes transfertMod
+(
+	parameters main rollout:tranfertFKIK
+	(
+		stack_relais type:#nodetab tabSizeVariable:true 
+	)
+
+	rollout tranfertFKIK "Transfert" 
+	(
+	-- 	UI
+		slider transfertSL "Transfert FK/IK"  type:#float  ticks:5 range: [0,100,10]
+		button printValBT "print value"
+	-- 	events
+		on tranfertFKIK open do
+		(
+			if stack_relais.count > 0 then
+			(
+				transfertSL.value = stack_relais[1].position.controller.weight[1]
+			)
+		)
+		
+		on transfertSL changed val do
+		(
+			for o in stack_relais do
+			(
+				o.position.controller.weight[1]  = val
+				o.position.controller.weight[2]  = 100 - val
+				
+				o.rotation.controller.weight[1]  = val
+				o.rotation.controller.weight[2]  = 100 - val
+			)
+		)
+		
+		on printValBT pressed do
+		(
+			if stack_relais.count > 0 then
+			(
+				print stack_relais[1].position.controller.weight[1]
+				transfertSL.value = stack_relais[1].position.controller.weight[1]
+			)
+		)		
+	)
+)
+
+-- ajout des parametres au modifier vide
+select ctrPoint
+modPanel.addModToSelection (emptymodifier ()) ui:on
+custAttributes.add ctrPoint.modifiers[#'Attribute Holder'] def
+
+for o in mobilPointAr do append	ctrPoint.modifiers["Attribute Holder"].stack_relais o
+	
+ctrPoint.modifiers["Attribute Holder"].stack_relais[1].name
+ctrPoint.modifiers["Attribute Holder"].stack_relais.count
+-- $.position.controller.weight[1]

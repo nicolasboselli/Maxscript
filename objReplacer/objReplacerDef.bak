@@ -1,0 +1,215 @@
+-- ref = selection as array
+
+-- targets = selection as array
+
+/*
+bug: why local modffd doesn't work
+*/
+
+fn replaceRefDef ref tgt =
+(
+	modFFD
+
+	infoStr = stringstream ""
+	format "% replace %" ref tgt to: infoStr
+	print(infoStr as string)
+	
+		-- collect x,y and z max on target
+	vertNum = tgt.GetNumVertices ()
+	maxX = -1000
+	minX = 1000
+	maxY = -1000
+	minY = 1000
+	maxZ = -1000
+	minZ = 1000
+	
+	for i = 1 to vertNum do
+	(
+		posTmp = tgt.getvertex i
+		
+		if posTmp.x > maxX do maxX = posTmp.x
+		if posTmp.x < minX do minX = posTmp.x
+		if posTmp.y > maxY do maxY = posTmp.y
+		if posTmp.y < minY do minY = posTmp.y
+		if posTmp.z > maxZ do maxZ = posTmp.z
+		if posTmp.z < minZ do minZ = posTmp.z
+	)
+
+	xsize = maxX- minX
+	ySize = maxY - minY
+	zSize = maxZ - minZ
+	
+	tgtSizeStr = stringstream ""
+	format "target: \t%, %, %"  xsize ySize zSize to: tgtSizeStr
+	print(tgtSizeStr as string)
+	
+	
+	-- get ref ffd size
+	if classof ref == dummy then
+	(
+		modFFD = ref.children[1].modifiers[#FFD_2x2x2]
+	)
+	else
+	(
+		for oneMod in ref.modifiers do 
+		(
+			if (classof onemod == FFD_2x2x2) do
+			modFFD = oneMod
+			break
+		)
+-- 		modFFD =  ref.modifiers[#FFD_2x2x2]
+	)
+	
+-- 	print modFFD
+	animateVertex  modFFD #all
+-- 	print modFFD.control_point_1
+-- 	modFFD.Control_Point_2
+
+	-- calculate ffd size
+	local boundMax, boundMin
+	
+	if classof ref == dummy then
+	(
+		boundMax = getModContextBBoxMax  ref.children[1] modFFD
+		boundMin = getModContextBBoxMin  ref.children[1] modFFD
+	)
+	else
+	(
+		boundMax = getModContextBBoxMax  ref modFFD
+		boundMin = getModContextBBoxMin  ref modFFD
+	)
+	xffd = boundMax.x - boundMin.x
+	yffd = boundMax.y - boundMin.y
+	zffd = boundMax.z - boundMin.z
+
+	refSizeStr = stringstream ""
+	format "ref: \t%, %, %"  xffd yffd zffd to: refSizeStr
+	print (refSizeStr as string)
+	
+	
+	-- calculate ratio
+		-- apply ratio to ffd position or object scale?
+	xRatio = xsize/xffd
+	yratio = ysize/yffd
+	zratio = zsize/zffd
+	
+	ratioStr = stringStream ""
+	format "ratio: \t%, %, %"  xRatio yratio zratio to: ratioStr
+	print(ratioStr as string)
+	
+	-- resize ffd
+	
+		-- duplicate ref 
+	copyRef = undefined
+	maxOps.cloneNodes ref cloneType:#instance newNodes:&newGrpArr
+
+	if classof ref == dummy then
+	(
+-- 		maxOps.cloneNodes ref cloneType:#copy newNodes:&newGrpArr
+-- 		select newGrpArr
+		
+		for n in newGrpArr do if classof n == dummy do 
+		(
+			copyRef = n
+		)
+	)
+	else
+	(
+		copyRef = newGrpArr[1]
+	)
+	
+	print copyRef
+	
+	--  place ref
+	copyRef.rotation = tgt.rotation 
+	copyRef.center = tgt.center
+-- 	copyRef.pivot = copyRef.center
+	
+	--  resize ref
+	copyref.scale = [xRatio, yRatio, zRatio]
+	
+	return copyref
+	
+)
+
+fn replaceRefDef2 ref tgt =
+(
+	-- collect x,y and z max on target
+	vertNum = tgt.GetNumVertices ()
+	maxX = -1000
+	minX = 1000
+	maxY = -1000
+	minY = 1000
+	maxZ = -1000
+	minZ = 1000
+	
+	for i = 1 to vertNum do
+	(
+		posTmp = tgt.getvertex i
+		
+		if posTmp.x > maxX do maxX = posTmp.x
+		if posTmp.x < minX do minX = posTmp.x
+		if posTmp.y > maxY do maxY = posTmp.y
+		if posTmp.y < minY do minY = posTmp.y
+		if posTmp.z > maxZ do maxZ = posTmp.z
+		if posTmp.z < minZ do minZ = posTmp.z
+	)
+
+	xsize = maxX- minX
+	ySize = maxY - minY
+	zSize = maxZ - minZ
+	
+	tgtSizeStr = stringstream ""
+	format "target: \t%, %, %"  xsize ySize zSize to: tgtSizeStr
+	print(tgtSizeStr as string)
+
+	-- add group on source
+	-- open group
+	-- calculate size of the ref
+		-- bounding box of the group
+	-- calculate ratio
+	
+	-- duplicate group source
+	-- place copy
+	-- scale copy
+	-- close copy group
+	-- explode copy group
+	
+	-- close grp source
+	-- explode grp source
+	
+)
+
+
+
+-- get size of ref:
+
+-- create group
+head = findHeadsOfHierarchy ref
+grp = createOrientedGroup sel head 
+setGroupOpen grp true
+
+-- get bounding box size
+tea = nodeGetBoundingBox grp grp.transform
+
+xSize = distance [tea[1].x, 0, 0] [tea[2].x, 0, 0]
+ySize = distance [0, tea[1].y, 0] [0, tea[2].y, 0]
+zSize = distance [0, 0, tea[1].z] [0, 0, tea[2].z]
+	-- add group on selection with orientation of selection
+	-- hide ctrl
+	-- open group
+	-- get group bounding box
+	-- calculate size of ref
+	-- delete tmp grp
+
+-- get target size:
+	-- get bounding box 
+	-- calculate size from bounding box
+
+-- copy ref
+
+-- create point at center of ref 
+-- align point on box ref center
+-- calculate ratio ref/target
+-- rescale point
+-- delete point

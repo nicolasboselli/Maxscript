@@ -1,0 +1,5 @@
+sel = $ as array
+for s in sel do
+(
+	s.wirecolor = red
+)

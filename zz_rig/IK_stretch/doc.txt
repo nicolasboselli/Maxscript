@@ -1,0 +1,3 @@
+SmartRig_ikfk_stretch_2_alpha.ms:
+	- version la plus avancée du script de creation ik/fk
+	- appelle le script: SmartRig_ikfk_stretch_modifier_sp1.ms

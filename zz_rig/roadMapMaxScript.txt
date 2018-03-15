@@ -1,0 +1,138 @@
+
+--SCRIPT
+
+-- RIG
+
+-- stretch_spine_relink_copy v0.1
+---- def:
+------ en cas de copie d'une ik spline les controleur script des knot des splines ne sont pas redirigées correctement.
+------ appliquer ce script à la selection avant et aprés la copie à la selection règle le problème.
+---- amélioration:
+------ prévoir le cas de plusieurs splines
+
+-- Tunage de bones v.0.1
+---- def: 
+------ à partir d'une chaine bones, contrindre chaque bone à un helper en position et en rotation. les bones deviennent etirable. 
+------ crée un spy_rot sur chaque bone pour en collecter la rotation sans erreurs 
+---- amélioration : remplacer les contrainte position et rotation par des controleurs scripts
+
+-- rigger_un_ik_stretch v0.1
+---- amélioration : 
+------- remplacer les contrainte position et rotation par des controleurs scripts
+
+-- rigger_ikfk_stretch_with_free_elbow v0
+
+-- creer twist bone v0.1
+---- def: à partir d'une cjaine de bones, créer une chaine etirable et torsionnable entre deux helpers
+---- amélioration : remplacer les contrainte position et rotation par des controleurs scripts
+
+-- go_fast_controller! v0.1
+---- def : remplace des controlleur spline lier en position et rotation contrainte par des controleurs lier par controller script
+---- amélioration : mettre à jour les controleurs script en fonction des derniers développement du script  pos_rot_script_contraint
+
+-- destroy_rig v0.1
+---- ameliorer le script de netoyage de bones pour conserver les bones d'origine
+
+-- creer_ctr_helper v0.1
+---- def: crée un controlleur spline (cercle) sur un objet selectionner
+---- amélioration: 
+------remplacer les contraintes position et rotation par des controleurs scripts
+------ préparer donner la posibilité de choisir entre plusieurs spline (voir recup_spline) 
+
+-- recup_spline v0.1
+---- def: recupère les knot d'une apline afin de pouvoir la recréer
+---- amélioration: stocker les spline récupérée afin de pourvoir les réutilisée (sous forme de fichier externe?)
+
+-- pos_rot_script_contraint v0.1
+----debug: 4 cas de figure qui demande chacun peut être un développement du script particulier:
+------1 le maitre est l'esclave ont chacun un parent
+------2 ni le maitre ni l'esclave n'ont de parent
+------3 seul le maître a un parent
+------4 seul l'esclave a un parent
+
+-- orient_control v1
+---- amelioration : afficher des panneaux d'alerte plutot que du script
+
+-- multi_parent v1
+---- def: lie une selection d'objets au dernier objet de la selection
+
+-- link_chaine v0.1
+---- def: crée un hiérachie sur une selection d'objet en suivant leur ordre de selection.
+
+-- select_parent v1
+---- amelioration : faire disparaitre l'ancien panneau d'alerte pour le remplacer par le nouveau
+
+-- personnal_freezer v0
+---- def : refaire le script pour freezer le mouvement afin qu'il fonctionne sur plus de deux controlleur sans effacer les clefs d'animation
+
+-- rigger un doigt v0.1
+---- def : créer des controller spline sur une selectionner de bones pour rigger un doigt
+
+-- rigger_un_ik_stretch_with_free_elbow_general4 v0.1
+---- def : créer un rig de bras ou de jambe avec un ik strech et un coude ajustable.
+---- amélioration : l'animation du coude est aujourd'hui inutilisable bien que présente, elle altère le reste de l'animation du bras.
+
+-- stretch_spine2
+---- def : à partir d'une selection de bones, crée un ik_spline etirable.
+---- amelioration; remplacer les controller de position et rotation par des controller script
+
+-- ajout de controleur spline segment
+---- def: ajoute un controlleur d'animation supplémentaire sur un segment selectionne d'un ik spine
+---- amélioration: remplacer les controller de position et rotation par des controller script 
+
+--ANIM
+
+-- custom_scale_modifier_perm_animable v0.1
+---- def : 
+------ crée un custom attribute sur un objet qui permet de rendre plus accessible l'animation du scale. 
+------ résiste à la fermeture de la session
+------ si le modifier est détruit l'animation est conservé sur l'objet
+---- amélioration : lorsqu'un nouveau modifier est créé il faudrait qu'il récupère les clefs d'animation de l'objet.
+
+-- Multi_Constraint_in_the_air v0
+---- def: 
+------Script pour contrainte un objet à un autre à la volée (à partir du script de contrainte des mains de la fourmi au marteau : cust_attr_contrainte_a _plusieurs_objets_format.ms)
+------ contrainte d'un objet à un autre à la volée (procedure) à partir d'un premier controleur non contraint
+----synoptique:
+------ 1. creer le controlleur spline contraignant à la position du controleur d'origine, créer un controleur à la cible
+------ 2 changer l'apparence du controleur spline
+------ 3. transférer les clefs d'animaion de la source controleur au controleur d'origine(controlleur)
+------ 4. effacer les clefs de la source
+------ 5 créer un clef d'animation pour contraindre le controlleur spline à la cible et une clé d'animation juste avant pour que l'animation qui précède reste lié à l'origine
+------ 6. créer un custom attribute à l'obejt contraint qui permette de rajouter des contraintes, de les activer et de les enlever 
+
+-- Custom attribute contrainte objet v0
+---- def:
+------ à afficher sur l'objet contraint et sur les cibles 
+------ prévoir de masquer les objets de contraintes non actif
+------ en cas de delete d'un objet contrainte, supprimer les clefs de contraintes de l'objet source
+
+--copy_paste_pose_iu2 v.0.1
+---- def: 
+------ crée une interface pour le copi colle de position relatif à un objet de reference.
+------ creer un outil pour copier les clefs d'un track d'un objet, les stockés et les coller sur un autre objets sur la plage d'image défini en bas. pouvoir paramétrer position/ rotation/ scale. 
+---- Ameliorations : 
+------ stockers les poses pour les retrouver à la session suivante (avec fonction Format sur des custom attribute ou des fichiers externes? avec des variables globales?)
+------ s'en servir pour stocker des set de conttrainte a des objets?
+
+-- Create loc Key v.0.1
+----def:
+------ crée des clefs sur un objet  copies des clefs de rotation et de position précédentes
+
+-- +- 360 v0
+---- def: sur une ou plusieurs clés de rotation sélectionnées, ajouter ou soutraire 360° en x y ou z.
+
+---------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------
+
+-- CONSIGNE : 
+-- ne jamais scaler aucun element d'un rig ni faire ne symetrie dessus
+-- ne jamais lier un hlper de fin de rig à un controller spline avec les contrainte position et rotation de max. Utiliser le lien de parenté ou un controller script. Cela fait freezer les selection de clefs d'animation.
+
+---------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
+
+-- PROBLEMATIQUE
+-- comment conserver des données sur une scène aprés la fermeture de la session (array, valeur, selection...). Par l'écriture sur des fichiers externes? par l'écriture dans des custom attributes? par les variables globales?
+-- de manière générale privilégier des controller script au controller max. voir comment les remplacer dans les scripts existant, notament dans les création par script de liaison entre les helpers de fin de rig et les controleurs d'animation.
+-- problème de nomenclature, confusion entre controller et controleur et entre les diférents usages des spline.

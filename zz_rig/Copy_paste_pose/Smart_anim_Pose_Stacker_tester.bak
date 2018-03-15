@@ -1,0 +1,114 @@
+-- amelioration: enregistrer les valeurs d'une pose d'animation en passant par une strucure
+-- problematique: comment se retrouver dans les array pour récupérer les bonnes données
+----comment supprimer des poses
+-- les stocker de manière persistante dans la scene
+
+-- PS = $
+world = point name: "world"
+
+-- création du stocker
+PS = point name: (uniquename "PS_")
+pose_stacker = attributes poseStackerTracks 
+(
+	parameters main 
+	(
+		-- une piste pour enregistrer les sets de selection #nodetab
+		objNodeArray type:#nodetab tabSizeVariable:true
+		
+		---- une piste pour enregistrer les rotations #point4tab
+-- 		rotNodeArray type:#point4tab tabSizeVariable:true
+		
+		---- une piste pour enregistrer les rotations #point4tab
+		axisNodeArray type:#point3tab tabSizeVariable:true
+		
+		---- une piste pour enregistrer les rotations #point4tab
+		angleNodeArray type:#angletab tabSizeVariable:true
+		
+		---- une piste pour enregistrer les positions #point3tab
+		posNodeArray type:#point3tab tabSizeVariable:true
+		
+		-- une piste pour enregistrer les objets de references #nodetab
+		parentNodeArray  type:#nodetab tabSizeVariable:true
+		
+		-- une piste pour enregistrer le nombre eelements de chaque pose #intergertab
+		numNodeArray type:#indextab tabSizeVariable:true 
+		
+		-- une piste pour enregistrer les noms des poses #nodetab
+		poseNameArray type:#stringtab tabSizeVariable:true
+	)
+)
+-- custAttributes.add s supervisors
+custAttributes.add PS pose_stacker
+
+rollout poseStackerRLT "Pose Stacker"
+(
+	button copyPoseBT "Mémoriser la pose"
+	listbox poseListLB "Poses" items: #()
+	
+	on copyPoseBT pressed do
+	(
+		-- collecte des valeurs
+		struct pose (objNode, axisNode, angleNode, posNode, parentNode, numNode, poseName)
+
+		objSel = $selection as array
+
+		poseOne = pose objNode: objSel \
+		axisNode: (for o in objSel collect (in coordsys parent o.rotation.axis)) \
+		angleNode: (for o in objSel collect (in coordsys parent o.rotation.angle)) \	
+		posNode: (for o in objSel collect (in coordsys parent o.position)) \
+		parentNode: (for o in objSel collect o.parent) \
+		numNode: (objSel.count)  \
+		poseName: (uniquename "pose")
+
+		-- stockage des valeurs
+		for o in poseOne.objNode do append PS.poseStackerTracks.objNodeArray o
+		for o in poseOne.axisNode do append PS.poseStackerTracks.axisNodeArray o
+		for o in poseOne.angleNode do append PS.poseStackerTracks.angleNodeArray o
+		for o in poseOne.posNode do append PS.poseStackerTracks.posNodeArray o
+			
+		for o in poseOne.parentNode do
+		(
+			print o
+			if o == undefined then 
+			(
+				append PS.poseStackerTracks.parentNodeArray world
+			)
+			else
+			(
+				append PS.poseStackerTracks.parentNodeArray o
+			)
+		)
+	
+		append PS.poseStackerTracks.numNodeArray poseOne.numNode
+		append PS.poseStackerTracks.poseNameArray poseOne.poseName
+		
+		poseListLB.items = (PS.poseStackerTracks.poseNameArray as array)
+	)
+	
+	on poseListLB selected poseSel do
+	(
+		print PS.poseStackerTracks.numNodeArray[poseSel]
+		-- donner les objets de la pose selectionnée
+		
+		-- donner les parents des objets de la pose selectionnée
+		-- données la position des objets de la pose selectionnée
+		-- données la rotation des objets de la pose selectionnée
+		
+	)
+	
+	
+)
+
+createdialog poseStackerRLT
+
+
+
+/*
+
+test = custAttributes.get $  1
+soustest = custAttributes.getDef  test
+soustest.defData = #(poseOne, poseOne)
+
+PS.pose_stacker_tracks = 50
+*/
+

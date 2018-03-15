@@ -1,0 +1,3 @@
+sel = $ as array
+for s in sel do
+	var.wirecolor

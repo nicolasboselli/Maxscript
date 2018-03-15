@@ -1,0 +1,57 @@
+-- ce script est destiné a contraindre les mains de la fourmi au marteau
+-- definition de la selection	
+s = $
+
+FM_hand_cstr = stringstream ""
+
+format "
+--création d'un modifier vide
+modPanel.addModToSelection (emptymodifier ()) ui:on
+
+-- definition des custom attributes
+def = attributes boton
+(
+-- definition de paramètres
+parameters main rollout:test
+(
+	)
+-- definition de l'interface
+rollout test \"contraintes\" 
+(
+	button btn1 \"marteau\" pos:[31,20] width:90 height:20
+	button btn2 \"poignet libre\" pos:[31,60] width:90 height:20
+	
+	on btn1 pressed do 
+	(" to: FM_hand_cstr 
+format "\n $%.pos.controller.position_constraint.controller.setweight 1 0" s.name to:  FM_hand_cstr 
+format "\n $%.pos.controller.position_constraint.controller.setweight 2 100" s.name to:  FM_hand_cstr 
+format "\n $%.rotation.controller.orientation_constraint.controller.setweight 1 0" s.name to:  FM_hand_cstr 
+format "\n $%.rotation.controller.orientation_constraint.controller.setweight 2 100"	s.name to:  FM_hand_cstr 
+format "\n)
+	
+		on btn2 pressed do 
+	(" to: FM_hand_cstr 
+format "\n $%.pos.controller.position_constraint.controller.setweight 1 100" s.name to:  FM_hand_cstr 
+format "\n $%.pos.controller.position_constraint.controller.setweight 2 0" s.name to:  FM_hand_cstr 
+format "\n $%.rotation.controller.orientation_constraint.controller.setweight 1 100" s.name to:  FM_hand_cstr 
+format "\n $%.rotation.controller.orientation_constraint.controller.setweight 2 0" s.name to:  FM_hand_cstr 
+format "\n)
+)
+	
+) 
+	
+
+-- ajout des parametres au modifier vide
+custAttributes.add $.modifiers[#'Attribute Holder'] def " to: FM_hand_cstr 
+
+execute (FM_hand_cstr as string)
+--------------------------------------
+--------------------------------------
+-- creation d'un custom attribute de contrainte de position evolutif
+-- 1 appliquer le custom à l'objet visé 
+-- 2 prévoir un cadre ou enregistrer les position visées.
+---- avec un bouton pick prevoir de selectionner les objets.
+---- quand on pique sur un objet l'objet est memorisé dans la liste (dans un array?) 
+---- et on crée sur l'objet porteur une contrainte position et une contrainte orientation à l'obejt piqué
+-- 3  quand on clique sur un element de la selection l'objet se locke dessus , les contraintes positions et rotation à l'obejt monte à 100
+

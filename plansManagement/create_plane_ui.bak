@@ -1,0 +1,407 @@
+/*
+maj:
+
+x- display only jpg name
+x- check plan already in scene and display with "*" in the list
+x- add button  to open plan folder
+add button to view plan in xnview
+add button to select plan in scene
+
+x- function to extract part of a plan (transfer uv)
+	- detach poly
+	- copy uvwap
+	- add scaler
+
+-- rendre l'application de plan "plane independant"
+x- remplacer le dialog box de choix ce fichier par choix de folder
+-- rendre la fenetre de path editable pour rentrer directement le chemin d'accés
+*/
+
+-- InstanceMgr.GetInstances tp &instances
+-- InstanceMgr.GetInstances (Bitmaptexture()) &toto
+bmpAr = getClassInstances  Bitmaptexture
+-- bmpAr[1].fileName
+
+
+fn createPlansLayer =
+(
+	LM = layermanager
+	planLayer
+	
+	if (LM.getLayerFromName "plans") == undefined then planLayer = LM.newLayerFromName "plans"
+	else planLayer = LM.getLayerFromName "plans"
+
+	planLayer
+)	
+
+fn copyPlan sel =
+(
+	map1
+	obj1 = sel[1]
+	for modif in  obj1.modifiers where classof modif == UVWmap do map1 = modif
+		
+	format "obj1: %\n" obj1
+	format "map1: %\n" map1
+
+	for i = 2 to sel.count do
+	(
+		obj2 = sel[i]
+		format "obj: %\n" obj2
+		-- add on plans layer
+		lay = createPlansLayer()
+		lay.addnode obj2
+		
+		obj2.renderable = off
+		obj2.backfacecull = on
+		
+		obj2.name = uniquename obj1.name
+		
+		obj2.material = obj1.material
+		
+		map2 = uvwmap()
+		
+		
+		addmodifier   obj2 map2
+		classof obj2 --hack to force stack update
+		
+		map2.maptype = map1.maptype 
+		
+		map2.uflip = map1.uflip
+		map2.vflip = map1.vflip
+		map2.wflip = map1.wflip
+		
+		map2.width = map1.width 
+		map2.length = map1.length
+		map2.height = map1.height 
+		
+		map2.gizmo.transform = (map1.gizmo.transform * obj1.objecttransform) * inverse obj2.objecttransform
+	)
+)
+
+-- sel = selection as array
+-- copyPlan sel
+
+struct planClass
+(
+	path,
+
+	fn checkinscene  =
+	(
+		local inscene = False
+		for mat in scenematerials do 
+		(
+			bitMapFile = undefined
+			try
+			(
+				bitMapFile = mat.diffuseMap.bitmap.filename
+			)
+			catch
+			(
+				bitMapFile = undefined
+			)
+			
+			if bitMapFile != undefined do
+			(
+				if bitMapFile == path do
+				(
+					inscene =  true
+					break
+				)
+			)
+		)
+		return inscene
+	),
+		
+	inscene = checkinscene(),
+	
+	fn checkname =
+	(
+		local basename = getFilenameFile path
+		if inscene == true then
+		(
+			return ("_______LOADED____" + basename )
+		)
+		else
+		(
+			return basename
+		)
+	),
+
+	name = checkname()
+	
+)
+
+try(destroyDialog createPlaneRLT)catch()
+-- global createPlaneRLT
+rollout createPlaneRLT "create plane"
+(
+	
+-- 	vars
+	local maxIni = getMAXIniFile()
+	local armadasScriptsIni = (getFilenamePath maxIni) + "armadasScriptsIni.ini"
+	
+	local openFileName
+	local root = "C:\\"
+	local jpgList = #()
+	local jpgSel
+	
+	local lastLine = 220
+	
+	local planObjList = #()
+	
+	edittext pathToSearchET"path: "readOnly: true
+	button searchBT "..." across: 2
+	button openFoldBT "open"
+	listbox jpgListBox "jpg list:"
+	
+	button createPlaneBT "create"  pos:[ 50 , lastLine]
+	button injectMapBT "inject" pos:[150,lastLine]
+	button changeMapBT "change map" pos:[250,lastLine]
+	button transferMapBT "transfer map" pos:[350,lastLine]
+	
+-- 	functions
+	/*
+	fn createPlansLayerFN =
+	(
+		LM = layermanager
+		planLayer
+		
+		if (LM.getLayerFromName "plans") == undefined then planLayer = LM.newLayerFromName "plans"
+		else planLayer = LM.getLayerFromName "plans"
+		
+		planLayer
+	)
+	*/
+	
+	fn returnJpgList oneJpg =
+	(
+		jpgDir = getFilenamePath  oneJpg
+		jpgListTmp = getFiles (jpgDir + "*.jpg")
+
+		return jpgListTmp
+	)
+	
+	fn returnJpgList2 oneFolder = 
+	(
+		jpgTmpList = getFiles (oneFolder + "*.jpg")
+		jpgTmpList
+	)
+	
+	fn initPlanClass jpgList =
+	(
+		planObjList = for oneJpg in jpgList collect (planClass oneJpg)
+		print planObjList
+		return planObjList
+	)
+	
+-- 	create plane and add plan material
+	fn createMappedPlane oneJpg = 
+	(
+	-- 	create plane
+		tmpPlane = Plane length:1000 width:800 pos:[0,0,0]  lengthsegs: 1 widthsegs: 1 name: ("plane_" + (getFilenameFile oneJpg)) \
+		backfacecull: on renderable: off
+	-- 	createMap
+		jpgMap = Bitmaptexture fileName: oneJpg name: ("zz_map_" + (getFilenameFile oneJpg))
+	-- 	create material
+		tmpMaterial = Standardmaterial name: ("zz_plan_" + (getFilenameFile oneJpg))
+		tmpMaterial.diffuseMap = jpgMap
+		tmpMaterial.showInViewport =on
+		-- 	assign material on plane
+		tmpPlane.material = tmpMaterial
+		return tmpPlane
+	)
+	
+-- 	delete uvwmap
+	fn deleteUVWmap onePlane =
+	(
+		for i = onePlane.modifiers.count to 1 by -1 do
+		(
+			if ((classOf onePlane.modifiers[i]) == Uvwmap) do
+			(
+				deleteModifier onePlane i
+			)
+		)
+	)
+	
+-- 	rename plane and add plane material
+	fn reMapPlane onePlane oneJpg= 
+	( 
+		onePlane.name = ("plane_" + (getFilenameFile oneJpg)) 
+		
+		jpgMap = Bitmaptexture fileName: oneJpg name: ("zz_map_" + (getFilenameFile oneJpg))
+	-- 	create material
+		tmpMaterial = Standardmaterial name: ("zz_plan_" +(getFilenameFile oneJpg))
+		tmpMaterial.diffuseMap = jpgMap
+		tmpMaterial.showInViewport =on
+		-- 	assign material on plane
+		onePlane.material = tmpMaterial
+		return onePlane
+	)
+
+	
+	fn ajustUVWmap onePlane= 
+	(
+		myUV = Uvwmap()
+		myUV.length = onePlane.length
+		myUv.width = onePlane.width
+
+		addmodifier onePlane myUV	 
+		
+		myBitmap = onePlane.material.diffusemap.bitmap
+		
+		bitHeight = myBitmap.height
+		bitWidth = myBitmap.width
+
+		UVlength = myUV.length
+
+		myUV.width = (UVlength*bitWidth)/bitHeight
+	)
+	
+
+	
+-- 	collect jpg
+	on searchBt pressed do
+	(
+		plansFolder = getSavePath caption: "Select plans folder" initialDir: pathToSearchET.text
+
+		if plansFolder != undefined then
+		(		
+			root = plansFolder + "\\"
+			-- refresh vars
+			jpgList = returnJpgList2 root
+			planObjList = initPlanClass jpgList
+			
+			-- refresh ui
+			pathToSearchET.text = root
+			jpgListBox.items = for jpg in planObjList collect jpg.name
+		)
+		
+		/*
+		openFileName = getOpenFileName caption: "test" filename:root types: "jpg(*.jpg)|*.jpg|All Files|*.*"
+		
+		if openFileName != undefined then
+		(
+			root = getFilenamePath openFileName
+			
+			pathToSearchET.text = root
+			jpgList = returnJpgList openFileName
+			planObjList = initPlanClass jpgList
+			
+			
+			jpgListBox.items = for jpg in planObjList collect jpg.name
+		)
+		*/
+	)
+	
+	on openFoldBT pressed do
+	(
+-- 		foldToOPen = pathToSearchET.text
+		print root
+		doscommand ("explorer " + root)
+	)
+	
+	 
+	
+	on createPlaneBT pressed do
+	(
+		intSel = jpgListBox.selection 
+		jpgSel = planObjList[intSel]
+		
+		mapPlane = createMappedPlane jpgSel.path
+		ajustUVWmap mapPlane
+		
+		lay = createPlansLayer()
+		lay.addnode mapPlane
+		
+		-- update listbox
+		planObjList = initPlanClass jpgList
+		jpgListBox.items = for jpg in planObjList collect jpg.name
+		
+		select mapPlane
+	)
+	
+	on injectMapBT pressed do
+	(
+		sel = selection as array
+		if sel.count == 1 then
+		(
+			deleteUVWmap sel[1]
+			
+			intSel = jpgListBox.selection 
+			jpgSel = planObjList[intSel]
+
+			mapPlane = reMapPlane sel[1] jpgSel.path
+			ajustUVWmap mapPlane
+			
+			-- update listbox
+			planObjList = initPlanClass jpgList
+			jpgListBox.items = for jpg in planObjList collect jpg.name
+		)
+	)
+	
+	on changeMapBT pressed do
+	(
+		sel = selection as array
+		if sel.count == 1 then
+		(
+			intSel = jpgListBox.selection 
+			jpgSel = planObjList[intSel]
+			
+			mapPlane = reMapPlane sel[1] jpgSel.path
+-- 			ajustUVWmap mapPlane
+		)
+	)
+	
+	on createPlaneRLT open do
+	(
+		-- load ini file
+-- 		rootIni = getINISetting (modeArchiScriptRoot + "scriptMode.ini") "planCreator" "jpgPath"
+		try
+		(
+			rootIni = getINISetting armadasScriptsIni "planCreator" "jpgPath"
+			format "load root: %\n" rootIni
+		)
+		catch
+		(
+			format "*** % ***\n" (getCurrentException())
+		)
+		
+		if rootIni != undefined and rootIni != "C:\\" do 
+		(
+			root = rootIni
+			
+			jpgList = returnJpgList2 root
+			planObjList = initPlanClass jpgList
+			
+			pathToSearchET.text = root
+			jpgListBox.items = for jpg in planObjList collect jpg.name
+		)
+	)
+	
+	on createPlaneRLT close do
+	(
+		-- maj ini file
+		root = setINISetting armadasScriptsIni "planCreator" "jpgPath" root
+		format "write root: %\n" root
+	)
+	
+	on createPlaneRLT resized size do
+	(
+		local sub = 30
+		jpgListBox.height = createPlaneRLT.height - 120
+		createPlaneBT.pos = [ 50, createPlaneRLT.height - sub]
+		injectMapBT.pos = [150, createPlaneRLT.height - sub]
+		changeMapBT.pos = [250, createPlaneRLT.height - sub]
+		transferMapBT.pos = [350, createPlaneRLT.height - sub]
+	)
+	
+	on transferMapBT pressed do
+	(
+		sel = selection as array
+		copyPlan sel
+	)
+)
+
+
+createDialog createPlaneRLT width: 500 style: #(#style_resizing,#style_titlebar, #style_border, #style_sysmenu,#style_minimizebox, #style_maximizebox )
+

@@ -1,0 +1,270 @@
+/*
+bug:
+-- find parent of the selection before 
+-- group or clone crash heads of parent
+*/
+
+-- sel = selection as array
+-- create group with first selected object orientation
+
+
+fn findHeadsOfHierarchy sel =
+(
+	headsOfHierarchy = #()
+	for s in sel do
+	(
+		-- if arent is undefined
+		if s.parent == undefined then
+		(
+			appendifunique headsOfHierarchy s
+		)
+		-- if parent is not in selection 
+		else
+		(
+			isNotHead = False
+			
+			for p in sel do
+			(
+				if s.parent == p do
+				(
+					isNotHead = True
+					exit
+				)
+			)
+
+			if isNotHead == False do appendifunique headsOfHierarchy s
+		)
+	)
+	
+	headsOfHierarchy
+)
+
+fn createOrientedGroup sel headsOfHierarchy resetScale:false =
+(
+
+	-- find parent of head of hierarchy
+	format "heads : %\n" headsOfHierarchy
+	format "sel : %\n" sel
+	
+	rootParent = #()
+	
+	for head in headsOfHierarchy do
+	(
+		appendifunique rootParent head.parent
+	)
+-- 	print rootParent.count
+	
+	if rootParent.count == 1 then
+	(
+		-- create helper with first selection orientation
+-- 		lead = sel[1]
+		lead = headsOfHierarchy[1]
+		
+		selMatrix = lead.transform
+		orientHlpTmp = point name: "orientHlpTmp"  --transform: selMatrix
+		
+		if not resetScale then
+		(
+			orientHlpTmp.transform = selMatrix
+		)
+		else
+		(
+			orientHlpTmp.rotation = lead.rotation
+			orientHlpTmp.position = lead.position
+		)
+		
+		orientHlpTmp.parent = rootParent[1]
+			
+			-- parent heads of hierarchy on helper
+		for h in headsOfHierarchy do
+		(
+			h.parent = orientHlpTmp
+		)
+			
+			-- create group on selection
+		tmpGrp = group sel
+		
+		format "tmpGrp:%\n" tmpGrp
+			-- reroot group root parent
+		tmpGrp.parent = rootParent[1]
+			-- delete helper
+		delete orientHlpTmp
+			-- return group
+		tmpGrp
+	)
+	else
+	(
+		print "selection uncorrect"
+		undefined
+	)
+)
+
+fn collectCtrlPosition tmpGrp =
+(
+	setGroupOpen  tmpGrp true
+	-- get the group bounding box
+	absbbCoord = nodeGetBoundingBox tmpGrp tmpGrp.transform
+	append absbbCoord [0,0,0]
+
+	posList = #()
+
+	for i = 1 to 3 do
+	(
+		for j = 1 to 3 do
+		(
+			for k = 1 to 3 do
+			(
+				tmpPos = [absbbCoord[i][1], absbbCoord[j][2], absbbCoord[k][3]]
+				append posList tmpPos
+			)
+		)
+	)
+	posList
+)
+
+/* create controller function */
+fn createCtrl num posList tmpGrp hlpSize: 400 = 
+(
+	tmpPt = point pos: posList[num ] name: ("repere_" + (num  as string)) size: hlpSize wirecolor: green
+		
+	-- point matrix
+	ptMatrix = tmpPt.transform.controller.value
+	-- group matrix
+	grpMatrix = tmpGrp.transform
+		
+	resMatrix = ptMatrix*grpMatrix
+	tmpPt.transform.controller.value = resMatrix
+-- 	in coordsys tmpGrp tmpPt.position = posList[num ]
+	tmpPt
+)
+
+-- 	vars
+-- 	rollout relative functions
+fn createOneCtrl num sel state=
+(
+	local ctrlTmp
+	local tmpGrp = undefined
+	undo on
+	(
+		format
+		-- find head of hierarchy of selection
+		headsOfHierarchy = findHeadsOfHierarchy sel
+		format "head: %\n" headsOfHierarchy
+		
+		-- create group over the selection
+		if state == true then
+		(
+			
+			print "check 05"
+			tmpGrp = createOrientedGroup sel headsOfHierarchy
+-- 				format "head: %\n" headsOfHierarchy
+		)
+		else
+		(
+			tmpGrp = group sel
+		)
+		
+		format "tmpGrp: %\n" tmpGrp
+		
+		-- collect positions for control
+		posList = collectCtrlPosition tmpGrp
+-- 			print posList
+		
+		-- create up controller
+		ctrlTmp = createCtrl num posList tmpGrp
+		
+		-- delete group
+		root = tmpGrp.parent
+-- 			format "root: %\n" root
+		format "head: %\n" headsOfHierarchy
+		
+		setGroupOpen tmpGrp true
+		
+-- 			explodeGroup tmpGrp
+		-- parent selection to point
+		for h in headsOfHierarchy do h.parent = ctrlTmp
+		ctrlTmp.parent = root
+		
+-- 		copy tmpGrp
+		delete tmpGrp
+	)
+	ctrlTmp
+)
+
+
+try(destroydialog addCtrlRLT)catch()
+rollout addCtrlRLT "Add Controller Utility"
+(
+
+	
+-- 	UI
+	checkbox useOrientationCB "keep selection orientation"
+	group "add controller"
+	(
+		button addZplusCtrl "+z" across: 2
+		button addZminusCtrl "-z"
+		button addYplusCtrl "+y" across: 2
+		button addYminusCtrl "-y"
+		button addXplusCtrl "+x" across: 2
+		button addXminusCtrl "-x"
+	)
+	button publishCtrlsBT "publish"
+	
+-- 	actions
+	on addZplusCtrl pressed do
+	(
+		-- create group on selection
+		sel = selection as array
+-- 		print sel
+		ctrl = createOneCtrl 26 sel useOrientationCB.state
+	)
+	
+	on addZminusCtrl pressed do
+	(
+		-- create group on selection
+		sel = selection as array
+		ctrl = createOneCtrl 25 sel useOrientationCB.state
+		
+	)
+	
+	on addYplusCtrl pressed do
+	(
+		sel = selection as array
+		ctrl = createOneCtrl 24 sel useOrientationCB.state
+	)
+	
+	on addYminusCtrl pressed do
+	(
+		sel = selection as array 
+		ctrl = createOneCtrl 21 sel useOrientationCB.state
+	)
+	
+	on addXplusCtrl pressed do
+	(
+		sel = selection as array
+		ctrl = createOneCtrl 18 sel useOrientationCB.state
+	)
+	
+	on addXminusCtrl pressed do
+	(
+		sel = selection as array
+		ctrl = createOneCtrl 9 sel useOrientationCB.state
+	)
+	
+	on publishCtrlsBT pressed do
+	(
+		sel = selection as array
+		undo on 
+		(
+			for i = 1 to 27 do
+			(
+				createOneCtrl i sel useOrientationCB.state
+				for s in sel do s.parent = undefined
+			)
+		)
+	)
+	
+)
+
+createdialog addCtrlRLT
+

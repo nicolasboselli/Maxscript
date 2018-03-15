@@ -1,0 +1,161 @@
+-- SCALE PERSO
+
+scaleCharDef = attributes scaleChar
+(
+	parameters  main 
+	(
+-- 		controlChild  type: #nodeTab  tabSizeVariable:true 
+		bonesTab type: #nodeTab  tabSizeVariable:true 
+	)
+)	
+
+rollout scaleCharRlt "Scale Character"
+(
+	local s
+	
+	spinner scaleSP "scale:" range: [1,200,1]
+	
+	/*
+	group "control children"
+	(
+		listbox ctrlListLB "liste:"
+		button addCtrBT "Add" across: 2
+		button dellCtrBT "del"
+		button parentBT "parent"
+	)
+	*/
+	
+	group "root to scale"
+	(
+		listbox bonesListLB "liste"
+		pickbutton addPB "pick"
+		button addBT "add" across: 3
+		button dellBT "del"
+		button sellBT "sel"
+		button showBT "show"
+-- 		button exportBT "export global"
+-- 		button importBT "import"
+	)
+		
+	
+	on scaleCharRlt open do
+	(
+		s = $
+		scaleSP.value = (s.scale*100).x
+		
+			
+		tempAr = for o in s.bonesTab collect o
+		tempAr = makeuniquearray tempAr
+-- 		sort tempAr
+		s.bonesTab = #()
+		for o in tempAr do append s.bonesTab o
+		
+-- 		ctrlListLB.items = for o in s.controlChild collect o.name
+		bonesListLB.items = for o in s.bonesTab collect o.name
+	)
+	
+	/*
+	on addCtrBT pressed do
+	(
+		candidats = $selection as array
+		for o in candidats do
+		(
+			if (superclassof o == shape) then
+			(
+				append s.controlChild o
+			)else(print "selection non conforme")
+		)
+		
+		ctrlListLB.items = for o in s.controlChild collect o.name
+		
+	)
+	
+	on parentBT pressed do
+	(
+		for o in s.controlChild do o.parent = s
+	)
+	*/
+	
+	on scaleSP changed val do
+	(
+		s.scale.x = val/100
+		s.scale.y = val/100
+		s.scale.z = val/100
+		
+		for o in s.bonesTab do
+		(
+			try
+			(
+				o.scale.x = val/100
+				 o.scale.y = val/100
+				o.scale.z = val/100
+			)catch(print "error2")
+		)
+	)
+	
+	on addPB picked bn do
+	(
+		try
+		(
+			append s.bonesTab bn
+			bonesListLB.items = for o in s.bonesTab collect o.name
+		)
+		catch(print "error1")
+	)
+	
+	on addBT pressed do
+	(
+		for o in $selection do append s.bonesTab o
+		bonesListLB.items = for o in s.bonesTab collect o.name
+	)
+	
+	on dellBT pressed do
+	(
+		try
+		(
+		print (bonesListLB.selection as string)
+		deleteitem s.bonesTab bonesListLB.selection
+		bonesListLB.items = for o in s.bonesTab collect o.name
+		)catch(print "error3")
+	)
+	
+	on exportBT pressed do
+	(
+		global exportVar = #()
+		print s.bonesTab
+		for o in s.bonesTab do append exportVar o
+	)
+	
+	on importBT pressed do
+	(
+		for o in exportVar do append s.bonesTab o
+		bonesListLB.items = for o in s.bonesTab collect o.name
+	)
+	
+	on showBT pressed do
+	(
+		selAr =  for o in  s.bonesTab collect o
+		select selAr
+	)
+)
+
+try
+(
+$.scaleChar
+-- $.bonesTab
+-- $.controlChild
+)
+catch
+(
+	for i = 1 to (custAttributes.count $) do custAttributes.delete $ 1
+	custAttributes.add $ scaleCharDef
+)
+
+
+
+
+-- createdialog scaleCharRlt
+yop = newRolloutFloater  "scaleCharRlt"  200  300
+addrollout scaleCharRlt yop
+-- append $.modifiers[#'Attribute Holder'].bonesTab $
+-- $.scale = [2,2,2]
