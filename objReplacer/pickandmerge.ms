@@ -6,7 +6,7 @@
 -- mouse up : confirm
 -- right mouse: abort
 
-
+filein @"N:/Ressources_Nico/github/00_wip/Maxscript/Rig/lastParent_def.ms"
 
 try(destroydialog PickNMergeRLT)catch()
 rollout PickNMergeRLT "Pick And Merge"
@@ -136,7 +136,7 @@ rollout PickNMergeRLT "Pick And Merge"
 -- 	actions
 	on PickNMergeRLT open do
 	(
-		mergeObjFolder = @"N:\Ressources_Nico\merge"
+		mergeObjFolder = @"M:\Elements_batiments"
 		
 		if mergeObjFolder != undefined then
 		(	

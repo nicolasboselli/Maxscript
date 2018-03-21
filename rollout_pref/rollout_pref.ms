@@ -79,7 +79,7 @@ fn writeRolloutParams rlt params =
 -- fileProperties.findProperty #custom "rootPlans"
 -- fileProperties.getPropertyValue  #custom "rootPlans"
 
-filePref = #("rootPlans", "outputPath")
+-- filePref = #("rootPlans", "outputPath")
 
 
 fn loadRolloutParams rlt params =
@@ -162,9 +162,10 @@ fn loadRolloutParams rlt params =
 -- 					format "val: %, classof: %\n" val (classof val)
 					local cleanAr = #()
 					local tmpAr = execute val
--- 					format "tmpAr: %\n" tmpAr
-					cleanAr  = for f in tmpAr where doesfileexist f collect f
--- 					setProperty  rlt n cleanAr
+					format "tmpAr: %\n" tmpAr
+-- 					cleanAr  = for f in tmpAr where doesfileexist f collect f
+-- 					format "cleanAr: %\n" cleanAr
+					setProperty  rlt n tmpAr
 				)
 				else 
 				(

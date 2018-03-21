@@ -24,6 +24,7 @@ todo:
 	
 debug:
 	-- le copy/paste crée toujours une version *_copy. Comparer l'ancien et le nouveau chemin pour faire la copie
+	-- pourquoi charger le favAr au demarrage?
 	
  rebuild:
 	 -- revoir la fonction pour trouver le dossier parent
@@ -153,6 +154,7 @@ rollout scriptExplorerRLT "Scripts Explorer"
 	local	root = substituteString tmpRroot "\\" "/"
 
 	local favAr = #()
+	local favAr2 = #()
 
 	local menuRC
 	
@@ -464,25 +466,27 @@ rollout scriptExplorerRLT "Scripts Explorer"
 		refreshUI()
 		
 		-- chargement des scripts favoris
-		if (hasINISetting armadasScriptsIni "mxsLaunchRLT" "favScriptAr") == true then
-		(
-			favArStr = getINISetting  armadasScriptsIni "mxsLaunchRLT" "favScriptAr"
-			favArTmp = execute favArStr
-			
-			-- test if file exist
-			for onePath in favArTmp do
-			(
-				if doesFileExist onePath do
-				(
-					appendifunique favAr onePath
-				)
-			)
-		)
-		else
-		(
-			favAr = #()
-		)
-		format "favorites array: %\n" favAr
+-- 		if (hasINISetting armadasScriptsIni "mxsLaunchRLT" "favScriptAr") == true then
+-- 		(
+-- 			favArStr = getINISetting  armadasScriptsIni "mxsLaunchRLT" "favScriptAr"
+-- 			favArTmp = execute favArStr
+-- 			
+-- 			-- test if file exist
+-- 			for onePath in favArTmp do
+-- 			(
+-- 				if doesFileExist onePath do
+-- 				(
+-- 					appendifunique favAr onePath
+-- 				)
+-- 			)
+-- 		)
+-- 		else
+-- 		(
+-- 			favAr = #()
+-- 		)
+-- 		format "favorites array: %\n" favAr
+		
+		-- chargement des scripts de favoris 2
 	)
 	
 	on onlyMs changed val do
@@ -560,23 +564,58 @@ rollout scriptExplorerRLT "Scripts Explorer"
 		format "favorites array: %\n" favAr
 		
 		-- ajout d'un script aux favoris
-
-		
 		if classof toDisplay[scriptsListLB.selection] != folderClass then
 		(
 			appendifunique  favAr toDisplay[scriptsListLB.selection].path 
--- 			favAr = makeuniquearray favAr
+
 			format "favorites script: %\n" favAr
--- 			setINISetting armadasScriptsIni "armadasScriptsFavorite" "armadasScriptsArray" (with printAllElements on favAr as string)
 			setINISetting armadasScriptsIni "mxsLaunchRLT" "favScriptAr" (with printAllElements on favAr as string)
+			
 		)
 		else
 		(
 			format "un dossier ne peut pas être ajouter aux favoris"
-		)
+		)	
 		
-		-- refresh de la fenetres de favoris (TODO)
--- 		format "mxsLaunchRLT.open: %\n" mxsLaunchRLT.open
+		
+		-- chargement des scripts favoris 2
+		if (hasINISetting armadasScriptsIni "mxsLaunchRLT" "favScriptAr2") == true then
+		(
+			favArStr2 = getINISetting  armadasScriptsIni "mxsLaunchRLT" "favScriptAr2"
+			favArTmp2 = execute favArStr2
+			
+			-- test if file exist
+			for onePath in favArTmp2 do
+			(
+				local tmpPath = (getRoot() + onePath)
+				if doesFileExist tmpPath do
+				(
+					appendifunique favAr2 tmpPath
+				)
+			)
+		)
+		else
+		(
+			favAr2 = #()
+		)
+		format "favorites array: %\n" favAr2
+		
+		-- ajout d'un script aux favoris
+		if classof toDisplay[scriptsListLB.selection] != folderClass then
+		(
+			-- ajout du favori
+			appendifunique  favAr2 toDisplay[scriptsListLB.selection].path 
+			
+			-- ecriture de la liste
+			local favAr22  = for script in favAr2 collect (substituteString script (getroot()) "")
+			setINISetting armadasScriptsIni "mxsLaunchRLT" "favScriptAr2" (with printAllElements on favAr22 as string)
+			format "favorites script 2: %\n" favAr22
+		)
+		else
+		(
+			format "un dossier ne peut pas être ajouter aux favoris"
+		)	
+		
 		
 	)
 	

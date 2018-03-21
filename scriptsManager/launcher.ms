@@ -12,8 +12,16 @@
 		
 -- rebuild:
 	/- creer une methode pour loader les favoris du core depuis un fichier externes(ini)
-	-- utiliser les methodes externes pour enregistrer les préferences
-	-- enregistrer et loader  la liste de favoris en chemin relatif et plus en chemin absolu, comme dans le core.ini
+	/- utiliser les methodes externes pour enregistrer les préferences
+	/- enregistrer et loader  la liste de favoris en chemin relatif et plus en chemin absolu, comme dans le core.ini
+		-- modifier methode:
+			x fav to core 
+			x core to fav
+			-- write pref au delete
+			-- write pref a l' ajout de script depuis l'explorer
+			-- write pref au close
+			-- load favorite manuel
+			-- load favorites à l'ouverture
 	
 */
 
@@ -66,13 +74,9 @@ rollout mxsLaunchRLT "maxscript launcher"
 	local posBak
 	
 	local btnLine1 = 450
-	
--- 	local maxIni = getMAXIniFile()
--- 	local armadasScriptsIni = (getFilenamePath maxIni) + "armadasScriptsIni.ini"
+
 	local armadasScriptsIni = (GetDir #maxData) + "armadasScriptsIni.ini"
 	
--- 	local tmpRoot = getINISetting armadasScriptsIni "armadasScripts" "armadasScriptsRoot"
--- 	local root = substituteString tmpRoot "\\" "/"
 	local root = getRoot()
 	
 -- 	local favAr = #()
@@ -81,14 +85,18 @@ rollout mxsLaunchRLT "maxscript launcher"
 	local scriptArray = #()
 	
 	local favScriptAr = #()
+	local favScriptAr2 = #()
+-- 	local favScriptAr2Complete = #()
+	
 	local fileClassArray = #()
 	
 	local fileClassCoreArray = #()
 	local displayAr = #()
 	
-	local rltParams = #("pos", "favScriptAr")
+	local rltParams = #("pos", "favScriptAr", "favScriptAr2")
 		
 	-- functions
+	/*
 	fn loadFavorites =
 	(
 		local favScriptArray = #()
@@ -101,6 +109,7 @@ rollout mxsLaunchRLT "maxscript launcher"
 			format "ini key found\n"
 			favArStr = getINISetting armadasScriptsIni  mxsLaunchRLT.name "favScriptAr"
 			favArTmp = execute favArStr
+			
 -- 			print favArTmp
 			-- test if file exist
 			for onePath in favArTmp do
@@ -117,22 +126,87 @@ rollout mxsLaunchRLT "maxscript launcher"
 				)
 			)
 			
+			-- collect good scripts as favFileClass instance
+			if favScriptAr.count >= 1 then
+			(
+				favScriptArray = for script in favScriptAr collect (favFileClass script)
+			)
+			else 
+			(
+				format "no favorites to load\n"
+			)
+			
 			-- correct file string
--- 			print favAr.count
 			format "favorites scripts loaded: %\n" favScriptAr
+			
+			qsort favScriptArray sortbyname
+			favScriptArray
 		)
 		else
 		(
 			favScriptAr = #()
 			format "favorites array init\n"
 		)
--- 		
--- 		print favAr.count
+	)
+*/
+		
+		
+	fn loadFavorites =
+	(
+		local favScriptArray = #()
+-- 		local favAr = #()
+		local tmpfavScriptAr =#()
+		
+		-- collect filenames
+		for p in favScriptAr do
+		(
+			local cleanPath = substituteString p "\\" "/"
+			format "cleanPath: %\n" cleanPath
+			if doesfileexist cleanPath then
+			(
+					appendifunique tmpfavScriptAr cleanPath
+			)
+		)
+		format "tmpfavScriptAr: %\n" tmpfavScriptAr
 		
 		-- collect good scripts as favFileClass instance
-		if favScriptAr.count >= 1 then
+		if tmpfavScriptAr.count >= 1 then
 		(
 			favScriptArray = for script in favScriptAr collect (favFileClass script)
+		)
+		else 
+		(
+			format "no favorites to load\n"
+		)
+
+		qsort favScriptArray sortbyname
+		favScriptArray
+	)
+	
+	
+	fn loadfavorites2 =
+	(
+		local favScriptArray = #()
+-- 		local favAr = #()
+		local tmpfavScriptAr =#()
+		
+		-- collect filenames
+		for p in favScriptAr2 do
+		(
+			local tmpPath = (getRoot() + p)
+			local cleanPath = substituteString tmpPath "\\" "/"
+			format "cleanPath: %\n" cleanPath
+			
+			if doesfileexist cleanPath then
+			(
+					appendifunique tmpfavScriptAr cleanPath
+			)
+		)
+		
+		-- collect structure
+		if tmpfavScriptAr.count >= 1 then
+		(
+			favScriptArray = for script in tmpfavScriptAr collect (favFileClass script)
 		)
 		else 
 		(
@@ -141,54 +215,8 @@ rollout mxsLaunchRLT "maxscript launcher"
 		
 		qsort favScriptArray sortbyname
 		favScriptArray
-		
 	)
 	
-	fn loadfavorites2 =
-	(
-		
-	)
-	
-	/*
-	fn writePosition cat =
-	(
-		posBak = GetDialogPos mxsLaunchRLT
-		res = setINISetting armadasScriptsIni cat "pos" (posBak as string)
-		res
-		format  "ScriptLauncher position saved: %\n" res
-	)
-	*/
-	/*
-	fn writeFavorite =
-	(
--- 		print "bye, favorites writting soon!"
--- 		local scriptsPathesAr  = for script in fileClassArray collect script.path
--- 		favScriptAr  = for script in fileClassArray collect script.path
--- 		print scriptsPathesAr
-		-- for each fav instance collect path
-		-- write pathes in array
--- 		local favData = with printAllElements on scriptsPathesAr as string
-		local favData = with printAllElements on favScriptAr as string
-			
--- 		res1 = setINISetting armadasScriptsIni "armadasScriptsFavorite" "armadasScriptsArray" favData
-		res1 = setINISetting armadasScriptsIni "armadasScriptsFavorite" "favScriptAr" favData
--- 		resPos = writePosition "armadasScriptsFavorite"
-		format "favorites scripts saved: % List: %\n" res1 favData
--- 		format  "ScriptLauncher favorites saved: %\n" res1
-	)
-*/
-	/*
-	fn loadPosition cat =
-	(
-		posBak = [800,250]
-		if (hasINISetting armadasScriptsIni cat "pos") then
-		(
-			posBakStr = getINISetting armadasScriptsIni  cat "pos"
-			posBak = execute posBakStr
-		)
-		posBak
-	)
-*/
 	
 	fn loadCore2 = 
 	(
@@ -228,7 +256,7 @@ rollout mxsLaunchRLT "maxscript launcher"
 	
 	fn writeFavToCore =
 	(
-		iniCoreFileName = root + "/scriptsManager/scriptListCore.ini"
+		iniCoreFileName = (getRoot()) + "/scriptsManager/scriptListCore.ini"
 		
 		if doesfileexist iniCoreFileName then
 		(
@@ -247,10 +275,7 @@ rollout mxsLaunchRLT "maxscript launcher"
 		)
 		else 	(format "ini file doesn't exist: %\n" iniCoreFileName)
 	)
-	
-
-
-	
+		
 -- 	UI
 	group "favorites:"
 	(
@@ -289,10 +314,12 @@ rollout mxsLaunchRLT "maxscript launcher"
 	(
 		fileClassArray = loadCore2()
 		favScriptAr  = for script in fileClassArray collect script.path
+		favScriptAr2  = for script in fileClassArray collect script.path
 -- 		writeFavorite()
 		writeRolloutParams mxsLaunchRLT rltParams
 		
-		fileClassArray = loadFavorites()
+		loadRolloutParams mxsLaunchRLT rltParams
+		fileClassArray = loadFavorites2()
 		displayAr = fileClassArray
 		refreshList()
 	)
@@ -302,26 +329,28 @@ rollout mxsLaunchRLT "maxscript launcher"
 	on mxsLaunchRLT open do
 	(
 		loadRolloutParams mxsLaunchRLT rltParams
+
 		format "favScriptAr: %\n" favScriptAr 
+		format "favScriptAr2: %\n" favScriptAr2
 		
-		fileClassArray = loadFavorites()
+		fileClassArray = loadFavorites2()
+		
 		displayAr = fileClassArray
 		refreshList()
-		
-
--- 		posBak = loadPosition "armadasScriptsFavorite"
--- 		SetDialogPos mxsLaunchRLT posBak
 	)
 		
 	on mxsLaunchRLT close do
 	(
+		favScriptAr2  = for script in fileClassArray collect (substituteString script.path (getroot()) "")
 		writeRolloutParams mxsLaunchRLT rltParams
 -- 		writeFavorite()
 	)
 	
 	on loadFavoritesBT pressed do
 	(
-		fileClassArray = loadFavorites()
+		loadRolloutParams mxsLaunchRLT rltParams
+		
+		fileClassArray = loadFavorites2()
 		displayAr = fileClassArray
 		refreshList()
 	)
@@ -334,8 +363,6 @@ rollout mxsLaunchRLT "maxscript launcher"
 	(
 -- 		loadCore2 ()
 		fileClassCoreArray = loadCore2()
--- 		format "fileClassArray:%\n" fileClassCoreArray
--- 		fileClassArray = loadCore()
 		displayAr = fileClassCoreArray
 -- 		format "displayAr:%\n" displayAr
 		refreshList()
@@ -372,13 +399,15 @@ rollout mxsLaunchRLT "maxscript launcher"
 -- 		format "fileClassArrayCount: % \n"  fileClassArray.count
 -- 		format "count1: % count2:%\n" test.count fileClassArray.count
 		favScriptAr  = for script in fileClassArray collect script.path
+		favScriptAr2  = for script in fileClassArray collect (substituteString script.path (getroot()) "")
 		-- write array list in ini
 		writeRolloutParams mxsLaunchRLT rltParams
--- 		writeFavorite()
-		
+
 		-- reload list
-		
-		fileClassArray = loadFavorites()
+		loadRolloutParams mxsLaunchRLT rltParams
+			
+		fileClassArray = loadFavorites2()
+			
 		displayAr = fileClassArray
 		refreshList()
 	)

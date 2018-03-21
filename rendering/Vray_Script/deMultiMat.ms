@@ -40,6 +40,12 @@ fn convertMultiMat =
 )
 -- convertMultiMat()
 
+fn createMultiMat =
+(
+	meditmaterials[activeMeditSlot] = (multimaterial ())
+)
+
+
 fn tagMtlName tag=
 (
 	for m in scenematerials do
@@ -638,6 +644,7 @@ rollout deMultiMatRLT "Materials utilities"
 		button createVrMtlBT "create vray material"
 		button convertToVrBT "convert to vray mat"
 		button okConvertBT "confirm"
+		button createMultiBT "create multi-mat"
 -- 		button showBT "show properties"
 
 -- 		button collectVrMtlBT "collect material"
@@ -813,6 +820,11 @@ rollout deMultiMatRLT "Materials utilities"
 	on okConvertBT pressed do
 	(
 		replaceinstances meditMaterials[activeMeditSlot]  meditMaterials[1]
+	)
+	
+	on createMultiBT pressed do
+	(
+		createMultiMat()
 	)
 	
 	on showBT pressed do showproperties meditMaterials[activeMeditSlot]
