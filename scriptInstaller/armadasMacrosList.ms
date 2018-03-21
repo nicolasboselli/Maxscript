@@ -1,6 +1,9 @@
+oneCat = "ArmadasScripts"
+
+
 -- install macroscript for explorer with relative path from ini file
 macroScript ArmadasScriptExplorer
-	category:"ArmadasScripts"
+	category: oneCat
 	buttonText: "MSXexplorer"
 	toolTip:""
 	icon: #("armadasScriptsExplorer",1)
@@ -11,7 +14,7 @@ macroScript ArmadasScriptExplorer
 
 -- install macroscript for launcher with relative path from ini file
 macroScript ArmadasScriptLauncher
-	category:"ArmadasScripts"
+	category: oneCat
 	buttonText: "MSXlauncher"
 	toolTip:""
 	icon: #("armadasScriptsFavorites",1)
@@ -22,7 +25,7 @@ macroScript ArmadasScriptLauncher
 
 -- install macroscript for asset opener with relative path from ini file
 macroScript ArmadasScriptAssetOpener
-	category:"ArmadasScripts"
+	category: oneCat
 	buttonText: "assetOpener"
 	toolTip:""
 	icon: #("armadasScriptsAssetOpener",1)
@@ -32,7 +35,7 @@ macroScript ArmadasScriptAssetOpener
 )
 
 macroScript ArmadasScriptModelingUtilities
-	category:"ArmadasScripts"
+	category: oneCat
 	buttonText: "modelingUtilities"
 	toolTip:""
 	icon: #("ArmadasScriptModelingUtilities",1)
@@ -43,7 +46,7 @@ macroScript ArmadasScriptModelingUtilities
 -- "C:/repo_github/DEV_maxscript/00_wip/zz_mode_archi/misc.ms"
 
 macroScript ArmadasScriptMaterialsUtilities
-	category:"ArmadasScripts"
+	category: oneCat
 	buttonText: "materialsUtilities"
 	toolTip:""
 	icon: #("ArmadasScriptMaterialsUtilities",1)
@@ -54,7 +57,7 @@ macroScript ArmadasScriptMaterialsUtilities
 -- "C:/repo_github/DEV_maxscript/00_wip/rendering/Vray_Script/deMultiMat.ms"
 
 macroScript ArmadasScriptLastParent
-	category:"ArmadasScripts"
+	category: oneCat
 	buttonText: "lastParent"
 	toolTip:""
 -- 	icon: #("ArmadasScriptMaterialsUtilities",1)
@@ -67,7 +70,7 @@ macroScript ArmadasScriptLastParent
 )
 
 macroScript ArmadasScriptCustomIsolate
-	category:"ArmadasScripts"
+	category: oneCat
 	buttonText: "customIsolate"
 	toolTip:"isolate selection without focus on"
 -- 	icon: #("ArmadasScriptMaterialsUtilities",1)
