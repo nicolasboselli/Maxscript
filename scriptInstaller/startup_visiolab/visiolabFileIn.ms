@@ -30,13 +30,15 @@ maj:
 		-- propose de faire la bascule entre wip/debup/published
 		--permet d'accorder des autorisations
 		
-	-- créer un script de reload (comment une reinstallation)
+	x- créer un script de reload (comment une reinstallation)
 	-- sur le mode du reload proposé un switch entre wip/debug / publish
 		-- est ce que la separation wip/debug/publish est necessaire? est ce que deux list de macros distintes (armadascript(wip) et visiolab(publish)) n'est pas plus pertinente (pas besoin de switch)?
 	
 	-- créer un menu visiolab automatiquement avec menuMan.getMainMenuBar
+	
+	-- tester les icone avant de les copier
+		-- trouver comment forcer la copie
 */
-
 -- ########## PRELOAD DES FONCTIONS
 fn getRoot =
 (
@@ -59,10 +61,10 @@ filein ((getRoot ()) + "sceneManagement/isolateSlectionCustom.ms")
 -- copy les icones des macros dans le dossier user
 fn copyBmpIcons =
 (
-	local iconsArray = getfiles ((getRoot()) + "icons\*.bmp")
+	local iconsArray = getfiles ((getRoot()) + "icons_visiolab\*.bmp")
 	
 	-- determine les dossiers de destination
-	iconsRoot = (getdir #maxdata) + "\UI\Icons"
+	iconsRoot = (getdir #maxdata) + "\UI\Icons_visiolab"
 	if not doesfileexist iconsRoot  then makedir iconsRoot all: true
 	
 	iconsRoot2 = (getdir #maxdata) + "usericons"

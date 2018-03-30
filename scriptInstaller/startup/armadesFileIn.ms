@@ -23,11 +23,18 @@ maj:
 		-- updater le pluginpath.ini
 
 	-- mettre en place un systeme de versionning des script et ouvrir la dernière version valide
+	
 	-- créer une table pour lister les versions de script à loader dans les macroscript
 		-- permet de porposer une table wip/debug/published
 		-- s'appuie sur le versionnement dans des dossiers
 		-- propose de faire la bascule entre wip/debup/published
 		--permet d'accorder des autorisations
+		
+	x- créer un script de reload (comment une reinstallation)
+	-- sur le mode du reload proposé un switch entre wip/debug / publish
+		-- est ce que la separation wip/debug/publish est necessaire? est ce que deux list de macros distintes (armadascript(wip) et visiolab(publish)) n'est pas plus pertinente (pas besoin de switch)?
+	
+	-- créer un menu visiolab automatiquement avec menuMan.getMainMenuBar
 */
 
 -- ########## PRELOAD DES FONCTIONS
@@ -37,6 +44,26 @@ fn getRoot =
 	local root = getINISetting armadasScriptsIni "armadasScripts" "armadasScriptsRoot"
 )
 
+
+fn getScriptVersion oneScript =
+(
+	-- retourner le dossier au dessus du script
+	local folderTmp = (getFilenamePath oneScript)
+	-- 
+	local splitFolder = filterString folderTmp "\\"
+		
+	try
+	(
+		splitFolder[splitFolder.count]	as integer
+	)
+	catch
+	(
+		undefined
+	)
+)
+/*
+getScriptVersion (getThisScriptFilename())
+*/
 
 -- load function pour parenter comme dans maya
 filein ((getRoot ()) + "Rig/lastParent_def.ms")

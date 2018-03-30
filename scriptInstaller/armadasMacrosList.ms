@@ -1,9 +1,9 @@
-oneCat = "ArmadasScripts"
+-- oneCat = "ArmadasScripts"
 
 
 -- install macroscript for explorer with relative path from ini file
 macroScript ArmadasScriptExplorer
-	category: oneCat
+	category: "ArmadasScripts"
 	buttonText: "MSXexplorer"
 	toolTip:""
 	icon: #("armadasScriptsExplorer",1)
@@ -14,7 +14,7 @@ macroScript ArmadasScriptExplorer
 
 -- install macroscript for launcher with relative path from ini file
 macroScript ArmadasScriptLauncher
-	category: oneCat
+	category: "ArmadasScripts"
 	buttonText: "MSXlauncher"
 	toolTip:""
 	icon: #("armadasScriptsFavorites",1)
@@ -25,7 +25,7 @@ macroScript ArmadasScriptLauncher
 
 -- install macroscript for asset opener with relative path from ini file
 macroScript ArmadasScriptAssetOpener
-	category: oneCat
+	category: "ArmadasScripts"
 	buttonText: "assetOpener"
 	toolTip:""
 	icon: #("armadasScriptsAssetOpener",1)
@@ -35,7 +35,7 @@ macroScript ArmadasScriptAssetOpener
 )
 
 macroScript ArmadasScriptModelingUtilities
-	category: oneCat
+	category: "ArmadasScripts"
 	buttonText: "modelingUtilities"
 	toolTip:""
 	icon: #("ArmadasScriptModelingUtilities",1)
@@ -46,18 +46,18 @@ macroScript ArmadasScriptModelingUtilities
 -- "C:/repo_github/DEV_maxscript/00_wip/zz_mode_archi/misc.ms"
 
 macroScript ArmadasScriptMaterialsUtilities
-	category: oneCat
+	category: "ArmadasScripts"
 	buttonText: "materialsUtilities"
 	toolTip:""
 	icon: #("ArmadasScriptMaterialsUtilities",1)
 (
-	local root = getroot()
-	filein (root +"\\" + "rendering" + "\\" + "Vray_Script" + "\\" + "deMultiMat.ms" )
+-- 	local root = getroot()
+	filein ((getroot()) +"/rendering/Vray_Script/deMultiMat.ms" )
 )
 -- "C:/repo_github/DEV_maxscript/00_wip/rendering/Vray_Script/deMultiMat.ms"
 
 macroScript ArmadasScriptLastParent
-	category: oneCat
+	category: "ArmadasScripts"
 	buttonText: "lastParent"
 	toolTip:""
 -- 	icon: #("ArmadasScriptMaterialsUtilities",1)
@@ -70,7 +70,7 @@ macroScript ArmadasScriptLastParent
 )
 
 macroScript ArmadasScriptCustomIsolate
-	category: oneCat
+	category: "ArmadasScripts"
 	buttonText: "customIsolate"
 	toolTip:"isolate selection without focus on"
 -- 	icon: #("ArmadasScriptMaterialsUtilities",1)
@@ -114,5 +114,16 @@ macroScript ArmadasScriptCustomIsolate
 	)
 	
 	on ischecked return isIsolate
+)
+
+macroScript ArmadasReload
+	category: "ArmadasScripts"
+	buttonText: "Reload"
+	toolTip:"Reload Armadas Script"
+-- 	icon: #("pickandmergeicon16",1)
+(
+-- 	local root = getroot()
+-- 	filein (@"N:\Ressources_Nico\github\00_wip\Maxscript\objReplacer\pickandmerge.ms")
+	filein ((getroot()) +  "scriptInstaller/armadasScriptInstall.ms")
 )
 

@@ -36,7 +36,7 @@ fn writeRolloutParams rlt params =
 		(
 			
 			p = getProperty  rlt n
-			
+			format "n: %, p: %, classof p: %\n" n p (classof p)
 			
 			-- collect rollout control
 			if superclassof p == RolloutControl then

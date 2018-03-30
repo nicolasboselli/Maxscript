@@ -41,17 +41,17 @@ fn getRoot =
 -- ajout de la lecture du dossier startup au démarrage de max (avant macroscript):
 fn initArmadasStartupDir =
 (
-	local startupDir = (getRoot() + "scriptInstaller/startup")
+	local startupDir = (getRoot() + "scriptInstaller/startup_Visiolab")
 
 	-- ajout du dossier startup 
 	local ini_file = if (maxversion())[1] < 12000 then "plugin.ini" else "plugin.userSettings.ini"
-	setINISetting (getdir #maxdata + ini_file) #directories "Armadas Scripts Startup" startupDir
+	setINISetting (getdir #maxdata + ini_file) #directories "Visolab Scripts Startup" startupDir
 )
 initArmadasStartupDir()
 	
 
 -- load du fichier filein
-filein ((getRoot ()) + "scriptInstaller/startup/visiolabFileIn.ms")
+filein ((getRoot ()) + "scriptInstaller/startup_visiolab/visiolabFileIn.ms")
 
 
 
