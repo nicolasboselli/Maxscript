@@ -37,6 +37,7 @@ maj:
 	-- créer un menu visiolab automatiquement avec menuMan.getMainMenuBar
 */
 
+/*
 -- ########## PRELOAD DES FONCTIONS
 fn getRoot =
 (
@@ -61,9 +62,12 @@ fn getScriptVersion oneScript =
 		undefined
 	)
 )
-/*
-getScriptVersion (getThisScriptFilename())
-*/
+
+-- getScriptVersion (getThisScriptFilename())
+
+
+-- load le callback pour tagger si les fichiers ont du railclone à l interieur
+filein  ((getRoot ()) + "sceneManagement/tag_fileProperties.ms")
 
 -- load function pour parenter comme dans maya
 filein ((getRoot ()) + "Rig/lastParent_def.ms")
@@ -113,7 +117,17 @@ if doesfileexist useMacrosPath then
 	armadasMacroAr = getfiles ((getdir #maxdata) + "\usermacros\ArmadasScripts*")
 )
 for macro in armadasMacroAr do format "%\n" macro
+	*/
+
+fn getRoot =
+(
+	local armadasScriptsIni = (GetDir #maxData) + "armadasScriptsIni.ini"
+	local root = getINISetting armadasScriptsIni "armadasScripts" "armadasScriptsRoot"
+)
 	
+-- pre Load
+filein ((getRoot ()) + "scriptInstaller/armadasScriptsPreLoad.ms")
+
 -- load du fichier de macros
 filein ((getRoot ()) + "scriptInstaller/armadasMacrosList.ms")
 

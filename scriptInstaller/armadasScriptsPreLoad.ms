@@ -35,12 +35,8 @@ maj:
 		-- est ce que la separation wip/debug/publish est necessaire? est ce que deux list de macros distintes (armadascript(wip) et visiolab(publish)) n'est pas plus pertinente (pas besoin de switch)?
 	
 	-- créer un menu visiolab automatiquement avec menuMan.getMainMenuBar
-	
-	-- tester les icone avant de les copier
-		-- trouver comment forcer la copie
 */
 
-/*
 -- ########## PRELOAD DES FONCTIONS
 fn getRoot =
 (
@@ -48,6 +44,29 @@ fn getRoot =
 	local root = getINISetting armadasScriptsIni "armadasScripts" "armadasScriptsRoot"
 )
 
+
+fn getScriptVersion oneScript =
+(
+	-- retourner le dossier au dessus du script
+	local folderTmp = (getFilenamePath oneScript)
+	-- 
+	local splitFolder = filterString folderTmp "\\"
+		
+	try
+	(
+		splitFolder[splitFolder.count]	as integer
+	)
+	catch
+	(
+		undefined
+	)
+)
+/*
+getScriptVersion (getThisScriptFilename())
+*/
+
+-- load le callback pour tagger si les fichiers ont du railclone à l interieur
+filein  ((getRoot ()) + "sceneManagement/tag_fileProperties.ms")
 
 -- load function pour parenter comme dans maya
 filein ((getRoot ()) + "Rig/lastParent_def.ms")
@@ -63,10 +82,10 @@ filein ((getRoot ()) + "sceneManagement/isolateSlectionCustom.ms")
 -- copy les icones des macros dans le dossier user
 fn copyBmpIcons =
 (
-	local iconsArray = getfiles ((getRoot()) + "icons_visiolab\*.bmp")
+	local iconsArray = getfiles ((getRoot()) + "icons\*.bmp")
 	
 	-- determine les dossiers de destination
-	iconsRoot = (getdir #maxdata) + "\UI\Icons_visiolab"
+	iconsRoot = (getdir #maxdata) + "\UI\Icons"
 	if not doesfileexist iconsRoot  then makedir iconsRoot all: true
 	
 	iconsRoot2 = (getdir #maxdata) + "usericons"
@@ -96,19 +115,10 @@ if doesfileexist useMacrosPath then
 (
 	armadasMacroAr = getfiles ((getdir #maxdata) + "\usermacros\ArmadasScripts*")
 )
-for macro in armadasMacroAr do format "armadasScriptToDel: %\n" macro
-*/
-fn getRoot =
-(
-	local armadasScriptsIni = (GetDir #maxData) + "armadasScriptsIni.ini"
-	local root = getINISetting armadasScriptsIni "armadasScripts" "armadasScriptsRoot"
-)
-
--- pre Load
-filein ((getRoot ()) + "scriptInstaller/armadasScriptsPreLoad.ms")
-
+for macro in armadasMacroAr do format "%\n" macro
+	
 -- load du fichier de macros
-filein ((getRoot ()) + "scriptInstaller/visiolabMacrosList.ms")
+-- filein ((getRoot ()) + "scriptInstaller/armadasMacrosList.ms")
 
 
 

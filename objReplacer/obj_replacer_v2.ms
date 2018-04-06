@@ -13,6 +13,7 @@ filein "objReplacerDef2.ms"
 try(destroydialog objReplacerRLT)catch()
 rollout objReplacerRLT "objects replacer v.2"
 (
+	local params = #("rescaleXCB", "rescaleYCB", "rescaleZCB")
 	--vars
 	local modFFD
 	local refObj = undefined
@@ -34,6 +35,17 @@ rollout objReplacerRLT "objects replacer v.2"
 	
 	button replaceV2BT "replace!"
 -- 	button replaceV3BT "replace! v3" enabled: false
+	
+	
+	on objReplacerRLT open do
+	(
+		loadRolloutParams objReplacerRLT Params
+	)
+	
+	on objReplacerRLT close do
+	(
+		writeRolloutParams objReplacerRLT Params
+	)
 	
 	-- connections
 	on addRefBT pressed do

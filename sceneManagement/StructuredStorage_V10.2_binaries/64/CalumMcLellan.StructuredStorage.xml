@@ -1,0 +1,741 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        "StructuredStorage"
+    </assembly>
+    <members>
+        <member name="T:CalumMcLellan.StructuredStorage.PropertyType">
+            <summary>
+Supported property types
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.PropertyType.Guid">
+            <summary>
+The property value is a Guid
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.PropertyType.Boolean">
+            <summary>
+The property value is a Boolean
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.PropertyType.DateTime">
+            <summary>
+The property value is a DateTime
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.PropertyType.Double">
+            <summary>
+The property value is a double
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.PropertyType.String">
+            <summary>
+The property value is a string
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.PropertyType.Unsupported">
+            <summary>
+The property type is not currently supported
+</summary>
+        </member>
+        <member name="T:CalumMcLellan.StructuredStorage.NameResolverDelegate">
+            <summary>
+Delegate class for resolving property names relative to the current culture.
+</summary>
+            <param name="propertyInfo">The property to be resolved</param>
+            <remarks>The NameResolver delegate is used to resolve culture specific names in the standard property sets.
+If the Name and PropertySetId fields are set when the delegate is called then the delegate method 
+should fill in the PropertyInfo's Id field. If the Id and PropertySetId fields are set then the Name
+field should be filled. If the delegate is not set then all standard property sets will use english
+names.</remarks>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.PropertyInfo.PropertySetId">
+            <summary>
+The FMTID of the containing property set
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.PropertyInfo.Name">
+            <summary>
+The property name
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.PropertyInfo.Id">
+            <summary>
+The property ID
+</summary>
+        </member>
+        <member name="T:CalumMcLellan.StructuredStorage.PropertyInfo">
+            <summary>
+Simple struct representing a property for use with the NameResolver delegate
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.PropertySetIds.UnknownSolidEdgePropertySet">
+            <summary>
+An unknown Solid Edge property set FMTID
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.PropertySetIds.ProjectInformation">
+            <summary>
+ProjectInformation property set FMTID
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.PropertySetIds.MechanicalModeling">
+            <summary>
+MechanicalModeling property set FMTID
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.PropertySetIds.ExtendedSummaryInformation">
+            <summary>
+ExtendedSummaryInformation property set FMTID
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.PropertySetIds.UserDefinedProperties">
+            <summary>
+Custom property set FMTID
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.PropertySetIds.DocumentSummaryInformation">
+            <summary>
+DocumentSummaryInformation property set FMTID
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.PropertySetIds.SummaryInformation">
+            <summary>
+SummaryInformation property set FMTID
+</summary>
+        </member>
+        <member name="T:CalumMcLellan.StructuredStorage.PropertySetIds">
+            <summary>
+Static class for standard property set IDs
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.ProjectInfoIds.ProjectName">
+            <summary>
+The project name
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.ProjectInfoIds.Revision">
+            <summary>
+The document revision
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.ProjectInfoIds.DocumentNumber">
+            <summary>
+The document number
+</summary>
+        </member>
+        <member name="T:CalumMcLellan.StructuredStorage.ProjectInfoIds">
+            <summary>
+ProjectInformation Property IDs
+</summary>
+            <remarks />
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.MechanicalModelingIds.Material">
+            <summary>
+Material
+</summary>
+        </member>
+        <member name="T:CalumMcLellan.StructuredStorage.MechanicalModelingIds">
+            <summary>
+MechanicalModeling Property IDs
+</summary>
+            <remarks />
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.ExtendedSummaryInfoIds.Hardware">
+            <summary>
+Hardware (Standard Part)
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.ExtendedSummaryInfoIds.CreationLocale">
+            <summary>
+The creation locale
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.ExtendedSummaryInfoIds.Username">
+            <summary>
+The carrunt status user
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.ExtendedSummaryInfoIds.Status">
+            <summary>
+The document status
+</summary>
+            <seealso cref="T:CalumMcLellan.StructuredStorage.DocumentStatus" />
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.ExtendedSummaryInfoIds.DocumentID">
+            <summary>
+The document GUID 
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.ExtendedSummaryInfoIds.NameOfSavingApplication">
+            <summary>
+Name of saving application
+</summary>
+        </member>
+        <member name="T:CalumMcLellan.StructuredStorage.ExtendedSummaryInfoIds">
+            <summary>
+ExtendedSummaryInformation Property IDs
+</summary>
+            <remarks />
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.DocumentSummaryInfoIds.LinksDirty">
+            <summary>
+LinksUpToDate
+</summary>
+            <remarks>Not maSystem::UInt32ained by Solid Edge (up to and including ST2)</remarks>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.DocumentSummaryInfoIds.Company">
+            <summary>
+Company
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.DocumentSummaryInfoIds.Manager">
+            <summary>
+Manager
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.DocumentSummaryInfoIds.DocParts">
+            <summary>
+TitlesofParts
+</summary>
+            <remarks>Not maSystem::UInt32ained by Solid Edge (up to and including ST2)</remarks>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.DocumentSummaryInfoIds.HeadingPair">
+            <summary>
+HeadingPairs
+</summary>
+            <remarks>Not maSystem::UInt32ained by Solid Edge (up to and including ST2)</remarks>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.DocumentSummaryInfoIds.Scale">
+            <summary>
+ScaleCrop
+</summary>
+            <remarks>Not maSystem::UInt32ained by Solid Edge (up to and including ST2)</remarks>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.DocumentSummaryInfoIds.MMClipCount">
+            <summary>
+MMClips
+</summary>
+            <remarks>Not maSystem::UInt32ained by Solid Edge (up to and including ST2)</remarks>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.DocumentSummaryInfoIds.HiddenCount">
+            <summary>
+HiddenSlides
+</summary>
+            <remarks>Not maSystem::UInt32ained by Solid Edge (up to and including ST2)</remarks>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.DocumentSummaryInfoIds.NoteCount">
+            <summary>
+Notes
+</summary>
+            <remarks>Not maSystem::UInt32ained by Solid Edge (up to and including ST2)</remarks>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.DocumentSummaryInfoIds.SlideCount">
+            <summary>
+Slides
+</summary>
+            <remarks>Not maSystem::UInt32ained by Solid Edge (up to and including ST2)</remarks>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.DocumentSummaryInfoIds.ParCount">
+            <summary>
+Paragraphs
+</summary>
+            <remarks>Not maSystem::UInt32ained by Solid Edge (up to and including ST2)</remarks>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.DocumentSummaryInfoIds.LineCount">
+            <summary>
+Lines
+</summary>
+            <remarks>Not maSystem::UInt32ained by Solid Edge (up to and including ST2)</remarks>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.DocumentSummaryInfoIds.ByteCount">
+            <summary>
+Bytes
+</summary>
+            <remarks>Not maSystem::UInt32ained by Solid Edge (up to and including ST2)</remarks>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.DocumentSummaryInfoIds.PresFormat">
+            <summary>
+PresentationTarget
+</summary>
+            <remarks>Not maSystem::UInt32ained by Solid Edge (up to and including ST2)</remarks>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.DocumentSummaryInfoIds.Category">
+            <summary>
+Category
+</summary>
+        </member>
+        <member name="T:CalumMcLellan.StructuredStorage.DocumentSummaryInfoIds">
+            <summary>
+DocumentSummaryInformation Property IDs
+</summary>
+            <remarks />
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.SummaryInfoIds.Security">
+            <summary>
+Security
+</summary>
+            <remarks>Not maSystem::UInt32ained by Solid Edge (up to and including ST2)</remarks>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.SummaryInfoIds.AppName">
+            <summary>
+Name of Creating Application
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.SummaryInfoIds.Thumbnail">
+            <summary>
+Thumbnail
+</summary>
+            <remarks>Not maSystem::UInt32ained by Solid Edge (up to and including ST2)</remarks>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.SummaryInfoIds.CharCount">
+            <summary>
+Number of Characters
+</summary>
+            <remarks>Not maSystem::UInt32ained by Solid Edge (up to and including ST2)</remarks>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.SummaryInfoIds.WordCount">
+            <summary>
+Number of Words
+</summary>
+            <remarks>Not maSystem::UInt32ained by Solid Edge (up to and including ST2)</remarks>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.SummaryInfoIds.PageCount">
+            <summary>
+Number of Pages
+</summary>
+            <remarks>Not maSystem::UInt32ained by Solid Edge (up to and including ST2)</remarks>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.SummaryInfoIds.LastSaved">
+            <summary>
+Last saved Time/Date
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.SummaryInfoIds.Created">
+            <summary>
+Create Time/Date
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.SummaryInfoIds.LastPrinted">
+            <summary>
+Last PrSystem::UInt32ed
+</summary>
+            <remarks>Not maSystem::UInt32ained by Solid Edge (up to and including ST2)</remarks>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.SummaryInfoIds.EditTime">
+            <summary>
+Total Editing Time
+</summary>
+            <remarks>Not maSystem::UInt32ained by Solid Edge (up to and including ST2)</remarks>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.SummaryInfoIds.RevNumber">
+            <summary>
+Revision Number
+</summary>
+            <remarks>Not maSystem::UInt32ained by Solid Edge (up to and including ST2)</remarks>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.SummaryInfoIds.LastAuthor">
+            <summary>
+Last Saved By
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.SummaryInfoIds.Template">
+            <summary>
+Template
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.SummaryInfoIds.Comments">
+            <summary>
+Comments
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.SummaryInfoIds.Keywords">
+            <summary>
+Keywords
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.SummaryInfoIds.Author">
+            <summary>
+Author
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.SummaryInfoIds.Subject">
+            <summary>
+Subject
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.SummaryInfoIds.Title">
+            <summary>
+Title
+</summary>
+        </member>
+        <member name="T:CalumMcLellan.StructuredStorage.SummaryInfoIds">
+            <summary>
+SummaryInformation Property IDs
+</summary>
+        </member>
+        <member name="T:CalumMcLellan.StructuredStorage.DocumentStatus">
+            <summary>
+Solid Edge document status
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.DocumentStatus.Obsolete">
+            <summary>
+The document is obsolete
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.DocumentStatus.Baselined">
+            <summary>
+The document cannot be changed
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.DocumentStatus.Released">
+            <summary>
+The document is released
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.DocumentStatus.InReview">
+            <summary>
+The document is in the review stage before being released
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.DocumentStatus.InWork">
+            <summary>
+The document is in the process of being edited
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.DocumentStatus.Available">
+            <summary>
+The document is available for editing
+</summary>
+        </member>
+        <member name="F:CalumMcLellan.StructuredStorage.DocumentStatus.Unknown">
+            <summary>
+The status is unknown
+</summary>
+        </member>
+        <member name="M:CalumMcLellan.StructuredStorage.PropertySets.GetEnumerator">
+            <summary>
+Exposes the enumerator, which supports a simple iteration over a collection of a specified type.
+</summary>
+            <returns>An System.Collections.IEnumerator&lt;T&gt; object that can be used to iterate through the collection.</returns>
+        </member>
+        <member name="M:CalumMcLellan.StructuredStorage.PropertySets.Refresh">
+            <summary>
+Refreshes the property sets.
+</summary>
+        </member>
+        <member name="M:CalumMcLellan.StructuredStorage.PropertySets.CheckWriteAccess(System.String)">
+            <summary>
+Checks whether a file has write access. Can be used before opening a file to avoid an exception.
+</summary>
+            <param name="path">The path to the file.</param>
+            <returns>True if write access is available, otherwise false.</returns>
+        </member>
+        <member name="M:CalumMcLellan.StructuredStorage.PropertySets.Add(System.Guid,System.Boolean)">
+            <summary>
+Adds a property set to the collection.
+</summary>
+            <param name="formatIdentifier">The FMTID of the new property set.</param>
+            <param name="unicode">Specifies whether the property values should be unicode.</param>
+            <returns>The new property set.</returns>
+            <exception cref="T:System.InvalidOperationException">Thrown if the property sets are open read only.</exception>
+            <exception cref="T:System.ArgumentException">Thrown if this property already exists in the property set.</exception>
+        </member>
+        <member name="M:CalumMcLellan.StructuredStorage.PropertySets.Add(System.Guid)">
+            <summary>
+Adds a non-unicode property set to the collection.
+</summary>
+            <param name="formatIdentifier">The FMTID of the new property set.</param>
+            <returns>The new property set.</returns>
+            <exception cref="T:System.InvalidOperationException">Thrown if the property sets are open read only.</exception>
+            <exception cref="T:System.ArgumentException">Thrown if this property already exists in the property set.</exception>
+        </member>
+        <member name="M:CalumMcLellan.StructuredStorage.PropertySets.GetFamilyMember(System.String)">
+            <summary>
+Gets the property sets for a member of a family of assemblies.
+</summary>
+            <param name="name">The family member name.</param>
+            <returns>The family member property sets.</returns>
+            <exception cref="T:System.Collections.Generic.KeyNotFoundException">Thrown if the family member does not exist.</exception>
+            <exception cref="T:System.InvalidOperationException">Thrown if the property sets are not from a master 
+assembly (IsFamilyMaster = true).</exception>
+        </member>
+        <member name="M:CalumMcLellan.StructuredStorage.PropertySets.Contains(System.Guid)">
+            <summary>
+Gets a value indicating whether a property set exists in the collection.
+</summary>
+            <param name="formatIdentifier">The FMTID of the property set.</param>
+            <returns>True if the property set is present, otherwise false.</returns>
+        </member>
+        <member name="M:CalumMcLellan.StructuredStorage.PropertySets.Contains(System.String)">
+            <summary>
+Gets a value indicating whether a property set exists in the collection.
+</summary>
+            <param name="name">The name of the property set.</param>
+            <returns>True if the property set is present, otherwise false.</returns>
+        </member>
+        <member name="P:CalumMcLellan.StructuredStorage.PropertySets.NameResolver">
+            <summary>
+Gets or sets the name resolver delegate to be used to resolve property names.
+</summary>
+        </member>
+        <member name="P:CalumMcLellan.StructuredStorage.PropertySets.Status">
+            <summary>
+Gets or sets the name resolver delegate to be used to resolve property names.
+</summary>
+        </member>
+        <member name="P:CalumMcLellan.StructuredStorage.PropertySets.Item(System.Guid)">
+            <summary>
+Gets a property set from the collection.
+</summary>
+            <param name="formatIdentifier">The FMTID of the property set.</param>
+            <returns>The property set.</returns>
+            <exception cref="T:System.Collections.Generic.KeyNotFoundException">Thrown if the property set does not exist.</exception>
+        </member>
+        <member name="P:CalumMcLellan.StructuredStorage.PropertySets.Item(System.String)">
+            <summary>
+Gets a property set from the collection.
+</summary>
+            <param name="name">The name of the property set.</param>
+            <returns>The property set.</returns>
+            <exception cref="T:System.Collections.Generic.KeyNotFoundException">Thrown if the property set does not exist.</exception>
+        </member>
+        <member name="P:CalumMcLellan.StructuredStorage.PropertySets.IsReadOnly">
+            <summary>
+Gets a value indicating whether the property sets are open read-only.
+</summary>
+        </member>
+        <member name="P:CalumMcLellan.StructuredStorage.PropertySets.IsFamilyMember">
+            <summary>
+Gets a value indicating whether these property sets are from a member of a family of assemblies.
+</summary>
+        </member>
+        <member name="P:CalumMcLellan.StructuredStorage.PropertySets.IsFamilyMaster">
+            <summary>
+Gets a value indicating whether these property sets are from a master assembly.
+</summary>
+        </member>
+        <member name="P:CalumMcLellan.StructuredStorage.PropertySets.FamilyName">
+            <summary>
+Gets the member name for a Solid Edge family of assemblies file.
+</summary>
+            <exception cref="T:System.InvalidOperationException">Thrown if the property sets are not from a member of
+a FamilyMembers collection (IsFamilyMember = true).</exception>
+        </member>
+        <member name="P:CalumMcLellan.StructuredStorage.PropertySets.FamilyMembers">
+            <summary>
+Gets the property sets for the Solid Edge family of assemblies members.
+</summary>
+            <exception cref="T:System.InvalidOperationException">Thrown if the property sets are not from a member of
+a FamilyMembers collection (IsFamilyMember = true).</exception>
+        </member>
+        <member name="P:CalumMcLellan.StructuredStorage.PropertySets.FamilyMaster">
+            <summary>
+Gets the master property sets for a Solid Edge family of assemblies file.
+</summary>
+            <exception cref="T:System.InvalidOperationException">Thrown if the property sets are not from a master 
+assembly (IsFamilyMaster = true).</exception>
+        </member>
+        <member name="P:CalumMcLellan.StructuredStorage.PropertySets.LastSavedVersion">
+            <summary>
+Gets the last saved version of a Solid Edge file.
+</summary>
+        </member>
+        <member name="P:CalumMcLellan.StructuredStorage.PropertySets.CreatedVersion">
+            <summary>
+Gets the created version of a Solid Edge file.
+</summary>
+        </member>
+        <member name="P:CalumMcLellan.StructuredStorage.PropertySets.Count">
+            <summary>
+Gets the number of property sets
+</summary>
+        </member>
+        <member name="M:CalumMcLellan.StructuredStorage.PropertySets.#ctor(System.String,System.Boolean)">
+            <summary>
+Opens the property sets for a file.
+</summary>
+            <param name="path">The path to the file.</param>
+            <param name="readOnly">Specifies whether the property sets should be opened in read-only mode.</param>
+            <exception cref="T:System.IO.FileNotFoundException">Thrown if the file does not exist.</exception>
+            <exception cref="T:System.UnauthorizedAccessException">Thrown if the file cannot be accessed in the specified mode (read-only, read/write).</exception>
+            <remarks> I did not include an overloaded c'tor as C++/CLI does not support c'tor delegation and I didn't want to start 
+seperating construction logic into a seperate private method to be called from all c'tors.</remarks>
+        </member>
+        <member name="M:CalumMcLellan.StructuredStorage.PropertySets.GetStandardEnumerator">
+            <summary>
+Returns an enumerator that iterates through a collection.
+</summary>
+            <returns>An System.Collections.IEnumerator object that can be used to iterate through the collection.</returns>
+        </member>
+        <member name="M:CalumMcLellan.StructuredStorage.PropertySet.GetEnumerator">
+            <summary>
+Exposes the enumerator, which supports a simple iteration over a collection of a specified type.
+</summary>
+            <returns>An System.Collections.IEnumerator&lt;T&gt; object that can be used to iterate through the collection.</returns>
+        </member>
+        <member name="M:CalumMcLellan.StructuredStorage.PropertySet.GetPropertyName(System.Int32)">
+            <summary>
+Gets the name for a property given the ID and the property set
+</summary>
+            <param name="id">The property ID.</param>
+            <returns>The property name, or String.Empty if the name could not be determined.</returns>
+        </member>
+        <member name="M:CalumMcLellan.StructuredStorage.PropertySet.GetPropertyId(System.String)">
+            <summary>
+Gets the ID for a property given the name and the property set
+</summary>
+            <param name="name">The property name.</param>
+            <returns>The property ID, or -1 if the ID could not be determined.</returns>
+        </member>
+        <member name="M:CalumMcLellan.StructuredStorage.PropertySet.Delete">
+            <summary>
+Deletes this property set
+</summary>
+            <exception cref="T:System.InvalidOperationException">Thrown if the property set are open read only.</exception>
+        </member>
+        <member name="M:CalumMcLellan.StructuredStorage.PropertySet.Refresh">
+            <summary>
+Refreshes the property set if the file is open in read-only mode.
+</summary>
+            <exception cref="T:System.InvalidOperationException">Thrown if the property set are not open read only.</exception>
+        </member>
+        <member name="M:CalumMcLellan.StructuredStorage.PropertySet.Contains(System.Int32)">
+            <summary>
+Gets a value indicating whether a property exists in the collection.
+</summary>
+            <param name="id">The ID of the property.</param>
+            <returns>True if the property is present, otherwise false.</returns>
+        </member>
+        <member name="M:CalumMcLellan.StructuredStorage.PropertySet.Contains(System.String)">
+            <summary>
+Gets a value indicating whether a property exists in the collection.
+</summary>
+            <param name="name">The name of the property.</param>
+            <returns>True if the property is present, otherwise false.</returns>
+        </member>
+        <member name="M:CalumMcLellan.StructuredStorage.PropertySet.Add(System.Int32,System.Object)">
+            <summary>
+Adds a property to the property set
+</summary>
+            <param name="id">The ID of the property to be added.</param>
+            <param name="value">The value of the property to be added.</param>
+            <returns>The new property.</returns>
+            <exception cref="T:System.InvalidOperationException">Thrown if this property set is open in read-only mode.</exception>
+            <exception cref="T:System.ArgumentException">Thrown if this property already exists in the property set.</exception>
+        </member>
+        <member name="M:CalumMcLellan.StructuredStorage.PropertySet.Add(System.String,System.Object)">
+            <summary>
+Adds a property to the property set
+</summary>
+            <param name="name">The name of the property to be added.</param>
+            <param name="value">The value of the property to be added.</param>
+            <returns>The new property.</returns>
+            <exception cref="T:System.InvalidOperationException">Thrown if this property set is open in read-only mode.</exception>
+            <exception cref="T:System.ArgumentException">Thrown if this property already exists in the property set.</exception>
+        </member>
+        <member name="P:CalumMcLellan.StructuredStorage.PropertySet.IsUnicode">
+            <summary>
+Gets a value specifying if property values in this property set are unicode.
+</summary>
+        </member>
+        <member name="P:CalumMcLellan.StructuredStorage.PropertySet.Parent">
+            <summary>
+Gets the parent property sets object.
+</summary>
+        </member>
+        <member name="P:CalumMcLellan.StructuredStorage.PropertySet.Name">
+            <summary>
+Gets the name of this property set.
+</summary>
+        </member>
+        <member name="P:CalumMcLellan.StructuredStorage.PropertySet.Item(System.String)">
+            <summary>
+Gets a property from the properties collection.
+</summary>
+            <param name="name">The property's name.</param>
+            <returns>The property.</returns>
+            <exception cref="T:System.Collections.Generic.KeyNotFoundException">Thrown if the property does not exist.</exception>
+        </member>
+        <member name="P:CalumMcLellan.StructuredStorage.PropertySet.Item(System.Int32)">
+            <summary>
+Gets a property from the properties collection.
+</summary>
+            <param name="id">The property's ID.</param>
+            <returns>The property.</returns>
+            <exception cref="T:System.Collections.Generic.KeyNotFoundException">Thrown if the property does not exist.</exception>
+        </member>
+        <member name="P:CalumMcLellan.StructuredStorage.PropertySet.FormatIdentifier">
+            <summary>
+Gets the FMTID for this property set.
+</summary>
+        </member>
+        <member name="P:CalumMcLellan.StructuredStorage.PropertySet.Count">
+            <summary>
+Gets the number of properties in this property set.
+</summary>
+        </member>
+        <member name="M:CalumMcLellan.StructuredStorage.PropertySet.GetStandardEnumerator">
+            <summary>
+Returns an enumerator that iterates through a collection.
+</summary>
+            <returns>An System.Collections.IEnumerator object that can be used to iterate through the collection.</returns>
+        </member>
+        <member name="T:CalumMcLellan.StructuredStorage.PropertySets">
+            <summary>
+Represents the collection of property sets in a file.
+</summary>
+            <summary>
+Represents the collection of property sets in a file.
+</summary>
+        </member>
+        <member name="M:CalumMcLellan.StructuredStorage.Property.Delete">
+            <summary>
+Deletes this property from the property set
+</summary>
+        </member>
+        <member name="P:CalumMcLellan.StructuredStorage.Property.Id">
+            <summary>
+Gets the ID of the property
+</summary>
+        </member>
+        <member name="P:CalumMcLellan.StructuredStorage.Property.Type">
+            <summary>
+Gets the type of the property
+</summary>
+        </member>
+        <member name="P:CalumMcLellan.StructuredStorage.Property.Parent">
+            <summary>
+Gets the parent PropertySet
+</summary>
+        </member>
+        <member name="P:CalumMcLellan.StructuredStorage.Property.Name">
+            <summary>
+Gets or sets the property's name
+</summary>
+            <remarks>Never returns null - will return String.Empty instead</remarks>
+            <exception cref="T:System.InvalidOperationException">Thrown when setting the property if the property set is open in read-only mode.</exception>
+            <exception cref="T:System.ArgumentNullException">Thrown when setting the property if the name is null.</exception>
+        </member>
+        <member name="P:CalumMcLellan.StructuredStorage.Property.Value">
+            <summary>
+Gets or sets the property's value
+</summary>
+        </member>
+        <member name="T:CalumMcLellan.StructuredStorage.Property">
+            <summary>
+Represents a single property in a property set
+</summary>
+        </member>
+        <member name="T:CalumMcLellan.StructuredStorage.PropertySet">
+            <summary>
+Represents a single set of properties in the file
+</summary>
+            <summary>
+Represents a single set of properties in the file.
+</summary>
+        </member>
+    </members>
+</doc>

@@ -4,6 +4,7 @@ todo:
 	-- enregister les preferences et la position du script
 	-- toggle pour backupper/ debakkuper les fichiers
 	-- memoriser le dernier dossier ouvert
+	/- proposer le classement alphabatique ou par date des cripts et dossier
 	
 	x- ecrire les favoris dans le core; créé un fichier à part pour le core
 	
@@ -34,9 +35,12 @@ debug:
 	 x- passer la selection folder ou script mode à l ouverture du rollout rename ET PAS pas des methodes init: dans les methodes init à cause du modal
 */
 
+
+-- sort #("Z", "...", "A")
+
 struct returnClass
 (
-	name = "[<<]"
+	name = "[...]"
 )	
 
 struct folderClass 
@@ -54,6 +58,29 @@ struct fileClass
 	name = filenameFromPath path,
 	typ = getFilenameType tmppath
 )
+
+
+fn sortbyname v1 v2 =
+(
+	-- qsort <array> sortbyname
+-- 	vars
+	local d
+	
+	if ( (toLower v1.name) < (toLower v2.name)) then
+		d=-1
+	else
+		d=1
+	
+--compare les numeros entre eux et les classe	
+	case of
+	(
+		(d < 0.): -1
+		(d > 0.): 1
+		default: 0
+	)
+)
+
+
 
 try(destroydialog renameRLT)catch()
 rollout renameRLT "rename" width: 400
@@ -225,7 +252,8 @@ rollout scriptExplorerRLT "Scripts Explorer"
 		filesAr = for f in filesContent  collect fileClass f
 		
 		format "scan done: %\n" onePath
-		#(returnClass ()) + folderAr +filesAr
+-- 		#(returnClass ()) + folderAr +filesAr
+		folderAr +filesAr
 	)
 	
 	fn returnParentFolder folderPath =
@@ -259,6 +287,11 @@ rollout scriptExplorerRLT "Scripts Explorer"
 			)
 			else append toDisplay o
 		)
+		
+		-- classe toDisplay par ordre alphabetique
+		qsort toDisplay sortbyname
+		insertitem  (returnClass ()) toDisplay 1
+		toDisplay
 	)
 	
 		
@@ -312,7 +345,7 @@ rollout scriptExplorerRLT "Scripts Explorer"
 			menuItem delIT "delete"  enabled: true
 			separator sep2
 			menuItem renameIT "rename script" enabled: true
-			menuItem bakIT "backup script toggle" enabled: false
+			menuItem bakIT "backup script toggle" enabled: true
 			menuItem createFolderIT "create folder" enabled: true
 -- 			menuItem addToFavIT "add to favorites" enabled: false
 			separator sep1
@@ -399,6 +432,7 @@ rollout scriptExplorerRLT "Scripts Explorer"
 				(
 					local res = renameFile renameRLT.oldname renameRLT.newName
 					format "rename done: % : % >>> %\n" res renameRLT.oldname renameRLT.newName
+-- 					format "order: % \n" order
 				)
 				else if renameRLT.folderMode then
 				(
@@ -411,6 +445,19 @@ rollout scriptExplorerRLT "Scripts Explorer"
 				)
 				else()
 				
+				collectValues maxscriptOnly: onlyMs.state
+				refreshUI()
+			)
+			
+			on bakIT picked do
+			(
+				o = toDisplay[scriptsListLB.selection]
+				if classof o == fileClass then
+				(
+					if getFilenameType o.path == ".bak" then local newFilename = substitutestring o.path ".bak" ""
+					else	local newFilename =  o.path + ".bak"
+				)
+				local res = renameFile o.path newFilename
 				collectValues maxscriptOnly: onlyMs.state
 				refreshUI()
 			)
