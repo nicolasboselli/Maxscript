@@ -523,7 +523,12 @@ fn convertToVrMatDef mat =
 -- 		replaceinstances mat vrMat
 -- 		meditMaterials[1] = vrMat
 	)
-	else (format "mat: % class: % \n" mat.name (classof mat) )
+	else if classof mat == Architectural then
+	(
+		format "mat: % class: % \n" mat.name (classof mat) 
+		vrMat = VRayMtl diffuse: mat.diffuse name: mat.name texmap_diffuse: mat.diffuseMap -- texmap_opacity: mat.opacityMap
+	)
+	else (format "UNKNOW mat: % class: % \n" mat.name (classof mat) )
 	
 	if converted then replaceinstances mat vrMat 
 	else if not converted and vrmat!= undefined then 
@@ -629,7 +634,7 @@ rollout deMultiMatRLT "Materials utilities"
 	(
 -- 		button collectMultiBT "publish multi-materials"
 -- 		button publishStandMatBT "publish standard materials"
-		listbox matLB "mat class:" items: #("standard", "Multimaterial","Double_Sided", "vraymtl", "Autodesk_Material")
+		listbox matLB "mat class:" items: #("standard", "Multimaterial","Double_Sided", "vraymtl", "Autodesk_Material", "Architectural")
 		button publishMatBT "publish"
 	)
 	
@@ -804,6 +809,7 @@ rollout deMultiMatRLT "Materials utilities"
 		else if  matLB.selection == 3 then classOfMat = DoubleSided
 		else if  matLB.selection == 4 then classOfMat =	vraymtl
 		else if  matLB.selection == 5 then classOfMat =	Autodesk_Material
+		else if  matLB.selection == 6 then classOfMat =	Architectural
 		else(format "UNKNOW\n")
 		
 		local compare = collectClassOfMat classOfMat maxMatNum: lastManNum
