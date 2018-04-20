@@ -107,6 +107,7 @@ fn returnBBsize2 ref =
 	
 	bbsize
 )
+-- returnBBsize2 dad[1]
 
 fn returnBBsize3 ref = 
 (
@@ -118,6 +119,52 @@ fn returnBBsize3 ref =
 	[xsize, ysize, zsize]
 )
 
+-- ref = dad[1]
+-- sel = #(ref)
+-- for s in sel do
+-- (
+-- 	for c in s.children do append sel c
+-- )
+-- sel
+
+-- sel = selection as array
+-- dad = for s in sel where isgroupHead s collect s
+
+fn returnBBsize4 ref = 
+(
+-- 	sel = selection as array
+-- 	dads = findHeadsOfHierarchy2 sel
+-- 	dad = dads[1]p
+	
+	sel = #(ref)
+		
+	xAr = #()
+	yAr = #()
+	zAr = #()
+	
+	for s in sel do
+	(
+		
+		local BBtmp = nodeGetBoundingBox s ref.transform
+		append xAr BBtmp[1].x
+		append xAr BBtmp[2].x
+		append yAr BBtmp[1].y
+		append yAr BBtmp[2].y
+		append zAr BBtmp[1].z
+		append zAr BBtmp[2].z
+		for c in s.children do append sel c
+	)
+	
+	xsize = distance ([(amin xAr),0,0]) ([(amax xAr),0,0])
+	ysize = distance ([0, (amin yAr),0]) ([0,(amax yAr),0])
+	zsize = distance ([0,0,(amin zAr)]) ([0,0,(amax zAr)])
+		
+	[xsize, ysize, zsize]
+	
+)
+
+-- returnBBsize4 dad[1]
+-- amin xar
 
 fn replaceObject2 ref target  rescaleX: true rescaleY: true rescaleZ: true =
 (
@@ -163,3 +210,6 @@ fn replaceObjectOnPivot ref target =
 	groupHead[1].transform = target.transform
 	copyRef
 )
+
+
+

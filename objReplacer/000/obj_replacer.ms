@@ -4,14 +4,19 @@
 		-- aligner sur le fonde la box
 	-- faire fonctionner sur une selection d'objet en respectant la hierarchie
 	
+	-- propser l alignement pivot>pivot ou pivot>centre ou centre/pivot
+	-- proposer aligner sur x y z
+	-- proposer un remap x sur x y ou z puis y sur x y ou z
+	
+	
 	--  replace sur bounding box:
 		-- revoir le systeme pour ne plus avoir a creer de groupe dans le processus
 		-- ne plus se caler sur le pivot ou le centre des selection  mais recalculer le placement du pivot de la copy dans la bounding
+		-- faire evoluer la methode replace on boundingbox en rescale on bounding box
 		
-	-- replace sur pivot
-	
-	-- mettre en place une collecte multiple de reference
-	-- faire fonctionner le replace sur la selection la le multilistbox
+	x- replace sur pivot
+	x- mettre en place une collecte multiple de reference
+	x- faire fonctionner le replace sur la selection la le multilistbox
 
 -- bug:
 	-- l'asset panneau solaire ne supporte pas le replac et je ne sais pas pourquoi
@@ -22,7 +27,7 @@ filein "objReplacerDef2.ms"
 try(destroydialog objReplacerRLT)catch()
 rollout objReplacerRLT "objects replacer "
 (
-	local params = #("pos","rescaleXCB", "rescaleYCB", "rescaleZCB", "randomCB")
+	local params = #("pos","rescaleXCB", "rescaleYCB", "rescaleZCB", "randomCB", "rescaleOnBT")
 	--vars
 	local modFFD
 	local refObj = undefined
@@ -32,56 +37,44 @@ rollout objReplacerRLT "objects replacer "
 		
 	local refAr = #()
 		
-	-- ui
-	/*
-	group "Mono-Selection:"
-	(
-		button addRefBT "ref>>"
-		edittext refnameET readonly: true
-	)
-	*/
-	
-	-- 	button replaceBT "replace!"
-
-	
+	-- ui	
 	group "Muli-Selections:"
 	(
 		multiListBox refArMLB "selection:"
 		button addSelBT "add" across: 2
 		button removeBT "remove"
 	)
-	checkbox randomCB "random" across: 2
-	button replaceV3BT "replace on pivot"
--- 	button replaceV3BT "replace! v3" enabled: false
 	
-	group "re-scale:"
+	group "rescale on bounding box:"
 	(
-	checkbox rescaleXCB "x"  checked: true across: 3 
-	checkbox rescaleYCB "y"  checked: true
-	checkbox rescaleZCB "z"  checked: true
+		checkbox rescaleOnBT "on"
+		checkbox rescaleXCB "x"  checked: true across: 3 
+		checkbox rescaleYCB "y"  checked: true -- enabled: false
+		checkbox rescaleZCB "z"  checked: true
 	)
 	
-	button replaceV2BT "replace on bounding box" -- across: 2
+	checkbox randomCB "random" across: 2
+	button replaceV2BT "replace" -- across: 2
 	
 	
 	fn refreshUI =
 	(		
-		/*
-		if isvalidnode refObj then refnameET.text = refObj.name else 
-		(
-			refnameET.text = "NONE"
--- 			format "refaites votre selection"
-		)
-		*/
 		refArMLB.items = for o in refAr collect o.name
 	)
 	
--- 	actions
+	fn enableBT state =
+	(
+		rescaleXCB.enabled = state
+		rescaleYCB.enabled = state
+		rescaleZCB.enabled = state
+	)
 	
+-- 	actions
 	on objReplacerRLT open do
 	(
 		loadRolloutParams objReplacerRLT Params
 		if RLTvers != undefined then objReplacerRLT.title = objReplacerRLT.title + " v." + (RLTvers as string)
+		enableBT rescaleOnBT.state
 		refreshUI()
 	)
 	
@@ -118,40 +111,10 @@ rollout objReplacerRLT "objects replacer "
 		refreshUI()
 	)
 	
-	/*
-	on replaceV2BT pressed do
+	on rescaleOnBT changed state do
 	(
-		targetArr = checkTargetSelectionFN()
-		
-		if refObj !=undefined and targetArr != undefined then
-		(
-			undo on
-			(
-				for s in targetArr do
-				(
-					if (s != refObj) then
-					(
-						if isvalidnode refObj then
-						(
-							local res = replaceObject2 refObj s  rescaleX: rescaleXCB.state rescaleY: rescaleYCB.state rescaleZ: rescaleZCB.state
-		-- 					res = replaceRefDef refObj s
-							format  "result: %\n" res
-						)else(format "not valid node: %\n" refObj)
-					)
-					else
-					(
-						format "reference et target sont un même objet\n"
-					)
-				)
-			)
-		)
-		else
-		(
-			format "check your selections.\n"
-		)
+		enableBT state
 	)
-	*/
-	
 	
 	on replaceV2BT pressed do
 	(
@@ -176,12 +139,14 @@ rollout objReplacerRLT "objects replacer "
 					(
 						-- suite
 						j = random 1 jmax
+						format "random: %\n" j
 					)
 					else
 					(
 						-- random
 						if j >= jmax then j = 0
 						j += 1
+						format "order: %\n" j
 					)
 					
 					-- replace
@@ -189,10 +154,16 @@ rollout objReplacerRLT "objects replacer "
 					(
 						if isvalidnode refSelAr[j] then
 						(
-
-							-- definir id de ref objet à utiliser pour le replace
-							local res = replaceObject2 refSelAr[j] s  rescaleX: rescaleXCB.state rescaleY: rescaleYCB.state rescaleZ: rescaleZCB.state
--- 							local res = replaceObjectOnPivot refSelAr[j] s 
+							local res 
+							-- operation de replace
+							if rescaleOnBT.state then
+							(
+								res = replaceObject2 refSelAr[j] s  rescaleX: rescaleXCB.state rescaleY: rescaleYCB.state rescaleZ: rescaleZCB.state
+							)
+							else
+							(
+								res = replaceObjectOnPivot refSelAr[j] s
+							)
 							format  "result: %\n" res
 							
 						)else(format "not valid node: %\n" refObj)
@@ -208,66 +179,7 @@ rollout objReplacerRLT "objects replacer "
 		(
 			format "check your selections\n"
 		)
-		
-	)
-	
-	
-	on replaceV3BT pressed do
-	(
-		
-		local refSelAr = for i in refArMLB.selection collect refAr[i]
-		format "refSelAr: %\n" refSelAr
-		
-		local targetArr = selection as array
-		format "targetArr: %\n" targetArr
-		
-		if refSelAr.count >= 1 and targetArr.count >= 1 then
-		(
-			undo on
-			(
-				jmax = refSelAr.count
-				j = 0
-				
-				for s in targetArr do
-				(
-					-- calcul de j
-					if randomCB.state then
-					(
-						-- suite
-						j = random 1 jmax
-					)
-					else
-					(
-						-- random
-						if j >= jmax then j = 0
-						j += 1
-					)
-					
-					-- replace
-					if (s != refSelAr[j]) then
-					(
-						if isvalidnode refSelAr[j] then
-						(
-							-- definir id de ref objet à utiliser pour le replace
-							local res = replaceObjectOnPivot refSelAr[j] s 
-							format  "result: %\n" res
-							
-						)else(format "not valid node: %\n" refObj)
-					)
-					else
-					(
-						format "reference et target sont un même objet\n"
-					)
-				)
-			)
-		)
-		else
-		(
-			format "check your selections\n"
-		)
-		
-	)
-	
+	)	
 )
 createdialog objReplacerRLT width: 400
 

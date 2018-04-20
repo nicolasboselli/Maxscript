@@ -35,6 +35,18 @@ fn findHeadsOfHierarchy sel =
 	headsOfHierarchy
 )
 
+fn findHeadsOfHierarchy2 sel =
+(
+	
+	local headsOfHierarchy = for s in sel where (finditem sel s.parent) == 0 collect s
+	makeuniquearray headsOfHierarchy
+	headsOfHierarchy
+)
+-- sel = selection as array
+-- findHeadsOfHierarchy2 sel
+-- findHeadsOfHierarchy sel
+
+
 fn createOrientedGroup sel headsOfHierarchy resetScale:false =
 (
 

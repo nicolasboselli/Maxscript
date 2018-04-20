@@ -147,7 +147,7 @@ rollout createPlaneRLT "create plane"
 	
 	local planObjList = #()
 	
-	edittext pathToSearchET"path: "readOnly: false width: 400 pos: [10,10]
+	edittext pathToSearchET "path: "readOnly: false width: 400 pos: [10,10]
 	button searchBT "..."  pos: [420,10]
 	button openFoldBT "open" pos: [450,10]
 	button refreshFoldBT "refresh" pos: [490,10]
@@ -302,6 +302,19 @@ rollout createPlaneRLT "create plane"
 
 	
 -- 	collect jpg
+	
+	on pathToSearchET entered onePathName do
+	(
+		if onePathName != undefined then
+		(	
+			root = onePathName + "\\"
+			rootPlans = onePathName + "\\"
+			
+			collectPlansList() 
+			refreshUI()			
+		)
+	)
+	
 	on searchBt pressed do
 	(
 		plansFolder = getSavePath caption: "Select plans folder" initialDir: pathToSearchET.text
