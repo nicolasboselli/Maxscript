@@ -183,7 +183,7 @@ for o in $* do
 	)
 )
 
--- replaceinstances meditmaterials[2] meditmaterials[activeMeditSlot]
+-- replaceinstances meditmaterials[2] meditmaterials[activeMeditSlot]z
 
 -- ################################ ATTACH/ EXPLODE MESH avec meme MULTIMAT 
 
@@ -227,8 +227,19 @@ for m in meditMultiMatList do
 (
 	sel = collectObjByMat m visSel
 	format "mat: % attach count: %\n"  m.name sel.count
+-- 	combineMesh sel
+	
+	if sel.count > 70 then
+	(
+		exit
+		select sel
+		format "attachement manuel"
+	)
+	else
+	(
+		combineMesh sel
+	)
 
-	combineMesh sel
 )
 
 -- explose object avec multimat de l'editeru de materiaux
@@ -280,7 +291,22 @@ for m in meditMonoMatList do
 (
 	sel = collectObjByMat m visSel
 	format "mat: % attach count: %\n"  m.name sel.count
-	combineMesh sel
+-- 	combineMesh sel
+	
+	
+	if sel.count > 70 then
+	(
+		
+		select sel
+		format "attachement manuel\n"
+		exit
+	)
+	else
+	(
+		combineMesh sel
+	)
+	
+	
 )
 
 
