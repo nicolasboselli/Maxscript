@@ -64,7 +64,7 @@
 
 	)
 	
-	macroScript ArmadasReload
+	macroScript VisiolabReload
 	category: "VisioLab"
 	buttonText: "Reload"
 	toolTip:"Reload Visiolab Script"

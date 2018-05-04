@@ -212,6 +212,29 @@ fn combineMesh sel =
 )
 
 
+-- test d attach
+sel = selection as array
+
+for i = 1 to sel.count by 10 do
+(
+	format "sel.count: % i: %\n" sel.count i
+	for j = 1 to 10 do
+	(
+		attach sel[i] sel[i + j]
+	)
+	format "sel.count: % i: %\n" sel.count i
+-- 	j = 1
+)
+
+
+for i = 1 to sel.count by 10 do
+(
+	format "% " i 
+	i = i + 10 
+-- 	if i < sel.count then i +=10 else exit
+)
+
+
 -- attash des meshes visibles d'un multimat selectionner dans le medit material
 visSel = for o in  $* where o.ishidden == false collect o
 sel = collectObjByMat meditmaterials[activeMeditSlot] visSel
@@ -305,8 +328,10 @@ for m in meditMonoMatList do
 	(
 		combineMesh sel
 	)
-	
-	
 )
 
+
+------------------
+
+for s in $* where s.material == undefined do selectmore s
 
