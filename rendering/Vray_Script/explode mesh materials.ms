@@ -18,7 +18,7 @@ fn exploseMeshBymat s =
 	local splitObjList = #(s)
 	-- debug de l objet
 	resetpivot s
-	if (InstanceMgr.CanMakeObjectsUnique sel) then (InstanceMgr.MakeObjectsUnique sel #prompt )
+	if (InstanceMgr.CanMakeObjectsUnique s) then (InstanceMgr.MakeObjectsUnique s #prompt )
 
 	idArray = getFacesID s
 
@@ -53,72 +53,14 @@ fn exploseMeshBymat s =
 )
 
 sel =  selection as array
-clearselection
+-- clearselection()
+newSel = #()
 for s in sel do
 (
 	objs = exploseMeshBymat s
-	selectmore objs
+	for o in objs do append newsel o
 )
-
--- $.pivot
--- $.objecttransform 
--- $.objectoffsetpos = [0,0,0] 
-
-/*
--- explode mulitmat pour polygone
-fn explodeMultiMatDef s matchMat: false=
-(
-	local idArray = getFacesID s
-	local multiMtl = s.material 
-	local splitObjList = #(s)
-	
-	for id in idArray do
-	(
-		local faceMax = meshop.getNumFaces s
-		local faceList = #()
-		
-		if id != 1 do
-		(
-			local countBefore = objects.count
-			
-			faceList = for f to faceMax where  (getFaceMatID s i) == id collect f
-
-			
-			newName = uniquename (s.name + "_mat_" + (id as string))
-				
--- 			polyop.detachFaces s #selection delete: true asNode: true name: newName
-			meshop.detachFaces s faceList asMesh: true
-			
-			
-			if matchMat then
-			(
-				local res = getnodebyname newName
-				res.material = multiMtl[id]
-				format "obj: %, \tmat: % \n" res.name multiMtl[id]
-				append splitObjList res
-			)
-			
-			
-			-- copy/paste original modifier
-			local contAfter = objects.count
--- 			format "count"
-			mf = for m in  s.modifiers collect m
-				
-			for i = (countBefore + 1) to objects.count do
-			(
-				for m in s.modifiers do addmodifier objects[i] m
-			)
-			
-		)
-	)
-	
-	if matchMat then s.material = multiMtl[idArray[1]]
-	format "explode material done: %\n" s
-	splitObjList
-)
-*/
-
-
+select newsel
 
 
 

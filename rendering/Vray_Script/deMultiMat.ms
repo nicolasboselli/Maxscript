@@ -3,6 +3,10 @@
 	-- importer la methode pour exploser les mesh avec multi material
 	-- importer la méthode pour fusionner les multimateriaux identiques dans la scene
 	-- faire fonctionner le wirecolor sur une selection d'objet
+	
+/*	
+for s in $* where s.material == undefined do selectmore s
+*/
 
 fn sortMatbyname v1 v2 =
 (
@@ -279,7 +283,7 @@ fn skinMultiMatdef s =
 )
 
 
-fn isolateByMat mat sel =
+fn isolateByMat mat sel isolate: true =
 (
 	clearselection()
 
@@ -288,14 +292,16 @@ fn isolateByMat mat sel =
 		if s.material == mat then
 		(
 			selectmore s
-			s.ishidden = false
+			if isolate then s.ishidden = false
 		)
 		else
 		(
-			s.ishidden = true
+			if isolate then s.ishidden = true
 		)
 	)
 )
+
+
 
 fn countByMat mat sel =
 (
@@ -588,6 +594,53 @@ fn splitSmthGrpDef s =
 
 
 
+-- ### collect same multi material
+fn collectSameMultiMat3 matRef matSet=
+(
+-- 	matRef = $.material
+	local sameMultiMatList = #(matRef)
+	
+	for m in matSet do
+	(
+		if (classof matRef == multimaterial) and (classof m == multimaterial)   then
+		(
+			if  m.numsubs == matRef.numsubs then
+			(
+				local collectMat = true
+				
+				if m == matRef then  collectMat = false
+				
+				for i = 1 to matRef.numsubs do
+				(
+					if matRef[i] != m[i] then 
+					(
+						collectMat = false 
+					)
+					else()
+				)
+				
+				if collectMat then append sameMultiMatList m 
+			)
+		)
+	)
+	sameMultiMatList
+)
+
+
+fn collectObjByMat matRef objSet =
+(
+	local sameMultiMatObjList = #()
+		
+	for o in objSet where isvalidnode o do
+	(
+		if o.material == matRef do
+		(
+			append sameMultiMatObjList o
+		)
+	)
+	sameMultiMatObjList
+)
+
 try(destroyDialog deMultiMatRLT)catch()
 rollout deMultiMatRLT "Materials utilities"
 (
@@ -661,10 +714,11 @@ rollout deMultiMatRLT "Materials utilities"
 		button collectSelMatBT " of the selection"
 	)
 	
-	group "isolate sel medit material..."
+	group "select objects with medit mat only"
 	(
 		button isolateByMatBT "in scene"
 		button isolateByMat2BT "in visibles objects "
+-- 		checkbox isolateCB "isolate"
 	)
 	
 	group "count sel medit material..."
@@ -848,14 +902,22 @@ rollout deMultiMatRLT "Materials utilities"
 	
 	on isolateByMatBT pressed do
 	(
-		sel = $* as array
-		isolateByMat meditMaterials[activeMeditSlot] sel
+		visSel = $* as array
+-- 		isolateByMat meditMaterials[activeMeditSlot] sel isolate: isolateCB.state
+		
+		sel = collectObjByMat meditmaterials[activeMeditSlot] visSel
+		select sel
+		
 	)
 	
 	on isolateByMat2BT  pressed do
 	(
-		sel =  for o in  $* where o.ishidden == false collect o
-		isolateByMat meditMaterials[activeMeditSlot] sel
+		visSel =  for o in  $* where o.ishidden == false collect o
+-- 		isolateByMat meditMaterials[activeMeditSlot] sel isolate: isolateCB.state
+		
+		visSel = for o in  $* where o.ishidden == false collect o
+		sel = collectObjByMat meditmaterials[activeMeditSlot] visSel
+		select sel
 	)
 	
 	on countbyMatBT pressed do

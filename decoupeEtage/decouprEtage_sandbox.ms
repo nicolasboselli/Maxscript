@@ -1,5 +1,5 @@
 -- $.scale
-
+-- placer le plan de decoupe au dessus de l'etage, r0_bat au dessus du rdc
 rep = $R*_bat as array
 rep.count
 

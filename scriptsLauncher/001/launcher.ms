@@ -70,7 +70,6 @@ struct favFileClass
 
 rollout mxsLaunchRLT "maxscript launcher"
 (
--- 	local var = checkIniFileFn()
 	local posBak
 	
 	local btnLine1 = 450
@@ -79,56 +78,20 @@ rollout mxsLaunchRLT "maxscript launcher"
 	
 	local root = getRoot()
 	
--- 	local favAr = #()
+	local RLTvers = getScriptVersion (getThisScriptFilename())
 	
--- 	local root = modeArchiScriptRoot
 	local scriptArray = #()
 	
-	local favScriptAr = #()
+-- 	local favScriptAr = #()
 	local favScriptAr2 = #()
--- 	local favScriptAr2Complete = #()
 	
 	local fileClassArray = #()
 	
 	local fileClassCoreArray = #()
 	local displayAr = #()
 	
-	local rltParams = #("pos", "favScriptAr", "favScriptAr2")
+	local rltParams = #("pos", "favScriptAr2")
 		
-	/*
-	fn loadFavorites =
-	(
-		local favScriptArray = #()
--- 		local favAr = #()
-		local tmpfavScriptAr =#()
-		
-		-- collect filenames
-		for p in favScriptAr do
-		(
-			local cleanPath = substituteString p "\\" "/"
-			format "cleanPath: %\n" cleanPath
-			if doesfileexist cleanPath then
-			(
-					appendifunique tmpfavScriptAr cleanPath
-			)
-		)
-		format "tmpfavScriptAr: %\n" tmpfavScriptAr
-		
-		-- collect good scripts as favFileClass instance
-		if tmpfavScriptAr.count >= 1 then
-		(
-			favScriptArray = for script in favScriptAr collect (favFileClass script)
-		)
-		else 
-		(
-			format "no favorites to load\n"
-		)
-
-		qsort favScriptArray sortbyname
-		favScriptArray
-	)
-	*/
-	
 	
 	fn loadfavorites2 =
 	(
@@ -256,14 +219,20 @@ rollout mxsLaunchRLT "maxscript launcher"
 		scriptArrayLB.items = for script in displayAr collect script.name
 	)
 	
+	-- Actions
+	fn refreshUI =
+	(
+		if RLTvers != undefined then mxsLaunchRLT.title = mxsLaunchRLT.title + " v." + (RLTvers as string)
+	)
+	
 	fn writeCoreToFav =
 	(
 		fileClassArray = loadCore2()
-		favScriptAr  = for script in fileClassArray collect script.path
+-- 		favScriptAr  = for script in fileClassArray collect script.path
 		favScriptAr2  = for script in fileClassArray collect (substitutestring script.path root "")
-		format "favScriptAr: %\n" favScriptAr
+-- 		format "favScriptAr: %\n" favScriptAr
 		format "favScriptAr2: %\n" favScriptAr2
--- 		writeFavorite()
+
 		writeRolloutParams mxsLaunchRLT rltParams
 		
 		loadRolloutParams mxsLaunchRLT rltParams
@@ -278,13 +247,14 @@ rollout mxsLaunchRLT "maxscript launcher"
 	(
 		loadRolloutParams mxsLaunchRLT rltParams
 
-		format "favScriptAr: %\n" favScriptAr 
+-- 		format "favScriptAr: %\n" favScriptAr 
 		format "favScriptAr2: %\n" favScriptAr2
 		
 		fileClassArray = loadFavorites2()
 		
 		displayAr = fileClassArray
 		refreshList()
+		refreshUI()
 	)
 		
 	on mxsLaunchRLT close do
@@ -296,7 +266,7 @@ rollout mxsLaunchRLT "maxscript launcher"
 	
 	on loadFavoritesBT pressed do
 	(
-		loadRolloutParams mxsLaunchRLT rltParams
+		loadRolloutParams mxsLaunchRLT #("favScriptAr2")
 		
 		fileClassArray = loadFavorites2()
 		displayAr = fileClassArray
@@ -319,13 +289,13 @@ rollout mxsLaunchRLT "maxscript launcher"
 	on launchBT pressed do
 	(
 -- 		format "sel: %\n" scriptArrayLB.selection
-		displayAr[scriptArrayLB.selection].launch()
-		/*
+		
 		try
 		(
-			filein (fileClassArray[scriptArrayLB.selection].path)
+			displayAr[scriptArrayLB.selection].launch()
+-- 			filein (fileClassArray[scriptArrayLB.selection].path)
 		)catch(format "##########ERROR############ERROR#############ERROR: %\n" (getcurrentexception()) )
-		*/
+		
 	)
 	
 	on scriptArrayLB doubleClicked  arg do
@@ -340,13 +310,9 @@ rollout mxsLaunchRLT "maxscript launcher"
 		id = scriptArrayLB.selection
 		-- find selection in original array
 		res = finditem fileClassArray displayAr[id] 
--- 		format "remove: %\n" displayAr[id] 
-		-- delete selection
--- 		format "fileClassArrayCount: % \n"  fileClassArray.count
+
 		deleteItem fileClassArray res
--- 		format "fileClassArrayCount: % \n"  fileClassArray.count
--- 		format "count1: % count2:%\n" test.count fileClassArray.count
-		favScriptAr  = for script in fileClassArray collect script.path
+
 		favScriptAr2  = for script in fileClassArray collect (substituteString script.path (getroot()) "")
 		-- write array list in ini
 		writeRolloutParams mxsLaunchRLT rltParams

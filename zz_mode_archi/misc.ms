@@ -145,43 +145,41 @@ fn updateSceneMaterials =
 
 
 -- attach object select in the same object
-fn cleancombine grp =
-(
-	local master
-	undo on
-	(
-		master = grp[1]
-		converttopoly master
-		InstanceMgr.MakeObjectsUnique master #individual
 
-		for i = grp.count to 2 by -1 do
+ 
+fn clusterAttach objArr =
+(
+	j = 1
+	count = objArr.count
+
+	undo off
+	(
+		while objArr.count > 1 do
 		(
-			master.EditablePoly.attach grp[i] master
-		-- 	print sel[i]
+			if classof objArr[j].baseobject != editable_Mesh then 
+			(
+				converttoMesh objArr[j]
+-- 				update objArr[j]
+			)
+			/*
+			if classof objArr[j+1].baseobject != editable_Mesh then
+			(
+				converttoMesh objArr[j+1]
+				update objArr[j+1]
+			)
+			*/
+
+			attach objArr[j] objArr[j+1]
+			deleteItem objArr (j+1)
+
+			j += 1
+
+			if (j + 1) > objArr.count then j = 1
+
 		)
 	)
-	master
+	objArr[1]
 )
-
-
-fn cleancombine2 grp =
-(
-	undo on
-	(
-		master = grp[1]
-		converttopoly master
-		InstanceMgr.MakeObjectsUnique master #individual
-		
-		restGrp = deleteItem  grp 1
-		
-		for o in restGrp do
-		(
-			master.EditablePoly.attach o master
-		)
-		
-	)
-)
-
 
 -- transfert
 fn transfertModifiers sel =
@@ -366,7 +364,12 @@ rollout miscRLT "Modeling utilities"
 	)
 	
 		
-	on cleanCombineBT pressed do cleancombine (selection as array)
+	on cleanCombineBT pressed do
+	(
+		local bef = timestamp()
+		clusterAttach (selection as array)
+		format "attach done: % ms\n" ((timestamp()) - bef)
+	)
 		
 	on centerPivotBT pressed do centerPivotDef (selection as array)
 	on converttopolyBT pressed do 

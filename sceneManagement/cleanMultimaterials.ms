@@ -31,11 +31,15 @@ for o in all do
 i = 0
 for s in selection do
 (
-	meshop.deleteIsoVerts s
-	s.pivot = s.center
-	i += 1
-	format "i: %\n" i
+	if classof s == Editable_mesh then
+	(
+		meshop.deleteIsoVerts s
+		s.pivot = s.center
+		i += 1
+		format "i: %\n" i
+	)
 )
+
 
 -- ### collect same multi material
 fn collectSameMultiMat3 matRef matSet=
@@ -133,7 +137,7 @@ for i = 1 to matList.count do
 	format "%/% ; % versions, collapse % materials\n" i matList.count   matList.count  (matList.count - 1)
 )
 
--- collapse des materiaux visibles
+-- collapse des multimariaux des objets visibles
 visSel = for o in  $* where o.ishidden == false collect o
 visSelMultiMat = #()
 for o in visSel where classof o.material == multimaterial do
@@ -238,6 +242,8 @@ for i = 1 to sel.count by 10 do
 -- attash des meshes visibles d'un multimat selectionner dans le medit material
 visSel = for o in  $* where o.ishidden == false collect o
 sel = collectObjByMat meditmaterials[activeMeditSlot] visSel
+select sel
+
 combineMesh sel
 
 -- attash des mesh visibles de tous les multimat de l'editeur de materiaux 
