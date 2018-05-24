@@ -12,20 +12,23 @@
 
 
 
-/* detach faces 2
+fn detachFaces2 s =
+(
+	local faceCount = polyop.getNumFaces s
+	local edges_list = s.EditablePoly.getSelection #edge
 
-faceCount = polyop.getNumFaces $
-edges_list = $.EditablePoly.getSelection #edge
-
-polyop.capHolesByEdge $ edges_list
-faceCountAft = polyop.getNumFaces $
-
-newFaces = for i = faceCount + 1 to faceCountAft collect i
+	polyop.capHolesByEdge s edges_list
 	
-polyop.setFaceSelection  $ newFaces
+	local faceCountAft = polyop.getNumFaces s
 
-polyop.detachFaces $ newFaces delete:true asNode:true name: (uniquename "fenetre") 
-*/
+	local newFaces = for i = faceCount + 1 to faceCountAft collect i
+		
+-- 	polyop.setFaceSelection  s newFaces
+	polyop.detachFaces s newFaces delete:true asNode:true name: (uniquename "fenetre") 
+)
+
+-- detachFaces2 $
+
 
 
 
@@ -124,7 +127,7 @@ try(destroydialog boxerizeRLT)catch()
 rollout boxerizeRLT "Boxerize"
 (
 	local wireAr = #(green, red, blue, orange, yellow, brown)
-	local params = #("pos", "boxSizeSP")
+	local params = #("pos", "boxSizeSP", "boxSizeOutSP")
 	local RLTvers = getScriptVersion (getThisScriptFilename())
 	
 	group "faces:"
@@ -151,10 +154,11 @@ rollout boxerizeRLT "Boxerize"
 	group "boxerize:"
 	(
 		spinner boxOutlineSP "Outline Size:" type: #worldunits range:[0,1000,2] -- enabled: false
-		spinner boxSizeSP "Shell Size:" type: #worldunits range:[0,1000,28]
+		spinner boxSizeSP "Shell Inner:" type: #worldunits range:[0,1000,28]
+		spinner boxSizeOutSP "Shell Outer:" type: #worldunits range:[0,1000,0]
 		
 -- 		button boxBT "Create Box"
-		button addBoxBT "add box"
+		button addBoxBT "make box"
 		
 	)
 	button boxBT2 "BOXERIZE"
@@ -193,14 +197,14 @@ rollout boxerizeRLT "Boxerize"
 					(
 						select s
 						s.EditablePoly.SetSelection #Edge ((polyOp.getOpenEdges s) as bitarray)
-						detach_face_fenetre s
+						detachFaces2 s
 					)
 				)
 					
 				(subobjectLevel == 3):
 				(
 					s = $
-					detach_face_fenetre s
+					detachFaces2 s
 				)
 				
 				default: print "selectionner des objets ou des ouvertures"
@@ -248,7 +252,7 @@ rollout boxerizeRLT "Boxerize"
 				s.outlineAmount = boxOutlineSP.value
 				s.EditablePoly.Outline ()
 			
-				myShell = Shell innerAmount:0 outerAmount:boxSizeSP.value
+				myShell = Shell innerAmount:boxSizeOutSP.value outerAmount:boxSizeSP.value
 				addmodifier s myShell
 				s.pivot = s.center
 				

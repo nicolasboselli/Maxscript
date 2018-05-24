@@ -53,7 +53,14 @@ try(destroyDialog mxsLaunchRLT)catch()
 struct favFileClass
 (
 	path,
-	name = getFilenameFile path,
+	version = getScriptVersion path,
+	fn getName =
+	(
+		if version != undefined then name = (getFilenameFile path) + " v."+ (version as string)
+		else name = getFilenameFile path
+	),
+	
+	name = getName(),
 	
 	fn launch =
 	(

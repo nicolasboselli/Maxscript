@@ -117,8 +117,7 @@ if doesfileexist useMacrosPath then
 )
 for macro in armadasMacroAr do format "%\n" macro
 	
--- load du fichier de macros
--- filein ((getRoot ()) + "scriptInstaller/armadasMacrosList.ms")
+
 
 
 

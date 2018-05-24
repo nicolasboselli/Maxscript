@@ -37,87 +37,6 @@ maj:
 	-- créer un menu visiolab automatiquement avec menuMan.getMainMenuBar
 */
 
-/*
--- ########## PRELOAD DES FONCTIONS
-fn getRoot =
-(
-	local armadasScriptsIni =  (GetDir #maxData) + "armadasScriptsIni.ini"
-	local root = getINISetting armadasScriptsIni "armadasScripts" "armadasScriptsRoot"
-)
-
-
-fn getScriptVersion oneScript =
-(
-	-- retourner le dossier au dessus du script
-	local folderTmp = (getFilenamePath oneScript)
-	-- 
-	local splitFolder = filterString folderTmp "\\"
-		
-	try
-	(
-		splitFolder[splitFolder.count]	as integer
-	)
-	catch
-	(
-		undefined
-	)
-)
-
--- getScriptVersion (getThisScriptFilename())
-
-
--- load le callback pour tagger si les fichiers ont du railclone à l interieur
-filein  ((getRoot ()) + "sceneManagement/tag_fileProperties.ms")
-
--- load function pour parenter comme dans maya
-filein ((getRoot ()) + "Rig/lastParent_def.ms")
-
--- load function pour enregistrer et loader les préferences
-filein ((getRoot ()) + "rollout_pref/rollout_pref.ms")
-
--- load de la fonction pour isoler la selection sans faire de focus dessus
-filein ((getRoot ()) + "sceneManagement/isolateSlectionCustom.ms")
-
-
--- ########## UPDATE DES MACROS
--- copy les icones des macros dans le dossier user
-fn copyBmpIcons =
-(
-	local iconsArray = getfiles ((getRoot()) + "icons\*.bmp")
-	
-	-- determine les dossiers de destination
-	iconsRoot = (getdir #maxdata) + "\UI\Icons"
-	if not doesfileexist iconsRoot  then makedir iconsRoot all: true
-	
-	iconsRoot2 = (getdir #maxdata) + "usericons"
-	if not doesfileexist iconsRoot2  then makedir iconsRoot2 all: true	
-	
-	-- make copy
-	for ic in iconsArray do
-	(		
-		local res = copyFile  ic (iconsRoot + "\\"+ (filenameFromPath ic))	
-		if res == true then format "copy in \"\UI\Icons\" done : %\n" ic
-		else format "copy in \"\UI\Icons\" fail: %\n" ic
-		
-		local res2 = copyFile  ic (iconsRoot2 + "\\"+ (filenameFromPath ic))
-		if res2 == true then format "copy in \"usericons\" done : %\n" ic
-		else format "copy in \"usericons\" fail: %\n" ic
-		
-	-- 	copyFile  icon iconsRoot 
-	)
-)
-copyBmpIcons()
-
--- nettoyage des macroscripts existant
-useMacrosPath =  (getdir #maxdata) + "\usermacros"
-armadasMacroAr = #()
-
-if doesfileexist useMacrosPath then
-(
-	armadasMacroAr = getfiles ((getdir #maxdata) + "\usermacros\ArmadasScripts*")
-)
-for macro in armadasMacroAr do format "%\n" macro
-	*/
 
 fn getRoot =
 (
@@ -125,7 +44,7 @@ fn getRoot =
 	local root = getINISetting armadasScriptsIni "armadasScripts" "armadasScriptsRoot"
 )
 	
--- pre Load
+-- pre Load des fonctions
 filein ((getRoot ()) + "scriptInstaller/armadasScriptsPreLoad.ms")
 
 -- load du fichier de macros
