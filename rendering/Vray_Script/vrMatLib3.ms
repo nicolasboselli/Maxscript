@@ -409,7 +409,7 @@ rollout vrMatRlt "VRay mat Lib"
 			(
 				format "missing filename: %\n" b.filename
 				refdep = refs.dependents b  -- immediateOnly: true
-				meditmaterials[i] = b
+-- 				meditmaterials[i] = b
 				
 				i +=1
 				
@@ -426,13 +426,13 @@ rollout vrMatRlt "VRay mat Lib"
 						)
 					)
 				)
-
 			)
 			else
 			(
 				format "filename: %\n" b.filename
-
 			)
+			
+			if i == 24 then exit
 		)
 	)
 	

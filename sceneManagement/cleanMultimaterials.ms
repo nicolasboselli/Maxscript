@@ -31,7 +31,7 @@ for o in all do
 i = 0
 for s in selection do
 (
-	if classof s == Editable_mesh then
+	if classof s.baseobject == Editable_mesh then
 	(
 		meshop.deleteIsoVerts s
 		s.pivot = s.center

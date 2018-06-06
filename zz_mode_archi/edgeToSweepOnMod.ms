@@ -15,6 +15,9 @@ fn round_to val n =
 	(floor ((val * mult) + 0.5)) / mult
 )
 
+modPanel.getCurrentObject()
+
+
 /*
 fn createBoxOrient s =
 (
@@ -35,14 +38,22 @@ fn createBoxOrient2 s =
 	posObj = s.pos
 	posCenter = polyop.getFaceCenter s (faceSel as array)[1]
 	theZ = polyop.getFaceNormal s (faceSel as array)[1]
-	for i = 1 to theZ.count do theZ[i] = round_to theZ[i] 4
+	for i = 1 to 3 do theZ[i] = round_to theZ[i] 4
 		
 	theY = normalize (cross [0,0,1] theZ )
 	theX = normalize (cross theY theZ)
 	theTM = matrix3   theX theY theZ posCenter
 
-	rep = box transform: theTM
+	box transform: theTM
 )
+-- createBoxOrient2 $
+
+fn createBoxOrientOnMod s =
+(
+	s.modifiers[#edit_poly].GetSelection  #face
+)
+
+-- $.modifiers[#edit_poly].GetSelection  #face
 
 fn resetInPlace2 s tmpParent =
 (
@@ -91,9 +102,9 @@ fn removeEdgeAndVerticesFN sel =
 )
 
 
-try(destroyDialog edgeToShapeRLT)catch()
+try(destroyDialog edgeToShapeOnModRLT)catch()
 
-rollout edgeToShapeRLT "edge to shape"
+rollout edgeToShapeOnModRLT "edge to shape"
 (
 -- 	vars
 -- 	local maxIni = getMAXIniFile()
@@ -175,23 +186,57 @@ rollout edgeToShapeRLT "edge to shape"
 		(
 			for s in sel do
 			(
+				
+				
+				
 				-- create box orient
 				if createBoxOrientCB.state == true and subobjectLevel == 4 and (polyop.getfaceselection s).count > 0 then
 				(
-					boxorient = createBoxOrient2 s
+					if classof (modPanel.getCurrentObject()) == Editable_Poly then
+					(
+						boxorient = createBoxOrient2 s
+					)
+					else if classof (modPanel.getCurrentObject()) == Edit_Poly then
+					(
+						local tmp = copy s
+						converttopoly tmp
+						boxorient = createBoxOrientOnMod tmp
+						delete tmp
+					)
+					else(boxorient = undefined)
+					
 				)else  (print "select faces")
 					
-				
+				showsource createBoxOrient2
 				-- convert selection if necessary
 				if subObjectLevel == 4 then
 				(
-					s.ConvertSelectionToBorder #Face #Edge
-					selLev = 4
+					if classof (modPanel.getCurrentObject()) == Editable_Poly then
+					(
+						s.ConvertSelectionToBorder #Face #Edge
+						selLev = 4
+					)
+					else if classof (modPanel.getCurrentObject()) == Edit_Poly then
+					(
+						s.modifiers[#Edit_Poly].ConvertSelectionToBorder #Face #Edge
+						selLev = 4
+					)
+					else(boxorient = undefined)
+					
 				)else (selLev = 2)
 				
 				-- create shape
 				newName = uniqueName (s.name + "_shape")
-				s.createShape  newName  false s
+				
+				if classof (modPanel.getCurrentObject()) == Editable_Poly then
+				(
+					s.createShape  newName  false s
+				)
+				else if classof (modPanel.getCurrentObject()) == Edit_Poly then
+				(
+					s.modifiers[#Edit_Poly].CreateShape newName
+				)
+				else(boxorient = undefined)
 				
 				newShape = getnodebyname newName
 				updateshape newShape
@@ -248,18 +293,38 @@ rollout edgeToShapeRLT "edge to shape"
 				)
 				
 				-- option keep selection
-				if keepSelCB.state == true then
+				
+				if classof (modPanel.getCurrentObject()) == Editable_Poly then
 				(
-					select s
-					modPanel.setCurrentObject s
-					subobjectLevel = selLev
-
+					if keepSelCB.state == true then
+					(
+						select s
+						modPanel.setCurrentObject s
+-- 						modPanel.setCurrentObject s.modifiers[#edit_poly]
+						subobjectLevel = selLev
+					)
+					else
+					(
+						subobjectLevel = 0		
+						select newShape
+					)
 				)
-				else
+				else if classof (modPanel.getCurrentObject()) == Edit_Poly then
 				(
-					subobjectLevel = 0		
-					select newShape
+					if keepSelCB.state == true then
+					(
+						select s
+-- 						modPanel.setCurrentObject s
+						modPanel.setCurrentObject s.modifiers[#edit_poly]
+						subobjectLevel = selLev
+					)
+					else
+					(
+						subobjectLevel = 0		
+						select newShape
+					)
 				)
+				else()
 			)
 		)
 	)
@@ -316,16 +381,16 @@ rollout edgeToShapeRLT "edge to shape"
 	
 
 	
-	on edgeToShapeRLT open do
+	on edgeToShapeOnModRLT open do
 	(
-		loadRolloutParams edgeToShapeRLT Params
+		loadRolloutParams edgeToShapeOnModRLT Params
 	)
 	
-	on edgeToShapeRLT close do
+	on edgeToShapeOnModRLT close do
 	(
-		writeRolloutParams edgeToShapeRLT Params
+		writeRolloutParams edgeToShapeOnModRLT Params
 	)
 	
 )
-createDialog edgeToShapeRLT 
+createDialog edgeToShapeOnModRLT
 

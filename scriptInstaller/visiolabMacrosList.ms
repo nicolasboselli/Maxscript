@@ -76,3 +76,10 @@
 	)
 
 
+	macroscript bridgeShortcut
+	category: "VisioLab"
+	buttonText: "Brigde"
+	toolTip:"bridge"
+	(
+		if classof $ == editable_poly then $.editablepoly.bridge()
+	)

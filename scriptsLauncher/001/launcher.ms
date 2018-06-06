@@ -215,7 +215,7 @@ rollout mxsLaunchRLT "maxscript launcher"
 	group "core:"
 	(
 		button loadHardCoresBT "load core" across: 3
-		button favToCoreBT "fav to core" enabled: false
+		button favToCoreBT "fav to core" enabled: true
 		button coreToFavBT "core to fav"
 	)
 

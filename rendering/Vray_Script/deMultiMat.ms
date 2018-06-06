@@ -79,8 +79,6 @@ fn randomWireFN useFirstId: true =
 			(
 				if (classof o.material) == multimaterial and useFirstId == true then
 				(
--- 					print mat 
--- 					print o
 					if o.material[1] == mat  do o.wirecolor = randomWire
 				)
 				else if  o.material == mat then
@@ -91,9 +89,6 @@ fn randomWireFN useFirstId: true =
 		)
 	)
 )
-
-
-
 
 fn addUVWCube uvSize =
 (
@@ -107,8 +102,8 @@ fn addUVWCube2 uvSize =
 (
 	
 	local UvwSquare = Uvwmap  maptype: 4 length: uvSize width: uvSize  height: uvSize  axis: 2
-	
-	for s in selection do
+	local sel = selection as array
+	for s in sel do
 	(
 		local UvModExist = false
 		for m in s.modifiers do
@@ -123,7 +118,7 @@ fn addUVWCube2 uvSize =
 			)
 			else
 			(
-				addmodifier s UvwSquare
+-- 				addmodifier s UvwSquare
 			)
 		)
 		
@@ -133,7 +128,6 @@ fn addUVWCube2 uvSize =
 	
 	
 )
-
 
 -- make unique instance material
 fn InstanceMatByName mat = (
@@ -170,14 +164,18 @@ fn explodeMultiMatDef s matchMat: false=
 			newName = uniquename (s.name + "_mat_" + (id as string))
 			polyop.detachFaces s #selection delete: true asNode: true name: newName
 			
-			format "newNode: %\n"	newObj
+			format "newNode: %\n"	newName
 			
 			if matchMat then
 			(
 				local res = getnodebyname newName
-				res.material = multiMtl[id]
-				format "obj: %, \tmat: % \n" res.name multiMtl[id]
-				append splitObjList res
+				if isvalidnode res then
+				(
+					res.material = multiMtl[id]
+					format "obj: %, \tmat: % \n" res.name multiMtl[id]
+					append splitObjList res
+				)
+				else(format "newNode unknow: %\n" newname)
 			)
 			
 			
@@ -199,6 +197,7 @@ fn explodeMultiMatDef s matchMat: false=
 	format "explode material done: %\n" s
 	splitObjList
 )
+-- explodeMultiMatDef $ matchMat: true
 
 -- explose meshes
 fn getFacesID s =
@@ -208,7 +207,6 @@ fn getFacesID s =
 	for i = 1 to faceMax do appendifunique idArray (getFaceMatID s i)
 	idArray
 )
-
 
 -- refresh scenematerial
 fn updateSceneMaterials =

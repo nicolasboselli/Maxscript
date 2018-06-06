@@ -127,7 +127,7 @@ try(destroydialog boxerizeRLT)catch()
 rollout boxerizeRLT "Boxerize"
 (
 	local wireAr = #(green, red, blue, orange, yellow, brown)
-	local params = #("pos", "boxSizeSP", "boxSizeOutSP")
+	local params = #("pos", "boxOutlineSP", "boxSizeSP", "boxSizeOutSP")
 	local RLTvers = getScriptVersion (getThisScriptFilename())
 	
 	group "faces:"
@@ -278,6 +278,8 @@ rollout boxerizeRLT "Boxerize"
 			for s in sel do
 			(
 				select s
+				polyop.setFaceSelection s #all
+				
 				s.outlineAmount = boxOutlineSP.value
 				s.EditablePoly.Outline ()
 				
@@ -292,7 +294,7 @@ rollout boxerizeRLT "Boxerize"
 						pivotOnFAce3  o normal:  normalRB.state flipNormal: flipNormalBT.state upnode: upnodeRB.state flipUpnode: flipUpnodeBT.state
 						
 						-- add shell on object
-						myShell = Shell innerAmount:0 outerAmount:boxSizeSP.value
+						myShell = Shell innerAmount:boxSizeOutSP.value outerAmount:boxSizeSP.value
 						addmodifier o myShell
 						o.pivot = o.center
 						
@@ -309,5 +311,5 @@ rollout boxerizeRLT "Boxerize"
 	)
 )
 createdialog boxerizeRLT
-
+polyop.setFaceSelection $ #all
 

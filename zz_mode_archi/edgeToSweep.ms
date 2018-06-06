@@ -35,7 +35,7 @@ fn createBoxOrient2 s =
 	posObj = s.pos
 	posCenter = polyop.getFaceCenter s (faceSel as array)[1]
 	theZ = polyop.getFaceNormal s (faceSel as array)[1]
-	for i = 1 to theZ.count do theZ[i] = round_to theZ[i] 4
+	for i = 1 to 3 do theZ[i] = round_to theZ[i] 4
 		
 	theY = normalize (cross [0,0,1] theZ )
 	theX = normalize (cross theY theZ)
