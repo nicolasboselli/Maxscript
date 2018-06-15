@@ -1,5 +1,19 @@
+/*
+comment supprimer une texture bmp manquante d'un slot de material?
+comment trouver le slot de materiaux contenant le bmp manquant?
+faire une analyse récursive d'un matgeriaux
+retourner la texture manquante avec son slot
+retourner le slot sous la format d'id de subanim
+
+*/
+
+
 
 bmpAr = getclassinstances bitmaptexture target: scenematerials
+
+
+
+
 i = 1
 		
 for b in bmpAr do
@@ -21,9 +35,12 @@ for b in bmpAr do
 )
 
 b = bmpAr[1]
-delete b
-b = undefined
+-- delete b
+-- b = undefined
 refdep = refs.dependents b  -- immediateOnly: true
+goodref = for r in refdep where superclassof r == material or superclassof r == texturemap collect r
+
+superclassof b
 
 mats_array = for m in sceneMaterials collect m
 enumerateFiles mats_array[1] add_to_array mats_array[1]  #missing
@@ -140,8 +157,28 @@ propNames.count
 getNumSubMtls meditmaterials[activeMeditSlot] 
 
 getNumSubTexmaps meditmaterials[activeMeditSlot] 
-getSubTexmap  meditmaterials[activeMeditSlot]  
+getSubTexmap  meditmaterials[activeMeditSlot] 
 
+m = meditmaterials[activeMeditSlot]
+maxsub = getNumSubTexmaps meditmaterials[activeMeditSlot]
+reelmap = #()
+for i = 1 to maxsub do
+(
+	if getSubTexmap  m i != undefined then append reelmap (getSubTexmap  m i)
+)
+
+for rm in reelmap do
+(
+	maxsub = getNumSubTexmaps rm
+	for i = 1 to maxsub do
+	(
+		if getSubTexmap  rm i != undefined then append reelmap (getSubTexmap  rm i)
+	)
+)
+reelmap
+
+
+meditmaterials[activeMeditSlot][48][33].value
 
 getSubTexmapSlotName meditmaterials[activeMeditSlot]  
 

@@ -3,7 +3,7 @@ fn lastParent sel =
 (
 	undo on
 	(
-		format "parenting start\n" -- to: log
+-- 		format "parenting start\n" -- to: log
 		local daddy = sel[sel.count]
 		
 		for i = 1 to (sel.count - 1) do
@@ -17,7 +17,7 @@ fn lastParent sel =
 -- 				tmpParent = sel[j].parent
 				if isvalidnode  sel[i].parent and i != j then
 				(
-					format "i: %, parent: % ,j: %\n" sel[i].name sel[i].parent.name sel[j].name
+-- 					format "i: %, parent: % ,j: %\n" sel[i].name sel[i].parent.name sel[j].name
 					if sel[i].parent == sel[j] then 
 					(
 						

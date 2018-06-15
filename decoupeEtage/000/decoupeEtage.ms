@@ -24,14 +24,18 @@ fn sortbyname v1 v2 =
 	)
 )
 
-
+-- $.modifiers.count
 fn sliceObject b rep =
 (
 	for i = 1 to ( rep.count  )do
 	(
+		local modCount
 		local b2 = copy b
+		format "copy: %\n" b2.name
 		resetxform b2
+		format "resetxform\n" 
 		converttomesh b2
+		format "converttomesh\n" 
 		update b2
 		
 		if i <= rep.count and i > 1 then
@@ -42,13 +46,15 @@ fn sliceObject b rep =
 	-- 		print "check 1"
 			
 			sl = SliceModifier name: "delete_down" Slice_Type:3
-			addmodifier b2 sl
-			b2.modifiers["delete_down"].slice_plane.position.z = in coordsys b rep[i - 1].position.z
+			modCount = b2.modifiers.count
+			addmodifier b2 sl before: modCount
+			b2.modifiers["delete_down"].slice_plane.position.z = in coordsys b2 rep[i - 1].position.z
 	-- 		print "check 2"
 			
 			sl = SliceModifier name: "delete_up" Slice_Type:2
-			addmodifier b2 sl
-			b2.modifiers["delete_up"].slice_plane.position.z = in coordsys b rep[i].position.z
+			modCount = b2.modifiers.count
+			addmodifier b2 sl before: modCount
+			b2.modifiers["delete_up"].slice_plane.position.z = in coordsys b2 rep[i].position.z
 	-- 		print "check 3"
 			
 			l = layermanager.getLayerFromName  rep[i].name
@@ -66,8 +72,9 @@ fn sliceObject b rep =
 	-- 		print "check1"
 			
 			sl = SliceModifier name: "delete_up" Slice_Type:2
-			addmodifier b2 sl
-			b2.modifiers["delete_up"].slice_plane.position.z = in coordsys b rep[i].position.z
+			modCount = b2.modifiers.count
+			addmodifier b2 sl before: modCount
+			b2.modifiers["delete_up"].slice_plane.position.z = in coordsys b2 rep[i].position.z
 	-- 		print "check2"
 
 			l = layermanager.getLayerFromName  rep[i].name
@@ -84,8 +91,9 @@ fn sliceObject b rep =
 			b2.name = b.name +"_r" +  (i as string)
 			
 			sl = SliceModifier name: "delete_down" Slice_Type:3
-			addmodifier b2 sl
-			b2.modifiers["delete_down"].slice_plane.position.z = in coordsys b rep[i - 1].position.z
+			modCount = b2.modifiers.count
+			addmodifier b2 sl before: modCount
+			b2.modifiers["delete_down"].slice_plane.position.z = in coordsys b2 rep[i - 1].position.z
 				
 			l = layermanager.getLayerFromName  rep[i - 1].name
 			if l == undefined then l = layermanager.newLayerFromName  rep[i].name
@@ -102,12 +110,12 @@ fn sliceObject b rep =
 	b.boxmode = true
 	
 )
-
+-- rep
 
 try(destroydialog decoupEtageRLT)catch()
 rollout decoupEtageRLT "découpe etage"
 (
-	local rep = #()
+	global rep -- = #()
 	group "plans de découpe:"
 	(
 		multilistbox CutPlaneMLB "liste de plans:"
@@ -122,6 +130,11 @@ rollout decoupEtageRLT "découpe etage"
 	fn refreshUI =
 	(
 		CutPlaneMLB.items = for c in rep collect c.name
+	)
+	
+	on decoupEtageRLT open do
+	(
+		if rep == undefined then rep = #()
 	)
 	
 	on addBT pressed do 

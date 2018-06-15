@@ -369,6 +369,21 @@ rollout vrMatRlt "VRay mat Lib"
 			if doesfileexist b.filename then
 			(
 				if matchpattern b.filename pattern: "M:*" or matchpattern b.filename pattern: "R:*" or matchpattern b.filename pattern: "N:*" or matchpattern b.filename pattern: "T:*" then format "FOUND filename: %\n" b.filename
+				else if  matchpattern b.filename pattern: "R:\RESSOURCES*" then
+				(
+-- 					format "RE MAP filename: %\n" b.filename
+					newFIleName = substitutestring b.filename "R:\RESSOURCES" "N:\Ressources_Nico"
+					if doesfileexist newFIleName then 
+					(
+						b.filename = newFIleName
+						format "RE MAP filename: % >>> newName:%\n" b.filename newFIleName
+					)
+					else
+					(
+						format "NOT CONFORM filename: %\n" b.filename
+					)
+-- 					meditMaterials[activeMeditSlot] = b
+				)
 				else if matchpattern b.filename pattern: "D:\RESSOURCES*" then
 				(
 -- 					format "RE MAP filename: %\n" b.filename

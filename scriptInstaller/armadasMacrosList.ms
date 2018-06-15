@@ -126,7 +126,9 @@
 	(
 	-- 	local root = getroot()
 	-- 	filein (@"N:\Ressources_Nico\github\00_wip\Maxscript\objReplacer\pickandmerge.ms")
-		filein ((getroot()) +  "scriptInstaller/armadasScriptInstall.ms")
+		local armadasScriptsIni = (GetDir #maxData) + "armadasScriptsIni.ini"
+		local root = getINISetting armadasScriptsIni "armadasScripts" "armadasScriptsRoot"
+		filein ((root()) +  "scriptInstaller/armadasScriptInstall.ms")
 	)
 )
 

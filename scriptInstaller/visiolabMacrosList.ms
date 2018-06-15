@@ -4,10 +4,10 @@
 	objReplacerPath = "objReplacer/000/obj_replacer.ms"
 
 	macroScript PickAndMerge
-		category: "VisioLab"
-		buttonText: "PickAndMerge"
-		toolTip:""
-		icon: #("pickandmergeicon",1)
+	category: "VisioLab"
+	buttonText: "PickAndMerge"
+	toolTip:""
+	icon: #("pickandmergeicon",1)
 	(
 	-- 	local root = getroot()
 	-- 	filein (@"N:\Ressources_Nico\github\00_wip\Maxscript\objReplacer\pickandmerge.ms")
@@ -16,9 +16,9 @@
 	)
 
 	macroScript objectReplacer
-		category: "VisioLab"
-		buttonText: "Obj Replacer"
-		toolTip:""
+	category: "VisioLab"
+	buttonText: "Obj Replacer"
+	toolTip:""
 	-- 	icon: #("pickandmergeicon16",1)
 	(
 	-- 	local root = getroot()
@@ -27,9 +27,9 @@
 	)
 
 	macroScript collapseRailClone
-			category: "VisioLab"
-		buttonText: "Collapse RC"
-		toolTip:""
+	category: "VisioLab"
+	buttonText: "Collapse RC"
+	toolTip:""
 	(
 
 		-- collapse railclone
@@ -68,10 +68,9 @@
 	category: "VisioLab"
 	buttonText: "Reload"
 	toolTip:"Reload Visiolab Script"
-	-- 	icon: #("pickandmergeicon16",1)
 	(
-	-- 	local root = getroot()
-	-- 	filein (@"N:\Ressources_Nico\github\00_wip\Maxscript\objReplacer\pickandmerge.ms")
+		local armadasScriptsIni = (GetDir #maxData) + "armadasScriptsIni.ini"
+		local root = getINISetting armadasScriptsIni "armadasScripts" "armadasScriptsRoot"
 		filein ((getroot()) +  "scriptInstaller/visiolabScriptInstall.ms")
 	)
 
@@ -83,3 +82,14 @@
 	(
 		if classof $ == editable_poly then $.editablepoly.bridge()
 	)
+	
+	macroscript CleanOutElts
+	category: "VisioLab"
+	buttonText: "CleanOutElts"
+	toolTip:"Clean Output Render Elements"
+	(
+		re = maxOps.GetCurRenderElementMgr ()
+		num = re.numrenderelements ()
+		for i = 0 to (num - 1) do re.SetRenderElementFilename i ""
+	)
+	
