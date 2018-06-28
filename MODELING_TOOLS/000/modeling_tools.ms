@@ -9,13 +9,6 @@ fn getInstancesFN sel =
 	instances
 )
 
-/*
-fn randomColorFN sel =
-(
-	randomColor = color (random 0 255) (random 0 255) (random 0 255)
-	sel.wirecolor =  randomColor
-)
-*/
 
 fn desinstance sel =
 (
@@ -30,9 +23,6 @@ fn desinstance sel =
 
 )
 
-
-
-
 fn centerPivotDef sel = 
 (
 	for s in sel do
@@ -40,7 +30,7 @@ fn centerPivotDef sel =
 		s.pivot = s.center
 	)
 )
-
+/*
 fn goutteDeauFN sel =
 (
 	polyop.bevelFaces sel #selection 3 0
@@ -58,47 +48,20 @@ fn debordFN sel =
 	polyop.bevelFaces sel #selection 0 -10
 	polyop.bevelFaces sel #selection  -3 0
 )
-
-/*
-fn randomWireFN useFirstId: true =
-(
-	for mat in sceneMaterials do 
-	(
-		randomWire = color (random 0 255) (random 0 255) (random 0 255) 
-		sel = objects as array
-		for o in sel do 
-		(
-			if (superclassof o == GeometryClass) do 
-			(
-				if (classof o.material) == multimaterial and useFirstId == true then
-				(
--- 					print mat 
--- 					print o
-					if o.material[1] == mat  do o.wirecolor = randomWire
-				)
-				else if  o.material == mat then
-				(
-					o.wirecolor = randomWire
-				)
-			)
-		)
-	)
-)
--- randomWireFN()
 */
 
 --debug: make usabled on multiselection
-fn makeFloorFN currentSel outLIneVal: -15 innerAmountVal: 0 outerAmountVal: 10  collapseMesh: true=
+fn makeFloorFN s outLIneVal: -15 innerAmountVal: 0 outerAmountVal: 10  collapseMesh: true =
 (
 	local sel =  currentSel
 	-- add editpoly
-	for s in sel do
-	(
+-- 	for s in sel do
+-- 	(
 		if classof s == splineshape do
 		(
 			if (isClosed s 1) then
 			(
-			undo on
+			undo off
 				(
 					myEditPoly = Edit_Poly()
 					addmodifier s myEditPoly
@@ -118,11 +81,11 @@ fn makeFloorFN currentSel outLIneVal: -15 innerAmountVal: 0 outerAmountVal: 10  
 					if collapseMesh then converttopoly s 
 
 					-- material "interieur"G
-					sel.material = sceneMaterials["interieur"]
+-- 					sel.material = sceneMaterials["interieur"]
 				)
 			)
 		)
-	)
+-- 	)
 )
 
 
@@ -156,20 +119,27 @@ fn clusterAttach objArr =
 	(
 		while objArr.count > 1 do
 		(
-			if classof objArr[j].baseobject != editable_Mesh then 
-			(
-				converttoMesh objArr[j]
--- 				update objArr[j]
-			)
+			
+			
+			if classof objArr[j].baseobject != editable_Mesh then converttoMesh objArr[j]
+				
+			-- DESINSTANCE
 			/*
-			if classof objArr[j+1].baseobject != editable_Mesh then
+			if (InstanceMgr.CanMakeObjectsUnique objArr[j]) then
 			(
-				converttoMesh objArr[j+1]
-				update objArr[j+1]
+				format "desinstance: %\n" objArr[j].name
+				InstanceMgr.MakeObjectsUnique objArr[j] #prompt
+			)
+			
+			if (InstanceMgr.CanMakeObjectsUnique objArr[j+1]) then
+			(
+				format "desinstance: %\n" objArr[j+1].name
+				InstanceMgr.MakeObjectsUnique objArr[j+1] #prompt
 			)
 			*/
-
+			-- ATTACH
 			attach objArr[j] objArr[j+1]
+			
 			deleteItem objArr (j+1)
 
 			j += 1
@@ -180,6 +150,37 @@ fn clusterAttach objArr =
 	)
 	objArr[1]
 )
+
+-- s = $
+fn explodeByElts s =
+(
+	local detached = #()
+	if classof s == editable_poly then
+	(
+		facesCount = polyop.getNumFaces s
+		while facesCount > 0 do
+		(
+			newName = uniqueName s.name
+			facesToDetachs = polyop.getElementsUsingFace s #{1}
+			polyop.detachFaces s facesToDetachs delete:true asNode:true name: newName
+			
+			newObj = getnodebyname newName
+			append detached newObj
+			
+			facesCount = polyop.getNumFaces s
+		)
+		delete s
+		
+		
+	)
+	else
+	(
+		format "selectionnez un edtable_poly"
+	)
+	detached
+)
+detached =  explodeByElts $
+
 
 -- transfert
 fn transfertModifiers sel =
@@ -231,8 +232,9 @@ fn extrudeFaces size =
 
 try(destroyDialog miscRLT)catch()
 
-rollout miscRLT "Modeling utilities"
+rollout miscRLT "Modeling Tools"
 (
+	local params = #("pos","outlineSP", "innerSp", "outerSp", "collapseCB")
 -- 	vars
 	local sourceInstance
 	
@@ -259,59 +261,68 @@ rollout miscRLT "Modeling utilities"
 		
 		SetDialogPos rlt posBak
 	)
-	
-	
 
-	
-	/*
-	group "wirecolor: "
-	(
-		button randColBT "random color"
-		checkbox multiMatIDCB "use first id for multimaterial" checked: true
-		button randomWireBT "wirecolor by material"
-	)
-	*/
 	group "Instances:"
 	(
 		button getInstBT "get instances"
 		button desInstBT "de-instances selection"
 	)
 	
+	group "Make floor:"
+	(
+		spinner outlineSP "outline" type: #worldunits range:[-1000,1000,0]
+		spinner innerSp "Inner:" type: #worldunits range:[0,1000,2]
+		spinner outerSp "Outer:" type: #worldunits range:[0,1000,2]
+		checkbox collapseCB "collapse mesh"
+		button makeFloorBT "make floor"
+	)
 	
-	group "Modeling:"
+	group "Polygon:"
 	(
 -- 		button goutteBT "goutte d'eau"
 -- 		button debordBT "debord balcon"
 		
-		button makeFloorBT "make floor"
+
 -- 		button connectRingBT "connect ring x1"
 -- 		button connectRing2BT "connect ring x2"
-		button cleanCombineBT "combine"
+		button cleanCombineBT "Combine"
 		
-		button converttopolyBT "convert to poly"
+		button converttopolyBT "convert to poly"		
+		button explodeEltsBT "Explode mesh"
+	)
+	
+	group "Extrusion:"
+	(
 		
 		button extrudeBT "extrusion 25"
 		button extrude34BT "extrusion 34"
 	)
 	
-	button centerPivotBT "center pivot"
-	
+	group "pivot"
+	(
+		button centerPivotBT "center pivot"
+		button pivotToEdgeBT "pivot to edge" enabled: false
+	)
+
+	/*
 	group "instance replacer:"
 	(
 		button addSourceBT "add>>"
 		edittext sourceET "source:"
 		button replaceInstanceBT "replace by instance"
 	)
-	
+	*/
 -- 	Actions
 	on miscRLT open do
 	(
-		loadPosition miscRLT.name miscRLT
+		loadRolloutParams miscRLT Params
+-- 		loadPosition miscRLT.name miscRLT
 	)
 	
 	on miscRLT close do
 	(
-		writePosition miscRLT.name miscRLT
+		writeRolloutParams miscRLT Params
+-- 		writePosition miscRLT.name miscRLT
 	)
 	
 	on getInstBT pressed do
@@ -334,11 +345,15 @@ rollout miscRLT "Modeling utilities"
 		)
 	)
 	
-	on goutteBT pressed do goutteDeauFN $	
-	on debordBT pressed do debordFN $
+-- 	on goutteBT pressed do goutteDeauFN $	
+-- 	on debordBT pressed do debordFN $
 		
 
-	on makeFloorBT pressed do makeFloorFN (selection as array) 
+	on makeFloorBT pressed do
+	(
+		sel = selection as array
+		for s in sel do makeFloorFN s outLIneVal: outlineSP.value innerAmountVal: innerSp.value outerAmountVal: outerSp.value collapseMesh: collapseCB.checked
+	)
 	
 	on connectRingBT pressed do 
 	(
@@ -369,6 +384,17 @@ rollout miscRLT "Modeling utilities"
 		local bef = timestamp()
 		clusterAttach (selection as array)
 		format "attach done: % ms\n" ((timestamp()) - bef)
+	)
+	
+	on explodeEltsBT pressed do
+	(
+		sel = selection as array
+		clearselection()
+		for s in sel do
+		(
+			exploded = explodeByElts s
+			if not exploded == undefined then selectmore exploded
+		)
 	)
 		
 	on centerPivotBT pressed do centerPivotDef (selection as array)
@@ -404,7 +430,7 @@ rollout miscRLT "Modeling utilities"
 			)
 		)
 	)
-	
+	/*
 	on transferModBT pressed do
 	(
 		sel = selection as array
@@ -416,8 +442,9 @@ rollout miscRLT "Modeling utilities"
 		sel = selection as array
 		transferColor sel
 	)
-	
+	*/
 	--#### instance replacer actions ###
+	/*
 	on addSourceBT pressed do
 	(
 		sel = selection as array
@@ -445,6 +472,8 @@ rollout miscRLT "Modeling utilities"
 			instancereplace sel sourceInstance
 		)
 	)
+	*/
 )
 createDialog miscRLT --style: #(#style_minimizebox, #style_titlebar ,#style_border , #style_sysmenu,#style_maximizebox )
 
+-- miscRLT.collapseCB.checked

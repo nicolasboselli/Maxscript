@@ -1,3 +1,43 @@
+bmpAr = getclassinstances bitmaptexture target: scenematerials
+i = 1
+missingBMP = #()
+
+
+for b in bmpAr do
+(
+	if b.filename != undefined then
+	(
+		if doesfileexist b.filename then
+		(
+	-- 					format "Found: % %\n" i b.filename 
+		)
+		else if not doesfileexist b.filename then
+		(
+			format "Not Found: % %\n" i b.filename 
+			append missingBMP b
+
+		)
+		else()
+		i += 1
+	)
+	else format "Not Found: % %\n" i undefined
+)
+
+
+for b in bmpAr do
+(
+	refdep = refs.dependents b  
+	for r in refDep where superclassof r == material  do
+	(
+		if not classof r == multimaterial then format "%\n" r
+	)
+		
+)
+
+refdep = refs.dependents bmpAr[4]  
+
+scenematerials[]
+
 sceneMatAr = scenematerials
 
 badMatAr = #()

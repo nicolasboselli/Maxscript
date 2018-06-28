@@ -14,12 +14,12 @@
 
 fn detachFaces2 s =
 (
-	local faceCount = polyop.getNumFaces s
-	local edges_list = s.EditablePoly.getSelection #edge
+	local faceCount = polyop.getNumFaces s.baseobject
+	local edges_list = s.baseobject.EditablePoly.getSelection #edge
 
 	polyop.capHolesByEdge s edges_list
 	
-	local faceCountAft = polyop.getNumFaces s
+	local faceCountAft = polyop.getNumFaces s.baseobject
 
 	local newFaces = for i = faceCount + 1 to faceCountAft collect i
 		
@@ -35,14 +35,14 @@ fn detachFaces2 s =
 fn detach_face_fenetre s =
 (
 
-	edges_list = s.EditablePoly.getSelection #edge
+	edges_list = s.baseobject.EditablePoly.getSelection #edge
 
 	polyop.capHolesByEdge s edges_list
 	s.ConvertSelection #edge #face
 
-	s.EditablePoly.ShrinkSelection selLevel: #face
+	s.baseobject.EditablePoly.ShrinkSelection selLevel: #face
 
-	fenetres_list = s.EditablePoly.getSelection #face
+	fenetres_list = s.baseobject.EditablePoly.getSelection #face
 
 	polyop.detachFaces s fenetres_list delete:true asNode:true name: (uniquename "fenetre") 
 )
@@ -74,7 +74,7 @@ fn pivotOnFAce s =
 	posCenter = s.center
 	bakTM = s.transform
 	
-	theX = normalize ((polyop.getFaceNormal s 1)*-1)
+	theX = normalize ((polyop.getFaceNormal s.baseobject 1)*-1)
 	theY = normalize (cross [0,0,1] theX )
 	theZ= normalize (cross theX theY)
 	
@@ -105,7 +105,7 @@ fn pivotOnFAce3  s normal: 1 flipNormal: true upnode: 3 flipUpnode: false =
 	local posCenter = s.center
 	local bakTM = s.transform
 	
-	theNormal = normalize ( ( polyop.getFaceNormal s 1) * invNormal )
+	theNormal = normalize ( ( polyop.getFaceNormal s.baseobject 1) * invNormal )
 	theOther = normalize ( cross   ( [0,0,1] * invUpnode ) theNormal)
 	theUpnode= normalize ( cross theNormal theOther )
 	
@@ -196,7 +196,7 @@ rollout boxerizeRLT "Boxerize"
 					for s in s_array do 
 					(
 						select s
-						s.EditablePoly.SetSelection #Edge ((polyOp.getOpenEdges s) as bitarray)
+						s.baseobject.EditablePoly.SetSelection #Edge ((polyOp.getOpenEdges s.baseobject) as bitarray)
 						detachFaces2 s
 					)
 				)
@@ -250,7 +250,7 @@ rollout boxerizeRLT "Boxerize"
 			(
 				select s
 				s.outlineAmount = boxOutlineSP.value
-				s.EditablePoly.Outline ()
+				s.baseobject.EditablePoly.Outline ()
 			
 				myShell = Shell innerAmount:boxSizeOutSP.value outerAmount:boxSizeSP.value
 				addmodifier s myShell
@@ -278,17 +278,17 @@ rollout boxerizeRLT "Boxerize"
 			for s in sel do
 			(
 				select s
-				polyop.setFaceSelection s #all
+				polyop.setFaceSelection s.baseobject #all
 				
 				s.outlineAmount = boxOutlineSP.value
-				s.EditablePoly.Outline ()
+				s.baseobject.EditablePoly.Outline ()
 				
 				-- detacher chaque element
 				local selArr = explodeObject s
 
 				for o in selArr do
 				(
-					if (polyop.getNumFaces o)>0 do
+					if (polyop.getNumFaces o.baseobject)>0 do
 					(
 						-- reset in place
 						pivotOnFAce3  o normal:  normalRB.state flipNormal: flipNormalBT.state upnode: upnodeRB.state flipUpnode: flipUpnodeBT.state
@@ -311,5 +311,5 @@ rollout boxerizeRLT "Boxerize"
 	)
 )
 createdialog boxerizeRLT
-polyop.setFaceSelection $ #all
+-- polyop.setFaceSelection $ #all
 

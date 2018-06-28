@@ -84,16 +84,10 @@ rollout objReplacerRLT "objects replacer "
 	)
 	
 	-- connections
-	on addRefBT pressed do
-	(
-		sel = selection as array
-		refObj = checkReference sel
-		refreshUI()
-	)
 	
 	on addSelBT pressed do
 	(
-		local refObjTmp = checkReference2 (selection as array)
+		local refObjTmp =  checkReference2 (selection as array)
 		
 		for r in refObjTmp do appendifunique refAr r
 		

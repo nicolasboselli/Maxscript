@@ -80,6 +80,7 @@ filein ((getRoot ()) + "sceneManagement/isolateSlectionCustom.ms")
 
 -- ########## UPDATE DES MACROS
 -- copy les icones des macros dans le dossier user
+-- maj: tester si la copie est nécessaire avant de le faire
 fn copyBmpIcons =
 (
 	local iconsArray = getfiles ((getRoot()) + "icons\*.bmp")

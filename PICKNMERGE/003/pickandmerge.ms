@@ -81,7 +81,7 @@ filein ((getRoot()) + "Rig/lastParent_def.ms")
 -- p = getProperty  PickNMergeRLT "mergeObjFolder"
 
 try(destroydialog PickNMergeRLT)catch()
-rollout PickNMergeRLT "Pick And Merge"
+rollout PickNMergeRLT "Loader"
 (
 -- 	vars
 	local sourceObj

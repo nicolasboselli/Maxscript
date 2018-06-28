@@ -47,8 +47,12 @@ fn getRoot =
 -- pre Load des fonctions
 filein ((getRoot ()) + "scriptInstaller/armadasScriptsPreLoad.ms")
 
--- load du fichier de macros
+-- load du fichier de macros armadas
 filein ((getRoot ()) + "scriptInstaller/armadasMacrosList.ms")
+
+-- load du fichier de macros visiolab
+filein ((getRoot ()) + "scriptInstaller/visiolabMacrosList.ms")
+
 
 
 

@@ -462,11 +462,11 @@ rollout vrMatRlt "VRay mat Lib"
 			(
 				if doesfileexist b.filename then
 				(
-					format "Found: % %\n" i b.filename 
+-- 					format "Found: % %\n" i b.filename 
 				)
 				else if not doesfileexist b.filename then
 				(
-					format "Not Found: %\n" i b.filename 
+					format "Not Found: % %\n" i b.filename 
 				)
 				else()
 				i += 1

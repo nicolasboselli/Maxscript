@@ -1,7 +1,9 @@
 -- oneCat = "ArmadasScripts"
 (
-	ArmadasScriptLauncherPath = "\scriptsLauncher\001\launcher.ms"
-
+	global ArmadasScriptLauncherPath = "\scriptsLauncher\001\launcher.ms"
+	global ArmadasScriptModelingUtilitiesPath = "\MODELING_TOOLS\000\modeling_tools.ms"
+	global ArmadasScriptMaterialsUtilitiesPath = "\MATERIALS_TOOLS\deMultiMat.ms"
+	global ArmadasMatLibExplorerPath = "\MATLIB_EXPLORER\000\vrMatLib3.ms"
 
 	-- install macroscript for explorer with relative path from ini file
 	macroScript ArmadasScriptExplorer
@@ -21,8 +23,8 @@
 		toolTip:""
 		icon: #("armadasScriptsFavorites",1)
 	(
--- 		filein ((getroot()) + ArmadasScriptLauncherPath)
-		filein ((getroot()) +  "\scriptsLauncher\001\launcher.ms")
+		filein ((getroot()) + ArmadasScriptLauncherPath)
+-- 		filein ((getroot()) +  "\scriptsLauncher\001\launcher.ms")
 	)
 
 	-- install macroscript for asset opener with relative path from ini file
@@ -42,10 +44,9 @@
 		toolTip:""
 		icon: #("ArmadasScriptModelingUtilities",1)
 	(
-		local root = getroot()
-		filein (root +"\\" + "zz_mode_archi" + "\\" + "misc.ms" )
+		filein ((getroot()) + ArmadasScriptModelingUtilitiesPath)
 	)
-	-- "C:/repo_github/DEV_maxscript/00_wip/zz_mode_archi/misc.ms"
+
 
 	macroScript ArmadasScriptMaterialsUtilities
 		category: "ArmadasScripts"
@@ -54,7 +55,8 @@
 		icon: #("ArmadasScriptMaterialsUtilities",1)
 	(
 	-- 	local root = getroot()
-		filein ((getroot()) +"/rendering/Vray_Script/deMultiMat.ms" )
+		filein ((getroot()) + ArmadasScriptMaterialsUtilitiesPath )
+-- 		filein ((getroot()) +"/rendering/Vray_Script/deMultiMat.ms" )
 	)
 	-- "C:/repo_github/DEV_maxscript/00_wip/rendering/Vray_Script/deMultiMat.ms"
 
@@ -128,7 +130,24 @@
 	-- 	filein (@"N:\Ressources_Nico\github\00_wip\Maxscript\objReplacer\pickandmerge.ms")
 		local armadasScriptsIni = (GetDir #maxData) + "armadasScriptsIni.ini"
 		local root = getINISetting armadasScriptsIni "armadasScripts" "armadasScriptsRoot"
-		filein ((root()) +  "scriptInstaller/armadasScriptInstall.ms")
+		filein (root +  "scriptInstaller/armadasScriptInstall.ms")
 	)
+	
+	macroScript ArmadasMatLibExplorer
+	category: "ArmadasScripts"
+	buttonText: "Mat Lib"
+-- 	toolTip:"Reload Armadas Script"
+	-- 	icon: #("pickandmergeicon16",1)
+	(
+	-- 	local root = getroot()
+	-- 	filein (@"N:\Ressources_Nico\github\00_wip\Maxscript\objReplacer\pickandmerge.ms")
+-- 		local armadasScriptsIni = (GetDir #maxData) + "armadasScriptsIni.ini"
+-- 		local root = getINISetting armadasScriptsIni "armadasScripts" "armadasScriptsRoot"
+-- 		filein ((getroot()) +  "scriptInstaller/armadasScriptInstall.ms")
+-- 		filein ((getroot()) +  "MATLIB_EXPLORER/000/vrMatLib3.ms")
+		filein ((getroot()) +  ArmadasMatLibExplorerPath )
+		
+	)
+	
 )
 

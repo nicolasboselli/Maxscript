@@ -2,6 +2,14 @@
 
 -- targets = selection as array
 
+/*
+maj: 
+	pour faire correctement fonctionner le returnBBsize4, donc sans créer de groupe ni de parenter il faut retourner:
+		-- une bounding box
+		-- un centre de la selection
+		-- une orientation (headof group si présent)
+*/
+
 
 filein "createCtrlDef.ms"
 
@@ -61,17 +69,19 @@ fn checkReference2 sel =
 	
 	for s in sel do
 	(
-		if not isGroupMember s then
+		if not isGroupMember s or isGroupHead s then
 		(
 			append checkedSel s
 		)
 	)
 	
+	format "checkedSel: %\n" checkedSel
 	checkedSel
+
 )
 
 
--- checkReference selection
+-- checkReference2 (selection as array)
 -- for s in selection do format "s: %, isgroupMember: %, isgroupHead: %\n" s (isGroupMember s) (isGroupHead s)
 
 
@@ -119,24 +129,14 @@ fn returnBBsize3 ref =
 	[xsize, ysize, zsize]
 )
 
--- ref = dad[1]
--- sel = #(ref)
--- for s in sel do
--- (
--- 	for c in s.children do append sel c
--- )
--- sel
-
--- sel = selection as array
--- dad = for s in sel where isgroupHead s collect s
-
-fn returnBBsize4 ref = 
+fn returnBBsize4 sel = 
 (
--- 	sel = selection as array
--- 	dads = findHeadsOfHierarchy2 sel
--- 	dad = dads[1]p
+	/*
+	faire focntionner la fonction sur les groupes ou les selections d'objects
+	*/
 	
-	sel = #(ref)
+	-- fonctionne sur les selection d'objets
+	ref = sel[1]
 		
 	xAr = #()
 	yAr = #()
@@ -160,14 +160,65 @@ fn returnBBsize4 ref =
 	zsize = distance ([0,0,(amin zAr)]) ([0,0,(amax zAr)])
 		
 	[xsize, ysize, zsize]
-	
 )
 
--- returnBBsize4 dad[1]
--- amin xar
+-- sel = selection as array
+-- for s in sel do
+-- (
+-- 	for c in s.children do append sel c
+-- )
+
+fn returnBBsize5 ref = 
+(
+	-- fonctionne sur les groupes
+
+	sel = #(ref)
+	
+	-- collecter tous les membres du groupe
+	for s in sel do
+	(
+		for c in s.children do append sel c
+	)
+		
+	xAr = #()
+	yAr = #()
+	zAr = #()
+	
+	for s in sel do
+	(
+		
+		local BBtmp = nodeGetBoundingBox s ref.transform
+		append xAr BBtmp[1].x
+		append xAr BBtmp[2].x
+		append yAr BBtmp[1].y
+		append yAr BBtmp[2].y
+		append zAr BBtmp[1].z
+		append zAr BBtmp[2].z
+		for c in s.children do append sel c
+	)
+	
+	xsize = distance ([(amin xAr),0,0]) ([(amax xAr),0,0])
+	ysize = distance ([0, (amin yAr),0]) ([0,(amax yAr),0])
+	zsize = distance ([0,0,(amin zAr)]) ([0,0,(amax zAr)])
+		
+	[xsize, ysize, zsize]
+)
+
+
+-- returnBBsize5 $
+-- returnBBsize4 (selection as array)
+
+
 
 fn replaceObject2 ref target  rescaleX: true rescaleY: true rescaleZ: true =
 (
+-- 	memo:
+	-- s il y a une tete de groupe dans la selection c'est cet objet qui devient ref
+	-- sinon c'est le premier objet de la selection
+		-- ou une matrix construite sur le centre de la selection et l'orientation du premier objet
+	
+	local copyRef
+	
 	-- get ref size
 	refSize = returnBBsize2 ref
 	
@@ -178,7 +229,7 @@ fn replaceObject2 ref target  rescaleX: true rescaleY: true rescaleZ: true =
 	-- copy ref 
 	maxOps.cloneNodes ref cloneType:#instance newNodes:&copyRef
 	
-	-- create point at center of ref 
+	-- create point at center of copyref 
 	ctrlTmp = createOneCtrl 27 copyRef true
 	
 	-- calculate ratio ref/target
