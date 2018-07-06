@@ -2,7 +2,6 @@
 maj:
 	rajouter le nouvel objet sur le meme  calque que l'original
 */
-
 -- explose meshes
 
 fn getFacesID s =

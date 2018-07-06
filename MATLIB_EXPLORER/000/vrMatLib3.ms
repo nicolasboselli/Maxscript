@@ -36,24 +36,18 @@ maj:
 
 */
 
-fn sortMatbyname v1 v2 =
+fn sortbyname v1 v2 =
 (
-	-- qsort <array> sortbyname
 -- 	vars
 	local d
 	
-	if ( (toLower v1.name) < (toLower v2.name)) then
-		d=-1
-	else
-		d=1
+	if ( (toLower v1.name) < (toLower v2.name)) then d=-1
+	else d=1
 	
 --compare les numeros entre eux et les classe	
-	case of
-	(
-		(d < 0.): -1
-		(d > 0.): 1
-		default: 0
-	)
+	if 	(d < 0.) then -1
+	else if (d > 0.) then 1
+	else 0
 )
 
 
