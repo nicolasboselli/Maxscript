@@ -31,12 +31,21 @@ fn sliceObject b rep =
 	(
 		local modCount
 		local b2 = copy b
-		format "copy: %\n" b2.name
+-- 		format "copy: %\n" b2.name
 		resetxform b2
-		format "resetxform\n" 
-		converttomesh b2
-		format "converttomesh\n" 
-		update b2
+		
+-- 		resetxform b2
+-- 		/*
+		modCount = b2.modifiers.count
+		xformMod = b2.modifiers[1]
+		addmodifier b2 xformMod before: modCount
+		deleteModifier b2 1
+		maxOps.CollapseNodeTo b2 modCount true
+-- 		*/
+-- 		format "resetxform\n" 
+-- 		converttomesh b2
+-- 		format "converttomesh\n" 
+-- 		update b2
 		
 		if i <= rep.count and i > 1 then
 		(
@@ -124,6 +133,7 @@ rollout decoupEtageRLT "découpe etage"
 -- 		button sortBT "sort"
 	)
 	
+	button showHideBT "show/hide"
 	button decoupeBT "decoupe"
 	button addToLayBT "add to layer"
 	
@@ -135,6 +145,7 @@ rollout decoupEtageRLT "découpe etage"
 	on decoupEtageRLT open do
 	(
 		if rep == undefined then rep = #()
+		refreshUI ()
 	)
 	
 	on addBT pressed do 
@@ -148,6 +159,24 @@ rollout decoupEtageRLT "découpe etage"
 	(
 		rep = #()
 		refreshUI ()		
+	)
+	
+	on showHideBT pressed do
+	(
+		local selAr = CutPlaneMLB.selection as array
+		format "selAr: %\n" selAr
+		for i in selAr do
+		(
+-- 		if selAr.count == 1 then
+-- 		(
+			format "layer: %\n"  rep[i].name
+			l = layermanager.getLayerFromName  rep[i].name
+			if l != undefined then
+			(
+				l.ishidden = not l.ishidden
+			)
+-- 			if l == undefined then l = layermanager.newLayerFromName  rep[selAr[1]].name
+		)
 	)
 	
 	on decoupeBT pressed do

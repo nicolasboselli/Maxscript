@@ -1,6 +1,19 @@
 -- $.scale
 -- placer le plan de decoupe au dessus de l'etage, r0_bat au dessus du rdc
 
+resetxform $
+modCount = $.modifiers.count
+xformMod = $.modifiers[1]
+addmodifier $ xformMod before: modCount
+deleteModifier $ 1
+maxOps.CollapseNodeTo $ modCount true
+
+sl = SliceModifier name: "delete_up" Slice_Type:2
+modCount = $.modifiers.count
+
+collapseStack $.modifiers[1]
+
+
 
 
 

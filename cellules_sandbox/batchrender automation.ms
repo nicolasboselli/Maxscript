@@ -1,5 +1,6 @@
 
-outputPath = @"T:\Kaufman\Amiens_0518\Prevue\Cellule\T2"
+-- outputPath = @"T:\Kaufman\Amiens_0518\Prevue\Cellule\T2"
+outputPath = @"T:\Kaufman\Amiens_0518\Cellules\CELLULES TYPE\T2_amenagement\rendus"
 
 cams = for c in cameras where classof c != Targetobject collect c
 pref = "59241"

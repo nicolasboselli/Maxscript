@@ -1,8 +1,12 @@
 sel = selection as array
 
-l = sel[sel.count].layer
+dest = sel[sel.count]
+pack = for i = 1 to (sel.count - 1) collect sel[i]
 
-for i = 1 to (sel.count - 1) do
+fn addtolayer pack dest =
 (
-	l.addnode sel[i]
+	l = dest.layer
+	for i = 1 to sel.count do l.addNode sel[i]
 )
+
+addtolayer pack dest

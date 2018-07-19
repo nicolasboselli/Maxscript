@@ -32,7 +32,7 @@ rollout objReplacerRLT "objects replacer "
 	-- function
 	local RLTvers = getScriptVersion (getThisScriptFilename())
 		
-	local refAr = #()
+	global refAr
 	local sourceObj
 	local mergedNodes = #()	
 	
@@ -161,7 +161,8 @@ rollout objReplacerRLT "objects replacer "
 	
 	
 	fn refreshUI =
-	(		
+	(	
+		refAr = for o in refAr where isvalidnode o collect o
 		refArMLB.items = for o in refAr collect o.name
 	)
 	
@@ -175,6 +176,8 @@ rollout objReplacerRLT "objects replacer "
 -- 	actions
 	on objReplacerRLT open do
 	(
+		if refAr == undefined then refAr = #()
+		refAr = for ref in refAr where isvalidnode ref collect ref
 		loadRolloutParams objReplacerRLT Params
 		if RLTvers != undefined then objReplacerRLT.title = objReplacerRLT.title + " v." + (RLTvers as string)
 		enableBT rescaleOnBT.state
@@ -263,7 +266,12 @@ rollout objReplacerRLT "objects replacer "
 							)
 							format  "result: %\n" res
 							
-						)else(format "not valid node: %\n" refObj)
+						)
+						else
+						(
+							format "not valid node: %\n" refObj
+							refreshUI()
+						)
 					)
 					else
 					(

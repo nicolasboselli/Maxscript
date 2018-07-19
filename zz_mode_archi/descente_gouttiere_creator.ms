@@ -1,4 +1,7 @@
 -- descente gouttiere creator
+-- maj:
+	-- creer une descente de gouttiere apres cahque knot
+	-- rendre le declage editable
 
 masse = $masse
 
@@ -10,32 +13,45 @@ s = splineShape() --create a spline shape
 
 for sp = 1 to spCount do
 (
-	addNewSpline s
-
-	local knotPos = getKnotPoint l sp 1
+	local knotCount = numKnots l sp
 	
-	-- direction de la spline	
-	local dirZ = [0,0,1]
-	local dirX = normalize ((getKnotPoint l sp 2) - (getKnotPoint l sp 1))
-	local dirY = normalize (cross dirZ dirX)
-		
-	local TM = matrix3 dirX dirY dirZ knotPos
-		
-	local Pt1pos = [10, -10, 10]
-	local Pt2pos = [10, -10, -10]
-	local Pt3pos = [10, 35, -20]
+-- 	local newSp = 0
+	for k = 1 to (knotCount - 1) do
+	(	
+		format "sp: % knot: %\n" sp k
 
-	-- tracer un rayon jusqu au sol
-	local testRay = ray (Pt3pos * TM) [0,0,-1]
-	local masseImpact = intersectRay masse testRay
-	
-	-- creation des points
-	addKnot s sp #corner #line  (Pt1pos * TM) 
-	addKnot s sp #corner #line  (Pt2pos * TM) 
-	addKnot s sp #corner #line  (Pt3pos * TM) 
-	addKnot s sp #corner #line  (masseImpact.pos) 
+		
+		local knotPos = getKnotPoint l sp k
+		
+		-- direction de la spline	
+		local dirZ = [0,0,1]
+		local dirX = normalize ((getKnotPoint l sp (k+1)) - (getKnotPoint l sp k))
+		local dirY = normalize (cross dirZ dirX)
+			
+		local TM = matrix3 dirX dirY dirZ knotPos
+		
+		-- decalage
+		local decayK = 50	
+		
+		local Pt1pos = [decayK, -10, 10]
+		local Pt2pos = [decayK, -10, -10]
+		local Pt3pos = [decayK, 25, -20]
+
+		-- tracer un rayon jusqu au sol
+		local testRay = ray (Pt3pos * TM) [0,0,-1]
+		local masseImpact = intersectRay masse testRay
+		
+		-- creation des points
+		newSp = addNewSpline s
+
+		addKnot s newSp #corner #line  (Pt1pos * TM) 
+		addKnot s newSp #corner #line  (Pt2pos * TM) 
+		addKnot s newSp #corner #line  (Pt3pos * TM) 
+		addKnot s newSp #corner #line  (masseImpact.pos) 
+	)
 	
 )
+-- redrawviews()
 updateshape s
 
 

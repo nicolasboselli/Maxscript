@@ -64,14 +64,17 @@ fn checkReference sel =
 fn checkReference2 sel =
 (
 	local checkedSel = #()
-	local isgroup = False
-	local tmpDummy
+-- 	local isgroup = False
+-- 	local tmpDummy
 	
 	for s in sel do
 	(
-		if not isGroupMember s or isGroupHead s then
+		if isvalidnode s then
 		(
-			append checkedSel s
+			if not isGroupMember s or isGroupHead s then
+			(
+				append checkedSel s
+			)
 		)
 	)
 	

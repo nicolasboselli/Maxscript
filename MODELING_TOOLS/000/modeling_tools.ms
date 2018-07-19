@@ -237,6 +237,13 @@ fn alignPivotOnEdge s =
 )
 -- alignPivotOnEdge $
 
+fn addtolayer pack dest =
+(
+	l = dest.layer
+	l.current = true
+	for i = 1 to pack.count do l.addNode pack[i]
+)
+
 try(destroyDialog miscRLT)catch()
 
 rollout miscRLT "Modeling Tools"
@@ -249,26 +256,6 @@ rollout miscRLT "Modeling Tools"
 	local maxIni = getMAXIniFile()
 	local armadasScriptsIni = (getFilenamePath maxIni) + "armadasScriptsIni.ini"
 	
--- 	fn writePosition cat rlt =
--- 	(
--- 		posBak = GetDialogPos rlt
--- 		res = setINISetting armadasScriptsIni cat "pos" (posBak as string)
--- 		res
--- 		format  "position saved: %\n" res
--- 	)
--- 	
--- 	fn loadPosition cat rlt =
--- 	(
--- 		posBak = [800,250]
--- 		if (hasINISetting armadasScriptsIni cat "pos") then
--- 		(
--- 			posBakStr = getINISetting armadasScriptsIni  cat "pos"
--- 			posBak = execute posBakStr
--- 		)
--- 		
--- 		SetDialogPos rlt posBak
--- 	)
-
 	group "Instances:"
 	(
 		button getInstBT "get instances"
@@ -320,15 +307,12 @@ rollout miscRLT "Modeling Tools"
 	(
 		button scale1BT "scale1"
 	)
-
-	/*
-	group "instance replacer:"
+	
+	group "layer"
 	(
-		button addSourceBT "add>>"
-		edittext sourceET "source:"
-		button replaceInstanceBT "replace by instance"
+		button addToSelLayerBT "add to layer selected"
 	)
-	*/
+
 -- 	Actions
 	on miscRLT open do
 	(
@@ -361,10 +345,6 @@ rollout miscRLT "Modeling Tools"
 -- 			selectmore res
 		)
 	)
-	
--- 	on goutteBT pressed do goutteDeauFN $	
--- 	on debordBT pressed do debordFN $
-		
 
 	on makeFloorBT pressed do
 	(
@@ -454,5 +434,14 @@ rollout miscRLT "Modeling Tools"
 		)
 	)
 	
+	on addToSelLayerBT pressed do
+	(
+		sel = selection as array
+
+		dest = sel[sel.count]
+		pack = for i = 1 to (sel.count - 1) collect sel[i]
+
+		addtolayer pack dest
+	)	
 )
 createDialog miscRLT --style: #(#style_minimizebox, #style_titlebar ,#style_border , #style_sysmenu,#style_maximizebox )
