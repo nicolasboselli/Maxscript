@@ -18,7 +18,7 @@ rollout renameRLT "Multi Renamer" width: 400
 
 			
 	-- UI
-	
+	checkbutton lockedCB "locked selection"
 	multiListbox namesMLB "names:"
 	
 	edittext nameET "name:"
@@ -103,27 +103,29 @@ rollout renameRLT "Multi Renamer" width: 400
 		else 	s = undefined
 	)
 	
-	fn updateUI =
+	fn updateUI  locked: false =
 	(
-		sel = selection as array
+		if locked then
+		(
+			format "bouh\n"
+		)
+		else
+		(
+			format "youpi\n"
+			sel = selection as array
+			refreshUI()
+			namesMLB.selection = 1
+
+		)
 		
-		/*
-		if sel.count > 1 then s= sel[1]
-		else s = undefined 
-		*/
-		/*
-		namesMLB.items = for s in sel collect s.name
-		if s != undefined then nameET.text = s.name
-		-- replace prevue
-		if s != undefined and search != undefined and rep != undefined then prevET.text = substituteString s.name search rep
-		*/
-		refreshUI()
-		namesMLB.selection = 1
+-- 		sel = selection as array
+-- 		refreshUI()
+-- 		namesMLB.selection = 1
 		initS()
 		refreshUI()
 	)
 	
-	fn refreshUI_NEC ev nd = updateUI ()
+	fn refreshUI_NEC ev nd = updateUI  locked: lockedCB.state
 	
 	fn changeSuffix sname suf =
 	(
@@ -153,8 +155,24 @@ rollout renameRLT "Multi Renamer" width: 400
 	-- groupe name
 	on namesMLB selectionEnd do
 	(
+		for s in sel do s.xray = false
+		
+		if lockedCB.state then
+		(
+			tmpSelId = for i in namesMLB.selection collect i
+			clearselection()
+			for id in tmpSelId do 
+			(
+				selectmore sel[id]
+				sel[id].xray = true
+			)
+-- 			for
+-- 			select smpSel
+		)
+		
 		initS()
 		refreshUI()
+
 	)
 	
 	
@@ -293,14 +311,16 @@ rollout renameRLT "Multi Renamer" width: 400
 	
 	on renameRLT open do 
 	(
+-- 		(gc ())
 		callSel = NodeEventCallback  selectionChanged: refreshUI_NEC
-		updateUI()
+		updateUI locked: lockedCB.state
 -- 		print "youpi"
 	)
 	
 	on renameRLT close do
 	(
 		callSel = undefined
+		(gc ())
 -- 		print "ploufe"
 	)
 	
