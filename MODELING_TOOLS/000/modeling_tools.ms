@@ -3,11 +3,11 @@
 -- select instances
 
 filein "cleanspline.ms"
-
+-- superclassof $.baseobject
 
 fn inverseKnotOrder l =
 (
-	if superclassof l == Shape then
+	if superclassof l.baseobject == Shape then
 	(
 		max modify mode
 		modPanel.setCurrentObject l.baseobject
@@ -164,9 +164,7 @@ fn explodeByElts s =
 			
 			facesCount = polyop.getNumFaces s
 		)
-		delete s
-		
-		
+		delete s		
 	)
 	else
 	(
@@ -174,7 +172,6 @@ fn explodeByElts s =
 	)
 	detached
 )
-detached =  explodeByElts $
 
 
 -- transfert

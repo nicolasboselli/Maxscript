@@ -2,7 +2,7 @@
 (
 	global ArmadasScriptLauncherPath = "\scriptsLauncher\001\launcher.ms"
 	global ArmadasScriptModelingUtilitiesPath = "\MODELING_TOOLS\000\modeling_tools.ms"
-	global ArmadasScriptMaterialsUtilitiesPath = "\MATERIALS_TOOLS\deMultiMat.ms"
+	global ArmadasScriptMaterialsUtilitiesPath = "\MATERIALS_TOOLS\000\deMultiMat.ms"
 	global ArmadasMatLibExplorerPath = "\MATLIB_EXPLORER\000\vrMatLib3.ms"
 
 	-- install macroscript for explorer with relative path from ini file

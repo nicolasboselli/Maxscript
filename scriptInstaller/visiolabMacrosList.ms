@@ -1,8 +1,9 @@
 -- oneCat = "VisioLab"
-
-	pickAndMergePath = "PICKNMERGE/001/pickandmerge.ms"
-	objReplacerPath = "objReplacer/000/obj_replacer.ms"
-
+(
+	global pickAndMergePath = "PICKNMERGE/001/pickandmerge.ms"
+	global objReplacerPath = "objReplacer/000/obj_replacer.ms"
+	global cellsCreatorPath = @"M:\Interieur\Cellules\Modelisation\cellsCreator.ms"
+	
 	macroScript PickAndMerge
 	category: "VisioLab"
 	buttonText: "PickAndMerge"
@@ -93,3 +94,12 @@
 		for i = 0 to (num - 1) do re.SetRenderElementFilename i ""
 	)
 	
+	macroscript cellsCreator
+	category: "VisioLab"
+	buttonText: "cellsCreator"
+	toolTip:""
+	(
+		filein cellsCreatorPath
+	)
+
+)

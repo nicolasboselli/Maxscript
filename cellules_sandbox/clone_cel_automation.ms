@@ -2,7 +2,7 @@
 -- dupliquer les objets en renommant les variantes
 (
 	--//SUFFIX TO ADD TO NEW LAYERS
-	suffix = "_LP"
+	suffix = "_copy"
 	
 	--//FUNCTION TO GET OR CREATE A LAYER FROM A NAME
 	fn getOrCreateLayerFromName layerName =

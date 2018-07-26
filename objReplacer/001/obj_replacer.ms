@@ -138,7 +138,7 @@ rollout objReplacerRLT "objects replacer "
 	-- ui	
 	group "Muli-Selections:"
 	(
-		multiListBox refArMLB "selection:"
+		multiListBox refArMLB "selection:" height: 30
 		button addSelBT "add" across: 2
 		button removeBT "remove"
 	)

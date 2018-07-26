@@ -639,11 +639,19 @@ fn collectObjByMat matRef objSet =
 	sameMultiMatObjList
 )
 
-try(destroyDialog deMultiMatRLT)catch()
+
+-- 	local param = #("pos")
+
+try(closeRolloutFloater  theNewMaterialToolFloater)catch()
+theNewMaterialToolFloater = newRolloutFloater "Materials Tools" 300 800
+-- try(destroyDialog deMultiMatRLT)catch()
 rollout deMultiMatRLT "Materials Tools"
 (
+	
 	local lastManNum = 0
-	local params = #("pos")
+	local RFPos = [0,0]
+	local RFSIze = [300,800]
+	local params = #("RFPos", "RFSIze")
 	
 	
 	group "wirecolor: "
@@ -669,16 +677,16 @@ rollout deMultiMatRLT "Materials Tools"
 	
 	group "explode multi-Materials:"
 	(
-		checkbox matchMatCB "match materials"
+		checkbox matchMatCB "match materials" across:2
 		button explodeBT "explode by material"
 	)
 	
 	group "scene Materials:"
 	(
-		button refreshBT "refresh scene materials"
+		button refreshBT "refresh scene materials" across:2
 		checkbox vronlyCB "ignore vray materials"
 		
-		button publishSceneMatBT "publish scene materials"
+		button publishSceneMatBT "publish scene materials" across:2
 		button listSceneMatBT "list scene materials"
 	)
 	
@@ -698,10 +706,11 @@ rollout deMultiMatRLT "Materials Tools"
 	
 	group "Vray Material:"
 	(
-		button createVrMtlBT "create vray material"
-		button convertToVrBT "convert to vray mat"
-		button okConvertBT "confirm"
-		button createMultiBT "create multi-mat"
+		button createVrMtlBT "create vray material" across:2
+		button createMultiBT "create multi-mat" 
+		button convertToVrBT "convert to vray mat" across:2
+		button okConvertBT "confirm" 
+
 -- 		button showBT "show properties"
 
 -- 		button collectVrMtlBT "collect material"
@@ -715,7 +724,7 @@ rollout deMultiMatRLT "Materials Tools"
 	
 	group "select objects with medit mat only"
 	(
-		button isolateByMatBT "in scene"
+		button isolateByMatBT "in scene" across:2
 		button isolateByMat2BT "in visibles objects "
 -- 		checkbox isolateCB "isolate"
 	)
@@ -739,15 +748,23 @@ rollout deMultiMatRLT "Materials Tools"
 	
 	on deMultiMatRLT open do
 	(
+		local RLTvers = getScriptVersion (getThisScriptFilename())
+		format "RLTvers:%\n" RLTvers
+		if RLTvers != undefined then theNewMaterialToolFloater.title = theNewMaterialToolFloater.title + " v." + (RLTvers as string)
+			
 		loadRolloutParams deMultiMatRLT params
+		theNewMaterialToolFloater.pos = (execute RFPos)
+		theNewMaterialToolFloater.size = (execute RFSIze)
 	)
 	
 	on deMultiMatRLT close do
 	(
+-- 		format "ahhhh!: % \n" theNewMaterialToolFloater.pos
+		RFPos = theNewMaterialToolFloater.pos
+		RFSIze = theNewMaterialToolFloater.size
 		writeRolloutParams deMultiMatRLT params
 	)
-	
-	
+		
 	on randColBT pressed do
 	(
 		for s in selection do randomColorFN s
@@ -956,10 +973,8 @@ rollout deMultiMatRLT "Materials Tools"
 	
 	
 )
-createdialog deMultiMatRLT
+-- createdialog deMultiMatRLT
 
-/*
-sel = selection as array
-withoutMatAr = for s in sel where s.material == undefined and superclassof s == GeometryClass collect s
-select withoutMatAr
-*/
+
+addRollout deMultiMatRLT theNewMaterialToolFloater
+
