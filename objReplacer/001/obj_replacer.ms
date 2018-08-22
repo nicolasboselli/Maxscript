@@ -295,6 +295,8 @@ rollout objReplacerRLT "objects replacer "
 		(
 			maxOps.cloneNodes refSelAr[1] cloneType:#instance newNodes:&mergedNodes
 			
+			for m in mergedNodes do m.ishidden = false
+			
 			sourceObj = point name: (uniquename "toto_CTRL")
 			
 			local toParent = for m in  mergedNodes collect m

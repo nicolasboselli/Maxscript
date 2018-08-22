@@ -3,7 +3,7 @@ fn lastParent sel =
 (
 	undo on
 	(
-		format "parenting start\n" -- to: log
+-- 		format "parenting start\n" -- to: log
 		local daddy = sel[sel.count]
 		
 		for i = 1 to (sel.count - 1) do
@@ -21,7 +21,7 @@ fn lastParent sel =
 -- 					format "i: %, parent: % ,j: %\n" sel[i].name sel[i].parent.name sel[j].name
 					if sel[i].parent == sel[j] then 
 					(
-						print "check2"
+-- 						print "check2"
 						parentable = false
 						parentInSel = true
 						exit
@@ -60,7 +60,7 @@ fn lastParent sel =
 -- 					format "i: %, groupHead: %, groupmember: %, parent: %, parentable:%, parentinsel: % \n" sel[i].name (isGroupHead sel[i])  (isGroupMember sel[i]) sel[i].parent parentable parentInSel
 					sel[i].parent = daddy
 				)
-				else (format "no parenting\n")
+				else (/*format "no parenting\n"*/)
 			)
 			catch(format "FAIL: % , ERROR: %\n"  sel[i].name (getcurrentexception()))
 		)
