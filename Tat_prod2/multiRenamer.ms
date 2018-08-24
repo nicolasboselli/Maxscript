@@ -1,7 +1,27 @@
--- Maj: add replace string
+/*
+maj: 
+-- increment du nom:
+	-- récupérer le nombre en suffixe en entier avant de faire l'increment
+	-- faire fonctionner sur la selection locker et delocker et non sur la selection d'objetx dans la scene
+*/
 
-try(destroydialog renameRLT)catch()
-rollout renameRLT "Multi Renamer" width: 400
+fn incrementName n charId: 1 inc: 1 =
+(
+	local newName
+	local count
+	
+	try (count = n[charId] as integer) catch(count = undefined)
+	
+	if not count == undefined then
+	(
+		newName = n
+		newName[charId] = ((count + inc) as string)
+	)
+	newName
+)
+
+try(destroydialog multiRenameRLT)catch()
+rollout multiRenameRLT "Multi Renamer" width: 400
 (
 	-- vars
 	local s
@@ -22,6 +42,13 @@ rollout renameRLT "Multi Renamer" width: 400
 	multiListbox namesMLB "names:"
 	
 	edittext nameET "name:"
+	
+	group "number"
+	(
+		spinner idSP "char index:" type: #integer range:  [1,1000,1] across: 3
+		spinner jumpSP "inc:" type: #integer  range: [-100,100,1]
+		button numberBT "+"
+	)
 	
 	group "name:"
 	(
@@ -175,6 +202,43 @@ rollout renameRLT "Multi Renamer" width: 400
 
 	)
 	
+	on idSP changed val do
+	(
+-- 		format "youpi\n"
+		sel = selection as array
+		if sel.count > 0 then
+		(
+-- 			local var = sel[1].name
+			testName = incrementName sel[1].name charId: val inc: jumpSP.value
+			format "new name: %\n" testName
+		)
+	)
+	
+	on jumpSP changed val do
+	(
+		sel = selection as array
+		if sel.count > 0 then
+		(
+-- 			local var = sel[1].name
+			testName = incrementName sel[1].name charId: idSP.value inc: val
+			format "new name: %\n" testName
+		)
+	)
+	
+	on numberBT pressed do
+	(
+		sel = selection as array
+		newSel = #()
+		for s in sel do
+		(
+			tmpName = incrementName s.name charId: idSP.value inc: jumpSP.value
+			if tmpName != undefined then s.name = tmpName
+-- 			copyS = copyIncNameNMove s id:idSP.value jump:jumpSP.value moving: true decay: [xSp.value, ySP.value, zSp.value]
+-- 			append newSel copyS
+		)
+-- 		select newSel
+		refreshUI()
+	)
 	
 	on nameET changed val do
 	(
@@ -343,7 +407,7 @@ rollout renameRLT "Multi Renamer" width: 400
 	)
 	
 )
-createdialog(renameRLT)
+createdialog(multiRenameRLT)
 
 --  printName = undefined 
 

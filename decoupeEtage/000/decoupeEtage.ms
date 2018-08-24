@@ -3,7 +3,7 @@
 
 
 
-
+/*
 fn sortbyname v1 v2 =
 (
 	-- qsort <array> sortbyname
@@ -23,6 +23,42 @@ fn sortbyname v1 v2 =
 		default: 0
 	)
 )
+*/
+
+fn sortbyname v1 v2 =
+(
+	-- qsort <array> sortbyname
+-- 	vars
+	local d
+	
+	if ( (toLower v1.name) < (toLower v2.name)) then
+		d=-1
+	else
+		d=1
+	
+--compare les numeros entre eux et les classe	
+	if (d < 0.) then -1
+	else if (d > 0.) then 1
+	else 0
+)
+
+
+-- arrayTest = for i = 1 to 10 collect i
+-- arrayTest = arrayTest as bitarray
+fn moveItem oneAr idAr jump: 1 =
+(
+	sort idAr
+	for i = idAr.count to 1 by -1 do
+	(
+		downed = oneAr[idAr[i] + jump]
+		deleteitem oneAr (idAr[i]+ jump)
+		insertitem downed oneAr idAr[i]
+	)
+)
+-- upItem arrayTest #(5,4,3,2,1) jump: 1
+-- arrayTest
+
+
 
 -- $.modifiers.count
 fn sliceObject b rep =
@@ -117,9 +153,14 @@ fn sliceObject b rep =
 		)
 	)
 	b.boxmode = true
+	b.showFrozenInGray = true
+	b.isfrozen = true
+	b.wirecolor = (color 125 125 125)
+
 	
 )
 -- rep
+
 
 try(destroydialog decoupEtageRLT)catch()
 rollout decoupEtageRLT "découpe etage"
@@ -127,10 +168,12 @@ rollout decoupEtageRLT "découpe etage"
 	global rep -- = #()
 	group "plans de découpe:"
 	(
-		multilistbox CutPlaneMLB "liste de plans:"
+		multilistbox CutPlaneMLB "liste de plans:" tooltip: "Les plans de découpe les plus hauts dans la scene sont les plus bas dans la liste.\n\nUn plan de découpe doit toujours être au dessus de l'étage découpé."
 		button addBT "add" across: 2
 		button clearBT "clear"
--- 		button sortBT "sort"
+		button upBT "^" across: 2 
+		button dwBT "v"
+		button sortBT "sort"
 	)
 	
 	button showHideBT "show/hide"
@@ -148,10 +191,46 @@ rollout decoupEtageRLT "découpe etage"
 		refreshUI ()
 	)
 	
+	on upBT pressed do
+	(
+		local jump = -1
+		local curArray = CutPlaneMLB.selection as array
+		local newSel = for i in curArray collect i + jump
+		
+		format "newsel: %\n" newsel
+		
+		if (amin newSel) >= 1 then
+		(
+			moveItem rep curArray jump: jump
+			CutPlaneMLB.selection = newSel as bitarray
+		)
+		refreshUI()
+	)
+	
+	on dwBT pressed do
+	(		
+		local jump = 1
+		local curArray = CutPlaneMLB.selection as array
+		local newSel = for i in curArray collect i + jump
+			
+		if (amax newSel) <= rep.count then
+		(
+			moveItem rep curArray jump: jump
+			CutPlaneMLB.selection = newSel as bitarray
+		)
+		refreshUI()
+	)
+	
+	on sortBT pressed do
+	(
+		qsort rep sortbyname
+		refreshUI ()
+	)
+	
 	on addBT pressed do 
 	(
 		for s in selection do appendifunique rep s
-		qsort rep sortbyname
+-- 		qsort rep sortbyname
 		refreshUI ()
 	)
 	
@@ -208,103 +287,3 @@ rollout decoupEtageRLT "découpe etage"
 )
 createdialog decoupEtageRLT
 
-
-
--- layermanager.newLayerFromName  rep[1].name
--- l = layermanager.getLayerFromName  "r01_bat"
--- l.addnode $
-
--- $.numfaces
-
-/*
-rep = $R*_bat as array
-rep.count
-
--- b = $Box13701
-
-sel = selection as array
-for b in sel do
-(
--- 	b = $
-	firstDone = false
-	lastDone = false
-	for i = 1 to ( rep.count  )do
-	(
-		if i <= rep.count and i > 1 then
-		(
-			format "etage: % traitement 1\n" rep[i].name
-			b2 = copy b
-			b2.name = b.name +"_r" +  ((i - 1) as string)
-	-- 		print "check 1"
-			
-			sl = SliceModifier name: "delete_down" Slice_Type:3
-			addmodifier b2 sl
-			b2.modifiers["delete_down"].slice_plane.position.z = in coordsys b rep[i - 1].position.z
-	-- 		print "check 2"
-			
-			sl = SliceModifier name: "delete_up" Slice_Type:2
-			addmodifier b2 sl
-			b2.modifiers["delete_up"].slice_plane.position.z = in coordsys b rep[i].position.z
-	-- 		print "check 3"
-			
-			l = layermanager.getLayerFromName  rep[i].name
-			if l == undefined then l = layermanager.newLayerFromName  rep[i].name
-			l.addnode b2
-			
-			if b2.numfaces == 0 then delete b2
-	-- 		print "check 4"
-		)
-		else if i == 1 then
-		(
-			format "etage: % traitement 2\n" rep[i].name
-			b1 = copy b
-			b1.name = b.name +"_r" +  ((i - 1) as string)
-	-- 		print "check1"
-			
-			sl = SliceModifier name: "delete_up" Slice_Type:2
-			addmodifier b1 sl
-			b1.modifiers["delete_up"].slice_plane.position.z = in coordsys b rep[i].position.z
-	-- 		print "check2"
-
-			l = layermanager.getLayerFromName  rep[i].name
-			if l == undefined then l = layermanager.newLayerFromName  rep[i].name
-			l.addnode b1
-			
-			if b1.numfaces == 0 then delete b1
-	-- 		print "check3"
-		)
-		else if i == (rep.count + 1) then
-		(
-			format "etage: % traitement 3\n" rep[i].name
-			b3 = copy b
-			b3.name = b.name +"_r" +  (i as string)
-			
-			sl = SliceModifier name: "delete_down" Slice_Type:3
-			addmodifier b3 sl
-			b3.modifiers["delete_down"].slice_plane.position.z = in coordsys b rep[i - 1].position.z
-				
-			l = layermanager.getLayerFromName  rep[i - 1].name
-			if l == undefined then l = layermanager.newLayerFromName  rep[i].name
-			l.addnode b3
-			
-			if b3.numfaces == 0 then delete b3
-
-		)
-	)
-	b.boxmode = true
-)
-*/
-
-
-/*4
-for i = 1 to rep.count do
-(
-	raySize
-	baseRay = polyop.getSlicePlane b size:&raySize
-	baseRay.position.z = rep[i].position.z
-
--- 	polyop.setSlicePlane b baseRay raySize
-	polyop.slice b #all baseRay
-)
-redrawViews ()
-*/

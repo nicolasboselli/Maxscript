@@ -58,7 +58,7 @@ fn convertToVrCam s =
 )
 
 try(destroyDialog Pt2vue_renderer_UI)catch()
-rollout Pt2vue_renderer_UI "Rendeur de points de vues" width: 500
+rollout Pt2vue_renderer_UI "Batch Render Automator" width: 500
 (
 	local params = #("outputPath", "outputPathMaq")
 	
@@ -182,29 +182,29 @@ rollout Pt2vue_renderer_UI "Rendeur de points de vues" width: 500
 	(
 
 -- 		button delOtherCamBT "Supprimer les autres"
-		edittext sceneStateET "new scene state:" pos:[15,310] width: 420
-		button newSceneStateBT "create" pos:[440, 310]
+		edittext sceneStateET "new scene state:" pos:[15,310] width: 420 enabled: false
+		button newSceneStateBT "create" pos:[440, 310] enabled: false
 		Multilistbox BatchRenderMLT "scene states:"  
 		
 		
 		
-		button saveLigthStateBT "Save Scene State" width: 120 across: 3	
-		button loadLigthStateBT "Load Scene State" width: 120
-		button delCamSelect "Del Scene State Cam" width: 120 
+		button saveLigthStateBT "Save Scene State" width: 120 across: 3	enabled: false
+		button loadLigthStateBT "Load Scene State" width: 120 enabled: false
+		button delCamSelect "Del Scene State Cam" width: 120  enabled: false
 	)
 	
 	group "Still - Batch Render"
 	(
 		edittext savepath  "Path:" text: "" readonly: true
 		button SelectPathFile "..." across: 3
-		button createBatchRenderBT "Batch from Cam"
+		button createBatchRenderBT "Batch from Cam" enabled: false
 		button batchFromStateBT "Batch from State"
 	)
 	
 	group "Animation - Batch Render"
 	(
 		edittext savepathMaqET  "Path:" text: "" readonly: true
-		button SelectPathFileMaqBT  "..." across: 3
+		button SelectPathFileMaqBT  "..." across: 2
 -- 		button createBatchRenderBTMaq "Batch from Cam"
 		button batchFromStateMaqBT "Batch from sel State"
 	)
@@ -463,12 +463,6 @@ rollout Pt2vue_renderer_UI "Rendeur de points de vues" width: 500
 	
 	on batchFromStateBT pressed do
 	(
--- 		cam = $Camera001
--- 		outputPath = @"T:\BPD Marignan\SoBlagnac_0917\Perspectives\Perspectives\ptsdevue"
-		
-		
--- 		local idSel 
-		
 		local statesIds = BatchRenderMLT.selection
 		
 		for c in camselAr do
@@ -493,31 +487,7 @@ rollout Pt2vue_renderer_UI "Rendeur de points de vues" width: 500
 				
 			)
 		)	
-		
-		
-		/*
-		num = sceneStateMgr.GetCount()   
-		for i = 1 to num do
-		(
-			local oneName = sceneStateMgr.GetSceneState i
-			
-				-- prevoir les exception avec un find view
-			local check = batchRenderMgr.FindView oneName
-			if check == 0 then
-			(
-				local batch = batchRenderMgr.CreateView undefined
-				batch.name = oneName
-				batch.camera = camSel
--- 				format "outputPathFolder: %, outputPath: %\n" outputPathFolder outputPath
-				local filename = outputPath + "\\" + oneName + ".jpg"
-				format "path: %\n" filename
 				
-				batch.sceneStateName = oneName
-				batch.outputFilename = filename
-			)else(format "batch render deja existant: %\n" oneName)
-		)
-		*/
-		
 	)
 	
 	on SelectPathFileMaqBT pressed do
@@ -548,7 +518,7 @@ rollout Pt2vue_renderer_UI "Rendeur de points de vues" width: 500
 					batch.name = c.name + "_" + oneName
 					batch.camera = c
 -- 					local filename = outputPathMaq + "\\" + c.name + "_" + oneName + "\\"+ c.name + "_" + oneName + "_.jpg"
-					local filename = outputPathMaq + "\\"  + oneName + "\\" + oneName + "_.jpg"
+					local filename = outputPathMaq + "\\" + "CAM_" + c.name + "\\"+ oneName + "\\" + oneName + "_.jpg"
 -- 					format "folder: %\n"filename
 					makedir (getFilenamePath  filename)
 					batch.sceneStateName = oneName
@@ -562,66 +532,3 @@ rollout Pt2vue_renderer_UI "Rendeur de points de vues" width: 500
 	)
 )
 createdialog Pt2vue_renderer_UI
-
-
-/*
-test = sceneStateMgr.GetSceneState 1
-
-b = batchRenderMgr.GetView 1
-showinterface b
-b.camera 
-b.width 
-b.height 
-b.startFrame 
-b.endFrame 
-b.name
-b.presetFile 
-b.sceneStateName 
-b.enabled
-b.pixelAspect 
-b.overridePreset 
-b.outputFilename
-*/
-
-	/*
-	on addCamSelect pressed do 
-	(
-		
-		if isvalidnode camsel then
-		(
-			setUserProp camsel "camToRender" true
-			appendifunique camToRender camsel
-			setUserProp camToRender[i] "camToRender" true
-		)
-		else format "SELECTION INCORRECTE"
-		
-		refreshUI()
-	)
-	*/
-	
--- Render Camera actions
-	/*
-	on delCamSelect pressed do
-	(
-		cameToRemoveID = BatchRenderMLT.selection as array
-		
-		
-		for i = cameToRemoveID.count to  1 by -1 do
-		(
-			
-			format "cams to remove: %\n" camToRender[i].name
-			deleteitem camToRender i
-			setUserProp camToRender[i] "camToRender" false
--- 			format "cams to remove: %\n" camToRender[i].name
-		)
-		
--- 		format "cams to remove: %\n" cameToRemove
-		
-		for i=(SceneCamsMLT.selection as array).count to 1 by -1  do
-		(			
-			deleteItem camToRender (SceneCamsMLT.selection as array)[i]
-		)
-		
-		refreshUI()
-	)
-	*/
