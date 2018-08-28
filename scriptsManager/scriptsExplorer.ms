@@ -176,6 +176,9 @@ rollout scriptExplorerRLT "Scripts Explorer"
 -- 	vars
 -- 	local maxIni = getMAXIniFile()
 -- 	local armadasScriptsIni = (getFilenamePath maxIni) + "armadasScriptsIni.ini"
+	
+	local armadasScriptsIni = (GetDir #maxData) + "armadasScriptsIni.ini"
+	
 	local params = #("pos")
 	
 	/*
