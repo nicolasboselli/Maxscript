@@ -15,26 +15,13 @@ fn round_to val n =
 	(floor ((val * mult) + 0.5)) / mult
 )
 
-/*
-fn createBoxOrient s =
-(
-	faceSel = polyop.getfaceselection s 
-	posObj = s.pos
-	posCenter = polyop.getFaceCenter s (faceSel as array)[1]
-	theZ = polyop.getFaceNormal s (faceSel as array)[1]
-	theY = normalize (cross [0,0,1] theZ )
-	theX = normalize (cross theY theZ)
-	theTM = matrix3   theX theY theZ posCenter
-
-	rep = box transform: theTM
-)
-*/
 fn createBoxOrient2 s =
 (
 	faceSel = polyop.getfaceselection s 
 	posObj = s.pos
 	posCenter = polyop.getFaceCenter s (faceSel as array)[1]
 	theZ = polyop.getFaceNormal s (faceSel as array)[1]
+	-- arrondissement de la valeur de Z pour eviter les sauts
 	for i = 1 to 3 do theZ[i] = round_to theZ[i] 4
 		
 	theY = normalize (cross [0,0,1] theZ )
@@ -158,6 +145,12 @@ rollout edgeToShapeRLT "edge to shape"
 		checkbox delBoxOrientCB "delete Box orient"
 	)
 	
+	group "split by angle:"
+	(
+		checkbox splitCB "split" enabled: false
+		spinner angleSp "Angle:" range: [0, 360, 45] enabled: false
+	)
+	
 	checkbox keepSelCB "keep selection"
 	
 -- 	group "box orient:"
@@ -166,6 +159,65 @@ rollout edgeToShapeRLT "edge to shape"
 -- 	)
 	
 	button extractBT "extract"
+	
+	on edgeToShapeRLT open do
+	(
+		loadRolloutParams edgeToShapeRLT Params
+	)
+	
+	on edgeToShapeRLT close do
+	(
+		writeRolloutParams edgeToShapeRLT Params
+	)
+	
+	on resetXformCB changed state do
+	(
+		collapseXformCB.state = state
+		
+		if state then
+		(
+			createBoxOrientCB.state = not state
+			xformOnBoxCB.state = not state
+			collapseXformCB2.state = not state
+			delBoxOrientCB.state = not state
+		)
+
+	)
+	
+	on xformOnBoxCB changed state do
+	(
+		if state then
+		(
+			resetXformCB.state = not state
+			collapseXformCB.state = not state
+		)
+		
+		createBoxOrientCB.state =  state
+-- 		xformOnBoxCB.state =  state
+		collapseXformCB2.state =  state
+		delBoxOrientCB.state =  state
+
+	)
+	
+	on addSweepCB changed theState do
+	(
+		addExtrusionCB.state = false
+		addMatCB.enabled = false
+		extSizeSP.enabled = false
+	)
+	
+	on extSizeSP changed size do
+	(
+		extSize = size
+	)
+	
+	on addExtrusionCB changed  theState do
+	(
+		addSweepCB.state = false
+
+		addMatCB.enabled = false
+		extSizeSP.enabled = true
+	)
 	
 	on extractBT pressed do
 	(
@@ -264,67 +316,6 @@ rollout edgeToShapeRLT "edge to shape"
 		)
 	)
 	
-	
-	on resetXformCB changed state do
-	(
-		collapseXformCB.state = state
-		
-		if state then
-		(
-			createBoxOrientCB.state = not state
-			xformOnBoxCB.state = not state
-			collapseXformCB2.state = not state
-			delBoxOrientCB.state = not state
-		)
-
-	)
-	
-	on xformOnBoxCB changed state do
-	(
-		if state then
-		(
-			resetXformCB.state = not state
-			collapseXformCB.state = not state
-		)
-		
-		createBoxOrientCB.state =  state
--- 		xformOnBoxCB.state =  state
-		collapseXformCB2.state =  state
-		delBoxOrientCB.state =  state
-
-	)
-	
-	on addSweepCB changed theState do
-	(
-		addExtrusionCB.state = false
-		addMatCB.enabled = false
-		extSizeSP.enabled = false
-	)
-	
-	on extSizeSP changed size do
-	(
-		extSize = size
-	)
-	
-	on addExtrusionCB changed  theState do
-	(
-		addSweepCB.state = false
-
-		addMatCB.enabled = false
-		extSizeSP.enabled = true
-	)
-	
-
-	
-	on edgeToShapeRLT open do
-	(
-		loadRolloutParams edgeToShapeRLT Params
-	)
-	
-	on edgeToShapeRLT close do
-	(
-		writeRolloutParams edgeToShapeRLT Params
-	)
 	
 )
 createDialog edgeToShapeRLT 

@@ -277,6 +277,9 @@ rollout boxerizeRLT "Boxerize"
 		(
 			for s in sel do
 			(
+				resetxform s
+				converttopoly s
+				
 				select s
 				polyop.setFaceSelection s.baseobject #all
 				

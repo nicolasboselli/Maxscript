@@ -167,6 +167,7 @@ rollout objReplacerRLT "objects replacer "
 						format "reference et target sont un même objet\n"
 					)
 				)
+				select targetArr
 			)
 		)
 		else
