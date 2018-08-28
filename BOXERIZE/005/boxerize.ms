@@ -134,6 +134,7 @@ rollout boxerizeRLT "Boxerize"
 	(
 		button createFacesBT "create faces"
 		button resetpivotBT "reset Pivot"
+		button resetXformpivotBT "reset X form"
 	)
 	
 	group "explode:"
@@ -215,6 +216,15 @@ rollout boxerizeRLT "Boxerize"
 	on resetpivotBT pressed do
 	(
 		for s in selection do resetpivot s
+	)
+	
+	on resetXformpivotBT pressed do
+	(
+		for s in selection do 
+		(
+			resetxform s
+			converttopoly s
+		)
 	)
 	
 	-- explosion

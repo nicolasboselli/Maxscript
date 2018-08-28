@@ -2,6 +2,32 @@
 
 -- select instances
 
+filein "cleanspline.ms"
+-- superclassof $.baseobject
+
+fn inverseKnotOrder l =
+(
+	if superclassof l.baseobject == Shape then
+	(
+		max modify mode
+		modPanel.setCurrentObject l.baseobject
+		subObjectLevel = 1
+
+		spCount = numSplines   l
+		for i = 1 to spCount do
+		(
+			knCount =numknots l i
+		-- 	format "knots: % \n" knCount
+			setKnotSelection l i #(knCount)
+		)
+		splineOps.makeFirst l
+
+		subObjectLevel = 0
+		
+		format "make first done: %\n" l.name
+	)else()
+)
+
 fn getInstancesFN sel = 
 (
 	InstanceMgr.GetInstances sel &instances
@@ -12,15 +38,12 @@ fn getInstancesFN sel =
 
 fn desinstance sel =
 (
--- 	all = $* as array
-
 	-- 	InstanceMgr.GetInstances all[1] &instNodes
-		if (InstanceMgr.CanMakeObjectsUnique sel) then
-		(
-			format "desinstance: %\n" sel.name
-			InstanceMgr.MakeObjectsUnique sel #prompt
-		)
-
+	if (InstanceMgr.CanMakeObjectsUnique sel) then
+	(
+		format "desinstance: %\n" sel.name
+		InstanceMgr.MakeObjectsUnique sel #prompt
+	)
 )
 
 fn centerPivotDef sel = 
@@ -30,64 +53,41 @@ fn centerPivotDef sel =
 		s.pivot = s.center
 	)
 )
-/*
-fn goutteDeauFN sel =
-(
-	polyop.bevelFaces sel #selection 3 0
-	polyop.bevelFaces sel #selection 0 -5
-	polyop.bevelFaces sel #selection  -1 0
-	polyop.bevelFaces sel #selection 0 -1
-	polyop.bevelFaces sel #selection 1 0
-	polyop.bevelFaces sel #selection 0 -5
-	polyop.bevelFaces sel #selection -3 0
-)
-
-fn debordFN sel = 
-(
-	polyop.bevelFaces sel #selection 3 0
-	polyop.bevelFaces sel #selection 0 -10
-	polyop.bevelFaces sel #selection  -3 0
-)
-*/
 
 --debug: make usabled on multiselection
 fn makeFloorFN s outLIneVal: -15 innerAmountVal: 0 outerAmountVal: 10  collapseMesh: true =
 (
 	local sel =  currentSel
-	-- add editpoly
--- 	for s in sel do
--- 	(
-		if classof s == splineshape do
+
+	if classof s == splineshape do
+	(
+		if (isClosed s 1) then
 		(
-			if (isClosed s 1) then
+		undo off
 			(
-			undo off
-				(
-					myEditPoly = Edit_Poly()
-					addmodifier s myEditPoly
-					convertto s editable_poly
+				myEditPoly = Edit_Poly()
+				addmodifier s myEditPoly
+				convertto s editable_poly
 
-					-- outline 15 cm
-					select s
-					polyop.setFaceSelection  s #all
-					s.outlineAmount = outLIneVal
-					s.EditablePoly.Outline ()
+				-- outline 15 cm
+				select s
+				polyop.setFaceSelection  s #all
+				s.outlineAmount = outLIneVal
+				s.EditablePoly.Outline ()
 
-					-- shell 10cm
-					myShell = Shell innerAmount: innerAmountVal outerAmount:outerAmountVal
-					addmodifier s myShell
+				-- shell 10cm
+				myShell = Shell innerAmount: innerAmountVal outerAmount:outerAmountVal
+				addmodifier s myShell
 
-					-- convert to poly
-					if collapseMesh then converttopoly s 
+				-- convert to poly
+				if collapseMesh then converttopoly s 
 
-					-- material "interieur"G
+				-- material "interieur"G
 -- 					sel.material = sceneMaterials["interieur"]
-				)
 			)
 		)
--- 	)
+	)
 )
-
 
 fn connectRingFN s loopNum: 1 =
 (
@@ -97,7 +97,6 @@ fn connectRingFN s loopNum: 1 =
 	s.connectEdges()
 )
 
-
 -- refresh scenematerial
 fn updateSceneMaterials =
  (
@@ -106,10 +105,7 @@ fn updateSceneMaterials =
  )
 -- updateSceneMaterials()
 
-
 -- attach object select in the same object
-
- 
 fn clusterAttach objArr =
 (
 	j = 1
@@ -124,7 +120,7 @@ fn clusterAttach objArr =
 			if classof objArr[j].baseobject != editable_Mesh then converttoMesh objArr[j]
 				
 			-- DESINSTANCE
-			/*
+			
 			if (InstanceMgr.CanMakeObjectsUnique objArr[j]) then
 			(
 				format "desinstance: %\n" objArr[j].name
@@ -136,7 +132,7 @@ fn clusterAttach objArr =
 				format "desinstance: %\n" objArr[j+1].name
 				InstanceMgr.MakeObjectsUnique objArr[j+1] #prompt
 			)
-			*/
+			
 			-- ATTACH
 			attach objArr[j] objArr[j+1]
 			
@@ -151,7 +147,6 @@ fn clusterAttach objArr =
 	objArr[1]
 )
 
--- s = $
 fn explodeByElts s =
 (
 	local detached = #()
@@ -169,9 +164,7 @@ fn explodeByElts s =
 			
 			facesCount = polyop.getNumFaces s
 		)
-		delete s
-		
-		
+		delete s		
 	)
 	else
 	(
@@ -179,7 +172,6 @@ fn explodeByElts s =
 	)
 	detached
 )
-detached =  explodeByElts $
 
 
 -- transfert
@@ -207,34 +199,53 @@ fn transferColor sel =
 	)
 )
 
-/*
-fn createTile =
-(
-	meditMaterials[activeMeditSlot] = bricks()
-)
-*/
-
-fn extrudeFaces size =
+fn extrudeFaces size delFace: true =
 (
 	undo on
 	(
 		faceList = polyop.getFaceSelection $
--- 		size = (units.decodeValue "-25cm")
--- 		polyop.extrudeFaces $ faceList size
 		sizeStr = (size as string) + "cm"
 		polyop.extrudeFaces $ faceList (units.decodeValue sizeStr)
 
 		faceListToDel = polyop.getFaceSelection $
-		polyop.deleteFaces $ faceListToDel
+		if delFace then polyop.deleteFaces $ faceListToDel
+			else redrawviews () 
 	)
 )
 
+
+fn alignPivotOnEdge s =
+(
+	edg = polyop.getEdgeSelection s
+	edg as array
+	vx = polyop.getEdgeVerts s (edg as array)[1]
+	vx1 = polyop.getVert s vx[1]
+	vx2 = polyop.getVert s vx[2]
+
+	vec1 = normalize(vx1 - vx2)
+	vec2 = cross vec1 [0,0,1]
+	vec3 = cross vec1 vec2
+
+	wpTM = matrix3 vec1 vec2 vec3 [0,0,0]
+
+	-- à partir d une face
+	-- WorkingPivot.getTM() 
+	WorkingPivot.setTM wpTM
+)
+-- alignPivotOnEdge $
+
+fn addtolayer pack dest =
+(
+	l = dest.layer
+	l.current = true
+	for i = 1 to pack.count do l.addNode pack[i]
+)
 
 try(destroyDialog miscRLT)catch()
 
 rollout miscRLT "Modeling Tools"
 (
-	local params = #("pos","outlineSP", "innerSp", "outerSp", "collapseCB")
+	local params = #("pos","outlineSP", "innerSp", "outerSp", "collapseCB", "extrusionSizeSP", "delFaceCB")
 -- 	vars
 	local sourceInstance
 	
@@ -242,26 +253,6 @@ rollout miscRLT "Modeling Tools"
 	local maxIni = getMAXIniFile()
 	local armadasScriptsIni = (getFilenamePath maxIni) + "armadasScriptsIni.ini"
 	
-	fn writePosition cat rlt =
-	(
-		posBak = GetDialogPos rlt
-		res = setINISetting armadasScriptsIni cat "pos" (posBak as string)
-		res
-		format  "position saved: %\n" res
-	)
-	
-	fn loadPosition cat rlt =
-	(
-		posBak = [800,250]
-		if (hasINISetting armadasScriptsIni cat "pos") then
-		(
-			posBakStr = getINISetting armadasScriptsIni  cat "pos"
-			posBak = execute posBakStr
-		)
-		
-		SetDialogPos rlt posBak
-	)
-
 	group "Instances:"
 	(
 		button getInstBT "get instances"
@@ -279,12 +270,6 @@ rollout miscRLT "Modeling Tools"
 	
 	group "Polygon:"
 	(
--- 		button goutteBT "goutte d'eau"
--- 		button debordBT "debord balcon"
-		
-
--- 		button connectRingBT "connect ring x1"
--- 		button connectRing2BT "connect ring x2"
 		button cleanCombineBT "Combine"
 		
 		button converttopolyBT "convert to poly"		
@@ -293,25 +278,38 @@ rollout miscRLT "Modeling Tools"
 	
 	group "Extrusion:"
 	(
-		
-		button extrudeBT "extrusion 25"
-		button extrude34BT "extrusion 34"
+		spinner extrusionSizeSP "size:" type: #worldunits range:[-1000,1000,0]
+		checkbox delFaceCB "delete faces"
+		button extruBT "extrusion"
+	)
+	
+	group "splines"
+	(
+		button cleanSplineBT "clean splines"
+		button inverseKnotOrderBT "reverse spline"
 	)
 	
 	group "pivot"
 	(
 		button centerPivotBT "center pivot"
-		button pivotToEdgeBT "pivot to edge" enabled: false
+		button pivotToEdgeBT "pivot to edge" enabled: true
+	)
+	
+	group "modifiers"
+	(
+		button delAllModBT "del all modifiers"
+	)
+	
+	group "Rig"
+	(
+		button scale1BT "scale1"
+	)
+	
+	group "layer"
+	(
+		button addToSelLayerBT "add to layer selected"
 	)
 
-	/*
-	group "instance replacer:"
-	(
-		button addSourceBT "add>>"
-		edittext sourceET "source:"
-		button replaceInstanceBT "replace by instance"
-	)
-	*/
 -- 	Actions
 	on miscRLT open do
 	(
@@ -344,40 +342,12 @@ rollout miscRLT "Modeling Tools"
 -- 			selectmore res
 		)
 	)
-	
--- 	on goutteBT pressed do goutteDeauFN $	
--- 	on debordBT pressed do debordFN $
-		
 
 	on makeFloorBT pressed do
 	(
 		sel = selection as array
 		for s in sel do makeFloorFN s outLIneVal: outlineSP.value innerAmountVal: innerSp.value outerAmountVal: outerSp.value collapseMesh: collapseCB.checked
 	)
-	
-	on connectRingBT pressed do 
-	(
-		sel = selection as array
-		for s in sel do
-		(
-			undo on
-			(
-				connectRingFN s loopNum:1
-			)
-		)
-	)
-	on connectRing2BT pressed do 
-	(
-		sel = selection as array
-		for s in sel do
-		(
-			undo on
-			(
-				connectRingFN s loopNum:2
-			)
-		)
-	)
-	
 		
 	on cleanCombineBT pressed do
 	(
@@ -396,8 +366,7 @@ rollout miscRLT "Modeling Tools"
 			if not exploded == undefined then selectmore exploded
 		)
 	)
-		
-	on centerPivotBT pressed do centerPivotDef (selection as array)
+			
 	on converttopolyBT pressed do 
 	(
 		sel = selection as array
@@ -407,73 +376,69 @@ rollout miscRLT "Modeling Tools"
 		)
 	)
 	
-	on extrudeBT pressed do
+	on extruBT pressed do
 	(
 		sel = selection as array
 		if sel.count == 1 then
 		(
 			if classof sel[1] == editable_poly then
 			(
-				extrudeFaces -25
+				extrudeFaces extrusionSizeSP.value delFace: delFaceCB.checked
 			)
 		)
 	)
 	
-	on extrude34BT pressed do
+	on cleanSplineBT pressed do
 	(
 		sel = selection as array
-		if sel.count == 1 then
-		(
-			if classof sel[1] == editable_poly then
-			(
-				extrudeFaces -34
-			)
-		)
-	)
-	/*
-	on transferModBT pressed do
-	(
-		sel = selection as array
-		transfertModifiers sel
+		for s in sel do cleanspline s
 	)
 	
-	on transferMatBT pressed do
+	on inverseKnotOrderBT pressed do
 	(
 		sel = selection as array
-		transferColor sel
-	)
-	*/
-	--#### instance replacer actions ###
-	/*
-	on addSourceBT pressed do
-	(
-		sel = selection as array
-		if sel.count == 1 then
-		(
-			testSource = sel[1]
-			if superclassof testSource == geometryClass then
-			(
-				sourceInstance = testSource
-				sourceET.text = sourceInstance.name
-			)
-			else
-			(
-				sourceInstance = undefined 
-				sourceET.text = "[NONE]"
-			)
-		)
+		for s in sel do inverseKnotOrder s
 	)
 	
-	on replaceInstanceBT pressed do
+	on centerPivotBT pressed do centerPivotDef (selection as array)
+	
+	on pivotToEdgeBT pressed do
 	(
-		if sourceInstance != undefined then
+		alignPivotOnEdge $
+	)
+	
+	on delAllModBT pressed do
+	(
+		undo on
 		(
 			sel = selection as array
-			instancereplace sel sourceInstance
+			for s in sel do
+			(
+				for m in s.modifiers do deletemodifier s m
+			)
 		)
 	)
-	*/
+	
+	on scale1BT pressed do
+	(
+		undo on
+		(
+			for s in selection do
+			(
+				format "name: % s.scale: % scale.value: % \n" s.name s.scale s.scale.controller.value
+				s.scale.controller.value = [1,1,1]
+			)
+		)
+	)
+	
+	on addToSelLayerBT pressed do
+	(
+		sel = selection as array
+
+		dest = sel[sel.count]
+		pack = for i = 1 to (sel.count - 1) collect sel[i]
+
+		addtolayer pack dest
+	)	
 )
 createDialog miscRLT --style: #(#style_minimizebox, #style_titlebar ,#style_border , #style_sysmenu,#style_maximizebox )
-
--- miscRLT.collapseCB.checked

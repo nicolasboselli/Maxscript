@@ -21,7 +21,6 @@ todo:
 	-- copier/coller ou déplacer les dossiers
 	
 	-- faire fonctionner le copy/paste sur selection multiple
-	-- ajouter fonction pour ajouter les scripts au core et pour visualiser la liste de core pour management
 	
 debug:
 	-- le copy/paste crée toujours une version *_copy. Comparer l'ancien et le nouveau chemin pour faire la copie
@@ -48,7 +47,7 @@ struct folderClass
 	tmppath,
 	path = substituteString tmppath "\\" "/",
 	nameAr = filterString  path "/",
-	name = "[ " + (toUpper nameAr[nameAr.count]) + " ]"
+	name = "[ " + (/*toUpper*/ nameAr[nameAr.count]) + " ]"
 )
 
 struct fileClass
@@ -86,6 +85,8 @@ try(destroydialog renameRLT)catch()
 rollout renameRLT "rename" width: 400
 (
 	-- vars
+
+	
 	local o 
 	
 	local oldPath 
@@ -175,11 +176,19 @@ rollout scriptExplorerRLT "Scripts Explorer"
 -- 	vars
 -- 	local maxIni = getMAXIniFile()
 -- 	local armadasScriptsIni = (getFilenamePath maxIni) + "armadasScriptsIni.ini"
+	
 	local armadasScriptsIni = (GetDir #maxData) + "armadasScriptsIni.ini"
 	
+	local params = #("pos")
+	
+	/*
+	local armadasScriptsIni = (GetDir #maxData) + "armadasScriptsIni.ini"
 	local tmpRroot = getINISetting armadasScriptsIni "armadasScripts" "armadasScriptsRoot"
 	local	root = substituteString tmpRroot "\\" "/"
-
+	*/
+	
+	local root = getRoot()
+	
 	local favAr = #()
 	local favAr2 = #()
 
@@ -198,7 +207,7 @@ rollout scriptExplorerRLT "Scripts Explorer"
 	local allAr = #()
 	local toDisplay = #()
 	
-	local currentFolder
+	global currentFolder
 	
 -- 	UI
 	edittext pathET "current folder:" readonly: true 
@@ -263,7 +272,6 @@ rollout scriptExplorerRLT "Scripts Explorer"
 		sum = ""
 		for i = 1 to (splitFolder.count - 1) do
 		(
--- 			print splitFolder[i]
 			sum = sum + splitFolder[i] + "/"
 		)
 		sum
@@ -502,38 +510,24 @@ rollout scriptExplorerRLT "Scripts Explorer"
 
 	on scriptExplorerRLT open do
 	(
+		
+		loadRolloutParams scriptExplorerRLT Params
 		-- scan des dossiers
-		currentFolder = root
--- 		allAr = scanFolder root
+		
+		if currentFolder == undefined then currentFolder = root
+		else if not doesfileexist currentFolder then currentFolder = root
+			
 		collectValues maxscriptOnly: onlyMs.state
 		
 		-- creation du rcMenu
 		menuRC = createRCMenu()
 		
 		refreshUI()
-		
-		-- chargement des scripts favoris
--- 		if (hasINISetting armadasScriptsIni "mxsLaunchRLT" "favScriptAr") == true then
--- 		(
--- 			favArStr = getINISetting  armadasScriptsIni "mxsLaunchRLT" "favScriptAr"
--- 			favArTmp = execute favArStr
--- 			
--- 			-- test if file exist
--- 			for onePath in favArTmp do
--- 			(
--- 				if doesFileExist onePath do
--- 				(
--- 					appendifunique favAr onePath
--- 				)
--- 			)
--- 		)
--- 		else
--- 		(
--- 			favAr = #()
--- 		)
--- 		format "favorites array: %\n" favAr
-		
-		-- chargement des scripts de favoris 2
+	)
+	
+	on scriptExplorerRLT close do
+	(
+		writeRolloutParams scriptExplorerRLT Params
 	)
 	
 	on onlyMs changed val do

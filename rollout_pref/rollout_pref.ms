@@ -65,6 +65,11 @@ fn writeRolloutParams rlt params =
 				format "name: %, value: %, classof: %\n" n p (classof p)
 				setINISetting armadasScriptsIni cat n p
 			)
+			else if classof p == Point2 then
+			(
+				format "name: %, value: %, classof: %\n" n p (classof p)
+				setINISetting armadasScriptsIni cat n (p as string)
+			)
 			else
 			(
 -- 				setINISetting armadasScriptsIni cat n p
@@ -183,7 +188,8 @@ fn loadRolloutParams rlt params =
 			(
 				-- load variable
 				local val = getINISetting armadasScriptsIni cat n 
-				format "__FAIL__ name: %, value: %\n" n val
+				format "__UNKNOWN__ name: %, value: %\n" n val
+				setProperty  rlt n val
 			)
 		)
 	)	

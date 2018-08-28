@@ -17,10 +17,11 @@ fn lastParent sel =
 -- 				tmpParent = sel[j].parent
 				if isvalidnode  sel[i].parent and i != j then
 				(
+-- 					print "check1"
 -- 					format "i: %, parent: % ,j: %\n" sel[i].name sel[i].parent.name sel[j].name
 					if sel[i].parent == sel[j] then 
 					(
-						
+-- 						print "check2"
 						parentable = false
 						parentInSel = true
 						exit
@@ -28,8 +29,14 @@ fn lastParent sel =
 				)
 				else if  i != j then 
 				(
+-- 					print "check3"
 -- 					format "i: %, parent: % ,j: %\n" sel[i].name sel[i].parent sel[j].name
 					exit
+				)
+				else
+				(
+-- 					print "check4"
+-- 					format "i: %, parent: % ,j: %\n" sel[i].name sel[i].parent sel[j].name
 				)
 				
 -- 				if parentable ==  false then 
@@ -45,6 +52,7 @@ fn lastParent sel =
 			)
 			
 			-- prent
+-- 			format "parentInSel: % parentable: %\n" parentInSel parentable
 			try
 			(
 				if parentable then 
@@ -52,8 +60,12 @@ fn lastParent sel =
 -- 					format "i: %, groupHead: %, groupmember: %, parent: %, parentable:%, parentinsel: % \n" sel[i].name (isGroupHead sel[i])  (isGroupMember sel[i]) sel[i].parent parentable parentInSel
 					sel[i].parent = daddy
 				)
+				else (/*format "no parenting\n"*/)
 			)
 			catch(format "FAIL: % , ERROR: %\n"  sel[i].name (getcurrentexception()))
 		)
 	)
 )
+
+-- sel = selection as array
+-- lastParent sel

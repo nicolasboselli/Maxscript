@@ -36,24 +36,18 @@ maj:
 
 */
 
-fn sortMatbyname v1 v2 =
+fn sortbyname v1 v2 =
 (
-	-- qsort <array> sortbyname
 -- 	vars
 	local d
 	
-	if ( (toLower v1.name) < (toLower v2.name)) then
-		d=-1
-	else
-		d=1
+	if ( (toLower v1.name) < (toLower v2.name)) then d=-1
+	else d=1
 	
 --compare les numeros entre eux et les classe	
-	case of
-	(
-		(d < 0.): -1
-		(d > 0.): 1
-		default: 0
-	)
+	if 	(d < 0.) then -1
+	else if (d > 0.) then 1
+	else 0
 )
 
 
@@ -75,10 +69,14 @@ try(destroyDialog vrMatRlt)catch()
 rollout vrMatRlt "VRay mat Lib"
 (
 	
-	local maxIni = getMAXIniFile()
-	local armadasScriptsIni = (getFilenamePath maxIni) + "armadasScriptsIni.ini"
+-- 	local maxIni = getMAXIniFile()
+-- 	local armadasScriptsIni = (getFilenamePath maxIni) + "armadasScriptsIni.ini"
 	
-	local vrLibPath
+	local armadasScriptsIni = (GetDir #maxData) + "armadasScriptsIni.ini"
+	
+	local params = #("pos", "vrLibPath", "autosaveCB")
+	
+	local vrLibPath = ""
 	local openFileName
 	
 	local matColAr = #()
@@ -128,21 +126,12 @@ rollout vrMatRlt "VRay mat Lib"
 		button uv500 "500"
 	)
 	
-	group "bitmap"
+	group "scene bitmap tools"
 	(
 		button scanBT "scan and patch"
 		button missBmpBT "edit missing bitmap"
 		button missBmpBT2 "format missing bitmap"
 	)
-	
-	
-	/*
-	group "map material:"
-	(
-		button mapLibToEdBT "library => editor"  enabled: false
-		button mapEdToLibBT "editor => library"  enabled: false
-	)
-	*/
 	
 	-- functions
 	fn loadLib vrLibPath =
@@ -198,7 +187,9 @@ rollout vrMatRlt "VRay mat Lib"
 	on vrMatRlt open do
 	(
 -- 		matLibLoaded = false
+		loadRolloutParams vrMatRlt Params
 		
+		/*
 		-- init library path
 		if vrLibPath == undefined then
 		(
@@ -208,6 +199,7 @@ rollout vrMatRlt "VRay mat Lib"
 			)
 			catch(format "error: %\n" (getcurrentexception()))
 		)
+		*/
 		
 		-- load library
 		loadLib vrLibPath
@@ -218,10 +210,12 @@ rollout vrMatRlt "VRay mat Lib"
 	
 	on vrMatRlt close do
 	(
-		autosaveCB
+		writeRolloutParams vrMatRlt Params
+		
+-- 		autosaveCB
 		
 -- 		format "vrLibPath: %\n" vrLibPath.count
-		
+		/*
 		if vrLibPath.count > 0 and autosaveCB.state then
 		(
 			-- save pref
@@ -229,6 +223,12 @@ rollout vrMatRlt "VRay mat Lib"
 			-- save lib
 			writeLib vrLibPath
 		)
+		*/
+		
+		if vrLibPath == undefined then ()
+		else if vrLibPath.count > 0 and autosaveCB.state then writeLib vrLibPath
+		else()
+			
 		
 	)
 	
@@ -477,83 +477,3 @@ rollout vrMatRlt "VRay mat Lib"
 	)
 )
 createdialog vrMatRlt
-
--- f = @"T:\Ametis\St Jory-Colibri_1017\Perspectives\Scenes 3d\modelisation\wip\antoine\Tone Auto Entreprise\TEXTURES\TEXTURES VISIOLAB\Textures\Chene-verni_antique.jpg"
--- doesfileexist f
-
-/*
--- base material grid
-fn createGridBaseMatFN =
-(
-	local gridmap = bricks Tile_Type: 5 Lock_Gap_Symmetry: 0 Fade_Variance: 0 Brick_Color: (color 0 0 0) Mortar_Color: (color 255 255 255) \
-	Vertical_Count: 1 Vertical_Gap: 0 Horizontal_Gap: 2
-
-	local gridMat = standard name: "gc_grid_material" twoSided: true Diffuse: (color 0 0 0 ) opacityMap: gridmap
-)
-
--- vr material enduit
-fn createEnduitVRMatFN = 
-(
-	local enduitMat = vraymtl name: "enduit_blanc" diffuse: (color 235 235 235)
-)
-
--- vr material enduit
-fn createConcreteVRMatFN = 
-(
-	local enduitMat = vraymtl name: "beton_blanc" diffuse: (color 235 235 235)
-)
-
-
-fn createVrayMatFN matName = 
-(
-	if matName == "gc_grid_material" then return createGridBaseMatFN()
-	else if matName == "enduit_blanc" then return createEnduitVRMatFN()
-	else if matName == "beton_blanc" then return createConcreteVRMatFN()
-	else print "no material definition"
-)
-*/
-
-/*
-
-vrLib =  materialLibrary()
-append vrLib meditMaterials[activeMeditSlot]
-
-for mat in vrLib do print mat
-	
-saveTempMaterialLibrary  vrLib "G:\vrlib.mat"
-
-tmp =  materialLibrary()
-tmp = loadTempMaterialLibrary "G:\vrlib.mat"
-
-meditMaterials[activeMeditSlot] = vrLib[1]
-
-*/
-
-
-
-/*
-maxIni = getMAXIniFile()
-vrayLibIni = (getFilenamePath maxIni) + "vrayLib.ini"
-setINISetting vrayLibIni "vrayLib" enduitMat.name  propArVal
-	
-
-test = createGridBaseMatFN()
-show test.opacityMap
-
-
--- enduitMat = vraymtl()
-enduitMat = meditMaterials[activeMeditSlot]
-
-propAr = getPropNames  enduitMat
-propArVal = for t in propAr collect (getProperty enduitMat t)
-with printAllElements on propArVal as string
-
-
-
-setINISetting vrayLibIni "vrayLib" enduitMat.name  (with printAllElements on propArVal as string)
-vrString = getINISetting vrayLibIni "vrayLib" enduitMat.name
-vrVal = execute vrString
-*/
--- getProperty enduitMat #texmap_diffuse
-
--- getPropertyController enduitMat

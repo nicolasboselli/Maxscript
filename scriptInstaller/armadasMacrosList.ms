@@ -2,8 +2,9 @@
 (
 	global ArmadasScriptLauncherPath = "\scriptsLauncher\001\launcher.ms"
 	global ArmadasScriptModelingUtilitiesPath = "\MODELING_TOOLS\000\modeling_tools.ms"
-	global ArmadasScriptMaterialsUtilitiesPath = "\MATERIALS_TOOLS\deMultiMat.ms"
+	global ArmadasScriptMaterialsUtilitiesPath = "\MATERIALS_TOOLS\000\deMultiMat.ms"
 	global ArmadasMatLibExplorerPath = "\MATLIB_EXPLORER\000\vrMatLib3.ms"
+	global mxsHelpPath = #(@"C:\Users\Visiolab\Desktop\maxscript-2017-help.chm", @"N:\Ressources Soft tutoriaux plugins\3D\maxscript_help\maxscript-2017-help.chm")
 
 	-- install macroscript for explorer with relative path from ini file
 	macroScript ArmadasScriptExplorer
@@ -148,6 +149,19 @@
 		filein ((getroot()) +  ArmadasMatLibExplorerPath )
 		
 	)
+	
+	macroScript maxscriptHelp
+	category:"ArmadasScripts"
+	toolTip:""
+	(
+			for p in mxsHelpPath where doesfileexist p do
+			(
+				ShellLaunch  p ""
+				exit
+			)
+	-- 		ShellLaunch  @"C:\Users\Visiolab\Desktop\3dsmax-2017-developer-help.chm" ""
+	)
+
 	
 )
 

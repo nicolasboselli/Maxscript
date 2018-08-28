@@ -18,12 +18,14 @@ fn createPlansLayer =
 	planLayer
 )	
 
-
+-- $.layer
 
 fn copyPlan sel =
 (
-	map1
-	obj1 = sel[1]
+	local map1
+	local obj1 = sel[1]
+	local refLay = obj1.layer
+		
 	for modif in  obj1.modifiers where classof modif == UVWmap do map1 = modif
 		
 	format "obj1: %\n" obj1
@@ -34,8 +36,10 @@ fn copyPlan sel =
 		obj2 = sel[i]
 		format "obj: %\n" obj2
 		-- add on plans layer
-		lay = createPlansLayer()
-		lay.addnode obj2
+-- 		lay = createPlansLayer()
+-- 		lay.addnode obj2
+		
+		refLay.addnode obj2
 		
 		obj2.renderable = off
 		obj2.backfacecull = on
