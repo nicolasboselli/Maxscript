@@ -45,6 +45,7 @@ fn checkLetC =
 
 fn createVraySun =
 (
+	local dummy_target
 	local vraySunVar = undefined
 	local val = 2000
 	local vraySunExist = false
@@ -78,6 +79,7 @@ fn createVraySun =
 	
 	l = checkLetC()
 	l.addnode vraySunVar
+	l.addnode dummy_target
 	
 	vraySunVar
 )
@@ -109,6 +111,7 @@ fn setVrayCamera =
 	
 	l = checkLetC()
 	l.addnode newCam
+	l.addnode newCam.target
 	
 	viewport.setCamera newCam
 )
