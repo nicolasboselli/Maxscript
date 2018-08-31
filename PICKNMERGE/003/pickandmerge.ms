@@ -80,6 +80,12 @@ filein ((getRoot()) + "Rig/lastParent_def.ms")
 
 -- p = getProperty  PickNMergeRLT "mergeObjFolder"
 
+rollout assetPreviewRLT "Preview"
+(
+	bitmap assetBMP "asset thumbnail" width: 256 height: 256
+)
+
+
 try(destroydialog PickNMergeRLT)catch()
 rollout PickNMergeRLT "Loader"
 (
@@ -87,7 +93,8 @@ rollout PickNMergeRLT "Loader"
 	local sourceObj
 	local ctrl
 	local mergeObjFolder = ""
-	local assetsSetFolder = @"M:\Interieur\Cellules\Modelisation\Library\Objects\assets_sets"
+-- 	local assetsSetFolder = @"M:\Interieur\Cellules\Modelisation\Library\Objects\assets_sets"
+	local assetsSetFolder = ""
 		
 
 	local objList = #()
@@ -243,6 +250,10 @@ rollout PickNMergeRLT "Loader"
 		(
 			assetSetList = walkDir2 assetsSetFolder  "/*.ini"
 		)
+		else
+		(
+			assetsetList = #()
+		)
 		setsToDisplay = for o in assetSetList collect o
 		qsort setsToDisplay sortbyFilename
 	)
@@ -283,7 +294,7 @@ rollout PickNMergeRLT "Loader"
 			qsort objtodisplay sortbyFilename
 		)
 
-		
+		assetsSetFolder = mergeObjFolder + "\\" + "assets_sets"
 --		collecte des sets d'assets
 		collectAssetsSet()
 
@@ -377,6 +388,11 @@ rollout PickNMergeRLT "Loader"
 			)
 		)
 		
+--		collecte des sets d'assets
+		assetsSetFolder = mergeObjFolder + "\\" + "assets_sets"
+
+		collectAssetsSet()
+		
 		refreshUI ()
 	)
 	
@@ -455,12 +471,32 @@ rollout PickNMergeRLT "Loader"
 	on mergeListLB selectionend do
 	(
 		idAr = mergeListLB.selection as array
--- 		format "id: %\n" (mergeListLB.selection as array)
--- 		format "objtodisplay[id]: %\n"  objtodisplay[id] 
--- 		maxToMerge = objtodisplay[id]
 		maxsToMerge = for id in idAr collect objtodisplay[id] 
-		format "maxsToMerge:  %\n" maxsToMerge
 		
+		/*
+		-- get preview
+		for m in maxsToMerge do
+		(
+-- 			format "m:  %\n" m
+			bmpRC = (getFilenamePath m) + (getFilenameFile  m) + ".jpg"
+			if doesfileexist bmpRC then 
+			(
+-- 				format "PREVIEW !\n"
+				try (destroydialog assetPreviewRLT)catch()
+				createdialog assetPreviewRLT  width: 300 
+				if assetPreviewRLT.open then assetPreviewRLT.assetBMP.filename = bmpRC
+				assetPreviewRLT.title = "Preview: " + (getFilenameFile  m)
+			)				
+			else 
+			(
+-- 				format "NO preview... \n"
+				try (destroydialog assetPreviewRLT)catch()
+				createdialog assetPreviewRLT width: 300 
+				if assetPreviewRLT.open then assetPreviewRLT.assetBMP.bitmap = bitmap 256 256 color:(color 125 125 125)
+				assetPreviewRLT.title = "NO Preview"
+			)
+		)
+		*/
 	)
 	
 	
@@ -505,6 +541,7 @@ rollout PickNMergeRLT "Loader"
 		local jump = 0
 		if maxsToMerge.count > 0 then
 		(
+			clearselection()
 			for maxToMerge in maxsToMerge do
 			(
 			   	local start = timestamp ()
@@ -546,7 +583,9 @@ rollout PickNMergeRLT "Loader"
 				jump += 200
 				
 				format "merge + ctrl done: %ms\n"  ((timestamp ()) - start)
+				selectmore assetCtrl
 			)
+			
 		)
 	)
 	
@@ -561,5 +600,7 @@ rollout PickNMergeRLT "Loader"
 		
 )
 createdialog PickNMergeRLT width: 400
+
+-- PickNMergeRLT.title = "titi"
 
 -- PickNMergeRLT.mergeListLB.selection

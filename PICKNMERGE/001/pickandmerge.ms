@@ -85,6 +85,13 @@ filein ((getRoot()) + "Rig/lastParent_def.ms")
 
 -- p = getProperty  PickNMergeRLT "mergeObjFolder"
 
+
+rollout openThumbRLT "Thumb"
+(
+	bitmap assetBMP "asset thumbnail" width: 256 height: 256
+)
+
+
 try(destroydialog PickNMergeRLT)catch()
 rollout PickNMergeRLT "Pick And Merge"
 (
@@ -210,8 +217,15 @@ rollout PickNMergeRLT "Pick And Merge"
 	(
 		listbox mergeListLB "merge list:" height: 40
 		edittext assetCountET "asset count:" readonly: true
-		checkbox pickerCB "picker" across: 2 enabled: false
-		checkbutton mergeCB "merge"
+	)
+	
+	
+	
+	group "Merge and Pick:"
+	(
+		button mergeBT "merge" across: 2
+-- 		checkbox pickerCB "picker" across: 2 enabled: false
+		checkbutton mergeCB "merge and pick"
 	)
 	
 	
@@ -346,10 +360,19 @@ rollout PickNMergeRLT "Pick And Merge"
 		)
 	)
 	
-	on mergeListLB select id do
+	on mergeListLB selected id do
 	(
--- 		format "objtodisplay[id]: %\n"  objtodisplay[id] 
+-- 		format "youpi\n"
+		format "objtodisplay[id]: %\n"  objtodisplay[id] 
+		bmpRC = (getFilenamePath objtodisplay[id]) + (getFilenameFile  objtodisplay[id]) + ".jpg"
+		format "bmpRC: %\n"  bmpRC
+		if doesfileexist bmpRC then format "PREVIEW !\n" else format "NO preview... \n"
 		maxToMerge = objtodisplay[id]
+	)
+	
+	on mergeBT pressed do
+	(
+		
 	)
 	
 	on mergeCB changed state do
@@ -368,7 +391,7 @@ rollout PickNMergeRLT "Pick And Merge"
 		lastParent toParent
 		
 		
-		if state == true do
+		if state do
 		(
 			continueTool = true
 			while continueTool == true do
@@ -377,6 +400,7 @@ rollout PickNMergeRLT "Pick And Merge"
 			)
 			mergeCB.state = false
 		)
+
 	)
 	
 )

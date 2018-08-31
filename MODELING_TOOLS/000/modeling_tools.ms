@@ -11,18 +11,11 @@ fn inverseKnotOrder l =
 	(
 		max modify mode
 		modPanel.setCurrentObject l.baseobject
-		subObjectLevel = 1
 
 		spCount = numSplines   l
-		for i = 1 to spCount do
-		(
-			knCount =numknots l i
-		-- 	format "knots: % \n" knCount
-			setKnotSelection l i #(knCount)
-		)
-		splineOps.makeFirst l
+		for i = 1 to spCount do reverse  l i 
 
-		subObjectLevel = 0
+		if l.modifiers.count > 0 then modPanel.setCurrentObject l.modifiers[1]
 		
 		format "make first done: %\n" l.name
 	)else()
@@ -414,7 +407,9 @@ rollout miscRLT "Modeling Tools"
 			sel = selection as array
 			for s in sel do
 			(
-				for m in s.modifiers do deletemodifier s m
+-- 				for m in s.modifiers do deletemodifier s m
+				modcount = s.modifiers.count
+				for i = 1 to modCount do deletemodifier s 1
 			)
 		)
 	)

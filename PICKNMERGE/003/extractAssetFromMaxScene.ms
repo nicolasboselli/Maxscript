@@ -1,60 +1,14 @@
 -- extraction d'asset
-
 /*
-tguer les layer à extraire avec "[asset]"
+todo:
+	-- changer le chemin du repository
+	-- ramene la selection au centre de 
+
+	-- par calque
+		-- selectionner les objets
+		-- faire un save selected avec le nom du calque dans le dossier d'asset
 */
 
-
-layerCount = LayerManager.count 
-
-assetPath = @"M:\Interieur\Cellules\Modelisation\Library\Objects"
-
-for i = 0 to layerCount - 1 do 
--- for i = 0 to 5 do 
-(
-	-- collecte des objets à extraire
-	local theNodes
-	l = LayerManager.getLayer i
-	if l.name != "0" and l.name != "Amenagement" then
-	(
-	l.nodes &theNodes
--- 	format "'%\n" l.name
-
-	-- centrage des objets à extraire
-	local sum = [0,0,0]
-	for s in theNodes do sum += s.center
-	moveVal = [((sum.x/theNodes.count)* -1), ((sum.y/theNodes.count)* -1), 0]
-
-	move theNodes moveVal
-
-	-- save selected 
-	format "%\n" theNodes
-		
-	newFilename = assetpath + "\\" + l.name + ".max"
-	format "'%\n" newFilename
-	saveNodes theNodes newFilename
-	
-	-- retour à la position initiale
-	move theNodes (moveVal* - 1)
-	
-	)
-)
-
-
--- collect layers
-/*
-layersAr = #()
-layerCount = LayerManager.count 
-for i = 0 to layerCount - 1 do 
-(
-	l = LayerManager.getLayer i
-	if matchpattern l.name pattern: ("*" + pattern) then
-	(
-		append layersAr l
-	)
-)
-*/
-	
 
 try(destroydialog assetExtractorRLT)catch()
 rollout assetExtractorRLT "Assets Extractor"
@@ -87,6 +41,7 @@ rollout assetExtractorRLT "Assets Extractor"
 	
 	on assetExtractorRLT open do
 	(
+		
 	)
 	
 	on tagBT pressed do
@@ -124,6 +79,7 @@ rollout assetExtractorRLT "Assets Extractor"
 				moveVal = [((sum.x/theNodes.count)* -1), ((sum.y/theNodes.count)* -1), 0]
 
 				move theNodes moveVal
+				format "move:%\n" moveval
 			)
 			
 			-- save selected
@@ -139,9 +95,3 @@ createdialog assetExtractorRLT
 
 -- assetExtractorRLT.originCB.checked
 
--- ramene la selection au centre de 
-
--- par calque
-	-- selectionner les objets
-	-- faire un save selected avec le nom du calque dans le dossier d'asset
--- assetPath = @"M:\Interieur\Cellules\Modelisation\Library\Objects"
