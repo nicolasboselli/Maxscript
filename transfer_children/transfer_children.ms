@@ -28,32 +28,76 @@ fn tagTargetProperties s sourceName =
 
 fn findRealSource s = 
 (
+	-- rendre recursif pour vraiment trouver la source
 	local virtualSource
 	local isSource = true
 	
 	try(isSource = (getUserProp s "isSource"))catch(isSource = true)
 -- 	format "isSource:%\n" isSource
-	if isSource != undefined then
+	if isSource == undefined then ()
+	else if not isSource then
 	(
-		if not isSource then
+		try
 		(
-			try
-			(
-				virtualSource = getnodebyname (getUserProp s "sourceName")
+			virtualSource = getnodebyname (getUserProp s "sourceName")
 -- 					format "virtualSource: %\n" virtualSource
 -- 					if virtualSource == undefined then virtualSource = s
-			)catch()
-		)else()
+		)catch()
 	)else()
 	
-	if virtualSource == undefined then s else virtualSource
+	if isvalidnode virtualSource then virtualSOurce else s
 )
 -- findRealSource $
 
 
+fn findRealSource2 o = 
+(
+	-- rendre recursif pour vraiment trouver la source
+	sel = #(o)
+	local virtualSource
+	local isSource = true
+	
+	
+	format "isSource:%\n" isSource
+	i = 1
+	for s in sel do
+	(
+		format "\ns: %\n" s
+		try(isSource = (getUserProp s "isSource"))catch(isSource = true)
+			
+		if isSource == undefined then exit
+			
+		else if not isSource then
+		(
+			try
+			(
+				virtualSource = getnodebyname (getUserProp s "sourceName")
+				
+				if isvalidnode  virtualSource and virtualSource != s then
+				(
+					append sel virtualSource
+					format "i: %\n" i
+					format "sel: %\n" sel
+					format "virtualSource: %\n" virtualSource
+
+					i =  i + 1
+				)else()
+			)catch()
+		)else exit
+		
+		if i > 10 then exit
+	)
+	
+	sel[sel.count]
+	
+-- 	if isvalidnode virtualSource then virtualSOurce else s
+)
+-- findRealSource2 $
+-- getUserProp $ "sourceName"
+
 -- $.banode
 
-fn transferChildren source target checkSource: false =
+fn transferChildren source target checkSource: false presName: true presMat: true presTrans: true =
 (
 	format "########### transfer start: %\n" target.name
 	/*
@@ -153,12 +197,13 @@ fn transferChildren source target checkSource: false =
 				format "% instance of %\n"  copyChilds[i].name ct.name
 				-- préserver le layer
 				-- préserver le materiau
-				copyChilds[i].material = ct.material
+				if presMat then copyChilds[i].material = ct.material
 				
 				-- préserver le transform
+				if presTrans then copyChilds[i].transform = ct.transform
 				
 				-- préserver le nom
-				copyChilds[i].name = ct.name
+				if presName then copyChilds[i].name = ct.name
 			)
 -- 			else(format "% instance of nothing\n"  copyChilds[i].name )
 			else()
@@ -229,6 +274,13 @@ rollout transferChildrenRLT "transfer Children"
 		button makeMaster "make Master"
 	)
 	
+	group "options"
+	(
+		checkbox presNameCB "preserve name" checked: true
+		checkbox presMatCB "preserve material" checked: true
+		checkbox presTransCB "preserve transform" checked: true
+	)
+	
 	button transferOnSelBT "Transfer Children on sel"
 	button updateTargetsBT "Update Targets"
 	
@@ -260,7 +312,7 @@ rollout transferChildrenRLT "transfer Children"
 		(
 			for i = 2 to sel.count do
 			(
-				transferChildren sel[1] sel[i] checkSource: true
+				transferChildren sel[1] sel[i] checkSource: true presName: presNameCB.state presMat:  presMatCB.state
 			)
 		)
 		else
@@ -277,7 +329,7 @@ rollout transferChildrenRLT "transfer Children"
 			local targetsAr = getTargets sel[1]
 			for t in targetsAr do
 			(
-				transferChildren sel[1] t checkSource: true
+				transferChildren sel[1] t checkSource: true presName:  presNameCB.state presMat:  presMatCB.state
 			)
 		)
 	)

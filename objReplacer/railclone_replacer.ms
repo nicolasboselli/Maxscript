@@ -1,15 +1,21 @@
-sel = selection as array
-rc = sel[1]
+
+
+-- superclassof $.baseobject 
 
 fn railCloneReplace rc others =
 (
+-- 	format "youpi\n"
 	if classof rc == railclone_pro then
 	(
 		for i = 2 to others.Count do
 		(
-			l = others[i]
 			
-				-- copy railclone
+			l = others[i]
+			if superclassof l.baseobject != shape do continue
+				
+			modcount = l.modifiers.count
+			for i = 1 to modCount do deletemodifier l 1
+			-- copy railclone
 			new = copy rc
 			-- assign new spline
 			new.banode[1] = l
@@ -34,7 +40,9 @@ fn railCloneReplace rc others =
 	else()
 )
 
-railCloneReplace rc sel
+sel = selection as array
+oneRc = sel[1]
+railCloneReplace oneRc sel
 
 
 

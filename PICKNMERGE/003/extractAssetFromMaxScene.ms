@@ -1,5 +1,10 @@
 -- extraction d'asset
 /*
+bug:
+	-- le move sur les groupes nne recentre pas les objets
+		-- peut etre qu'il y a un probleme avec les hierarchies
+	
+
 todo:
 	-- changer le chemin du repository
 	-- ramene la selection au centre de 
@@ -7,6 +12,9 @@ todo:
 	-- par calque
 		-- selectionner les objets
 		-- faire un save selected avec le nom du calque dans le dossier d'asset
+		
+		
+	
 */
 
 
@@ -65,6 +73,13 @@ rollout assetExtractorRLT "Assets Extractor"
 		)
 	)
 	
+	on assetNameET entered newName do
+	(
+		local newFilename = assetpath + "\\" + newName + ".max"
+		if doesfileexist newFilename then (format "file exist: %\n" newFilename )
+		else(format "file does not exist: %\n" newFilename)
+	)
+	
 	on extractSelBT pressed do
 	(
 		theNodes = selection as array
@@ -72,6 +87,8 @@ rollout assetExtractorRLT "Assets Extractor"
 		if theNodes.count > 0 and assetNameET.text.count > 0 then
 		(
 			-- centrage des objets à extraire
+			-- bug sur les groupe
+			/*
 			if originCB.checked do
 			(
 				local sum = [0,0,0]
@@ -81,13 +98,15 @@ rollout assetExtractorRLT "Assets Extractor"
 				move theNodes moveVal
 				format "move:%\n" moveval
 			)
+			*/
 			
 			-- save selected
 			local newFilename = assetpath + "\\" + assetNameET.text + ".max"
-			saveNodes theNodes newFilename
+			if doesfileexist newFilename then (format "file exist: %\n" newFilename )
+			else saveNodes theNodes newFilename
 			
 			-- retour à la position initiale
-			if originCB.checked do move theNodes (moveVal* - 1)
+-- 			if originCB.checked do move theNodes (moveVal* - 1)
 		)
 	)
 )

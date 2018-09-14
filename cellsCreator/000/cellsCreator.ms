@@ -1,3 +1,18 @@
+/*
+-- derouler
+	-- placement des murs 
+	-- placement des 
+
+
+-- maj
+	-- decouper une plane en fonction des murs en spline pour faire les sol
+	x-- decouper les murs spline en fonction des gabarits de porte
+	
+	-- a l'ajout des porte, fenetres... etc.. renommer les spline et changer leur wirecolor
+	
+*/
+
+
 ------------ DECLARATION DES VARIABLES ----------------------
 
 global countPlan = 0
@@ -376,415 +391,476 @@ rollout addIntWall "Ajouter les murs Interieurs" width:350 height:230
 	
 )
 
-rollout finishedWall "Finir les murs" width:350 height:230
-(		
-	button 'wallCreate' "Finir les murs" pos:[120,10] width:100 height:20 align:#left
+
+rollout createGround "Créer les sols" width:350 height:230
+(	
+	
+	local murPourSol
+	
+	button 'wallCreate' "fusionner les murs" across: 3 -- pos:[120,10] width:100 height:20 align:#left
+	button 'groundInitialize' "Initialiser les sols"  -- pos:[10,10] width:100 height:20 align:#left
+	button 'groundFinalize' "Finaliser les sols" -- pos:[120,10] width:100 height:20 align:#left
+	
+	-- fusionne les murs
+	function unifyWall  = 
+	(			
+			
+		target = LayerManager.getLayerFromName "- Splines Murs Int"				
+		target.nodes &theNodesInt		
+		target.on = false
+			
+		target = LayerManager.getLayerFromName "- Splines Murs Ext"				
+		target.nodes &theNodesExt		
+		target.on = false
+			
+		target = LayerManager.getLayerFromName "- Splines Murs Fond"				
+		target.nodes &theNodesFond			
+		target.on = false	
+			
+		target = LayerManager.getLayerFromName "- Splines Murs Balcon"
+		target.nodes &theNodesBalc	
+		target.on = false	
+
+		local theMurs = theNodesInt + theNodesExt + theNodesFond + theNodesBalc
+		
+-- 		fusion des murs
+		local mursL = LayerManager.getLayerFromName "+ Murs"					
+			
+		theObj = (editable_mesh())
+		mursL.addnode theObj
+		
+		for obj in theMurs  do ( theObj + obj)
+			
+		convertto theObj editable_poly
+		
+-- 		descente du bas des murs
+		for i in theObj.verts do
+		(
+			if (i.pos.z<2) then ( i.pos.z = -20	)
+		)
+		
+		-- rename		
+		theObj.name = "Murs"
+		
+		-- all edge visibles
+		converttomesh theObj
+		faceCount = theObj.numFaces
+		for i = 1 to faceCount do
+		(
+			setEdgeVis theObj i 1 true
+			setEdgeVis theObj i 2 true
+			setEdgeVis theObj i 3 true
+		)
+		update theObj
+		
+		theObj
+	
+	)
+	
+	-- création des splines pour le sol
+	function extractSol = 
+	(			
+		/*
+		debug: cacher tout ce qui n'est pas le mur pour faire la section dessus
+		*/
+		clearSelection()
+		target = LayerManager.getLayerFromName "Plans"
+		target.on = false
+		
+		target = LayerManager.getLayerFromName "+ Sols"	
+		target.current  = true
+		
+		-- recuperation du mur
+		theObj = getNodeByName "Murs"
+		select theObj
+		
+		theSection = section pos:[0, 0, 0.5]
+		
+		max views redraw
+		convertToSplineShape theSection
+		theSection.name =  "Sol construction"
+		
+		target.addNode theSection			
+		
+		target = LayerManager.getLayerFromName "Plans"
+		target.on = true
+		
+		theObj = getNodeByName "Sol construction"		
+		
+		select theObj
+		modPanel.setCurrentObject theObj.baseObject
+		subobjectLevel = 1			
+		for i=1 to (numSplines theObj) do
+		(
+			setKnotSelection theObj i #(1,numknots theObj i)
+		)
+		splineops.weld theObj
+		updateShape theObj					
+		subobjectLevel = 0		
+
+-- 		delete theObj
+		
+	)
+		
+	-- création du sol
+	function actionSol =
+	(			
+		target = LayerManager.getLayerFromName "+ Sols"	
+		theObj = getNodeByName "Sol construction"
+		
+		tempLib  = undefined
+		
+		-- import des materiaux
+		fileMat = importfolderLIB + "\\Cells_materials.mat"
+		if doesfileexist fileMat then tempLib = loadTempMaterialLibrary fileMat
+		
+		uvwMapMod = uvwmap maptype: 4 length: 200 width: 200 height: 200
+					
+		-- creation des sol
+		theSolLine = copy theObj
+		theSolLine.name = "sol"
+		theSolLine.material = tempLib[2]
+		
+		solExtMod = extrude amount: -20 capstart: on capend: on
+		addmodifier theSolLine solExtMod
+		addmodifier theSolLine uvwMapMod
+		
+		-- creation des plintes
+		thePlinteLine = copy theObj
+		target.addnode thePlinteLine
+		thePlinteLine.name = "plinte"
+		thePlinteLine.material = tempLib[2]
+		
+		plinteExtMod = extrude amount: 10 capstart: off capend: off
+		plinteShellMod = shell outerAmount: 0 innerAmount: 2 overrideInnerMatID: on matInnerID: 1 overrideOuterMatID: on \
+		matOuterID: 1 overrideMatID: on matID: 1 autoSmoothAngle: 0 straightenCorners: on
+			
+		addmodifier thePlinteLine plinteExtMod
+		addmodifier thePlinteLine plinteShellMod
+		addmodifier thePlinteLine  (smooth ())
+		addmodifier thePlinteLine uvwMapMod
+
+		convertto thePlinteLine editable_poly
+	)
 	
 	on wallCreate pressed  do
 	(			
-		
-		function unifyWall = (			
-			clearSelection()			
-			target = LayerManager.getLayerFromName "- Splines Murs Int"				
-			target.nodes &theNodesInt		
-			target.on = false;	
-			target = LayerManager.getLayerFromName "- Splines Murs Ext"				
-			target.nodes &theNodesExt		
-			target.on = false;
-			target = LayerManager.getLayerFromName "- Splines Murs Fond"				
-			target.nodes &theNodesFond			
-			target.on = false;			
-			target = LayerManager.getLayerFromName "- Splines Murs Balcon"
-			target.nodes &theNodesBalc	
-			target.on = false;		
-			clearSelection()
-			
-			target = LayerManager.getLayerFromName "+ Murs"					
-			target.current  = true
-			theObj = Plane length:1 width:1 pos:[0,0,0] isSelected:on
-			convertto theObj editable_poly
-			target.addNode $
-				
-			theFacesToSelect = theObj.Faces									
-			polyOp.DeleteFaces  theObj theFacesToSelect
-			
-			for obj in theNodesInt  do ( 
-				theObj + obj
-			)			
-			for obj in theNodesExt  do ( 
-				theObj + obj
-			)		
-			for obj in theNodesFond  do ( 
-				theObj + obj
-			)	
-			for obj in theNodesBalc  do ( 
-				theObj + obj
-			)
-						
-			convertto theObj editable_poly
-			select theObj
-			
-			for i in theObj.verts do
-			(
-				format "Z pos : %  -" i.pos.z
-				if (i.pos.z<2) then (
-					--move i [0,0,-20]					
-					format "Z pos <2 : %\n" i.pos.z
-					i.pos.z = -20
-				)
-			)
-			
-			theObj.name = "Murs"
-			
-			filesMat = getFiles (importfolderLIB + "\\Cells_materials.mat")	
-		
-			for f in filesMat collect ( 
-				format "Import Mat file : %\n" f		
-				tempLib = loadTempMaterialLibrary f
-				theObj.material = tempLib[1]
-			)			
-			
-		)
-		
 		target = LayerManager.getLayerFromName "+ Murs"
 			
-		if target == undefined then (
-			LayerManager.newLayerFromName "+ Murs";
+		if target == undefined then
+		(
+			LayerManager.newLayerFromName "+ Murs"
 			unifyWall()
-		) else (
+		) 
+		else 
+		(
 			unifyWall()			
 		)	
 		
 	)
-			
-)
-
-rollout createGround "Créer les sols" width:350 height:230
-(		
-	button 'groundInitialize' "Initialiser les sols" pos:[10,10] width:100 height:20 align:#left
-	button 'groundFinalize' "Finaliser les sols" pos:[120,10] width:100 height:20 align:#left
+	
 	on groundInitialize pressed  do
 	(		
-
-		function extractSol = (			
-			clearSelection()
-			target = LayerManager.getLayerFromName "Plans"
-			target.on = false
-			target = LayerManager.getLayerFromName "+ Sols"	
-			target.current  = true
-			theObj = getNodeByName "Murs"
-			select theObj
-			
-			theSection = section pos:[0, 0, 0.5]
-			max views redraw
-			convertToSplineShape theSection
-			theSection.name =  "Sol construction"
-			
-			target.addNode theSection			
-			
-			target = LayerManager.getLayerFromName "Plans"
-			target.on = true
-			
-			theObj = getNodeByName "Sol construction"		
-			select theObj
-			modPanel.setCurrentObject theObj.baseObject
-			subobjectLevel = 1			
-			for i=1 to (numSplines theObj) do (
-				setKnotSelection theObj i #(1,numknots theObj i)
-			)
-			splineops.weld theObj
-			updateShape theObj					
-			subobjectLevel = 0			
-			
-		)
-		
 		target = LayerManager.getLayerFromName "+ Sols"
 			
-		if target == undefined then (
+		if target == undefined then
+		(
 			LayerManager.newLayerFromName "+ Sols";
 			extractSol()
-			
 			messageBox "Supprimez la Splines du contour exterieur et les splines des gaines"
-		) else (			
+		)
+		else 
+		(			
 			extractSol()	
-
 			messageBox "Supprimez la Splines du contour exterieur et les splines des gaines"			
 		)	
-		
 	)
 	
 	on groundFinalize pressed  do
 	(		
-
-		function actionSol = (			
-			clearSelection
-			target = LayerManager.getLayerFromName "+ Sols"	
-			theObj = getNodeByName "Sol construction"
-			
-			tempLib  = undefined
-			
-			filesMat = getFiles (importfolderLIB + "\\Cells_materials.mat")	
-		
-			for f in filesMat collect ( 
-				format "Import Mat file : %\n" f		
-				tempLib = loadTempMaterialLibrary f
-			)	
-			
-			
-			maxOps.cloneNodes theObj cloneType:#copy newNodes:&nnl #nodialog
-			for i = 1 to nnl.count do
-			(				
-				nnl[i].name = "Plinte"
-				nnl[i].material = tempLib[2]
-			)
-			
-			maxOps.cloneNodes theObj cloneType:#copy newNodes:&nnl #nodialog
-			for i = 1 to nnl.count do
-			(				
-				nnl[i].name = "Sol"
-				nnl[i].material = tempLib[2]
-			)	
-			
-			clearSelection()
-			theObj = getNodeByName "Sol"
-			select theObj
-			modPanel.addModToSelection(Extrude()) ui:on		
-			modPanel.addModToSelection (Uvwmap ()) ui:on	
-			theObj.modifiers[#Extrude].amount = -20
-			theObj.modifiers[#Extrude].capStart = on
-			theObj.modifiers[#Extrude].capEnd = on
-			theObj.modifiers[#UVW_Map].maptype = 4
-			theObj.modifiers[#UVW_Map].length = 200
-			theObj.modifiers[#UVW_Map].width = 200
-			theObj.modifiers[#UVW_Map].height = 200
-			
-			clearSelection
-			theObj = getNodeByName "Plinte"
-			select theObj
-			modPanel.addModToSelection(Extrude()) ui:on			
-			modPanel.addModToSelection(Shell()) ui:on			
-			modPanel.addModToSelection (smooth ()) ui:on
-			modPanel.addModToSelection (Uvwmap ()) ui:on	
-			theObj.modifiers[#Extrude].amount = 10
-			theObj.modifiers[#Extrude].capStart = off
-			theObj.modifiers[#Extrude].capEnd = off
-			theObj.modifiers[#Shell].outerAmount = 0 as integer
-			theObj.modifiers[#Shell].innerAmount = 2 as integer					
-			theObj.modifiers[#Shell].overrideInnerMatID = on					
-			theObj.modifiers[#Shell].matInnerID = 1
-			theObj.modifiers[#Shell].overrideOuterMatID = on					
-			theObj.modifiers[#Shell].matOuterID = 1
-			theObj.modifiers[#Shell].overrideMatID = on					
-			theObj.modifiers[#Shell].matID = 1
-			theObj.modifiers[#Shell].autoSmoothAngle = 0
-			theObj.modifiers[#Shell].straightenCorners = on
-			theObj.modifiers[#UVW_Map].maptype = 4
-			theObj.modifiers[#UVW_Map].length = 200
-			theObj.modifiers[#UVW_Map].width = 200
-			theObj.modifiers[#UVW_Map].height = 200		
-			
-			select theObj
-			convertto theObj editable_poly
-			
-		)
-		
 		
 		target = LayerManager.getLayerFromName "+ Sols"
 			
-		if target == undefined then (
+		if target == undefined then 
+		(
 			LayerManager.newLayerFromName "+ Sols";
 			messageBox "Veuillez Initialiser les sols en premier !"
-		) else (			
+		) 
+		else 
+		(			
 			actionSol()	
 		)	
-		
 	)
-			
 )
 
 rollout openingWall "Ouverture des murs" width:350 height:230
 (	
--- 	edittext 'windowHauteur' "Hauteur Fenetre (cm) : " pos:[12,10] text:"135"	width:160
--- 	edittext 'windowAllege' "Allege fenetre (cm) : " pos:[182,10] text:"90" width:150
--- 	edittext 'porteHauteur' "Hauteur Porte (cm) : " pos:[12,35] text:"204"	width:160
--- 	edittext 'porteFenetreHauteur' "Hauteur Porte fenetre (cm) : " pos:[12,60] text:"215" width:200
 	
 	group "Fenêtres:"
 	(
-		spinner windowHauteurSP "Hauteur:" type: #worldunits range: [0,500, 135] across: 2 -- pos:[12,10] text:"135"	width:160
+		spinner windowHauteurSP "Hauteur:" type: #worldunits range: [0,500, 215] across: 2 -- pos:[12,10] text:"135"	width:160
 		spinner windowAllegeSP "Allege:" type: #worldunits range: [0.5,500, 90] -- across: 2 -- pos:[182,10] text:"90" width:150
+		button addToFenLayerBT "add to layer"
 	)
 	
 	group "Portes:"
 	(
 		spinner porteHauteurSP "Hauteur:" type: #worldunits range: [0,500, 204] across: 2  -- pos:[12,35] text:"204"	width:160
-		spinner porteAllegeSP "Hauteur:" type: #worldunits range: [0.5,500, 0.5] 
+		spinner porteAllegeSP "Allege:" type: #worldunits range: [0.5,500, 0.5] 
+		button addToPorteLayerBT "add to layer"
 	)
 	
 	group "Porte-Fenêtres:"
 	(
 		spinner porteFenetreHauteurSP "Hauteur: " type: #worldunits range: [0,500, 215] across: 2  -- pos:[12,60] text:"215" width:200
-		spinner porteFenetreAllegeSP "Hauteur: " type: #worldunits range: [0.5,500, 0.5]
+		spinner porteFenetreAllegeSP "Allege: " type: #worldunits range: [0.5,500, 0.5]
+		button addToPorteFenLayerBT "add to layer"
+	)
+	 
+	button createGabaritBT "Créer les Gabarits" across: 2
+	button 'wallOpen' "Ouvrir les murs" -- pos:[120,90] width:100 height:20 align:#left
+	
+	on addToFenLayerBT pressed do
+	(
+		fenL = LayerManager.getLayerFromName "- Splines Fenetres"	
+		if fenL == undefined then()
+		else
+		(
+			sel = selection as array
+			for s in sel do fenL.addnode s
+		)
 	)
 	
-	button 'wallOpen' "Ouvrir les murs" -- pos:[120,90] width:100 height:20 align:#left
+	on addToPorteLayerBT pressed do
+	(		
+		porteL = LayerManager.getLayerFromName "- Splines Portes"				
+		if porteL == undefined then()
+		else
+		(
+			sel = selection as array
+			for s in sel do porteL.addnode s
+		)
+	)
+	
+	on addToPorteFenLayerBT pressed do
+	(
+		PFenL = LayerManager.getLayerFromName "- Splines PFenetres"	
+		if PFenL == undefined then()
+		else
+		(
+			sel = selection as array
+			for s in sel do PFenL.addnode s
+		)
+	)
+	
+	on createGabaritBT pressed do
+	(
+		
+			-- creation des bloc de portes 
+			porteL = LayerManager.getLayerFromName "- Splines Portes"				
+			porteL.nodes &theNodesPortes	
+		
+			TmpPorteL = LayerManager.getLayerFromName "-- Temp Portes"
+			if TmpPorteL == undefined then TmpPorteL = LayerManager.newLayerFromName "-- Temp Portes"
+			else
+			(
+				-- nettoyage des calques temporaire de gabarit avant la création
+				TmpPorteL.nodes &portesToDel
+				delete portesToDel
+			)
+			
+			local PorteExtMod = extrude amount: (porteHauteurSP.value - porteAllegeSP.value) capStart: on capEnd: on
+-- 			local PorteUVMod = Uvwmap maptype: 4 length: 150 width: 150 height: 150
+						
+			for p in theNodesPortes do
+			(
+				local newP = copy p
+				
+				TmpPorteL.addnode newP
+				move newP [0,0, porteAllegeSP.value]
+				
+				addmodifier newP PorteExtMod
+-- 				addmodifier newP PorteUVMod
+				
+				newP.wirecolor = red
+			)
+			
+			porteL.on = false
+			
+			-- creation des bloc de portes fenetres
+			PFenL = LayerManager.getLayerFromName "- Splines PFenetres"				
+			PFenL.nodes &theNodesPFenetres	
+			
+			TmpPFenL = LayerManager.getLayerFromName "-- Temp PFenetres"
+			if TmpPFenL == undefined then TmpPFenL = LayerManager.newLayerFromName "-- Temp PFenetres"
+			else
+			(
+				-- nettoyage des calques temporaire de gabarit avant la création
+				TmpPFenL.nodes &PfenToDel
+				delete PfenToDel
+			)
+			
+			PFenExtMod = extrude amount: (porteFenetreHauteurSP.value - porteFenetreAllegeSP.value ) capStart: on capEnd: on
+-- 			PFenUVMod = Uvwmap maptype: 4 length: 150 width: 150 height: 150
+			
+			for f in theNodesPFenetres do
+			(
+				local newPF = copy f
+				
+				TmpPFenL.addnode newPF
+				move newPF [0,0, porteFenetreAllegeSP.value]
+				
+				addmodifier newPF PFenExtMod
+-- 				addmodifier newPF PFenUVMod
+				newPF.wirecolor = green
+			)
+
+			PFenL.on = false
+			
+			-- creation des bloc de fenetres 
+			fenL = LayerManager.getLayerFromName "- Splines Fenetres"				
+			fenL.nodes &theNodesFenetres
+			
+			TmpfenL = LayerManager.getLayerFromName "-- Temp Fenetres"
+			if TmpfenL == undefined then TmpfenL = LayerManager.newLayerFromName "-- Temp Fenetres" 
+			else
+			(
+				-- nettoyage des calques temporaire de gabarit avant la création
+				TmpfenL.nodes &fenToDel
+				delete fenToDel
+			)
+			
+			FenExtMod = extrude amount: (windowHauteurSP.value - windowAllegeSP.value) capStart: on capEnd: on
+-- 			FenUVMod = Uvwmap maptype: 4 length: 150 width: 150 height: 150
+			
+			for f in theNodesFenetres do
+			(
+				local newF = copy f
+				
+				TmpfenL.addnode newF
+				move newF [0,0, windowAllegeSP.value]
+				
+				addmodifier newF FenExtMod
+-- 				addmodifier newF FenUVMod
+				newF.wirecolor = blue
+			)
+			fenL.on = false		
+	)
 	
 	on wallOpen pressed  do
 	(		
-			
-			clearSelection()		
-			
-			local nnl1 = #()
-			local nnl2 = #()
-			local nnl3 = #()
+	
+		-- ouverture des murs
 		
-			-- creation des bloc de portes 
-			target = LayerManager.getLayerFromName "- Splines Portes"				
-			target.nodes &theNodesPortes	
+		--  creation et nettoyage du calque appartement
+		AptL = LayerManager.getLayerFromName "Appartement"
+		if AptL == undefined then AptL = LayerManager.newLayerFromName "Appartement"
+		else
+		(
+			AptL.nodes &tmpAptNodes
+			delete tmpAptNodes
+		)
 			
-			if theNodesPortes.count > 0 then
-			(		
-				maxOps.cloneNodes theNodesPortes cloneType:#copy newNodes:&nnl1 #nodialog
+		-- recuperation du calque murs
+		MursL = LayerManager.getLayerFromName "+ Murs"
 		
-				move nnl1 [0,0, porteAllegeSP.value]
-				
-				PorteExtMod = extrude amount: porteHauteurSP.value capStart: on capEnd: on
-				PorteUVMod = Uvwmap maptype: 4 length: 150 width: 150 height: 150
-						
-				for obj in nnl1  do 
-				(
-					addmodifier obj PorteExtMod
-					addmodifier obj PorteUVMod
-				)
+		-- recuperation des blocs de gabarits sur les calques
+		local nnl1 = #()
+		local nnl2 = #()
+		local nnl3 = #()
 
-			)
-			target.on = false
+		-- recuperation des blocs de gabarits sur les calques
+		TmpPFenL = LayerManager.getLayerFromName "-- Temp PFenetres"
+		if TmpPFenL != undefined then TmpPFenL.nodes & nnl1
 			
-			-- creation des bloc de portes fenetres
-			target = LayerManager.getLayerFromName "- Splines PFenetres"				
-			target.nodes &theNodesPFenetres	
+		TmpfenL = LayerManager.getLayerFromName "-- Temp Fenetres"
+		if TmpfenL != undefined then TmpfenL.nodes & nnl2
+		
+		TmpPorteL = LayerManager.getLayerFromName "-- Temp Portes"
+		if TmpPorteL != undefined then TmpPorteL.nodes & nnl3
+		
+		nnl = nnl1 + nnl2 + nnl3
+		
+		-- recuperation des mur
+		theMurs = #()
+		MursBalL = LayerManager.getLayerFromName "- Splines Murs Balcon"
+		MursBalL.nodes &MursBal
+		
+		MursExtL = LayerManager.getLayerFromName "- Splines Murs Ext"
+		MursExtL.nodes &MursExt
+		
+		MursFondL = LayerManager.getLayerFromName "- Splines Murs Fond"
+		MursFondL.nodes &MursFond
+		
+		MursIntL = LayerManager.getLayerFromName "- Splines Murs Int"
+		MursIntL.nodes &MursIntL
+		
+		theMursOrig = MursBal + MursExt + MursFond + MursIntL
+		
+		--recuperation du materiau
+		local tempLib
+		f = importfolderLIB + "\\Cells_materials.mat"
+		if doesfileexist f then tempLib = loadTempMaterialLibrary f
+		
+		-- copies des murs
+		for m in theMursOrig do
+		(
+			newM = copy m
+			converttomesh newM
 			
-			if theNodesPFenetres.count > 0 then
-			(					
-				maxOps.cloneNodes theNodesPFenetres cloneType:#copy newNodes:&nnl2 #nodialog
-					
-				move nnl2 [0,0, porteFenetreAllegeSP.value]
-				
-				PFenExtMod = extrude amount: porteFenetreHauteurSP.value capStart: on capEnd: on
-				PFenUVMod = Uvwmap maptype: 4 length: 150 width: 150 height: 150
-						
-				for obj in nnl2  do 
-				(
-					addmodifier obj PFenExtMod
-					addmodifier obj PFenUVMod
-				)
-			)
-			target.on = false
-			
-			-- creation des bloc de fenetres 
-			target = LayerManager.getLayerFromName "- Splines Fenetres"				
-			target.nodes &theNodesFenetres
-			
-			if theNodesFenetres.count > 0 then
+			-- descente des vertex
+			for i in newM.verts do
 			(
-				maxOps.cloneNodes theNodesFenetres cloneType:#copy newNodes:&nnl3 #nodialog
--- 				select nnl3
-					
--- 				move nnl3 [0,0,0.5]
-				move nn3 [0,0,windowAllegeSP.value]
-				
-				FenExtMod = extrude amount: windowHauteurSP.value capStart: on capEnd: on
-				FenUVMod = Uvwmap maptype: 4 length: 150 width: 150 height: 150
-						
-				for obj in nnl3  do 
-				(
-					addmodifier obj FenExtMod
-					addmodifier obj FenUVMod
-				)
-			)
-			target.on = false		
+				if (i.pos.z<2) then	i.pos.z = -20
+			)	
 			
-			-- ouverture des murs
-			MurOrig = getNodeByName "Murs"
-			theObj = copy MurOrig	
+			-- decoupe du mur
+			for obj in nnl  do ( newM - obj)
 			
-			l= MurOrig.layer
-			l.addnode theObj
-			
-			MurOrig.ishidden = true
-			
--- 			theObj = getNodeByName "Murs"
--- 			MurOrig = copy theObj		
-				
-			if nnl1.count > 0 then (for obj in nnl1  do ( theObj - obj))			
-			if nnl2.count > 0 then (for obj in nnl2  do ( theObj - obj))	
-			if nnl3.count > 0 then (for obj in nnl3  do ( theObj - obj))
-			-- memo: le second opperator de la soustraction reste intact
-						
-			-- recupération des bloc de porte temporaire pour en faire des gabarits pour le fenetre
-			targetTemp = LayerManager.getLayerFromName "-- Temp Portes"
-			if targetTemp == undefined then targetTemp = LayerManager.newLayerFromName "-- Temp Portes"
-			
-			for obj in  nnl1 do
+			-- triangulation
+			faceCount = newM.numFaces
+			for i = 1 to faceCount do
 			(
-				obj2 = copy MurOrig
-				obj2 * obj
-				targetTemp.addNode obj2
+				setEdgeVis newM i 1 true
+				setEdgeVis newM i 2 true
+				setEdgeVis newM i 3 true
 			)
-			targetTemp.on = false		
+			update newM
 			
-			-- recupération des bloc de porte fenetre temporaire
-			targetTemp = LayerManager.getLayerFromName "-- Temp PFenetres"
-			if targetTemp == undefined then targetTemp = LayerManager.newLayerFromName "-- Temp PFenetres"
+			-- ajout au calque mur
+			AptL.addnode newM
 			
-			for obj in  nnl2 do 
-			(
-				obj2 = copy MurOrig
-				obj2 * obj
-				targetTemp.addNode obj2
-			)
-			targetTemp.on = false
-			
-			-- recupération des bloc de fenetre temporaire
-			targetTemp = LayerManager.getLayerFromName "-- Temp Fenetres"
-			if targetTemp == undefined then targetTemp = LayerManager.newLayerFromName "-- Temp Fenetres" 
-			
-			for obj in  nnl3 do
-			(
-				obj2 = copy MurOrig
-				obj2 * obj
-				targetTemp.addNode obj2
-			)
-			targetTemp.on = false
+			-- ajout du materiaux
+			if tempLib != undefined then newM.material = tempLib[1]
 
-			-- decoupage des plinte
-			PlinteOrig = getNodeByName "Plinte"
-			theObj = copy PlinteOrig
+			-- ajout de smooth
+			addmodifier newM (smooth())
 			
-			l= PlinteOrig.layer
-			l.addnode theObj
-			
-			PlinteOrig.ishidden = true
-			
--- 			theObj = getNodeByName "Plinte"
-			
-			if isvalidnode theObj then
-			(
-				
-				for obj in nnl1  do ( theObj - obj)	
-				for obj in nnl2  do ( theObj - obj)		
-				for obj in nnl3  do ( theObj - obj)
-				
-				convertto theObj editable_poly
-			)
-			else
-			(
-				delete nnl1
-				delete nnl2
-				delete nnl3
-			)
-			
--- 			delete MurOrig
+			-- ajout du murs aux objets à decouper
+			append theMurs newM			
+		)
+		
+		-- cachage des murs fusionner
+		MurOrig = getNodeByName "Murs"
+		if isvalidnode MurOrig then MurOrig.ishidden = true
+		
+		
+		-- decoupage des plinte
+		PlinteOrig = getNodeByName "Plinte"
+		thePlinte = copy PlinteOrig
+		
+		l= PlinteOrig.layer
+		l.addnode thePlinte
+		
+		PlinteOrig.ishidden = true
+		
+		AptL.addnode thePlinte
+					
+		if isvalidnode thePlinte then
+		(
+			if nnl.count > 0 then (for obj in nnl  do ( thePlinte - obj))
+		)
+
 	)
 			
 )
@@ -809,7 +885,6 @@ rollout doorFrame "Menuiseries et Portes" width:350 height:270
 	on importElements pressed  do
 	(	
 	    
-		
 		targetTemp = LayerManager.getLayerFromName "-- Temp Portes"
 		targetTemp.nodes &theNodesPortes
 		targetTemp = LayerManager.getLayerFromName "-- Temp PFenetres"	
@@ -946,7 +1021,7 @@ addRollout addPlan dRolFloater rolledUp:true
 addRollout addExtWall dRolFloater rolledUp:true
 addRollout addBackWall dRolFloater rolledUp:true
 addRollout addIntWall dRolFloater rolledUp:true
-addRollout finishedWall dRolFloater rolledUp:true
+-- addRollout finishedWall dRolFloater rolledUp:true
 addRollout createGround dRolFloater rolledUp:true
 addRollout openingWall dRolFloater rolledUp:false
 addRollout doorFrame dRolFloater rolledUp:true

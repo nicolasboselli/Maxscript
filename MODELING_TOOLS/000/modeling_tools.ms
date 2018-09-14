@@ -58,15 +58,20 @@ fn makeFloorFN s outLIneVal: -15 innerAmountVal: 0 outerAmountVal: 10  collapseM
 		(
 		undo off
 			(
-				myEditPoly = Edit_Poly()
-				addmodifier s myEditPoly
-				convertto s editable_poly
+-- 				myEditPoly = Edit_Poly()
+-- 				addmodifier s myEditPoly
+-- 				convertto s editable_poly
+				
+				addmodifier s (edit_poly())
+				s.modifiers[1].SetSelection  #Face #{1}
+				s.modifiers[1].outlineAmount = outLIneVal
+				s.modifiers[1].SetOperation #outline
 
 				-- outline 15 cm
-				select s
-				polyop.setFaceSelection  s #all
-				s.outlineAmount = outLIneVal
-				s.EditablePoly.Outline ()
+-- 				select s
+-- 				polyop.setFaceSelection  s #all
+-- 				s.outlineAmount = outLIneVal
+-- 				s.EditablePoly.Outline ()
 
 				-- shell 10cm
 				myShell = Shell innerAmount: innerAmountVal outerAmount:outerAmountVal

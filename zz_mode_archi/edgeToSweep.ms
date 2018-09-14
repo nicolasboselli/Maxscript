@@ -1,14 +1,32 @@
 /*
 maj
-add param:  center pivot,  add uvwmap, add mat, setup sweep, 
-
-faire fonction sur modifier edit_poly
+	-- add param:  center pivot,  add uvwmap, add mat, setup sweep, 
+	-- faire fonction sur modifier edit_poly
+	-- créer un auto plananr selection et traiter les face en série
+		-- sur une selection collecter toutes les normales des faces
+		polyop.getFaceNormal
+		-- pour chaque normale retourner les faces
+	 
 
 
 debug:
 x-sur des murs orienter en z l estract de spline est décalé
 */
-
+-- edgeToSweepLog = stringstream ""
+-- edgeToSweepDebug = stringstream ""
+/*
+s = $
+facesSel = polyop.getFaceSelection s
+for i in facesSel do
+(
+-- 	print i 
+	
+	nTmp = polyop.getFaceNormal s i
+	format "normal:%\n" nTmp
+	n = [(round_to nTmp.x 3), (round_to nTmp.y 3), (round_to nTmp.z 3)]
+	format "new normal:%\n" n
+)
+*/
 fn round_to val n = 
 (
 	local mult = 10.0 ^ n
@@ -247,6 +265,10 @@ rollout edgeToShapeRLT "edge to shape"
 				
 				newShape = getnodebyname newName
 				updateshape newShape
+				
+				-- ajouter au meme layer que l'ojet source
+				local l = s.layer
+				l.addnode newShape
 				
 				-- reset xform 
 				if boxOrient != undefined and xformOnBoxCB.state == true then 

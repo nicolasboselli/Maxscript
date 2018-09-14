@@ -36,6 +36,61 @@ maj:
 
 */
 
+
+
+fn searchBitmap dir pattern =
+(
+	local maxFiles = 10
+	local dirArr = #(dir)
+	local fileArr = #()
+	local maxFileCount = 0
+	
+	
+	-- collecte des fichiers dans le premier dossier
+-- 	local ff = getFiles (dir + pattern)
+-- 	for f in ff do append fileArr f
+	
+	-- pour chaque dossier
+	for d in dirArr do
+	(
+		local dirTmp = GetDirectories  (d + "\\*")
+		
+		if dirTmp != undefined then 
+		(
+			if dirTmp.count > 0 then
+			(
+				for dt in dirTmp do
+				(
+					-- ajout des dossier à l'array, clé de la  recursivité
+					append dirArr dt
+					
+					-- collect files
+					local fTmp = doesfileexist (dt + pattern)
+-- 					for f in fTmp do append fileArr f
+					maxFileCount += 1
+					if ftmp then
+					(
+						format "REMAP: %\n" (dt + pattern) 
+-- 						format "(dt + pattern):%\n" (dt + pattern) 
+-- 						format "fTmp:%\n" fTmp 
+-- 						format "maxFileCount:%\n" maxFileCount 
+-- 					if fileArr.count > maxFiles then exit
+
+-- 					if maxFileCount > maxFiles then exit
+					)
+				)
+			)
+		)
+-- 		if fileArr.count > maxFiles then exit
+-- 		if maxFileCount > maxFiles then exit
+	)
+	sort fileArr
+)
+
+-- oneDir = @"M:\Textures"
+-- onePattern = "brique beige_02.jpg"
+-- searchBitmap oneDir onePattern
+
 fn sortbyname v1 v2 =
 (
 -- 	vars
@@ -133,6 +188,13 @@ rollout vrMatRlt "VRay mat Lib"
 		button missBmpBT2 "format missing bitmap"
 	)
 	
+	group "lib bitmap tools"
+	(
+		button scanLibBT "scan Lib"
+-- 		button missBmpLibBT "edit missing bitmap"
+-- 		button missBmpLibBT2 "format missing bitmap"
+	)
+	
 	-- functions
 	fn loadLib vrLibPath =
 	(
@@ -189,18 +251,6 @@ rollout vrMatRlt "VRay mat Lib"
 -- 		matLibLoaded = false
 		loadRolloutParams vrMatRlt Params
 		
-		/*
-		-- init library path
-		if vrLibPath == undefined then
-		(
-			try 
-			(
-				vrLibPath = getINISetting armadasScriptsIni "vrMatLib" "DefaultMatLibPath"
-			)
-			catch(format "error: %\n" (getcurrentexception()))
-		)
-		*/
-		
 		-- load library
 		loadLib vrLibPath
 		
@@ -212,24 +262,9 @@ rollout vrMatRlt "VRay mat Lib"
 	(
 		writeRolloutParams vrMatRlt Params
 		
--- 		autosaveCB
-		
--- 		format "vrLibPath: %\n" vrLibPath.count
-		/*
-		if vrLibPath.count > 0 and autosaveCB.state then
-		(
-			-- save pref
-			setINISetting armadasScriptsIni "vrMatLib" "DefaultMatLibPath" vrLibPath
-			-- save lib
-			writeLib vrLibPath
-		)
-		*/
-		
 		if vrLibPath == undefined then ()
 		else if vrLibPath.count > 0 and autosaveCB.state then writeLib vrLibPath
 		else()
-			
-		
 	)
 	
 	on openLibBT pressed do
@@ -474,6 +509,31 @@ rollout vrMatRlt "VRay mat Lib"
 			else format "Not Found: % %\n" i undefined
 		)
 
+	)
+	
+	on scanLibBT pressed do
+	(
+		local bmpAr = #()
+		
+		for m in matAr do
+		(
+			local bmpTmpAr = getclassinstances bitmaptexture target: m
+			for bmpTmp in bmpTmpAr do append bmpAr bmpTmp
+		)
+		
+		for b in bmpAr do
+		(
+			if not doesfileexist b.filename then
+			(
+				format "\nUNFOUND: %\n"  b.filename
+-- 				walkDir2 dir pattern
+				onePattern = (filenameFromPath b.filename)
+				
+				oneDir = @"M:\Textures"
+-- 				onePattern = "brique beige_02.jpg"
+				searchBitmap oneDir onePattern
+			)
+		)		
 	)
 )
 createdialog vrMatRlt

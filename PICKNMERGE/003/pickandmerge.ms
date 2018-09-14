@@ -9,6 +9,7 @@ maj:
 	-- ajouter un champs de recherche dans les noms
 	-- ajouter un explorateur de dossier
 	-- faire apparaitre le thumbnail du fichier max
+	-- proposer un classement des fichiers par date de creation
 
 dev:
 	-- dans l'extracteur d'asset placer les assets au centre de la scene et créer une interface pour les asset à créer
@@ -64,6 +65,7 @@ fn walkDir2 dir pattern =
 				)
 			)
 		)
+		
 		if fileArr.count > maxFiles then exit
 	)
 	sort fileArr

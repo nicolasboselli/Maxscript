@@ -88,7 +88,7 @@ rollout objReplacerRLT "objects replacer "
 				local myRay = mapScreenToWorldRay viewPoint
 
 				local arr = intersectRayScene myRay
-				format "arr: %\n" arr
+-- 				format "arr: %\n" arr
 				
 				local viewMatrix =  Inverse(viewport.getTM())
 				local viewPos = viewMatrix.pos
@@ -254,7 +254,7 @@ rollout objReplacerRLT "objects replacer "
 					(
 						if isvalidnode refSelAr[j] then
 						(
-							local res 
+							local res = #()
 							-- operation de replace
 							if rescaleOnBT.state then
 							(
@@ -265,7 +265,12 @@ rollout objReplacerRLT "objects replacer "
 								res = replaceObjectOnPivot refSelAr[j] s
 							)
 							format  "result: %\n" res
-							
+							if res == undefined then()
+							else if res.count > 0 then
+							(
+								for o in res do o.ishidden = false
+							)
+							else()
 						)
 						else
 						(
@@ -303,6 +308,8 @@ rollout objReplacerRLT "objects replacer "
 			append toParent sourceObj
 			lastParent toParent
 			
+			format "mergedNodes: %\n" mergedNodes
+			format "toParent: %\n" toParent
 			mergedNodes[1].transform.controller.value = matrix3 1
 			
 			if state == true do
@@ -322,10 +329,11 @@ rollout objReplacerRLT "objects replacer "
 			format "selectionner un objet dans la liste\n"
 			placeCB.state = false
 		)
-		
 	)
 )
 createdialog objReplacerRLT width: 400
 
 objReplacerRLT.refArMLB.selection.count
 
+-- objs = objects as array 
+-- objs[objs.count]
