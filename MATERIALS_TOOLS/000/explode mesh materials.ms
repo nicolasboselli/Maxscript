@@ -14,6 +14,7 @@ fn getFacesID s =
 
 fn exploseMeshBymat s = 
 (
+	-- maj: mettre les morceaux sur le meme calque que l'objet unique
 	local splitObjList = #(s)
 	-- debug de l objet
 	resetpivot s
@@ -30,7 +31,7 @@ fn exploseMeshBymat s =
 		(
 			if (getFaceMatID s f ) == id do append faceList f
 		)
-		format "id: % facelist: %\n" id (facelist as bitarray)
+-- 		format "id: % facelist: %\n" id (facelist as bitarray)
 		
 		local newMesh = meshop.detachFaces s faceList delete: true asMesh: true
 		
@@ -51,7 +52,10 @@ fn exploseMeshBymat s =
 	splitObjList
 )
 
+
+-- explode object by multimat
 sel =  selection as array
+
 -- clearselection()
 newSel = #()
 for s in sel do
@@ -64,6 +68,26 @@ for s in sel do
 )
 select newsel
 
+-- select object for the medit material  and explode                                                                                                                                                                                                                               
+meditMultiMatList = for m in  meditmaterials where classof m == multimaterial collect m
+format "meditMultimatList count: %\n" meditMultiMatList.count
+
+for m in meditMultiMatList do
+(
+	sel = collectObjByMat m visSel
+	format "mat: % attach count: %\n"  m.name sel.count
+	
+	newSel = #()
+	for s in sel do
+	(
+		if classof  s.baseobject  == Editable_mesh then
+		(
+			objs = exploseMeshBymat s
+			for o in objs do append newsel o
+		)
+	)
+	select newSel	
+)
 
 
 

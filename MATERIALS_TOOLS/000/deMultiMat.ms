@@ -212,7 +212,7 @@ fn getFacesID s =
 fn updateSceneMaterials =
  (
 	 -- teste drive
-	testAr = "jc"
+	testAr = "jdc"
 	local drive
 	 for i = 1 to testAr.count do
 	(
@@ -710,7 +710,8 @@ rollout deMultiMatRLT "Materials Tools"
 		button createMultiBT "create multi-mat" 
 		button convertToVrBT "convert to vray mat" across:2
 		button okConvertBT "confirm" 
-
+		
+		button convertAllMatToVrBT "convert All standards to vray mat" -- across:2
 -- 		button showBT "show properties"
 
 -- 		button collectVrMtlBT "collect material"
@@ -728,16 +729,16 @@ rollout deMultiMatRLT "Materials Tools"
 		button isolateByMat2BT "in visibles objects "
 -- 		checkbox isolateCB "isolate"
 	)
-	
-	group "count sel medit material..."
-	(
-		button countBymatBT "in visibles objects "
-	)
-	
-	group "count all medit material..."
-	(
-		button countAllmatBT "in visibles objects "
-	)
+-- 	
+-- 	group "count sel medit material..."
+-- 	(
+-- 		button countBymatBT "in visibles objects "
+-- 	)
+-- 	
+-- 	group "count all medit material..."
+-- 	(
+-- 		button countAllmatBT "in visibles objects "
+-- 	)
 	
 	group "uvw mapping box:"
 	(
@@ -903,6 +904,18 @@ rollout deMultiMatRLT "Materials Tools"
 		convertToVrMatDef meditMaterials[activeMeditSlot]
 	)
 	
+	
+	on convertAllMatToVrBT pressed do
+	(
+		local matAr = getclassinstances standard target: scenematerials
+-- 		format "count: % matAr: %\n" matAr.count matAr
+		for m in matAr do
+		(
+			format "convert: %\n" m
+			convertToVrMatDef m
+		)
+	)
+	
 	on okConvertBT pressed do
 	(
 		replaceinstances meditMaterials[activeMeditSlot]  meditMaterials[1]
@@ -925,6 +938,7 @@ rollout deMultiMatRLT "Materials Tools"
 	(
 		meditMaterials[activeMeditSlot].name = prefixET.text + "_" + meditMaterials[activeMeditSlot].name
 	)
+	
 	
 	on isolateByMatBT pressed do
 	(

@@ -66,7 +66,7 @@ fn createVraySun =
 	-- vray sun
 -- 			dummy_target = dummy name: "vraysuntarget" 
 		dummy_target = Targetobject wirecolor: yellow
-		vraySunVar = VRaySun name:"VRaySun001" pos:[val,val,val] isSelected:on size_multiplier: 4 enabled:on turbidity: 2.5 ozone: 0.35 sky_model: 0 target: dummy_target
+		vraySunVar = VRaySun name:"VRaySun001" pos:[val, - val,val] isSelected:on size_multiplier: 4 enabled:on turbidity: 2.5 ozone: 0.35 sky_model: 0 target: dummy_target
 		-- enviraonnement
 	)
 	
@@ -116,6 +116,26 @@ fn setVrayCamera =
 	viewport.setCamera newCam
 )
 
+/*
+(
+	renderSceneDialog.close()
+	renderWidth = 1500
+	renderHeight = 1500
+	
+	max quick render
+	
+	-- Get the last Rendered image
+	img = getlastrenderedimage()
+	
+	-- Assign a filename
+	img.filename = maxFilePath + (getFilenameFile maxfilename) + ".jpg"
+	
+	-- Save it
+	save img gamma: 2.2
+)
+*/
+
+
 -- rollout
 try(destroydialog VrayRenderRLT)catch()
 rollout VrayRenderRLT "Vray Options"
@@ -155,6 +175,14 @@ rollout VrayRenderRLT "Vray Options"
 		button createVrayGroundBT "vray ground"
 		button createVrayCamBT "vray cam from view"
 	)
+	
+	group "render thumbnail"
+	(
+		button renderBT "render"
+		button delSunBT "delete sun"
+	)
+	
+	button renderThumbBT "render thumbnail"
 
 -- 	Actions
 	on  VRScenebaseBT pressed do
@@ -162,16 +190,6 @@ rollout VrayRenderRLT "Vray Options"
 		vrayBaseSetBT.pressed()
 		vraySunBT.pressed()
 		vrayExposureBT.pressed()
-		/*
-		-- settings
-		renderers.current = copy VrayBase
-						
-		-- vray sun
-		createVraySun()
-		
-		-- exposure
-		sceneExposureControl.exposureControl =  vrayExp
-		*/
 	)
 	
 	on vrayBaseSetBT pressed do
@@ -198,8 +216,50 @@ rollout VrayRenderRLT "Vray Options"
 	(
 		setVrayCamera ()
 	)
+	
+	on renderBT pressed do
+	(
+-- 		vrayBaseSetBT.pressed()
+-- 		vraySunBT.pressed()
+-- 		vrayExposureBT.pressed()
+		
+		renderSceneDialog.close()
+		
+		renderWidth = 1500
+		renderHeight = 1500
+		
+-- 		max quick render -- netrender: false
+		
+		img = render netrender: false
+		
+		-- Get the last Rendered image
+-- 		img = getlastrenderedimage()
+		
+		-- Assign a filename
+		img.filename = maxFilePath + (getFilenameFile maxfilename) + ".jpg"
+		
+		-- Save it
+		save img gamma: 2.2
+		
+	)
+	
+	on delSunBT pressed  do
+	(
+		sun  = getnodebyname "VRaySun001"
+		delete sun
+	)
+	
+	on renderThumbBT pressed do
+	(
+		vrayBaseSetBT.pressed()
+		vraySunBT.pressed()
+		vrayExposureBT.pressed()
+		renderBT.pressed()
+		delSunBT.pressed()
+		
+	)
+	
 )
-
 createdialog VrayRenderRLT 
 
 

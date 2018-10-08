@@ -1,6 +1,8 @@
 -- recupérer les spline des fenetres, porte ... etc...
 /*
  debug: le sript ne fonctionne pas sur des repères déja réorientés
+	-- c'est l'ordre horaire des points qui pose problème
+	-- le reverse de spline focntionne mais pas le script  reverse spline
 */
 
 
@@ -20,9 +22,10 @@ fn testImpactID l id =
 	posI = (getKnotPoint l 1 id) - [0,0,500]
 	testRay = (ray posI theZ)
 	intersectTestI = intersectRayScene testRay
-		
+	format "intersectTestI: %\n" intersectTestI
 	if intersectTestI.count > 0 then 
 	(
+		-- blinder le test des murs
 -- 		format "intersectTestI: %\n" intersectTestI[1][1].layer.name
 		res = finditem layerList intersectTestI[1][1].layer.name
 -- 		format "res: %\n" res
@@ -31,6 +34,7 @@ fn testImpactID l id =
 		
 	impact
 )
+testImpactID $ 4
 
 
 -- si un repère est dans un mur retourne un nouvel ordre des points du repère
@@ -99,6 +103,7 @@ fn getMurImpacted rayStart =
 
 -- var
 -- s = $
+
 fn adjustGabaritSpline s shift1: 3 shift2: 3 =
 (
 	converttosplineshape s
@@ -195,16 +200,29 @@ fn adjustGabaritSpline s shift1: 3 shift2: 3 =
 
 )
 
-
-sel  = selection as array
-shift1 = 3
-shift2 = 3
-for s in sel do
+try(destroydialog adjustGabaritRLT)catch()
+rollout adjustGabaritRLT "Ajuster les gabarit de porte et fenêtre"
 (
-	copyS = copy s
-	copyS.wirecolor = s.wirecolor
-	s.layer.Addnode copyS
-	adjustGabaritSpline s shift1: 3 shift2: 30
+	spinner shift1SP "decalage -x:" type: #worldunits range: [0,500, 3] across: 2
+	spinner shift2SP "decalage +x:" type: #worldunits range: [0,500, 30]
+	button adjustBT "ajuster les gabarits selectionnés"
 	
+	on adjustBT pressed do
+	(
+		sel  = selection as array
+		
+		for s in sel do
+		(
+			copyS = copy s
+			copyS.wirecolor = s.wirecolor
+			s.layer.Addnode copyS
+			adjustGabaritSpline copyS shift1: shift1SP.value shift2: shift2SP.value
+			 
+		)
+-- 		select sel
+	)
 )
+
+
+createdialog adjustGabaritRLT width: 300
 

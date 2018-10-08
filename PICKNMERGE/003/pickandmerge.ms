@@ -4,15 +4,21 @@ maj:
 	-- asset set
 		-- faire fonctionner la selection de set multiple
 		-- eviter les doublons de set
+		-- mettre en options de selectionner les objets du set
+		-- mettre en option de cacher les objets pas dans le set
+		-- collecter les assets sets dans les sous dossier
 	
 	-- créer un historique des dossier ouvert précedemment
 	-- ajouter un champs de recherche dans les noms
-	-- ajouter un explorateur de dossier
+
 	-- faire apparaitre le thumbnail du fichier max
 	-- proposer un classement des fichiers par date de creation
+	-- ajouter un explorateur de dossier
+	-- ne pas tenir compte des majuscules pour classer les asset alphabetiquement
+	-- rendre optionnelle la création de ctrl
+	
 
-dev:
-	-- dans l'extracteur d'asset placer les assets au centre de la scene et créer une interface pour les asset à créer
+
 
 */
 

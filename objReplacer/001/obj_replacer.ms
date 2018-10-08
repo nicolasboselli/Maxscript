@@ -64,10 +64,10 @@ rollout objReplacerRLT "objects replacer "
 						
 						if tmpDist < nearestDist do
 						(
--- 									format "mn: %\n" mn.name
+-- 							format "mn: %\n" mn.name
 							nearestDist = tmpDist
 							goodRes = obj
--- 								format "obj: %\n" obj
+-- 							format "obj: %\n" obj
 						)
 					)
 				)
@@ -149,6 +149,16 @@ rollout objReplacerRLT "objects replacer "
 		checkbox rescaleXCB "x"  checked: true across: 3 
 		checkbox rescaleYCB "y"  checked: true -- enabled: false
 		checkbox rescaleZCB "z"  checked: true
+	)
+	
+	group "Clone type:"
+	(
+		radiobuttons cloneTypeRB "clone type:" labels: #("copy", "instance")  offsets:#([80,-16], [80,-16]) 
+	)
+	
+	group "Align type"
+	(
+		radiobuttons alignTypeTB "Align type:" labels: #("pivot (center) > pivot", "pivot (center) > center", "center > pivot", "center > center")  offsets:#([80,-16], [220,-32], [80,-32],[220,-48]) 
 	)
 	
 	checkbox randomCB "random" across: 2
@@ -258,7 +268,7 @@ rollout objReplacerRLT "objects replacer "
 							-- operation de replace
 							if rescaleOnBT.state then
 							(
-								res = replaceObject2 refSelAr[j] s  rescaleX: rescaleXCB.state rescaleY: rescaleYCB.state rescaleZ: rescaleZCB.state
+								res = replaceObject2 refSelAr[j] s  rescaleX: rescaleXCB.state rescaleY: rescaleYCB.state rescaleZ: rescaleZCB.state copyType: cloneTypeRB.state aligntype: alignTypeTB.state
 							)
 							else
 							(
@@ -283,6 +293,7 @@ rollout objReplacerRLT "objects replacer "
 						format "reference et target sont un même objet\n"
 					)
 				)
+-- 				format "j: %\n" j
 			)
 		)
 		else

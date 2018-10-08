@@ -76,6 +76,7 @@ fn collectSameMultiMat3 matRef matSet=
 
 fn collectObjByMat matRef objSet =
 (
+	/*utiliser  refs.dependents meditmaterials[activeMeditSlot] */
 	local sameMultiMatObjList = #()
 		
 	for o in objSet where isvalidnode o do
@@ -87,6 +88,7 @@ fn collectObjByMat matRef objSet =
 	)
 	sameMultiMatObjList
 )
+
 
 -- ############################### COLLAPSE des MULTIMATERIAUX
 	-- collapser les multimat de la selection dans l'editeur de materiaux
@@ -308,12 +310,54 @@ for m in meditMultiMatList do
 
 -- ############################################## ATTACH MESH AVEC MEME MONOMAT
 -- sur la selection d'objet mono mat
+fn clusterAttach objArr =
+(
+	j = 1
+	count = objArr.count
 
+	undo off
+	(
+		while objArr.count > 1 do
+		(
+			
+			
+			if classof objArr[j].baseobject != editable_Mesh then converttoMesh objArr[j]
+				
+			-- DESINSTANCE
+			
+			if (InstanceMgr.CanMakeObjectsUnique objArr[j]) then
+			(
+				format "desinstance: %\n" objArr[j].name
+				InstanceMgr.MakeObjectsUnique objArr[j] #prompt
+			)
+			
+			if (InstanceMgr.CanMakeObjectsUnique objArr[j+1]) then
+			(
+				format "desinstance: %\n" objArr[j+1].name
+				InstanceMgr.MakeObjectsUnique objArr[j+1] #prompt
+			)
+			
+			-- ATTACH
+			attach objArr[j] objArr[j+1]
+			
+			deleteItem objArr (j+1)
 
--- sur les materiaux de l'editeur de materiaux et sur les objest visibles
+			j += 1
+
+			if (j + 1) > objArr.count then j = 1
+
+		)
+	)
+	objArr[1]
+)
+
+-- fusion des objets visibles par mateiraux
 visSel = for o in  $* where o.ishidden == false collect o
-meditMonoMatList = for m in  meditmaterials where classof m != multimaterial collect m
-format "meditMultimatList count: %\n" meditMonoMatList.count
+format "visSel count: %\n" visSel.count
+
+meditMonoMatList = #()
+for s in visSel where s.material != undefined and classof s.material != multimaterial do appendifunique meditMonoMatList s.material 
+format "meditMonoMatList count: %\n" meditMonoMatList.count
 
 
 for m in meditMonoMatList do
@@ -323,21 +367,25 @@ for m in meditMonoMatList do
 -- 	combineMesh sel
 	
 	
-	if sel.count > 70 then
+	if sel.count > 5000 then
 	(
 		
-		select sel
+-- 		select sel
 		format "attachement manuel\n"
-		exit
+-- 		exit
+	)
+	else if sel.count == 1 then
+	(
+		format "pas d'attachement à faire\n"
 	)
 	else
 	(
-		combineMesh sel
+		local bef = timestamp()
+		clusterAttach sel
+		format "attach done: % s\n" (((timestamp()) - bef) / 1000 as float)
+-- 		combineMesh sel
 	)
 )
 
 
-------------------
-
-for s in $* where s.material == undefined do selectmore s
 

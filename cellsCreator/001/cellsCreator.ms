@@ -1,13 +1,30 @@
 /*
 -- maj:
-	-- decouper une plane en fonction des murs en spline pour faire les sol
-	x-- decouper les murs spline en fonction des gabarits de porte
+	/- a l'ajout des spline de murs, porte, fenetres... etc.. renommer les spline et changer leur wirecolor
+
+	-- créer un auto snap des spline de murs
+	x- determiner l'orientation des gabarit de box
+	-- placer les lights devant les fenetres et au dessus de chaque piece
+	-- reprendre le déroulé du script en séparant prépa et finalisation, notament au niveau des sols et surtout des plintes
+	-- plutot que de faire des murs de differentes hauteur, proposer de monter ou descendre les splines de la difference entre mur haut et mur bas
+	-- decouper une plane en fonction des murs en spline pour faire les sol (la technique de la section fait l'affaire)
 	
-	/- a l'ajout des guides (murs, porte, fenetres... etc..) dans les calques,  renommer les spline et changer leur wirecolor
-
-
--- rebuild:
-	-- mettre toutes les creation de murs dans le meme rollout pour pouvoir recréer sur selection
+-- deroulement:
+	x- murs
+	x- sols
+	x- ouverture
+	- sol terrasse
+	- garde corps
+	/- placement fenetre
+	/- placement porte
+	- lights
+	- placard
+	- sdb
+	- cuisines
+	- cadres
+	- plantes
+	- reste
+	
 */
 
 
@@ -19,6 +36,7 @@ global planFile = undefined
 global importfolderFEN = "M:\\Interieur\\Cellules\\Modelisation\\Fenetres\\"
 global importfolderPOR = "M:\\Interieur\\Cellules\\Modelisation\\Portes\\"
 -- global importfolderCAM = "M:\\Interieur\\Cellules\\Modelisation\\CamLights\\"
+-- global importfolderCAM = @"M:\Elements_batiments\Light\"
 global importfolderCAM = @"M:\Light\"
 global importfolderPST = "M:\\Interieur\\Cellules\\Modelisation\\Presets\\"
 global importfolderVray = "M:\\Interieur\\Cellules\\Modelisation\\Vray\\"
@@ -30,43 +48,28 @@ global filesPOR
 
 try(closerolloutfloater dRolFloater) catch()
 
+
+global mursLayer = "+ Sol construction"
+
 -- Preparation des calques de travail
-function createWorkLayer = (	
-	target = LayerManager.getLayerFromName "- Splines Murs Ext"
-	if target == undefined then (
-		LayerManager.newLayerFromName "- Splines Murs Ext";
-	) 
+function createWorkLayer = 
+(	
+	layerList = #( "- Splines Murs Ext", 
+		"- Splines Murs Balcon",
+		"- Splines Murs Fond",
+		"- Splines Murs Int",
+		"- Splines Fenetres",
+		"- Splines PFenetres",
+		"- Splines Portes"
+	)
 	
-	target = LayerManager.getLayerFromName "- Splines Murs Balcon"
-	if target == undefined then (
-		LayerManager.newLayerFromName "- Splines Murs Balcon";
-	) 
-
-	target = LayerManager.getLayerFromName "- Splines Murs Fond"
-	if target == undefined then (
-		LayerManager.newLayerFromName "- Splines Murs Fond";
-	) 
-
-	target = LayerManager.getLayerFromName "- Splines Murs Int"
-	if target == undefined then (
-		LayerManager.newLayerFromName "- Splines Murs Int";
-	) 
-
-	target = LayerManager.getLayerFromName "- Splines Fenetres"
-	if target == undefined then (
-		LayerManager.newLayerFromName "- Splines Fenetres";
-	) 
-	target = LayerManager.getLayerFromName "- Splines PFenetres"
-	if target == undefined then (
-		LayerManager.newLayerFromName "- Splines PFenetres";
-	) 
-	target = LayerManager.getLayerFromName "- Splines Portes"
-	if target == undefined then (
-		LayerManager.newLayerFromName "- Splines Portes";
-	) 
+	for l in layerList do
+	(
+		if  LayerManager.getLayerFromName l == undefined then LayerManager.newLayerFromName l
+	)
 )
-createWorkLayer()
 
+-- inversion du sens de la spline
 fn inverseKnotOrder l =
 (
 	if superclassof l.baseobject == Shape then
@@ -83,52 +86,53 @@ fn inverseKnotOrder l =
 
 
 rollout prepareScene "Preparer le cellule" width:350 height:230
-(		
-	button 'loadCamLight' "Ajouter CAM & Light" pos:[10,10] width:120 height:20 align:#left
-	button 'loadRenderPset' "Preset Rendu" pos:[200,10] width:120 height:20 align:#left
+(	
+-- 	button initLayersBT "initialiser les calques" 
+	button 'loadCamLight' "Importer CAM & Light" across: 2 -- pos:[10,10] width:120 height:20 align:#left
+	button 'loadRenderPset' "Preset Rendu" -- pos:[200,10] width:120 height:20 align:#left
+	
+	on prepareScene open do createWorkLayer()
+-- 	on initLayersBT pressed do createWorkLayer()
+
 	
 	on loadCamLight pressed  do
 	(			
-		filesCam = getFiles (importfolderCAM + "light_cellules.max")	
+		f = (importfolderCAM + "light_cellules.max")	
 		
-		for f in filesCam collect 
-		( 
-			format "Merge file : %\n" f
-			mergemaxfile (f) #select #autoRenameDups #useSceneMtlDups
-		)
+		if doesfileexist f then mergemaxfile (f) #select #autoRenameDups #useSceneMtlDups
+		else 	format "fichier de lighting introuvable: %\n" f
+		
 	)
-	
-	on loadRenderPset pressed  do
-	(			
-		-- todo: 
-			-- load passe
-			-- setup la taille du rendu
 		
-		presetFile = importfolderCAM + "preset_cellule.rps"
+	on loadRenderPset pressed  do
+	(		
+		renderSceneDialog.close()
+		
+		renderWidth = 4900
+		renderHeight = 4165
+		
+		presetFile = importfolderCAM + "passe_cellule.rps"
 		if doesfileexist presetFile then
 		(
 			format "Import Preset file : %\n" presetFile			
 			renderPresets.LoadAll 0 presetFile
 		)
-
-		filesVray = getFiles (importfolderVray + "\\Correction_Couleur.vccglb")	
 		
-		for f in filesVray collect ( 
-			format "Import Vray Preset file : %\n" f			
-			vfbControl #loadglobalccpreset f
+		/*
+		filesVray = importfolderVray + "\\Correction_Couleur.vccglb"
+		if doesfileexist filesVray then 
+		(
+			format "Import Vray Preset file : %\n" filesVray
+			vfbControl #loadglobalccpreset filesVray
 		)
-		
+		*/
 	)
-			
 )
 
 
 
 rollout addPlan "Ajouter un plan" width:350 height:230
 (	
-	-- todo:
-		-- utiliser les methode du createplanUI pour créer le plan de masse
-		-- mettre un bouton pour ouvrir le resizer
 	radiobuttons 'planSize' "Taille du plan : " labels:#("A4","A3","A2","A1","A0") pos:[10,10] default:1
 	edittext 'planEchelle' "Echelle du plan : " pos:[10,60] text:"200"	
 	button 'planParcourir' "Choisir un plan" pos:[10,90] width:100 height:20 align:#left	
@@ -201,7 +205,6 @@ fn createWall oneArray hauteur epaisseur =
 	overrideMatID: on matID: 3 autoSmoothAngle: 0 straightenCorners: on
 	uvwMapMod = Uvwmap maptype: 4 length: 150 width: 150 height: 150
 		
-		
 	for obj in oneArray  do 
 	( 
 		local modcount = obj.modifiers.count
@@ -254,7 +257,7 @@ rollout addExtWall "Creation des Murs" width:350 height:230
 	(
 		button extwallInverser "Inverser sens spline"  across: 2
 		button delAllModBT "Supprimer Modifiers"
-		button createSelectionBT "Créer murs interieurs sur Selection"
+		button createSelectionBT "Créer murs sur Selection"
 	)
 	
 	
@@ -262,16 +265,115 @@ rollout addExtWall "Creation des Murs" width:350 height:230
 	(		
 		l = LayerManager.getLayerFromName "- Splines Murs Ext"
 		sel = selection as array
-		for s in sel do l.addnode s
+		for s in sel do 
+		(
+			l.addnode s
+			s.wirecolor = orange
+		)
+	)
+		
+	on extwallCreate pressed  do
+	(	
+		
+		-- CREATION des murs exterieurs
+		target = LayerManager.getLayerFromName "- Splines Murs Ext"
+		if target == undefined then 
+		(
+			messageBox "Pour créer les mur Exterieur vous devez 'Préparer murExt'"
+		) 
+		else 
+		(
+			target.nodes &theNodes
+			
+			createWall theNodes  extwallHauteurSP.value extwallEpaisseurSP.value
+			
+		)
+
 	)
 	
 	on terWallLayerBT pressed do
 	(
 		l = LayerManager.getLayerFromName "- Splines Murs Balcon"
 		sel = selection as array
-		for s in sel do l.addnode s
+		for s in sel do
+		(
+			l.addnode s
+			s.wirecolor = gray
+		)
 	)
 	
+	on terWallCreateBT pressed do
+	(
+		-- creation de balcon
+		target = LayerManager.getLayerFromName "- Splines Murs Balcon"
+		if target == undefined then
+		(
+			messageBox "Pour créer les murs terrasse vous devez 'Préparer murBalcon'"
+		)
+		else
+		(
+			target.nodes &theNodes
+			createWall theNodes  terrassewallHauteurSP.value  terrassewallEpaisseurSP.value
+		)
+	)
+	
+	on backWallLayerBT pressed do
+	(		
+		l = LayerManager.getLayerFromName "- Splines Murs Fond"
+		sel = selection as array
+		for s in sel do 
+		(
+			l.addnode s
+			s.wirecolor = yellow
+		)
+	)
+	
+	
+	on backwallCreate pressed  do
+	(	
+		target = LayerManager.getLayerFromName "- Splines Murs Fond"
+			
+		if target == undefined then 
+		(
+			messageBox "Pour créer les mur du Fond vous devez 'Préparer murFond'"
+		) 
+		else
+		(
+			target.nodes &theNodes
+			createWall theNodes backwallHauteurSP.value backwallEpaisseurSP.value
+		)
+	)
+	
+		
+	on intWallLayerBT pressed do
+	(		
+		l = LayerManager.getLayerFromName "- Splines Murs Int"
+		sel = selection as array
+		for s in sel do 
+		(
+			l.addnode s
+			s.wirecolor = brown
+		)
+	)
+	
+	on intwallCreate pressed  do
+	(	
+		
+		target = LayerManager.getLayerFromName "- Splines Murs Int"
+		
+		if target == undefined then 
+		(
+			messageBox "Pour créer les mur Interieurs vous devez 'Préparer murInt'"
+		) 
+		else
+		(
+			target.nodes &theNodes
+			createWall theNodes  intwallHauteurSP.value  intwallEpaisseurSP.value
+		)
+	)
+	
+	
+	-- TOOLS
 	
 	on extwallInverser pressed  do
 	(	
@@ -291,186 +393,32 @@ rollout addExtWall "Creation des Murs" width:350 height:230
 		)
 	)
 	
-	on extwallCreate pressed  do
-	(	
-		
-		-- CREATION des murs exterieurs
-		target = LayerManager.getLayerFromName "- Splines Murs Ext"
-		if target == undefined then 
-		(
-			messageBox "Pour créer les mur Exterieur vous devez 'Préparer murExt'"
-		) 
-		else 
-		(
-			target.nodes &theNodes
-			
-			createWall theNodes  extwallHauteurSP.value extwallEpaisseurSP.value
-		)
-
-	)
-	
-	on terWallCreateBT pressed do
-	(
-		-- creation de balcon
-		target = LayerManager.getLayerFromName "- Splines Murs Balcon"
-		if target == undefined then
-		(
-			messageBox "Pour créer les murs terrasse vous devez 'Préparer murBalcon'"
-		)
-		else
-		(
-			target.nodes &theNodes
-			
-			createWall theNodes  terrassewallHauteurSP.value  terrassewallEpaisseurSP.value
-		)
-	)
-	
-		on backWallLayerBT pressed do
-	(		
-		l = LayerManager.getLayerFromName "- Splines Murs Fond"
-		sel = selection as array
-		for s in sel do l.addnode s
-	)
-	
-	
-	on backwallCreate pressed  do
-	(	
-		target = LayerManager.getLayerFromName "- Splines Murs Fond"
-			
-		if target == undefined then 
-		(
-			messageBox "Pour créer les mur du Fond vous devez 'Préparer murFond'"
-		) 
-		else
-		(
-			target.nodes &theNodes
-			
-			createWall theNodes backwallHauteurSP.value backwallEpaisseurSP.value
-		)
-	)
-	
-		
-	on intWallLayerBT pressed do
-	(		
-		l = LayerManager.getLayerFromName "- Splines Murs Int"
-		sel = selection as array
-		for s in sel do l.addnode s
-	)
-	
-	on intwallCreate pressed  do
-	(	
-		
-		target = LayerManager.getLayerFromName "- Splines Murs Int"
-		
-		if target == undefined then 
-		(
-			messageBox "Pour créer les mur Interieurs vous devez 'Préparer murInt'"
-		) 
-		else
-		(
-			target.nodes &theNodes
-			
-			createWall theNodes  intwallHauteurSP.value  intwallEpaisseurSP.value
-		)
-	)
-	
 	on createSelectionBT pressed do
 	(
+		format "youpi\n"
 		theNodes = selection as array
+		
+		local mursExtAr = #()
+		local mursBalconAr = #()
+		local mursFondAr = #()
+		local mursIntAr = #()
+		
+		for n in theNOdes do
+		(
+			if n.layer.name == "- Splines Murs Ext" then( append mursExtAr n)
+			else if n.layer.name == "- Splines Murs Balcon" then( append mursBalconAr n)
+			else if n.layer.name == "- Splines Murs Fond" then( append mursFondAr n)
+			else if n.layer.name == "- Splines Murs Int" then( append mursIntAr n) 
+		)
+		
+		format "mursExtAr: %, mursBalconAr: %, mursFondAr: % mursIntAr:%\n" mursExtAr mursBalconAr mursFondAr mursIntAr
 		
 -- 		dans la selection determiner les types de murs
-		
-		createWall theNodes  intwallHauteurSP.value  intwallEpaisseurSP.value
+		if mursExtAr.count > 0 then 	createWall theNodes  extwallHauteurSP.value  extwallEpaisseurSP.value
+		else if mursBalconAr.count > 0 then 	createWall theNodes  terrassewallHauteurSP.value  terrassewallEpaisseurSP.value
+		else if mursFondAr.count > 0 then 	createWall theNodes  backwallHauteurSP.value  backwallEpaisseurSP.value
+		else if mursIntAr.count > 0 then 	createWall theNodes  intwallHauteurSP.value  intwallEpaisseurSP.value
 	)
-)
-
-rollout addBackWall "Ajouter les murs du Fonds" width:350 height:230
-(	
-
-	group "Murs du Fond:"
-	(
-		spinner backwallHauteurSP "Hauteur :" type: #worldunits range: [0,500, 230] across: 2
-		spinner backwallEpaisseurSP "Epaisseur :" type: #worldunits range: [0,500, 20] 
-		button backWallLayerBT "add to layer"
-		
-	)
-		
-	button 'backwallCreate' "Créer les murFond" 
-	
-
-	
-	on backWallLayerBT pressed do
-	(		
-		l = LayerManager.getLayerFromName "- Splines Murs Fond"
-		sel = selection as array
-		for s in sel do l.addnode s
-	)
-	
-	
-	on backwallCreate pressed  do
-	(	
-		target = LayerManager.getLayerFromName "- Splines Murs Fond"
-			
-		if target == undefined then 
-		(
-			messageBox "Pour créer les mur du Fond vous devez 'Préparer murFond'"
-		) 
-		else
-		(
-			target.nodes &theNodes
-			
-			createWall theNodes backwallHauteurSP.value backwallEpaisseurSP.value
-		)
-	)
-)
-
-
-
-rollout addIntWall "Ajouter les murs Interieurs" width:350 height:230
-(		
-	
-	group "Murs Interieurs:"
-	(
-		spinner intwallHauteurSP "Hauteur :" type: #worldunits range: [0,500, 230] across: 2
-		spinner intwallEpaisseurSP "Epaisseur :" type: #worldunits range: [0,500, 10] 
-		button intWallLayerBT  "add to layer"
-	)
-	
-	button 'intwallCreate' "Créer les murInt" across: 2
-	button createSelectionBT "Créer Selection"
-	
-	
-	on intWallLayerBT pressed do
-	(		
-		l = LayerManager.getLayerFromName "- Splines Murs Int"
-		sel = selection as array
-		for s in sel do l.addnode s
-	)
-	
-	on intwallCreate pressed  do
-	(	
-		
-		target = LayerManager.getLayerFromName "- Splines Murs Int"
-		
-		if target == undefined then 
-		(
-			messageBox "Pour créer les mur Interieurs vous devez 'Préparer murInt'"
-		) 
-		else
-		(
-			target.nodes &theNodes
-			
-			createWall theNodes  intwallHauteurSP.value  intwallEpaisseurSP.value
-		)
-	)
-	
-	on createSelectionBT pressed do
-	(
-		theNodes = selection as array
-		
-		createWall theNodes  intwallHauteurSP.value  intwallEpaisseurSP.value
-	)
-	
 )
 
 fn hideOthersLayer l =
@@ -482,15 +430,19 @@ fn hideOthersLayer l =
 	)
 )
 
-
 rollout createGround "Créer les sols" width:350 height:230
 (	
 	
 	local murPourSol
 	
-	button 'wallCreate' "fusionner les murs" across: 3 -- pos:[120,10] width:100 height:20 align:#left
+	button 'wallCreate' "fusionner les murs" across: 2 enabled: false  -- pos:[120,10] width:100 height:20 align:#left
 	button 'groundInitialize' "Initialiser les sols"  -- pos:[10,10] width:100 height:20 align:#left
+
+	
+	button createGaineBT "creation des gaines" across: 2 enabled: false -- pos:[10,10] width:100 height:20 align:#left
+	button createPlinteBT "creation des plintes" enabled: false 
 	button 'groundFinalize' "Finaliser les sols" -- pos:[120,10] width:100 height:20 align:#left
+	
 	
 	-- fusionne les murs
 	function unifyWall  = 
@@ -498,20 +450,24 @@ rollout createGround "Créer les sols" width:350 height:230
 			
 		target = LayerManager.getLayerFromName "- Splines Murs Int"				
 		target.nodes &theNodesInt		
+-- 		target.on = false
 			
 		target = LayerManager.getLayerFromName "- Splines Murs Ext"				
 		target.nodes &theNodesExt		
+-- 		target.on = false
 			
 		target = LayerManager.getLayerFromName "- Splines Murs Fond"				
 		target.nodes &theNodesFond			
+-- 		target.on = false	
 			
 		target = LayerManager.getLayerFromName "- Splines Murs Balcon"
 		target.nodes &theNodesBalc	
+-- 		target.on = false	
 
 		local theMurs = theNodesInt + theNodesExt + theNodesFond + theNodesBalc
 		
 -- 		fusion des murs
-		local mursL = LayerManager.getLayerFromName "+ Murs"					
+		local mursL = LayerManager.getLayerFromName mursLayer					
 			
 		theObj = (editable_mesh())
 		mursL.addnode theObj
@@ -554,31 +510,29 @@ rollout createGround "Créer les sols" width:350 height:230
 		convertToSplineShape theSection
 		theSection.name =  "Sol construction"
 		
-		
-		theObj = getNodeByName "Sol construction"		
-		
+		-- fusion des vertex
+		format "extract sol theSection: %\n" theSection
 		select theSection
 		modPanel.setCurrentObject theSection.baseObject
 		subobjectLevel = 1			
-		for i=1 to (numSplines theObj) do
+		for i=1 to (numSplines theSection) do
 		(
-			setKnotSelection theObj i #(1,numknots theObj i)
+			setKnotSelection theSection i #(1,numknots theSection i)
 		)
-		splineops.weld theObj
-		updateShape theObj					
-		subobjectLevel = 0		
+		splineops.weld theSection
+		updateShape theSection
 
--- 		delete theObj
-		
+		theSection
 	)
+
 		
 	-- création du sol
 	function actionSol =
 	(			
-		target = LayerManager.getLayerFromName "+ Sols"	
+		solL = LayerManager.getLayerFromName "+ Sols"	
 		theObj = getNodeByName "Sol construction"
 		
-		local tempLib  = undefined
+		tempLib  = undefined
 		
 		-- import des materiaux
 		fileMat = importfolderLIB + "\\Cells_materials.mat"
@@ -588,6 +542,8 @@ rollout createGround "Créer les sols" width:350 height:230
 					
 		-- creation des sol
 		theSolLine = copy theObj
+		solL.addnode theSolLine
+		
 		theSolLine.name = "sol"
 		theSolLine.material = tempLib[2]
 		
@@ -597,7 +553,7 @@ rollout createGround "Créer les sols" width:350 height:230
 		
 		-- creation des plintes
 		thePlinteLine = copy theObj
-		theObj.layer.addnode thePlinteLine
+		solL.addnode thePlinteLine
 		
 		thePlinteLine.name = "plinte"
 		thePlinteLine.material = tempLib[2]
@@ -614,34 +570,59 @@ rollout createGround "Créer les sols" width:350 height:230
 		convertto thePlinteLine editable_poly
 	)
 	
+	fn createPlinte l =
+	(
+		thePlinteLine = copy l
+		l.layer.addnode thePlinteLine
+		
+		thePlinteLine.name = "plinte"
+		thePlinteLine.material = tempLib[2]
+		
+		plinteExtMod = extrude amount: 10 capstart: off capend: off
+		plinteShellMod = shell outerAmount: 0 innerAmount: 2 overrideInnerMatID: on matInnerID: 1 overrideOuterMatID: on \
+		matOuterID: 1 overrideMatID: on matID: 1 autoSmoothAngle: 0 straightenCorners: on
+			
+		addmodifier thePlinteLine plinteExtMod
+		addmodifier thePlinteLine plinteShellMod
+		addmodifier thePlinteLine  (smooth ())
+-- 		addmodifier thePlinteLine uvwMapMod
+		
+		thePlinteLine
+-- 		convertto thePlinteLine editable_poly
+	)
+	
 	on wallCreate pressed  do
 	(	
 		-- teste le calque murs
-		mursL = LayerManager.getLayerFromName "+ Murs"
-		if mursL == undefined then mursL = LayerManager.newLayerFromName "+ Murs"
+		mursL = LayerManager.getLayerFromName mursLayer
+		if mursL == undefined then mursL = LayerManager.newLayerFromName mursLayer
 		
 		hideOthersLayer mursL
-		unifyWall()			
+		unifyWall()
 	)
 	
 	on groundInitialize pressed  do
 	(		
-		mursL = LayerManager.getLayerFromName "+ Murs"
-		if mursL == undefined then mursL = LayerManager.newLayerFromName "+ Murs"
+		mursL = LayerManager.getLayerFromName mursLayer
+		if mursL == undefined then mursL = LayerManager.newLayerFromName mursLayer
 		
 		solsL = LayerManager.getLayerFromName "+ Sols"
 		if solsL == undefined then solsL = LayerManager.newLayerFromName "+ Sols"
 		
 		mursL.current = true
 		hideOthersLayer mursL
+		tmpMurs = unifyWall()
 		extractSol()
+		delete tmpMurs
 		messageBox "Supprimez la Splines du contour exterieur et les splines des gaines"
 	)
 	
+	
 	on groundFinalize pressed  do
 	(		
+		
 		target = LayerManager.getLayerFromName "+ Sols"
-			
+		
 		if target == undefined then 
 		(
 			LayerManager.newLayerFromName "+ Sols"
@@ -651,6 +632,11 @@ rollout createGround "Créer les sols" width:350 height:230
 		(			
 			actionSol()	
 		)	
+	)
+	
+	on createGaineBT pressed do
+	(
+		splineOps.detach $
 	)
 )
 
@@ -688,7 +674,12 @@ rollout openingWall "Ouverture des murs" width:350 height:230
 		else
 		(
 			sel = selection as array
-			for s in sel do fenL.addnode s
+			for s in sel do
+			(
+				fenL.addnode s
+				s.wirecolor = blue
+				s.name = uniquename "Fline_"
+			)
 		)
 	)
 	
@@ -699,7 +690,12 @@ rollout openingWall "Ouverture des murs" width:350 height:230
 		else
 		(
 			sel = selection as array
-			for s in sel do porteL.addnode s
+			for s in sel do 
+			(
+				porteL.addnode s
+				s.wirecolor = red
+				s.name = uniquename "PLine_"
+			)
 		)
 	)
 	
@@ -710,7 +706,12 @@ rollout openingWall "Ouverture des murs" width:350 height:230
 		else
 		(
 			sel = selection as array
-			for s in sel do PFenL.addnode s
+			for s in sel do 
+			(
+				PFenL.addnode s
+				s.wirecolor = green
+				s.name = uniquename "PFline_"
+			)
 		)
 	)
 	
@@ -741,8 +742,10 @@ rollout openingWall "Ouverture des murs" width:350 height:230
 			
 			addmodifier newP PorteExtMod
 -- 				addmodifier newP PorteUVMod
-			
+			converttopoly newP
+-- 			newP.pivot = newP.center
 			newP.wirecolor = red
+			
 		)
 		
 		porteL.on = false
@@ -772,6 +775,8 @@ rollout openingWall "Ouverture des murs" width:350 height:230
 			
 			addmodifier newPF PFenExtMod
 -- 				addmodifier newPF PFenUVMod
+			converttopoly newPF
+-- 			newPF.pivot = newPF.center
 			newPF.wirecolor = green
 		)
 
@@ -802,6 +807,8 @@ rollout openingWall "Ouverture des murs" width:350 height:230
 			
 			addmodifier newF FenExtMod
 -- 				addmodifier newF FenUVMod
+			converttopoly newF
+-- 			newF.pivot = newF.center
 			newF.wirecolor = blue
 		)
 		fenL.on = false		
@@ -822,7 +829,7 @@ rollout openingWall "Ouverture des murs" width:350 height:230
 		)
 			
 		-- recuperation du calque murs
-		MursL = LayerManager.getLayerFromName "+ Murs"
+		MursL = LayerManager.getLayerFromName mursLayer
 		
 		-- recuperation des blocs de gabarits sur les calques
 		local nnl1 = #()
@@ -877,18 +884,7 @@ rollout openingWall "Ouverture des murs" width:350 height:230
 			-- decoupe du mur
 			for obj in nnl  do ( newM - obj)
 			
-			-- triangulation
-			/*
-			faceCount = newM.numFaces
-			for i = 1 to faceCount do
-			(
-				setEdgeVis newM i 1 true
-				setEdgeVis newM i 2 true
-				setEdgeVis newM i 3 true
-			)
-			update newM
-			*/
-			-- ajout au calque mur
+			-- ajout au calque murL
 			AptL.addnode newM
 			
 			-- ajout du materiaux
@@ -921,10 +917,13 @@ rollout openingWall "Ouverture des murs" width:350 height:230
 		(
 			if nnl.count > 0 then (for obj in nnl  do ( thePlinte - obj))
 		)
-
 	)
-			
 )
+
+rollout cretionAptRLT "Création Appartement"
+(
+)
+
 
 rollout doorFrame "Menuiseries et Portes" width:350 height:270
 (	
@@ -1079,7 +1078,7 @@ dRolFloater = newRolloutFloater "Creation de plans de cellules" 350 650 80 200
 
 addRollout prepareScene dRolFloater rolledUp:true
 addRollout addPlan dRolFloater rolledUp:true
-addRollout addExtWall dRolFloater rolledUp:true
+addRollout addExtWall dRolFloater rolledUp:false
 -- addRollout addBackWall dRolFloater rolledUp:true
 -- addRollout addIntWall dRolFloater rolledUp:true
 -- addRollout finishedWall dRolFloater rolledUp:true

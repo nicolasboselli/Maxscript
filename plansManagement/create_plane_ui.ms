@@ -160,7 +160,6 @@ rollout createPlaneRLT "create plane"
 	button transferMapBT "transfer map" pos:[370,lastLine]
 	
 -- 	functions
-	
 	-- functions
 	fn sortbyname v1 v2 =
 	(
@@ -242,9 +241,6 @@ rollout createPlaneRLT "create plane"
 		tmpPlane
 	)
 	
-	
-	
-	
 -- 	delete uvwmap
 	fn deleteUVWmap onePlane =
 	(
@@ -291,9 +287,7 @@ rollout createPlaneRLT "create plane"
 
 		myUV.width = (UVlength*bitWidth)/bitHeight
 	)
-	
-
-	
+		
 	fn refreshUI =
 	(
 		pathToSearchET.text = root
@@ -302,7 +296,6 @@ rollout createPlaneRLT "create plane"
 
 	
 -- 	collect jpg
-	
 	on pathToSearchET entered onePathName do
 	(
 		if onePathName != undefined then

@@ -322,31 +322,7 @@ rollout planResizerRLT "blueprint resizer" width: 250
 			refreshDistResize_pb.enabled = true
 		)
 	)
-	/*
-	fn writePosition cat rlt =
-	(
-		posBak = GetDialogPos planResizerRLT
-		res = setINISetting armadasScriptsIni cat "pos" (posBak as string)
-		res
-		format  "position saved: %, %\n" posBak res
-	)
-	
-	fn loadPosition cat rlt =
-	(
-		posLoad = false
-		posBak = [800,250]
-		if (hasINISetting armadasScriptsIni cat "pos") then
-		(
-			posBakStr = getINISetting armadasScriptsIni  cat "pos"
-			posBak = execute posBakStr
-			posLoad = true
-			
-		)
-		
-		format  "position load: %, %\n" posBak posLoad
-		SetDialogPos planResizerRLT posBak
-	)
-*/
+
 -- 	actions
 	on planResizerRLT open do
 	(
@@ -437,6 +413,11 @@ rollout planResizerRLT "blueprint resizer" width: 250
 	
 	on placeObjBT changed state do
 	(
+		format "scalerArray: %\n" scalerArray
+		for s in scalerArray do s.ishidden == false
+		l = LayerManager.getLayerFromName "helpers"	
+		l.on = true
+		
 		when transform scalerArray[1]  changes do (
 			distResize_et.text = ((distance scalerArray[1] scalerArray[2]) as string) + "cm"
 		)
@@ -467,6 +448,9 @@ rollout planResizerRLT "blueprint resizer" width: 250
 	
 	on placeTgtBT changed state do
 	(
+		format "scalerArray: %\n" scalerArray
+		for s in scalerArray do s.ishidden == false
+		
 		when transform scalerArray[2]  changes do (
 			distResize_et.text = ((distance scalerArray[1] scalerArray[2]) as string) + "cm"
 		)

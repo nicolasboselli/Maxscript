@@ -33,21 +33,6 @@ fn collectSameMultiMat3 matRef matSet=
 )
 
 
-fn collectObjByMat matRef objSet =
-(
-	local sameMultiMatObjList = #()
-		
-	for o in objSet where isvalidnode o do
-	(
-		if o.material == matRef do
-		(
-			append sameMultiMatObjList o
-		)
-	)
-	sameMultiMatObjList
-)
-
-
 -- collapse des multimariaux des objets visibles
 visSel = for o in  $* where o.ishidden == false collect o
 visSelMultiMat = #()
@@ -56,6 +41,7 @@ for o in visSel where classof o.material == multimaterial do
 	appendifunique visSelMultiMat o.material
 )
 format "visSelMultiMat count: %\n" visSelMultiMat.count
+
 
 for j = 1 to visSelMultiMat.count do
 (

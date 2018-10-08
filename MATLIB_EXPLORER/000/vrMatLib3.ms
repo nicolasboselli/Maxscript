@@ -7,48 +7,78 @@ maj:
 		/- save matlib after addition or deletion
 		x- sort material by name
 		x- proposer un replace lorsqu'on veut enregistrer un materiau avec un nom deja existant
-		
-		-- versioning material library file
-		-- enregistrer les library en fonction de la verions de max, un dossier par version de max
-			-- enregistrer des fichiers materials library en version précedentes de max
-		-- add thumbnail
-		-- collect texture
-	
-		
+				
 		-- fonction search
 		x- add autosave toggle
 		
-		-- gestion de bitmaps
-			-- proposer en option le relinks des fichiers manquants sur un dossier donné
+		-- gestion de bitmaps de libray
+			/- proposer en option le relinks des fichiers manquants sur un dossier donné
+				x- relink forcé quand il y a une alternative
+				-- dialog box quand il y a plusieurs alternatives
+				-- faire apparaitre le materiaux dans l'editeur de materiaux quand il n y a pas d alternatives
 			-- proposer un ressource collector sur un dossier donné
-			-- publier les bitmap manquants dans l'editeur de materiaux
-			
+				-- crer un dossier de bmp collecte pas materiau
+				-- remapper les bmp collectés
 	
-	-- dev: 
-		-- optimiser l'enregistrement
-		x- mat structure
-			-- mat
-			-- name
-			
-		x- collect material from libray to array of structure on openning
-		x- rebuilt libray from array on save
-		-- separate materials collected  from materials displayed		
+		-- fonction de merge d'une bibliothèque dans une autre 
 
+			
+					
+				-- versioning material library file
+				-- enregistrer les library en fonction de la verions de max, un dossier par version de max
+					-- enregistrer des fichiers materials library en version précedentes de max( est ce que c'est possible)
+				-- add thumbnail
+	
 */
 
+fn collectDir dir subfolder: true =
+(
+	local dirArr = #(dir)
+	
+	for d in dirArr do
+	(
+		local dirTmp = GetDirectories  (d + "\\*")
+		
+		if dirTmp == undefined then ()
+		else if dirTmp.count == 0 then ()
+		else
+		(
+			for dt in dirTmp do
+			(
+				-- ajout des dossier à l'array, clé de la  recursivité
+				append dirArr dt
+				
+				-- collect files
+-- 				found = doesfileexist (dt + pattern)
+				
+-- 				maxFileCount += 1
+-- 				if found then
+-- 				(
+-- 						format "REMAP: %\n" (dt + pattern) 
+-- 					append  fileArr (dt + pattern) 
+-- 				)
+			)
+		)
+
+-- 		if found then exit
+-- 		if maxFileCount > maxMaxFiles then exit
+	)
+	dirArr
+)
+-- oneDir = @"M:\Textures"
+-- dirArr = collectDir oneDir
 
 
 fn searchBitmap dir pattern =
 (
-	local maxFiles = 10
+	local altFilename
+
+	local found = false
 	local dirArr = #(dir)
 	local fileArr = #()
+	
+	local maxMaxFiles = 2000
 	local maxFileCount = 0
-	
-	
-	-- collecte des fichiers dans le premier dossier
--- 	local ff = getFiles (dir + pattern)
--- 	for f in ff do append fileArr f
 	
 	-- pour chaque dossier
 	for d in dirArr do
@@ -65,24 +95,19 @@ fn searchBitmap dir pattern =
 					append dirArr dt
 					
 					-- collect files
-					local fTmp = doesfileexist (dt + pattern)
--- 					for f in fTmp do append fileArr f
+					found = doesfileexist (dt + pattern)
+					
 					maxFileCount += 1
-					if ftmp then
+					if found then
 					(
-						format "REMAP: %\n" (dt + pattern) 
--- 						format "(dt + pattern):%\n" (dt + pattern) 
--- 						format "fTmp:%\n" fTmp 
--- 						format "maxFileCount:%\n" maxFileCount 
--- 					if fileArr.count > maxFiles then exit
-
--- 					if maxFileCount > maxFiles then exit
+-- 						format "REMAP: %\n" (dt + pattern) 
+						append  fileArr (dt + pattern) 
 					)
 				)
 			)
 		)
--- 		if fileArr.count > maxFiles then exit
--- 		if maxFileCount > maxFiles then exit
+		if found then exit
+-- 		if maxFileCount > maxMaxFiles then exit
 	)
 	sort fileArr
 )
@@ -119,9 +144,10 @@ struct matStruct
 	name = mat.name
 )
 
-try(destroyDialog vrMatRlt)catch()
+-- try(destroyDialog vrMatRlt)catch()
+
 -- rollout
-rollout vrMatRlt "VRay mat Lib"
+rollout vrMatRlt "Material LIbrary Tools"
 (
 	
 -- 	local maxIni = getMAXIniFile()
@@ -139,6 +165,8 @@ rollout vrMatRlt "VRay mat Lib"
 	
 	local	vrLib = materiallibrary()
 	local matAr = #()
+	
+	local altDir = @"M:\Textures"
 	
 -- 	UI
 	group "library file:"
@@ -159,11 +187,11 @@ rollout vrMatRlt "VRay mat Lib"
 	
 	group "manage library:"
 	(
-		button addMatBT "add mat"
+		button addMatBT "add mat" across: 2
 		button delMatBT "delete mat" enabled: true
 -- 		button upLibBT "refresh lib"
 		listbox matLB "materials list:" height: 30
-		button editMatBT "copy material"
+		button editMatBT "copy material" across: 2
 		button instMatBT "instance material"
 -- 		button copyMatBT "copy material"
 -- 		button replaceMatBT "replace material" enabled: false
@@ -181,24 +209,40 @@ rollout vrMatRlt "VRay mat Lib"
 		button uv500 "500"
 	)
 	
-	group "scene bitmap tools"
+	group "scene missing bmp Tools"
 	(
-		button scanBT "scan and patch"
+		button scanBT "scan and patch" across: 2
 		button missBmpBT "edit missing bitmap"
 		button missBmpBT2 "format missing bitmap"
 	)
 	
-	group "lib bitmap tools"
+	group "Library missing bmp Tools"
 	(
-		button scanLibBT "scan Lib"
--- 		button missBmpLibBT "edit missing bitmap"
--- 		button missBmpLibBT2 "format missing bitmap"
+		
+		button scanLibBT "List Missing BMP" -- across: 2
+		edittext libraryPatchET "Alternative Folder:" text: altDir
+		button altPathBT "..."
+		
+		checkbox multiDialBoxCB "no alt display" enabled: false
+		checkbox remapLibCB "1 alt remap" -- across: 2
+		checkbox noAltDisplayCB "multi alt dialogBox" enabled: false 
+		 
+		button testLib2BT "Look for alternatives BMP" tooltip: "test missing bitmpas in alternative folder" 
+	)
+	
+	group "bmp collector"
+	(
+		-- collecte des bitmap de la library dans un dossier:
+			-- options:
+				-- update des chemins
+				-- un dossier par materiaux
 	)
 	
 	-- functions
 	fn loadLib vrLibPath =
 	(
-		if doesfileexist vrLibPath then
+		if vrLibPath == undefined then()
+		else if doesfileexist vrLibPath then
 		(
 			format "loading start\n"
 			vrLib = loadTempMaterialLibrary vrLibPath
@@ -502,17 +546,24 @@ rollout vrMatRlt "VRay mat Lib"
 				else if not doesfileexist b.filename then
 				(
 					format "Not Found: % %\n" i b.filename 
+					i += 1
 				)
 				else()
-				i += 1
+				
 			)
 			else format "Not Found: % %\n" i undefined
 		)
+		
+		format "total: %\n" i
 
 	)
-	
+
 	on scanLibBT pressed do
 	(
+		format "scan start\n"
+-- 		local oneDir = @"M:\Textures"
+		local startTime  = timestamp()
+		i = 0
 		local bmpAr = #()
 		
 		for m in matAr do
@@ -520,20 +571,113 @@ rollout vrMatRlt "VRay mat Lib"
 			local bmpTmpAr = getclassinstances bitmaptexture target: m
 			for bmpTmp in bmpTmpAr do append bmpAr bmpTmp
 		)
-		
-		for b in bmpAr do
+		if bmpAr.count  == 0 then ("no missing bitmaps\n")
+		else
 		(
-			if not doesfileexist b.filename then
+			for b in bmpAr do
 			(
-				format "\nUNFOUND: %\n"  b.filename
--- 				walkDir2 dir pattern
-				onePattern = (filenameFromPath b.filename)
-				
-				oneDir = @"M:\Textures"
--- 				onePattern = "brique beige_02.jpg"
-				searchBitmap oneDir onePattern
+				if not doesfileexist b.filename then
+				(
+					format "\nUNFOUND: %\n"  b.filename
+					i += 1
+				)
 			)
-		)		
+		)	
+		format "scan done: % s\n" (((timestamp()) - startTime)/1000 as float)
+		format "total: %\n" i
+	)
+	
+	
+	on altPathBT pressed do
+	(
+		local tmpDir = getSavePath caption: "Select alternative bitmap folder" initialDir: libraryPatchET.text
+
+		if tmpDir == undefined then()
+		else if doesfileexist tmpDir then
+		(	
+-- 			altDir = tmpDir
+			libraryPatchET.text = tmpDir
+		)
+		else()
+	)
+	
+	on testLib2BT pressed do
+	(
+		format "test2 scan start\n"
+-- 		local altDir = @"M:\Textures"
+		local altDir = libraryPatchET.text
+		local startTime  = timestamp()
+		
+		-- collete des dossiers à vérifier
+		local dirArr = collectDir altDir
+		format "collect folders: % s\n" (((timestamp()) - startTime)/1000 as float)
+
+		-- collect des bitmap de la library
+		local bmpAr = #()
+		for m in matAr do
+		(
+			local bmpTmpAr = getclassinstances bitmaptexture target: m
+			for bmpTmp in bmpTmpAr do append bmpAr bmpTmp
+		)
+		
+		--
+		i = 0
+		j = 0
+		k = 0
+		
+		for b in bmpAr where  not doesfileexist b.filename do
+		(
+				local altFiles = #()
+				local found  = false
+
+				
+				format "\nUNFOUND: %\n"  b.filename
+				
+				-- nom du bitmap recherché
+				local onePattern = (filenameFromPath b.filename)
+				
+				-- 
+				for d in dirArr do
+				(
+					local testBmp = (d + onePattern)
+					if doesfileexist  testBmp then
+					(
+						append altFiles testBmp
+						found = true
+					)
+-- 					if found then exit
+				)
+				
+				if altFiles.count == 0 then 
+				(
+					format "there is no alternative\n"
+					i += 1
+				)
+				else if (altFiles.count == 1) then 
+				(
+					format "one alternative: %\n" altFiles
+					-- 				replace textures
+					-- 				if altFiles.count > 0 then b.filename = altFiles[1]
+					j += 1
+					
+					if remapLibCB.state then
+					(
+						format "b.filename: % >>> altFiles[1]: %\n" b.filename altFiles[1]
+						 b.filename = altFiles[1]
+					)
+				)
+				else if (altFiles.count > 1) then 
+				(
+					format "multiples alternatives: %\n" altFiles
+					k += 1
+				)
+				else()
+		)
+		format "test2 scan done: % s\n" (((timestamp()) - startTime)/1000 as float)
+		format "alt bmp == 0 : %\nalt bmp ==  1: %\nalt bmp > 1: %\n" i j k
 	)
 )
-createdialog vrMatRlt
+-- createdialog vrMatRlt
+try(closeRolloutFloater matLibRF)catch()
+matLibRF = newRolloutFloater "Mat Lib Tools" 350 1050 80 200
+addRollout vrMatRlt matLibRF -- rolledUp:true

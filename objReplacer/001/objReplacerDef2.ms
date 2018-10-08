@@ -213,7 +213,7 @@ fn returnBBsize5 ref =
 
 
 
-fn replaceObject2 ref target  rescaleX: true rescaleY: true rescaleZ: true =
+fn replaceObject2 ref target  rescaleX: true rescaleY: true rescaleZ: true copyType: 1 aligntype: 2 =
 (
 -- 	memo:
 	-- s il y a une tete de groupe dans la selection c'est cet objet qui devient ref
@@ -230,7 +230,15 @@ fn replaceObject2 ref target  rescaleX: true rescaleY: true rescaleZ: true =
 	targetSize = returnBBsize3 target
 	
 	-- copy ref 
-	maxOps.cloneNodes ref cloneType:#instance newNodes:&copyRef
+	if copyType == 1 then
+	(
+		maxOps.cloneNodes ref cloneType: #copy newNodes:&copyRef
+	)
+	else if copyType == 2 then
+	(
+		maxOps.cloneNodes ref cloneType: #instance newNodes:&copyRef
+	)
+	else()
 	
 	-- create point at center of copyref 
 	ctrlTmp = createOneCtrl 27 copyRef true
@@ -240,10 +248,29 @@ fn replaceObject2 ref target  rescaleX: true rescaleY: true rescaleZ: true =
 
 	-- align point on box ref center
 	ctrlTmp.rotation = target.rotation
-	ctrlTmp.position = target.position
+	
+	if alignType == 1 then
+	(
+		ctrlTmp.position = target.position
+	)
+	else if alignType == 2 then
+	(
+		ctrlTmp.position = target.center
+	)
+	else if alignType == 3 then
+	(
+		ctrlTmp.center = target.position
+	)
+	else if alignType == 4 then
+	(
+		ctrlTmp.center = target.center
+	)
+	else
+
 	
 	-- rescale point
-	ctrlTmp.scale.x = if rescaleX then ratio.x else 1
+	print "check 1"
+	ctrlTmp.scale.x =  if rescaleX then ratio.x else 1
 	ctrlTmp.scale.y = if rescaleY then ratio.y else 1
 	ctrlTmp.scale.z = if rescaleZ then ratio.z else 1
 	
