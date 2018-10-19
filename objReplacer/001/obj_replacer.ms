@@ -1,10 +1,11 @@
 /*
 -- maj:
 	x- freezer les axe de scale
-		-- aligner sur le fonde la box
+		-- aligner sur le fond de la box
 	-- faire fonctionner sur une selection d'objet en respectant la hierarchie
 	
-	-- proposer l alignement pivot>pivot ou pivot>centre ou centre/pivot
+	/- proposer l alignement pivot>pivot ou pivot>centre ou centre/pivot:
+		-- prob: pour fonctionner vraiment il faut revoir la fonction de replace pour qu'elle ne crée pas de groupe
 	-- proposer aligner sur x y z
 	-- proposer un remap x sur x y ou z puis y sur x y ou z
 	
@@ -24,7 +25,7 @@ filein "objReplacerDef2.ms"
 try(destroydialog objReplacerRLT)catch()
 rollout objReplacerRLT "objects replacer "
 (
-	local params = #("pos","rescaleXCB", "rescaleYCB", "rescaleZCB", "randomCB", "rescaleOnBT")
+	local params = #("pos","rescaleXCB", "rescaleYCB", "rescaleZCB", "randomCB", "rescaleOnBT", "cloneTypeRB", "alignTypeTB")
 	--vars
 	local modFFD
 	local refObj = undefined
@@ -145,7 +146,7 @@ rollout objReplacerRLT "objects replacer "
 	
 	group "rescale on bounding box:"
 	(
-		checkbox rescaleOnBT "on"
+		checkbox rescaleOnBT "on" enabled: false checked: true
 		checkbox rescaleXCB "x"  checked: true across: 3 
 		checkbox rescaleYCB "y"  checked: true -- enabled: false
 		checkbox rescaleZCB "z"  checked: true
@@ -156,9 +157,9 @@ rollout objReplacerRLT "objects replacer "
 		radiobuttons cloneTypeRB "clone type:" labels: #("copy", "instance")  offsets:#([80,-16], [80,-16]) 
 	)
 	
-	group "Align type"
+	group "Align type (ref > target):"
 	(
-		radiobuttons alignTypeTB "Align type:" labels: #("pivot (center) > pivot", "pivot (center) > center", "center > pivot", "center > center")  offsets:#([80,-16], [220,-32], [80,-32],[220,-48]) 
+		radiobuttons alignTypeTB "Align type:" labels: #("pivot > pivot", "pivot > center", "center > pivot", "center > center")  offsets:#([80,-16], [220,-32], [80,-32],[220,-48]) 
 	)
 	
 	checkbox randomCB "random" across: 2
@@ -207,7 +208,10 @@ rollout objReplacerRLT "objects replacer "
 		
 		for r in refObjTmp do appendifunique refAr r
 		
+		format "%\n" refAr.count
+		
 		refreshUI()
+		refArMLB.selection = refAr.count
 	)
 	
 	on removeBT pressed do
@@ -266,15 +270,20 @@ rollout objReplacerRLT "objects replacer "
 						(
 							local res = #()
 							-- operation de replace
+							res = replaceObject2 refSelAr[j] s  rescaleX2: rescaleXCB.state rescaleY: rescaleYCB.state rescaleZ: rescaleZCB.state copyType: cloneTypeRB.state aligntype: alignTypeTB.state
+							
+							/*
 							if rescaleOnBT.state then
 							(
-								res = replaceObject2 refSelAr[j] s  rescaleX: rescaleXCB.state rescaleY: rescaleYCB.state rescaleZ: rescaleZCB.state copyType: cloneTypeRB.state aligntype: alignTypeTB.state
+								res = replaceObject2 refSelAr[j] s  rescaleX2: rescaleXCB.state rescaleY: rescaleYCB.state rescaleZ: rescaleZCB.state copyType: cloneTypeRB.state aligntype: alignTypeTB.state
 							)
 							else
 							(
 								res = replaceObjectOnPivot refSelAr[j] s
 							)
+							*/
 							format  "result: %\n" res
+							
 							if res == undefined then()
 							else if res.count > 0 then
 							(

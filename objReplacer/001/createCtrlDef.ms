@@ -37,7 +37,6 @@ fn findHeadsOfHierarchy sel =
 
 fn findHeadsOfHierarchy2 sel =
 (
-	
 	local headsOfHierarchy = for s in sel where (finditem sel s.parent) == 0 collect s
 	makeuniquearray headsOfHierarchy
 	headsOfHierarchy

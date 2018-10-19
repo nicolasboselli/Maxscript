@@ -754,8 +754,8 @@ rollout deMultiMatRLT "Materials Tools"
 		if RLTvers != undefined then theNewMaterialToolFloater.title = theNewMaterialToolFloater.title + " v." + (RLTvers as string)
 			
 		loadRolloutParams deMultiMatRLT params
-		theNewMaterialToolFloater.pos = (execute RFPos)
-		theNewMaterialToolFloater.size = (execute RFSIze)
+		theNewMaterialToolFloater.pos = ( RFPos)
+		theNewMaterialToolFloater.size = ( RFSIze)
 	)
 	
 	on deMultiMatRLT close do

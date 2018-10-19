@@ -396,6 +396,7 @@ rollout miscRLT "Modeling Tools"
 	(
 		sel = selection as array
 		for s in sel do inverseKnotOrder s
+		select sel
 	)
 	
 	on centerPivotBT pressed do centerPivotDef (selection as array)

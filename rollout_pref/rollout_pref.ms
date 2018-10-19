@@ -52,6 +52,11 @@ fn writeRolloutParams rlt params =
 					setINISetting armadasScriptsIni cat p.name  (p.value as string)
 					format "name: %, value: %, classof: %\n" p.name p.value (classof p)
 				)
+				else if classof p == RadioControl  then  
+				(
+					setINISetting armadasScriptsIni cat p.name  (p.state as string)
+					format "name: %, value: %, classof: %\n" p.name p.state (classof p)
+				)				
 				else(format "__FAIL__  name: %, classof: %\n" p (classof p))
 			)
 			-- collect variable
@@ -70,6 +75,11 @@ fn writeRolloutParams rlt params =
 				format "name: %, value: %, classof: %\n" n p (classof p)
 				setINISetting armadasScriptsIni cat n (p as string)
 			)
+			else if classof p == booleanclass then
+			(
+				format "name: %, value: %, classof: %\n" n p (classof p)
+				setINISetting armadasScriptsIni cat n (p as string)
+			)			
 			else
 			(
 -- 				setINISetting armadasScriptsIni cat n p
@@ -144,6 +154,8 @@ fn loadRolloutParams rlt params =
 			-- load controls properties
 			p = getProperty  rlt n
 			
+			format "n: % p: %  classof p: %\n"  n p (classof p)
+			
 			if superclassof p == RolloutControl then
 			(
 				local val
@@ -158,6 +170,13 @@ fn loadRolloutParams rlt params =
 				(
 					p.value = val as float
 				)
+				else if classof p == RadioControl   and val.count > 0 then  
+				(
+					p.state = val as integer
+-- 					setINISetting armadasScriptsIni cat p.name  (p.state as string)
+-- 					format "name: %, value: %, classof: %\n" p.name p.value (classof p)
+				)	
+				else()
 			)
 			else if classof p == Array then
 			(
@@ -183,6 +202,32 @@ fn loadRolloutParams rlt params =
 				local val = getINISetting armadasScriptsIni cat n
 				format "name: %, STRING value: %\n" n val
 				setProperty  rlt n val
+			)
+			else if classof p == Point2 then
+			(
+				
+				local val = getINISetting armadasScriptsIni cat n
+				try(execute val)catch(val = undefined)
+				
+				if val == undefined then(format "FAIL__ name: %, value: %, classof: %\n" n p (classof p))
+				else
+				(
+					format "name: %, value: %, classof: %\n" n p (classof p)
+					setProperty  rlt n (execute val)
+				)
+-- 				setINISetting armadasScriptsIni cat n (p as string)
+			)
+			else if classof p == booleanClass then
+			(
+				local val = getINISetting armadasScriptsIni cat n
+				try(val as booleanclass)catch(val = undefined)
+				
+				if val == undefined then()
+				else
+				(
+					format "name: %, BOOL value: %\n" n val
+					setProperty  rlt n (val as booleanclass)
+				)
 			)
 			else
 			(

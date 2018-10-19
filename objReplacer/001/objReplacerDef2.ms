@@ -13,6 +13,14 @@ maj:
 
 filein "createCtrlDef.ms"
 
+
+fn findHeadsOfHierarchy2 sel =
+(
+	local headsOfHierarchy = for s in sel where (finditem sel s.parent) == 0 collect s
+	makeuniquearray headsOfHierarchy
+	headsOfHierarchy
+)
+
 fn checkReference sel =
 (
 -- 	sel = selection as array
@@ -80,7 +88,6 @@ fn checkReference2 sel =
 	
 	format "checkedSel: %\n" checkedSel
 	checkedSel
-
 )
 
 
@@ -129,8 +136,11 @@ fn returnBBsize3 ref =
 	xsize = distance ([bb[1].x,0,0]) ([bb[2].x,0,0])
 	ysize = distance ([0, bb[1].y,0]) ([0,bb[2].y,0])
 	zsize = distance ([0,0,bb[1].z]) ([0,0,bb[2].z])
+	format "ref: % scale: %\n" ref.name  [xsize, ysize, zsize]
+	
 	[xsize, ysize, zsize]
 )
+-- $.transform
 
 fn returnBBsize4 sel = 
 (
@@ -164,6 +174,7 @@ fn returnBBsize4 sel =
 		
 	[xsize, ysize, zsize]
 )
+
 
 -- sel = selection as array
 -- for s in sel do
@@ -208,26 +219,28 @@ fn returnBBsize5 ref =
 )
 
 
--- returnBBsize5 $
--- returnBBsize4 (selection as array)
-
-
-
-fn replaceObject2 ref target  rescaleX: true rescaleY: true rescaleZ: true copyType: 1 aligntype: 2 =
+fn replaceObject2 ref target  rescaleX2: true rescaleY: true rescaleZ: true copyType: 1 aligntype: 2 =
 (
 -- 	memo:
+	-- fonctionne sur les objets seul ou sur les groupe(dummy)
 	-- s il y a une tete de groupe dans la selection c'est cet objet qui devient ref
 	-- sinon c'est le premier objet de la selection
 		-- ou une matrix construite sur le centre de la selection et l'orientation du premier objet
 	
+-- 	format "rescaleX2: %\n" rescaleX2
+-- 	if rescaleX2 then format "x yeaH!!!\n"
+	
+	local ctrlTmp
 	local copyRef
 	
 	-- get ref size
-	refSize = returnBBsize2 ref
+-- 	refSize = returnBBsize4 #(ref)
+	refSize = returnBBsize3 ref
 	
 	-- get target size:
 -- 	targetSize = returnBBsize2 target
 	targetSize = returnBBsize3 target
+	
 	
 	-- copy ref 
 	if copyType == 1 then
@@ -241,43 +254,59 @@ fn replaceObject2 ref target  rescaleX: true rescaleY: true rescaleZ: true copyT
 	else()
 	
 	-- create point at center of copyref 
-	ctrlTmp = createOneCtrl 27 copyRef true
-	
+-- 	ctrlTmp = createOneCtrl 27 copyRef true
+	copyHead = findHeadsOfHierarchy2 copyRef
+	if copyHead.count == 1 then ctrlTmp = copyHead[1]
+		
 	-- calculate ratio ref/target
 	ratio = targetSize/refSize
+	format "ratio: %\n" ratio
 
-	-- align point on box ref center
+	-- rescale point
+-- 	if rescaleX2 then format "x yeaH2 !!!\n"
+	if rescaleX2 then 
+	(
+-- 		format "x yeah!\n"
+		ctrlTmp.scale.x = ratio.x 
+	)
+	else 
+	(
+-- 		format "x fail!\n"
+		ctrlTmp.scale.x = 1
+	)
+	
+	if rescaleY then
+	(
+-- 		format "y yeah!\n"
+		ctrlTmp.scale.y = ratio.y 
+	)
+	else 
+	(
+-- 		format "y fail!\n"
+		ctrlTmp.scale.y = 1
+	)
+
+	if rescaleZ then 
+	(
+-- 		format "z yeah!\n"
+		ctrlTmp.scale.z = ratio.z
+	)
+	else 
+	(
+-- 		format "z yeah!\n"
+		ctrlTmp.scale.z = 1
+	)
+	
+	-- align rotation
 	ctrlTmp.rotation = target.rotation
 	
-	if alignType == 1 then
-	(
-		ctrlTmp.position = target.position
-	)
-	else if alignType == 2 then
-	(
-		ctrlTmp.position = target.center
-	)
-	else if alignType == 3 then
-	(
-		ctrlTmp.center = target.position
-	)
-	else if alignType == 4 then
-	(
-		ctrlTmp.center = target.center
-	)
-	else
+	-- align position
+	if alignType == 1 then	ctrlTmp.position = target.position
+	else if alignType == 2 then	ctrlTmp.position = target.center
+	else if alignType == 3 then	ctrlTmp.center = target.position
+	else if alignType == 4 then	ctrlTmp.center = target.center
+	else()
 
-	
-	-- rescale point
-	print "check 1"
-	ctrlTmp.scale.x =  if rescaleX then ratio.x else 1
-	ctrlTmp.scale.y = if rescaleY then ratio.y else 1
-	ctrlTmp.scale.z = if rescaleZ then ratio.z else 1
-	
-	-- delete point
-	delete ctrlTmp
-	
-	for h in copyRef where isOpenGroupHead h do setGroupOpen h false
 	copyRef
 )
 

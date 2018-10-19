@@ -34,7 +34,6 @@ fn testImpactID l id =
 		
 	impact
 )
-testImpactID $ 4
 
 
 -- si un repère est dans un mur retourne un nouvel ordre des points du repère
@@ -224,5 +223,5 @@ rollout adjustGabaritRLT "Ajuster les gabarit de porte et fenêtre"
 )
 
 
-createdialog adjustGabaritRLT width: 300
+-- createdialog adjustGabaritRLT width: 300
 
