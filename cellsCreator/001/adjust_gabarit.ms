@@ -1,20 +1,24 @@
 -- recupérer les spline des fenetres, porte ... etc...
 /*
  debug: le sript ne fonctionne pas sur des repères déja réorientés
-	-- c'est l'ordre horaire des points qui pose problème
-	-- le reverse de spline focntionne mais pas le script  reverse spline
+	-- création du gabarit dans l'orientation de la normale de l'impact au mur pour avoir un gabarit à angle droit
+	-- c'est l'ordre horaire des points qui pose problème, en fontion du sens de rotation de l'ordre des points  l'orientation de l'objet varie:
+		-- dans le sens antihoraire c'est bon
+		-- dans le sens horaire c'est pas bon
+		-- solution: s'assurer que l'axe y du gabarit créé est positif?
+		
+	-- le reverse de spline focntionne mais pas le script  reverse spline(fianalement le script à l'air de fonctionner)
 */
-
 
 -- teste si le repère est dans un mur
 fn testImpactID l id =
 (
 	-- return boolean
 	
-	layerList = #("- Splines Murs Ext", 
-		"- Splines Murs Balcon",
-		"- Splines Murs Fond",
-		"- Splines Murs Int")
+	layerList = #(splinesMursExtLName, 
+		splinesMursBalconLName,
+		splinesMursFondLName,
+		splinesMursIntName)
 	
 	theZ = [0,0,1]
 	impact = false
@@ -22,7 +26,7 @@ fn testImpactID l id =
 	posI = (getKnotPoint l 1 id) - [0,0,500]
 	testRay = (ray posI theZ)
 	intersectTestI = intersectRayScene testRay
-	format "intersectTestI: %\n" intersectTestI
+-- 	format "intersectTestI: %\n" intersectTestI
 	if intersectTestI.count > 0 then 
 	(
 		-- blinder le test des murs
@@ -71,16 +75,20 @@ fn collectNewOrder s =
 	format "s: % newOrder: %\n" s.name newOrder 
 	newOrder
 )
-
+-- test = collectNewOrder $
+-- 	point pos: test[1] wirecolor: green name: "1"
+-- 	point pos: test[2] wirecolor: red name: "2"
+-- 	point pos: test[3] wirecolor: blue name: "3"
+-- 	point pos: test[4] wirecolor: blue name: "4"
 
 -- retourne le mur dans lequel se trouve un repère
 	-- fonctionne à partir du premier point du repère calculer (newOrder[1])
 fn getMurImpacted rayStart =
 (
-	layerList = #("- Splines Murs Ext", 
-	"- Splines Murs Balcon",
-	"- Splines Murs Fond",
-	"- Splines Murs Int")
+	layerList = #(splinesMursExtLName, 
+	splinesMursBalconLName,
+	splinesMursFondLName,
+	splinesMursIntName)
 	
 	local theMur
 	theZ = [0,0,1]
@@ -100,6 +108,7 @@ fn getMurImpacted rayStart =
 	theMur
 )
 
+-- fn toto = format "banane toto toto\n"
 -- var
 -- s = $
 
@@ -118,11 +127,14 @@ fn adjustGabaritSpline s shift1: 3 shift2: 3 =
 
 	-- ################ calcul de la bonne orientation par rapport au mur
 	local newOrder = collectNewOrder s
-
+-- 	point pos: newOrder[1] wirecolor: green
+-- 	point pos: newOrder[2] wirecolor: red
+	
 	if not newOrder[1] == 0 then
 	(
 		-- determination de Y
 		theY = newOrder[2] -  newOrder[1]
+		format "theY: %\n" theY
 
 		-- determination de X
 		theX = cross   (normalize theY)  theZ 
@@ -132,7 +144,8 @@ fn adjustGabaritSpline s shift1: 3 shift2: 3 =
 		murTM2  =  (matrix3 theX (normalize theY) theZ s.pos)
 		
 		-- orientation du repère par rapport au mur
-		rayOrient = murTM2.row1
+-- 		rayOrient = murTM2.row1
+		rayOrient = theX
 		
 		-- retrouver le mur impacter par le repere
 		oneMur = getMurImpacted  newOrder[1]
@@ -143,22 +156,34 @@ fn adjustGabaritSpline s shift1: 3 shift2: 3 =
 		-- de k1 selon x
 	if oneMur != undefined then
 	(
+		local shift =  [- 50, - 50, - 50] 
 
-		-- de k2 selon x
-		testRay1 = (ray (newOrder[1] + [- 50, - 50, - 50] * rayOrient) rayOrient)
+		-- de k1 selon x
+		testRay1 = (ray (newOrder[1] + shift * rayOrient) rayOrient)
 		impact1 = intersectRay oneMur testRay1
 		
 		-- de k2 selon x
-		testRay2 = (ray (newOrder[2] + [- 50, - 50, - 50] * rayOrient) rayOrient)
+		testRay2 = (ray (newOrder[2] +shift * rayOrient) rayOrient)
 		impact2 = intersectRay oneMur testRay2
 		
 		-- de k3 selon - x
-		testRay3 = (ray newOrder[3] -rayOrient)
+-- 		testRay3 = (ray (newOrder[3] + shift * -rayOrient) -rayOrient)
+		testRay3 = (ray (newOrder[3]) -rayOrient)
 		impact3 = intersectRay oneMur testRay3
 		
 		-- de k4 selon - x
-		testRay4 = (ray newOrder[4] -rayOrient)
+-- 		testRay4 = (ray (newOrder[4] + shift * -rayOrient) -rayOrient)
+		testRay4 = (ray (newOrder[4]) -rayOrient)
 		impact4 = intersectRay oneMur testRay4
+		
+		/* 
+		-- points temoin
+		pt1 = point transform: murTM2  wirecolor: green name: "1" axistripod: on cross: false
+		pt1.pos = (newOrder[1] + shift * rayOrient)
+		point pos: (newOrder[2] + shift * rayOrient)  wirecolor: red name: "2"
+		point pos: (newOrder[3] + shift * -rayOrient)  wirecolor: blue name: "3"
+		point pos: (newOrder[4] + shift * -rayOrient)  wirecolor: blue name: "4"
+		*/
 		
 		tripleShift1 = [shift1, shift1, shift1] * -rayOrient
 		tripleShift2 = [shift2, shift2, shift2] * rayOrient
@@ -166,6 +191,10 @@ fn adjustGabaritSpline s shift1: 3 shift2: 3 =
 		if impact1 == undefined or   impact2 == undefined or  impact3 == undefined or  impact4 == undefined then
 		(
 			format "pas assez d'impact sur le mur\n"
+			format "impact1: %\n" impact1
+			format "impact2: %\n" impact2
+			format "impact3: %\n" impact3
+			format "impact4: %\n" impact4
 		)
 		else
 		(
@@ -174,29 +203,27 @@ fn adjustGabaritSpline s shift1: 3 shift2: 3 =
 		
 	)else(format "pas de mur!\n")
 	
+	
+	local done = false
+	
 	if impactAr.count == 4 and not oneMur == undefined then
-	(
-		-- copie du repère
--- 		copyS = copy s
--- 		copyS.wirecolor = s.wirecolor
--- 		s.layer.Addnode copyS
-		
+	(		
 		-- application du transform
--- 		copyS.transform = murTM2
 		s.transform = murTM2
-
+		
 		-- appliquer les impact à la position de la spline
 		for i = 1 to (numKnots s) do
 		(
--- 			setKnotPoint copys 1 i impactAr[i]
--- 			setKnotType  copys  1 i #corner
 			setKnotPoint s 1 i impactAr[i]
 			setKnotType  s  1 i #corner
 		)
 		updateShape s
+		
+		done = true
 	)
 	else(format "quelque chose a foiré\n")
-
+	
+	done
 )
 
 try(destroydialog adjustGabaritRLT)catch()
@@ -215,9 +242,11 @@ rollout adjustGabaritRLT "Ajuster les gabarit de porte et fenêtre"
 			copyS = copy s
 			copyS.wirecolor = s.wirecolor
 			s.layer.Addnode copyS
-			adjustGabaritSpline copyS shift1: shift1SP.value shift2: shift2SP.value
+			local res = adjustGabaritSpline copyS shift1: shift1SP.value shift2: shift2SP.value
+			if not res then delete copyS
 			 
 		)
+		
 -- 		select sel
 	)
 )

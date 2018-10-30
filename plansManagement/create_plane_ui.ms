@@ -151,13 +151,18 @@ rollout createPlaneRLT "create plane"
 	button searchBT "..."  pos: [420,10]
 	button openFoldBT "open" pos: [450,10]
 	button refreshFoldBT "refresh" pos: [490,10]
+	button initFromPlaneBT "init from plans"
+		
 	listbox jpgListBox "jpg list:"
 	
-	button createA4BT "createA4" pos:[ 20 , lastLine]
+	button bmpFitBT "Bitmap Fit" pos:[ 20  , lastLine] across: 3
 	button createPlaneBT "create"  pos:[ 100 , lastLine]
 	button injectMapBT "inject" pos:[170,lastLine]
-	button changeMapBT "change map" pos:[270,lastLine]
-	button transferMapBT "transfer map" pos:[370,lastLine]
+	
+-- 	button createA4BT "createA4" pos:[ 20 , lastLine]
+
+-- 	button changeMapBT "change map" pos:[270,lastLine]
+-- 	button transferMapBT "transfer map" pos:[370,lastLine]
 	
 -- 	functions
 	-- functions
@@ -308,6 +313,7 @@ rollout createPlaneRLT "create plane"
 		)
 	)
 	
+	
 	on searchBt pressed do
 	(
 		plansFolder = getSavePath caption: "Select plans folder" initialDir: pathToSearchET.text
@@ -327,6 +333,18 @@ rollout createPlaneRLT "create plane"
 -- 		foldToOPen = pathToSearchET.text
 		format "root: %\n" root
 		doscommand ("explorer " + root)
+	)
+	
+	on jpgSizeUpBT pressed do
+	(
+		jpgListBox.height += 50
+		createPlaneRLT.height += 50
+	)
+	
+	on jpgSizeDwBT pressed do
+	(
+		jpgListBox.height -= 50
+		createPlaneRLT.height -= 50
 	)
 	
 	on createPlaneBT pressed do
@@ -400,6 +418,31 @@ rollout createPlaneRLT "create plane"
 		)
 	)
 	
+	on initFromPlaneBT pressed do
+	(
+		sel = selection as array
+		for s in sel do
+		(
+			format "%\n" s.material.diffuseMap.filename
+		)
+	)
+	
+	on bmpFitBT pressed do
+	(
+		sel = selection as array
+		if sel.count == 1 do
+		(
+			ajustUVWmap sel[1]
+			
+			sel[1].name = ("plane_" + (getFilenameFile (sel[1].material.diffuseMap.filename))) 
+			
+			lay = createPlansLayer()
+			lay.addnode sel[1]
+			
+			sel[1].renderable = off
+			sel[1].backfacecull = on
+		)
+	)
 	on refreshFoldBT pressed do
 	(
 		collectPlansList()
@@ -423,13 +466,15 @@ rollout createPlaneRLT "create plane"
 	on createPlaneRLT resized size do
 	(
 		local sub = 30
-		jpgListBox.height = createPlaneRLT.height - 90
+		jpgListBox.height = createPlaneRLT.height - 120
+		bmpFitBT.pos = [20, createPlaneRLT.height - sub]
 		createPlaneBT.pos = [ 100 , createPlaneRLT.height - sub]
-		injectMapBT.pos = [150, createPlaneRLT.height - sub]
-		changeMapBT.pos = [250, createPlaneRLT.height - sub]
-		transferMapBT.pos = [350, createPlaneRLT.height - sub]
+		injectMapBT.pos = [170, createPlaneRLT.height - sub]
 		
-		createA4BT.pos =  [ 20 , createPlaneRLT.height - sub]
+-- 		changeMapBT.pos = [250, createPlaneRLT.height - sub]
+-- 		transferMapBT.pos = [350, createPlaneRLT.height - sub]
+		
+-- 		createA4BT.pos =  [ 20 , createPlaneRLT.height - sub]
 	)
 	
 	on transferMapBT pressed do

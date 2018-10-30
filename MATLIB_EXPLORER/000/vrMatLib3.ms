@@ -21,13 +21,11 @@ maj:
 				-- remapper les bmp collectés
 	
 		-- fonction de merge d'une bibliothèque dans une autre 
-
-			
 					
-				-- versioning material library file
-				-- enregistrer les library en fonction de la verions de max, un dossier par version de max
-					-- enregistrer des fichiers materials library en version précedentes de max( est ce que c'est possible)
-				-- add thumbnail
+		-- versioning material library file
+		-- enregistrer les library en fonction de la verions de max, un dossier par version de max
+			-- enregistrer des fichiers materials library en version précedentes de max( est ce que c'est possible)
+		-- add thumbnail
 	
 */
 
@@ -47,16 +45,6 @@ fn collectDir dir subfolder: true =
 			(
 				-- ajout des dossier à l'array, clé de la  recursivité
 				append dirArr dt
-				
-				-- collect files
--- 				found = doesfileexist (dt + pattern)
-				
--- 				maxFileCount += 1
--- 				if found then
--- 				(
--- 						format "REMAP: %\n" (dt + pattern) 
--- 					append  fileArr (dt + pattern) 
--- 				)
 			)
 		)
 
@@ -112,10 +100,6 @@ fn searchBitmap dir pattern =
 	sort fileArr
 )
 
--- oneDir = @"M:\Textures"
--- onePattern = "brique beige_02.jpg"
--- searchBitmap oneDir onePattern
-
 fn sortbyname v1 v2 =
 (
 -- 	vars
@@ -144,18 +128,14 @@ struct matStruct
 	name = mat.name
 )
 
--- try(destroyDialog vrMatRlt)catch()
+try(closeRolloutFloater matLibRF)catch()
 
 -- rollout
 rollout vrMatRlt "Material LIbrary Tools"
 (
-	
--- 	local maxIni = getMAXIniFile()
--- 	local armadasScriptsIni = (getFilenamePath maxIni) + "armadasScriptsIni.ini"
-	
 	local armadasScriptsIni = (GetDir #maxData) + "armadasScriptsIni.ini"
 	
-	local params = #("pos", "vrLibPath", "autosaveCB")
+	local params = #("vrLibPath", "autosaveCB", "open", "RFPos", "RFSIze")
 	
 	local vrLibPath = ""
 	local openFileName
@@ -164,9 +144,13 @@ rollout vrMatRlt "Material LIbrary Tools"
 	local matDispAr = #()
 	
 	local	vrLib = materiallibrary()
-	local matAr = #()
+-- 	local matAr = #()
+	global matAr = #()
 	
 	local altDir = @"M:\Textures"
+	
+	local RFPos = [80,80]
+	local RFSIze = [350,800]
 	
 -- 	UI
 	group "library file:"
@@ -202,40 +186,20 @@ rollout vrMatRlt "Material LIbrary Tools"
 		button createVrMtlBT "create vray material"
 	)
 	
+	/*
 	group "uvw mapping box:"
 	(
 		button uv100 "100" across: 3
 		button uv250 "250"
 		button uv500 "500"
 	)
+	*/
 	
 	group "scene missing bmp Tools"
 	(
 		button scanBT "scan and patch" across: 2
 		button missBmpBT "edit missing bitmap"
 		button missBmpBT2 "format missing bitmap"
-	)
-	
-	group "Library missing bmp Tools"
-	(
-		
-		button scanLibBT "List Missing BMP" -- across: 2
-		edittext libraryPatchET "Alternative Folder:" text: altDir
-		button altPathBT "..."
-		
-		checkbox multiDialBoxCB "no alt display" enabled: false
-		checkbox remapLibCB "1 alt remap" -- across: 2
-		checkbox noAltDisplayCB "multi alt dialogBox" enabled: false 
-		 
-		button testLib2BT "Look for alternatives BMP" tooltip: "test missing bitmpas in alternative folder" 
-	)
-	
-	group "bmp collector"
-	(
-		-- collecte des bitmap de la library dans un dossier:
-			-- options:
-				-- update des chemins
-				-- un dossier par materiaux
 	)
 	
 	-- functions
@@ -246,8 +210,6 @@ rollout vrMatRlt "Material LIbrary Tools"
 		(
 			format "loading start\n"
 			vrLib = loadTempMaterialLibrary vrLibPath
--- 			matLibLoaded = true
--- 			getclassinstances  target: vrLib 
 			format "vrLib: %\n" vrLib
 			
 			matAr = for mat in vrLib collect mat
@@ -294,6 +256,8 @@ rollout vrMatRlt "Material LIbrary Tools"
 	(
 -- 		matLibLoaded = false
 		loadRolloutParams vrMatRlt Params
+		try(matLibRF.pos =  RFPos)catch()
+		try(matLibRF.size =  RFSIze)catch()
 		
 		-- load library
 		loadLib vrLibPath
@@ -304,6 +268,8 @@ rollout vrMatRlt "Material LIbrary Tools"
 	
 	on vrMatRlt close do
 	(
+		RFPos = matLibRF.pos
+		RFSIze = matLibRF.size
 		writeRolloutParams vrMatRlt Params
 		
 		if vrLibPath == undefined then ()
@@ -555,9 +521,38 @@ rollout vrMatRlt "Material LIbrary Tools"
 		)
 		
 		format "total: %\n" i
-
 	)
+)
 
+rollout libMissBmpRLT "Library Missing Bmp Tools"
+(
+	local altDir =  @"M:\Textures"
+	local params = #("open")
+	
+	group "Library missing bmp Tools:"
+	(
+		
+		button scanLibBT "List Missing BMP" -- across: 2
+		edittext libraryPatchET "Alternative Folder:" text: altDir
+		button altPathBT "..."
+		
+		checkbox noAltDisplayCB "no alt display" -- enabled: false 
+		checkbox remapLibCB "1 alt remap" -- across: 2
+		checkbox multiDialBoxCB "multi alt dialogBox" enabled: false
+		 
+		button testLib2BT "Look for alternatives BMP" tooltip: "test missing bitmpas in alternative folder" 
+	)
+	
+	on libMissBmpRLT open do
+	(
+		loadRolloutParams libMissBmpRLT Params
+	)
+	
+	on libMissBmpRLT close do
+	(
+		writeRolloutParams libMissBmpRLT Params
+	)
+	
 	on scanLibBT pressed do
 	(
 		format "scan start\n"
@@ -571,7 +566,7 @@ rollout vrMatRlt "Material LIbrary Tools"
 			local bmpTmpAr = getclassinstances bitmaptexture target: m
 			for bmpTmp in bmpTmpAr do append bmpAr bmpTmp
 		)
-		if bmpAr.count  == 0 then ("no missing bitmaps\n")
+		if bmpAr.count  == 0 then (/*format "no missing bitmaps\n"*/)
 		else
 		(
 			for b in bmpAr do
@@ -587,7 +582,6 @@ rollout vrMatRlt "Material LIbrary Tools"
 		format "total: %\n" i
 	)
 	
-	
 	on altPathBT pressed do
 	(
 		local tmpDir = getSavePath caption: "Select alternative bitmap folder" initialDir: libraryPatchET.text
@@ -595,7 +589,6 @@ rollout vrMatRlt "Material LIbrary Tools"
 		if tmpDir == undefined then()
 		else if doesfileexist tmpDir then
 		(	
--- 			altDir = tmpDir
 			libraryPatchET.text = tmpDir
 		)
 		else()
@@ -625,6 +618,8 @@ rollout vrMatRlt "Material LIbrary Tools"
 		j = 0
 		k = 0
 		
+		n = 0
+		
 		for b in bmpAr where  not doesfileexist b.filename do
 		(
 				local altFiles = #()
@@ -652,7 +647,26 @@ rollout vrMatRlt "Material LIbrary Tools"
 				(
 					format "there is no alternative\n"
 					i += 1
+					
+					if noAltDisplayCB.state then
+					(
+						refdep = refs.dependents b  -- immediateOnly: true
+-- 						format "refdep: %\n" refdep
+						for d in refdep do
+						(
+							if classof d == vraymtl or classof d == standard then 
+							(
+								format "d: % classof: %\n" d (classof d) 
+								if n < 24 then
+								(
+									meditmaterials[i] = d
+									n +=1
+								)
+							)
+						)
+					)
 				)
+				
 				else if (altFiles.count == 1) then 
 				(
 					format "one alternative: %\n" altFiles
@@ -676,8 +690,40 @@ rollout vrMatRlt "Material LIbrary Tools"
 		format "test2 scan done: % s\n" (((timestamp()) - startTime)/1000 as float)
 		format "alt bmp == 0 : %\nalt bmp ==  1: %\nalt bmp > 1: %\n" i j k
 	)
+	
 )
+
+rollout libColBmpRLT "Libray Bmp Collector Tools"
+(	
+	local params = #("open")
+	
+	group "Library bitmap collector:"
+	(
+		edittext libraryRessourceET "Bitmap Collector Folder:" --  text: altDir
+		button ressourcePathBT "..."
+		
+		button  collectBT "Collect Bmp" enabled: true
+		-- collecte des bitmap de la library dans un dossier:
+			-- options:
+				-- update des chemins
+				-- un dossier par materiaux
+	)
+	
+	on libColBmpRLT open do
+	(
+		loadRolloutParams libColBmpRLT Params
+	)
+	
+	on libColBmpRLT close do
+	(
+		writeRolloutParams libColBmpRLT Params
+	)
+)
+
 -- createdialog vrMatRlt
-try(closeRolloutFloater matLibRF)catch()
-matLibRF = newRolloutFloater "Mat Lib Tools" 350 1050 80 200
-addRollout vrMatRlt matLibRF -- rolledUp:true
+
+matLibRF = newRolloutFloater "Mat Lib Tools" 350 1050 -- 80 200
+
+addRollout vrMatRlt matLibRF --rolledUp:false
+addRollout libMissBmpRLT matLibRF --rolledUp:false
+addRollout libColBmpRLT matLibRF --rolledUp:false

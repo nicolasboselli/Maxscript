@@ -3,19 +3,46 @@
 	/- a l'ajout des spline de murs, porte, fenetres... etc.. renommer les spline et changer leur wirecolor
 
 	-- créer un auto snap des spline de murs
-	x- determiner l'orientation des gabarit de box
-	-- placer les lights devant les fenetres et au dessus de chaque piece
-	-- reprendre le déroulé du script en séparant prépa et finalisation, notament au niveau des sols et surtout des plintes
 	
-	-- plutot que de faire des murs de differentes hauteur, proposer de monter ou descendre les splines de la difference entre mur haut et mur bas (xform)
-	
+	-- clarifier creation des sols
+		-- separation des gaines
+		/- faire un combo de creation plinte + sol + gaine
+		-- faire popper les bon calques au bon moment( faire que hideotherslayer focntionne sur plusieurs calque à la fois)
+		
+	x- tester le pro boolean à la place des operateur sur edit mesh pour créer le sol
 	-- decouper une plane en fonction des murs en spline pour faire les sol (la technique de la section fait l'affaire)
+	
+	x- determiner l'orientation des gabarit de box
+		-- mettre le repere perpendiculaire automatique
+
+	/- reprendre le déroulé du script en séparant prépa et finalisation, notament au niveau des sols et surtout des plintes
+	
+	-- plutot que de faire des murs de differentes hauteur, proposer de monter ou descendre les splines de la difference entre mur haut et mur bas (xform) avec un picker
+
 	-- integrer les fonctions de creation de plans et de resize
-	/- intergrer l ajusteur de repere
-		-- integrer la fonction d'ajustement directement dans le rollout de gabarit
+	x- intergrer l ajusteur de repere
+		x- integrer la fonction d'ajustement directement dans le rollout de gabarit
+		-- rendre parametrable l'avant et l'apres
+		
 	x- créer un bouton pour importer les portes et les fenetres
 	/- sauvegarder les derniers reglages
 	
+	-- fonction pour placer automatiquement les lights additionnels
+		-- placer les lights devant les fenetres et au dessus de chaque piece
+	
+	-- créer des focntion pour merger du mobilier standard (toilette, vasque, baignoire, placard, cuisine, cadre) sur des repere (spline) 
+	
+-- debug
+	-- l'ajusteur de percement
+		-- pour qu'il s'auto aligne au mur
+		-- pour qu'il fonctionne en horaire et en anti horaire (actuellement fonctionne seulement en anti horaire)
+	
+-- rebuild:
+	-- créé un fonction qui rammasse tous les objets présents sur les calque de construction
+	-- utiliser l'appartenance à un calque comme un tag pour triter l'objet à la construction
+	-- rendre editable tous les objets à la construction (type de fenetre) pour en ajouter ou en supprimer (creation ou suppression de calque)
+	-- associer un objet à merger avec un repere
+	-- memoriser les configuration pour tout un projet
 	
 -- deroulement:
 	x- murs
@@ -39,6 +66,8 @@
 ------------ DECLARATION DES VARIABLES ----------------------
 
 filein "adjust_gabarit.ms"
+-- filein @"N:/Ressources_Nico/github/00_wip/Maxscript/cellsCreator/001/adjust_gabarit.ms"
+-- toto()
 
 global countPlan = 0
 global planFile = undefined
@@ -59,19 +88,35 @@ global filesPOR
 try(closerolloutfloater dRolFloater) catch()
 
 -- vars layer
-global solsPrepaLname = "+ Sol construction"
-global solsLname = "+ Sols"
+global splinesMursExtLName =  "_Splines Murs Ext"
+global splinesMursBalconLName = "_Splines Murs Balcon"
+global splinesMursFondLName = "_Splines Murs Fond"
+global splinesMursIntName = "_Splines Murs Int"
+
+global SplinesFenetresLName = "__Splines Fenetres"
+global SplinesPFenetresLName = "__Splines PFenetres"
+global SplinesPortesLName = "__Splines Portes"
+
+ global TmpFenLName = "___Gabarits Fenetres"
+ global TmpPFenLName = "___Gabarits PFenetres"
+ global TmpPortesLName  =  "___Gabarits Portes"
+
+global solsPrepaLname = "____ Sol construction"
+
+global solsLname = "Sol"
+global AptLName  = "Appartement"
+
 
 -- Preparation des calques de travail
 function createWorkLayer = 
 (	
-	layerList = #( "- Splines Murs Ext", 
-		"- Splines Murs Balcon",
-		"- Splines Murs Fond",
-		"- Splines Murs Int",
-		"- Splines Fenetres",
-		"- Splines PFenetres",
-		"- Splines Portes"
+	layerList = #( splinesMursExtLName, 
+		splinesMursBalconLName ,
+		splinesMursFondLName ,
+		splinesMursIntName ,
+		SplinesFenetresLName ,
+		SplinesPFenetresLName ,
+		SplinesPortesLName
 	)
 	
 	for l in layerList do
@@ -103,7 +148,7 @@ dRolFloater = newRolloutFloater "Creation de plans de cellules" 350 650 80 200
 
 rollout prepareScene "Preparer le cellule" width:350 height:230
 (	
-	local openState = false
+-- 	local openState = false
 	local RFPos = [0,0]
 	local RFSIze = [300,800]
 	local params = #("open", "RFPos", "RFSIze")
@@ -133,11 +178,25 @@ rollout prepareScene "Preparer le cellule" width:350 height:230
 
 	
 	on loadCamLight pressed  do
-	(			
-		f = (importfolderCAM + "light_cellules.max")	
+	(	
+		local LetCNodes = #()
+		LetCL =  LayerManager.getLayerFromName "LetC"
+		if LetCL == undefined then LetCL = LayerManager.newLayerFromName "LetC"
+				
+		f = (importfolderCAM + "light_cellules.max")		
 		
-		if doesfileexist f then mergemaxfile (f) #select #autoRenameDups #useSceneMtlDups
+		if doesfileexist f then 
+		(
+			local res = mergemaxfile (f) #select #autoRenameDups #useSceneMtlDups
+			if res then LetCNodes = getLastMergedNodes()
+		)
 		else 	format "fichier de lighting introuvable: %\n" f
+		
+		for o in LetCNodes do
+		(
+			LetCL.addnode o
+		)
+		
 	)
 		
 	on loadRenderPset pressed  do
@@ -269,8 +328,11 @@ fn createWall oneArray hauteur epaisseur =
 rollout addExtWall "Preparation des Murs" width:350 height:230
 (	
 	
-	local params = #("open")
+	local params = #("open", "extwallHauteurSP", "extwallEpaisseurSP", "terrassewallHauteurSP", "terrassewallEpaisseurSP", "backwallHauteurSP", \
+		"backwallHauteurSP", "intwallHauteurSP", "intwallEpaisseurSP" )
 	
+	
+		
 	group "Murs Exterieurs:"
 	(
 		spinner extwallHauteurSP "Hauteur :" type: #worldunits range: [0,500, 110] across: 2
@@ -308,7 +370,8 @@ rollout addExtWall "Preparation des Murs" width:350 height:230
 	(
 		button extwallInverser "Inverser sens spline"  across: 2
 		button delAllModBT "Supprimer Modifiers"
-		button createSelectionBT "Créer murs sur Selection"
+		button createSelectionBT "Créer murs sur Selection" across: 2
+		checkButton hideLayerCB "\"Murs\" layers visibility toggle"
 	)
 	
 	on addExtWall open do
@@ -320,10 +383,24 @@ rollout addExtWall "Preparation des Murs" width:350 height:230
 	(
 		writeRolloutParams addExtWall params
 	)
+
+	
+	on hideLayerCB changed state do
+	(
+		local layerList = #(splinesMursExtLName, splinesMursBalconLName, splinesMursFondLName, splinesMursIntName)
+		for n in layerList do
+		(
+			l = LayerManager.getLayerFromName n
+			if l != undefined then
+			(
+				l.on =  state
+			)else()
+		)
+	)
 	
 	on extWallLayerBT pressed do
 	(		
-		l = LayerManager.getLayerFromName "- Splines Murs Ext"
+		l = LayerManager.getLayerFromName splinesMursExtLName
 		sel = selection as array
 		for s in sel do 
 		(
@@ -336,7 +413,7 @@ rollout addExtWall "Preparation des Murs" width:350 height:230
 	(	
 		
 		-- CREATION des murs exterieurs
-		target = LayerManager.getLayerFromName "- Splines Murs Ext"
+		target = LayerManager.getLayerFromName splinesMursExtLName
 		if target == undefined then 
 		(
 			messageBox "Pour créer les mur Exterieur vous devez 'Préparer murExt'"
@@ -353,7 +430,7 @@ rollout addExtWall "Preparation des Murs" width:350 height:230
 	
 	on terWallLayerBT pressed do
 	(
-		l = LayerManager.getLayerFromName "- Splines Murs Balcon"
+		l = LayerManager.getLayerFromName splinesMursBalconLName
 		sel = selection as array
 		for s in sel do
 		(
@@ -365,7 +442,7 @@ rollout addExtWall "Preparation des Murs" width:350 height:230
 	on terWallCreateBT pressed do
 	(
 		-- creation de balcon
-		target = LayerManager.getLayerFromName "- Splines Murs Balcon"
+		target = LayerManager.getLayerFromName splinesMursBalconLName
 		if target == undefined then
 		(
 			messageBox "Pour créer les murs terrasse vous devez 'Préparer murBalcon'"
@@ -379,7 +456,7 @@ rollout addExtWall "Preparation des Murs" width:350 height:230
 	
 	on backWallLayerBT pressed do
 	(		
-		l = LayerManager.getLayerFromName "- Splines Murs Fond"
+		l = LayerManager.getLayerFromName splinesMursFondLName
 		sel = selection as array
 		for s in sel do 
 		(
@@ -391,7 +468,7 @@ rollout addExtWall "Preparation des Murs" width:350 height:230
 	
 	on backwallCreate pressed  do
 	(	
-		target = LayerManager.getLayerFromName "- Splines Murs Fond"
+		target = LayerManager.getLayerFromName splinesMursFondLName
 			
 		if target == undefined then 
 		(
@@ -407,7 +484,7 @@ rollout addExtWall "Preparation des Murs" width:350 height:230
 		
 	on intWallLayerBT pressed do
 	(		
-		l = LayerManager.getLayerFromName "- Splines Murs Int"
+		l = LayerManager.getLayerFromName splinesMursIntName
 		sel = selection as array
 		for s in sel do 
 		(
@@ -419,7 +496,7 @@ rollout addExtWall "Preparation des Murs" width:350 height:230
 	on intwallCreate pressed  do
 	(	
 		
-		target = LayerManager.getLayerFromName "- Splines Murs Int"
+		target = LayerManager.getLayerFromName splinesMursIntName
 		
 		if target == undefined then 
 		(
@@ -465,10 +542,10 @@ rollout addExtWall "Preparation des Murs" width:350 height:230
 		
 		for n in theNOdes do
 		(
-			if n.layer.name == "- Splines Murs Ext" then( append mursExtAr n)
-			else if n.layer.name == "- Splines Murs Balcon" then( append mursBalconAr n)
-			else if n.layer.name == "- Splines Murs Fond" then( append mursFondAr n)
-			else if n.layer.name == "- Splines Murs Int" then( append mursIntAr n) 
+			if n.layer.name ==splinesMursExtLName then( append mursExtAr n)
+			else if n.layer.name == splinesMursBalconLName then( append mursBalconAr n)
+			else if n.layer.name == splinesMursFondLName then( append mursFondAr n)
+			else if n.layer.name == splinesMursIntName then( append mursIntAr n) 
 		)
 		
 		format "mursExtAr: %, mursBalconAr: %, mursFondAr: % mursIntAr:%\n" mursExtAr mursBalconAr mursFondAr mursIntAr
@@ -483,6 +560,8 @@ rollout addExtWall "Preparation des Murs" width:350 height:230
 
 fn hideOthersLayer l =
 (
+	format "hideOthersLayer: %\n" l.name
+	l.on = true
 	for i = 0 to (LayerManager.count - 1) do
 	(
 		testL = LayerManager.getLayer i
@@ -490,7 +569,7 @@ fn hideOthersLayer l =
 	)
 )
 
-
+LayerManager.getLayer 1
 fn collectGabarit =
 (
 	-- recuperation des blocs de gabarits sur les calques
@@ -499,13 +578,13 @@ fn collectGabarit =
 	local nnl3 = #()
 
 	-- recuperation des blocs de gabarits sur les calques
-	TmpPFenL = LayerManager.getLayerFromName "-- Temp PFenetres"
+	TmpPFenL = LayerManager.getLayerFromName TmpPFenLName
 	if TmpPFenL != undefined then TmpPFenL.nodes & nnl1
 		
-	TmpfenL = LayerManager.getLayerFromName "-- Temp Fenetres"
+	TmpfenL = LayerManager.getLayerFromName TmpFenLName
 	if TmpfenL != undefined then TmpfenL.nodes & nnl2
 	
-	TmpPorteL = LayerManager.getLayerFromName "-- Temp Portes"
+	TmpPorteL = LayerManager.getLayerFromName TmpPortesLName
 	if TmpPorteL != undefined then TmpPorteL.nodes & nnl3
 	
 	(nnl1 + nnl2 + nnl3)
@@ -513,31 +592,41 @@ fn collectGabarit =
 
 rollout openingWall "Preparation des percements" width:350 height:230
 (	
-	local params = #("open")
+	local params = #("open", "windowHauteurSP", "windowAllegeSP", "porteHauteurSP", "porteAllegeSP", "porteFenetreHauteurSP", "porteFenetreAllegeSP" )
+	
+
 	
 	group "Fenêtres:"
 	(
 		spinner windowHauteurSP "Hauteur:" type: #worldunits range: [0,500, 215] across: 2 -- pos:[12,10] text:"135"	width:160
 		spinner windowAllegeSP "Allege:" type: #worldunits range: [0.5,500, 90] -- across: 2 -- pos:[182,10] text:"90" width:150
-		button addToFenLayerBT "add to layer"
+		button addToFenLayerBT "add to layer" across: 2
+		button adjustToFenBT "adjust fenêtres"
 	)
 	
 	group "Portes:"
 	(
 		spinner porteHauteurSP "Hauteur:" type: #worldunits range: [0,500, 204] across: 2  -- pos:[12,35] text:"204"	width:160
 		spinner porteAllegeSP "Allege:" type: #worldunits range: [0.5,500, 0.5] 
-		button addToPorteLayerBT "add to layer"
+		button addToPorteLayerBT "add to layer" across: 2
+		button adjustToPorteBT "adjust portes"
 	)
 	
 	group "Porte-Fenêtres:"
 	(
 		spinner porteFenetreHauteurSP "Hauteur: " type: #worldunits range: [0,500, 215] across: 2  -- pos:[12,60] text:"215" width:200
 		spinner porteFenetreAllegeSP "Allege: " type: #worldunits range: [0.5,500, 0.5]
-		button addToPorteFenLayerBT "add to layer"
+		button addToPorteFenLayerBT "add to layer" across: 2
+		button adjustToPorteFenetreBT "adjust portes Fenêtres"
 	)
 	 
 	button createGabaritBT "Créer les Gabarits" -- across: 2
 -- 	button 'wallOpen' "Ouvrir les murs" -- pos:[120,90] width:100 height:20 align:#left
+	group "Tools"
+	(
+		checkButton hideSplineLayerCB "\"Spline\" visibility toggle" across: 2
+		checkButton hideGabaritsLayerCB "\"Gabarits\" visibility toggle"
+	)
 	
 	on openingWall open do
 	(
@@ -551,7 +640,7 @@ rollout openingWall "Preparation des percements" width:350 height:230
 	
 	on addToFenLayerBT pressed do
 	(
-		fenL = LayerManager.getLayerFromName "- Splines Fenetres"	
+		fenL = LayerManager.getLayerFromName SplinesFenetresLName	
 		if fenL == undefined then()
 		else
 		(
@@ -565,9 +654,21 @@ rollout openingWall "Preparation des percements" width:350 height:230
 		)
 	)
 	
+	on adjustToFenBT pressed do
+	(
+		fenL = LayerManager.getLayerFromName SplinesFenetresLName	
+		fenL.nodes &theNodesFenetres
+		
+		format "theNodesFenetres: %\n" theNodesFenetres
+		for f in theNodesFenetres do
+		(
+			adjustGabaritSpline f shift1: 3 shift2: 3
+		)
+	)
+	
 	on addToPorteLayerBT pressed do
 	(		
-		porteL = LayerManager.getLayerFromName "- Splines Portes"				
+		porteL = LayerManager.getLayerFromName SplinesPortesLName				
 		if porteL == undefined then()
 		else
 		(
@@ -581,9 +682,22 @@ rollout openingWall "Preparation des percements" width:350 height:230
 		)
 	)
 	
+	on adjustToPorteBT pressed do
+	(
+		porteL = LayerManager.getLayerFromName SplinesPortesLName	
+		porteL.nodes &theNodesPortes
+		
+		format "theNodesPortes: %\n" theNodesPortes
+		for p in theNodesPortes do
+		(
+			adjustGabaritSpline p shift1: 3 shift2: 3
+		)
+	)
+	
+	
 	on addToPorteFenLayerBT pressed do
 	(
-		PFenL = LayerManager.getLayerFromName "- Splines PFenetres"	
+		PFenL = LayerManager.getLayerFromName SplinesPFenetresLName	
 		if PFenL == undefined then()
 		else
 		(
@@ -597,26 +711,39 @@ rollout openingWall "Preparation des percements" width:350 height:230
 		)
 	)
 	
+	on adjustToPorteFenetreBT pressed do
+	(
+		PFenL = LayerManager.getLayerFromName SplinesPFenetresLName	
+		PFenL.nodes &theNodesPFen
+		
+		format "theNodesPFen: %\n" theNodesPFen
+		for pf in theNodesPFen do
+		(
+			adjustGabaritSpline pf shift1: 3 shift2: 3
+		)
+	)
+	
 	on createGabaritBT pressed do
 	(
 		-- creation des bloc de portes 
-		porteL = LayerManager.getLayerFromName "- Splines Portes"				
+		porteL = LayerManager.getLayerFromName SplinesPortesLName				
 		porteL.nodes &theNodesPortes	
 	
-		TmpPorteL = LayerManager.getLayerFromName "-- Temp Portes"
-		if TmpPorteL == undefined then TmpPorteL = LayerManager.newLayerFromName "-- Temp Portes"
+		TmpPorteL = LayerManager.getLayerFromName TmpPortesLName
+		if TmpPorteL == undefined then TmpPorteL = LayerManager.newLayerFromName TmpPortesLName
 		else
 		(
 			-- nettoyage des calques temporaire de gabarit avant la création
 			TmpPorteL.nodes &portesToDel
 			delete portesToDel
 		)
-		
+
 		local PorteExtMod = extrude amount: (porteHauteurSP.value - porteAllegeSP.value) capStart: on capEnd: on
 -- 			local PorteUVMod = Uvwmap maptype: 4 length: 150 width: 150 height: 150
 					
 		for p in theNodesPortes do
 		(
+			p.pos.z = 0
 			local newP = copy p
 			
 			TmpPorteL.addnode newP
@@ -633,11 +760,11 @@ rollout openingWall "Preparation des percements" width:350 height:230
 		porteL.on = false
 		
 		-- creation des bloc de portes fenetres
-		PFenL = LayerManager.getLayerFromName "- Splines PFenetres"				
+		PFenL = LayerManager.getLayerFromName SplinesPFenetresLName				
 		PFenL.nodes &theNodesPFenetres	
 		
-		TmpPFenL = LayerManager.getLayerFromName "-- Temp PFenetres"
-		if TmpPFenL == undefined then TmpPFenL = LayerManager.newLayerFromName "-- Temp PFenetres"
+		TmpPFenL = LayerManager.getLayerFromName TmpPFenLName
+		if TmpPFenL == undefined then TmpPFenL = LayerManager.newLayerFromName TmpPFenLName
 		else
 		(
 			-- nettoyage des calques temporaire de gabarit avant la création
@@ -650,6 +777,7 @@ rollout openingWall "Preparation des percements" width:350 height:230
 		
 		for f in theNodesPFenetres do
 		(
+			f.pos.z = 0
 			local newPF = copy f
 			
 			TmpPFenL.addnode newPF
@@ -665,11 +793,11 @@ rollout openingWall "Preparation des percements" width:350 height:230
 		PFenL.on = false
 		
 		-- creation des bloc de fenetres 
-		fenL = LayerManager.getLayerFromName "- Splines Fenetres"				
+		fenL = LayerManager.getLayerFromName SplinesFenetresLName				
 		fenL.nodes &theNodesFenetres
 		
-		TmpfenL = LayerManager.getLayerFromName "-- Temp Fenetres"
-		if TmpfenL == undefined then TmpfenL = LayerManager.newLayerFromName "-- Temp Fenetres" 
+		TmpfenL = LayerManager.getLayerFromName TmpFenLName
+		if TmpfenL == undefined then TmpfenL = LayerManager.newLayerFromName TmpFenLName 
 		else
 		(
 			-- nettoyage des calques temporaire de gabarit avant la création
@@ -682,6 +810,7 @@ rollout openingWall "Preparation des percements" width:350 height:230
 		
 		for f in theNodesFenetres do
 		(
+			f.pos.z = 0
 			local newF = copy f
 			
 			TmpfenL.addnode newF
@@ -710,23 +839,23 @@ rollout openingWall "Preparation des percements" width:350 height:230
 		)
 			
 		-- recuperation du calque murs
-		MursL = LayerManager.getLayerFromName solsPrepaLname
+-- 		local MursL = LayerManager.getLayerFromName solsPrepaLname
 		
 		-- recuperation des blocs de gabarits sur les calques	
 		nnl = collectGabarit ()
 		
 		-- recuperation des mur
 		theMurs = #()
-		MursBalL = LayerManager.getLayerFromName "- Splines Murs Balcon"
+		MursBalL = LayerManager.getLayerFromName splinesMursBalconLName
 		MursBalL.nodes &MursBal
 		
-		MursExtL = LayerManager.getLayerFromName "- Splines Murs Ext"
+		MursExtL = LayerManager.getLayerFromName splinesMursExtLName
 		MursExtL.nodes &MursExt
 		
-		MursFondL = LayerManager.getLayerFromName "- Splines Murs Fond"
+		MursFondL = LayerManager.getLayerFromName splinesMursFondLName
 		MursFondL.nodes &MursFond
 		
-		MursIntL = LayerManager.getLayerFromName "- Splines Murs Int"
+		MursIntL = LayerManager.getLayerFromName splinesMursIntName
 		MursIntL.nodes &MursIntL
 		
 		theMursOrig = MursBal + MursExt + MursFond + MursIntL
@@ -768,6 +897,32 @@ rollout openingWall "Preparation des percements" width:350 height:230
 		MurOrig = getNodeByName "Murs"
 		if isvalidnode MurOrig then MurOrig.ishidden = true
 	)
+	
+	on hideSplineLayerCB changed state do
+	(
+		local layerList = #(SplinesFenetresLName, SplinesPFenetresLName, SplinesPortesLName)
+		for n in layerList do
+		(
+			l = LayerManager.getLayerFromName n
+			if l != undefined then
+			(
+				l.on =  state
+			)else()
+		)
+	)
+	
+	on hideGabaritsLayerCB changed state do
+	(
+		local layerList = #(TmpFenLName, TmpPFenLName, TmpPortesLName)
+		for n in layerList do
+		(
+			l = LayerManager.getLayerFromName n
+			if l != undefined then
+			(
+				l.on =  state
+			)else()
+		)
+	)
 )
 
 fn createPlinte l =
@@ -802,34 +957,48 @@ rollout createGround "Preparation des sols" width:350 height:230
 	button createGaineBT "creation des gaines" across: 2 enabled: false -- pos:[10,10] width:100 height:20 align:#left
 	button createPlinteBT "preparation des plintes" -- enabled: false 
 		
--- 	button 'groundFinalize' "Finaliser les sols" -- pos:[120,10] width:100 height:20 align:#left
-		
+	checkbutton hideLayerCB "\"Prepa Sols\" visibility"
+	
+	on hideLayerCB changed state do
+	(
+		local layerList = #(solsPrepaLname)
+		for n in layerList do
+		(
+			l = LayerManager.getLayerFromName n
+			if l != undefined then
+			(
+				l.on =  state
+			)else()
+		)
+	)
+-- 	button 'groundFinalize' "Finaliser les sols" -- pos:[120,10] width:100 height:20 align:#left	
+	
 	-- fusionne les murs
-	function unifyWall  = 
+	function unifyWall2  = 
 	(			
-		target = LayerManager.getLayerFromName "- Splines Murs Int"				
+		target = LayerManager.getLayerFromName splinesMursIntName				
 		target.nodes &theNodesInt		
 -- 		target.on = false
 			
-		target = LayerManager.getLayerFromName "- Splines Murs Ext"				
+		target = LayerManager.getLayerFromName splinesMursExtLName				
 		target.nodes &theNodesExt		
 -- 		target.on = false
 			
-		target = LayerManager.getLayerFromName "- Splines Murs Fond"				
+		target = LayerManager.getLayerFromName splinesMursFondLName				
 		target.nodes &theNodesFond			
 -- 		target.on = false	
 			
-		target = LayerManager.getLayerFromName "- Splines Murs Balcon"
+		target = LayerManager.getLayerFromName splinesMursBalconLName
 		target.nodes &theNodesBalc	
 -- 		target.on = false	
 
 		local theMurs = theNodesInt + theNodesExt + theNodesFond + theNodesBalc
 		
 -- 		fusion des murs
-		local mursL = LayerManager.getLayerFromName solsPrepaLname					
+		local solPrepaL = LayerManager.getLayerFromName solsPrepaLname					
 			
 		theObj = (editable_mesh())
-		mursL.addnode theObj
+		solPrepaL.addnode theObj
 		
 		for obj in theMurs  do ( theObj + obj)
 			
@@ -896,24 +1065,29 @@ rollout createGround "Preparation des sols" width:350 height:230
 	on wallCreate pressed  do
 	(	
 		-- teste le calque murs
-		mursL = LayerManager.getLayerFromName solsPrepaLname
-		if mursL == undefined then mursL = LayerManager.newLayerFromName solsPrepaLname
+		local solPrepaL = LayerManager.getLayerFromName solsPrepaLname
+		if solPrepaL == undefined then solPrepaL = LayerManager.newLayerFromName solsPrepaLname
 		
-		hideOthersLayer mursL
-		unifyWall()
+-- 		hideOthersLayer solPrepaL
+-- 		unifyWall()
+		unifyWall2()
 	)
 	
 	on groundInitialize pressed  do
 	(		
-		mursL = LayerManager.getLayerFromName solsPrepaLname
-		if mursL == undefined then mursL = LayerManager.newLayerFromName solsPrepaLname
+		-- todo: faire la section que sur les murs
+		local solPrepaL = LayerManager.getLayerFromName solsPrepaLname
+		if solPrepaL == undefined then solPrepaL = LayerManager.newLayerFromName solsPrepaLname
 		
 		solsL = LayerManager.getLayerFromName solsLname
 		if solsL == undefined then solsL = LayerManager.newLayerFromName solsLname
 		
-		mursL.current = true
-		hideOthersLayer mursL
-		tmpMurs = unifyWall()
+		local oldSol = $Sol_construction
+		if isvalidnode oldSol then delete oldSol
+		
+		solPrepaL.current = true
+-- 		hideOthersLayer solPrepaL
+		tmpMurs = unifyWall2()
 		extractSol()
 		delete tmpMurs
 		messageBox "Supprimez la Splines du contour exterieur et les splines des gaines"
@@ -921,14 +1095,18 @@ rollout createGround "Preparation des sols" width:350 height:230
 	
 	on createGaineBT pressed do
 	(
+		-- supprimer la gaine existante s il y a lieu
+		-- extraire la spline selectionner
+		-- la renommer en "gaines_construction"
+		
 		theGaine = $gaines_construction
 		
 		if theGaine == undefined then()
 		else if isvalidnode theGaine then
 		(
-			addmodifier theGaine (edit_poly())
-			move theGaine [0,0,120]
--- 			splineOps.detach $
+-- 			addmodifier theGaine (edit_poly())
+-- 			move theGaine [0,0,120]
+			splineOps.detach $
 		)
 		else()
 	)
@@ -991,12 +1169,27 @@ rollout creationAptRLT "Création Appartement"
 (
 	local params = #("open")
 	
-	button openPlinteBT "ouverture des plintes" across: 2 -- enabled: false -- pos:[10,10] width:100 height:20 align:#left
+	button openPlinteBT "ouverture des plintes" across: 2 enabled: false -- enabled: false -- pos:[10,10] width:100 height:20 align:#left
 	button createSolBT  "creation du sol" -- enabled: false 
 	
-	button createGaineBT "creation des gaines" across: 2
+	button createGaineBT "creation des gaines"  across: 2 enabled: false
 -- 	button createSolBT "creation des sol" across: 2
 	button openWallBT "ouverture des murs"
+	
+	checkbutton hideLayerCB "\"Appartement\" visibility"
+	
+	on hideLayerCB changed state do
+	(		
+		local layerList = #(solsLname, AptLName)
+		for n in layerList do
+		(
+			l = LayerManager.getLayerFromName n
+			if l != undefined then
+			(
+				l.on = state
+			)else()
+		)
+	)
 	
 	on creationAptRLT open do
 	(
@@ -1030,10 +1223,46 @@ rollout creationAptRLT "Création Appartement"
 		else()
 	)
 	
+	on createGaineBT pressed do
+	(
+		solsL = LayerManager.getLayerFromName solsLname
+		if solsL == undefined then solsL = LayerManager.newLayerFromName solsLname
+		
+		theGaine = $gaines
+		if isvalidnode theGaine then delete theGaine
+		
+		theGaineConst = $gaines_construction
+
+		if theGaineConst == undefined then()
+		else if isvalidnode theGaineConst then
+		(
+			theGaineCopy = copy theGaineConst
+			theGaineCopy.name = "gaines"
+			solsL.addnode theGaineCopy
+			
+			addmodifier theGaineCopy (edit_poly())
+			move theGaineCopy [0,0,105]
+		)
+		
+-- 		if theGaineCopy == undefined then()
+-- 		else if isvalidnode theGaineCopy then
+-- 		(
+-- 			addmodifier theGaineCopy (edit_poly())
+-- 			move theGaineCopy [0,0,105]
+			
+-- 		)
+-- 		else()
+	)
+	
 	on createSolBT pressed do
 	(
 		solsL = LayerManager.getLayerFromName solsLname
 		if solsL == undefined then solsL = LayerManager.newLayerFromName solsLname
+-- 		hideOthersLayer solsL
+		
+		openPlinteBT.pressed()
+		createGaineBT.pressed()
+		
 		
 		solMesh = $sol
 		if isvalidnode solMesh then delete solMesh 
@@ -1052,27 +1281,6 @@ rollout creationAptRLT "Création Appartement"
 		else()
 	)
 	
-	on createGaineBT pressed do
-	(
-		solsL = LayerManager.getLayerFromName solsLname
-		if solsL == undefined then solsL = LayerManager.newLayerFromName solsLname
-		
-		theGaine = $gaines_construction
-		try($gaines)catch()
-		
-		theGaineCopy = copy theGaine
-		theGaineCopy.name = "gaines"
-		solsL.addnode theGaineCopy
-		
-		if theGaineCopy == undefined then()
-		else if isvalidnode theGaineCopy then
-		(
-			addmodifier theGaineCopy (edit_poly())
-			move theGaineCopy [0,0,105]
--- 			splineOps.detach $
-		)
-		else()
-	)
 	
 	on openWallBT pressed do
 	(
@@ -1088,23 +1296,23 @@ rollout creationAptRLT "Création Appartement"
 			)
 				
 			-- recuperation du calque murs
-			MursL = LayerManager.getLayerFromName solsPrepaLname
+-- 			local MursL = LayerManager.getLayerFromName solsPrepaLname
 			
 			-- recuperation des blocs de gabarits sur les calques	
 			nnl = collectGabarit ()
 			
 			-- recuperation des mur
 			theMurs = #()
-			MursBalL = LayerManager.getLayerFromName "- Splines Murs Balcon"
+			MursBalL = LayerManager.getLayerFromName splinesMursBalconLName
 			MursBalL.nodes &MursBal
 			
-			MursExtL = LayerManager.getLayerFromName "- Splines Murs Ext"
+			MursExtL = LayerManager.getLayerFromName splinesMursExtLName
 			MursExtL.nodes &MursExt
 			
-			MursFondL = LayerManager.getLayerFromName "- Splines Murs Fond"
+			MursFondL = LayerManager.getLayerFromName splinesMursFondLName
 			MursFondL.nodes &MursFond
 			
-			MursIntL = LayerManager.getLayerFromName "- Splines Murs Int"
+			MursIntL = LayerManager.getLayerFromName splinesMursIntName
 			MursIntL.nodes &MursIntL
 			
 			theMursOrig = MursBal + MursExt + MursFond + MursIntL
@@ -1223,10 +1431,6 @@ rollout importAssetRLT "import assets"
 				)
 				else()
 			)
-			
-
-			
-			
 		)
 		
 		--add modifier
@@ -1239,7 +1443,6 @@ rollout importAssetRLT "import assets"
 		)
 	)
 )
-superclassof $
 
 
 
@@ -1248,7 +1451,7 @@ addRollout addPlan dRolFloater --rolledUp:true
 
 addRollout addExtWall dRolFloater --rolledUp:false
 addRollout openingWall dRolFloater --rolledUp:false
-addRollout adjustGabaritRLT dRolFloater --rolledUp:false
+-- addRollout adjustGabaritRLT dRolFloater --rolledUp:false
 addRollout createGround dRolFloater --rolledUp:false
 
 addRollout creationAptRLT dRolFloater --rolledUp:false

@@ -712,6 +712,7 @@ rollout deMultiMatRLT "Materials Tools"
 		button okConvertBT "confirm" 
 		
 		button convertAllMatToVrBT "convert All standards to vray mat" -- across:2
+		button convertAutodeskToVrBT "convert Autodesk Materials to vray mat" -- across:2
 -- 		button showBT "show properties"
 
 -- 		button collectVrMtlBT "collect material"
@@ -908,6 +909,17 @@ rollout deMultiMatRLT "Materials Tools"
 	on convertAllMatToVrBT pressed do
 	(
 		local matAr = getclassinstances standard target: scenematerials
+-- 		format "count: % matAr: %\n" matAr.count matAr
+		for m in matAr do
+		(
+			format "convert: %\n" m
+			convertToVrMatDef m
+		)
+	)
+	
+	on convertAutodeskToVrBT pressed do
+	(
+		local matAr = getclassinstances Autodesk_Material target: scenematerials
 -- 		format "count: % matAr: %\n" matAr.count matAr
 		for m in matAr do
 		(

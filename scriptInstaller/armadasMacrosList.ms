@@ -1,7 +1,7 @@
 -- oneCat = "ArmadasScripts"
 (
 	global ArmadasScriptLauncherPath = "\scriptsLauncher\001\launcher.ms"
-	global ArmadasScriptModelingUtilitiesPath = "\MODELING_TOOLS\000\modeling_tools.ms"
+	global ArmadasScriptModelingUtilitiesPath = "\MODELING_TOOLS\001\modeling_tools.ms"
 	global ArmadasScriptMaterialsUtilitiesPath = "\MATERIALS_TOOLS\000\deMultiMat.ms"
 	global ArmadasMatLibExplorerPath = "\MATLIB_EXPLORER\000\vrMatLib3.ms"
 	global mxsHelpPath = #(@"C:\Users\Visiolab\Desktop\maxscript-2017-help.chm", @"N:\Ressources Soft tutoriaux plugins\3D\maxscript_help\maxscript-2017-help.chm")
