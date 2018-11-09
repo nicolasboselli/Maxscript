@@ -1,60 +1,50 @@
 /*
--- maj:
-	/- a l'ajout des spline de murs, porte, fenetres... etc.. renommer les spline et changer leur wirecolor
-
-	-- créer un palette pour le display des layer
-	
-	/- ouvrir les script tiers directement depuis l'interface: "plan_resizer", "object replacer", "clean spline", "bitmap fit"
-	
+-- maj:		
 	-- créer un auto snap des spline de murs
 	
-	-- clarifier creation des sols
-		-- tagger les spline par id de materials
-			-- à la creation des sol duppliquer la shape de construction et supprimer les spline gaines et terrasse
-			-- separation des gaines
-
-	-- rendre invisible l'operation d'ajustement des reperes de fenetres, la faire executer à la creation des gabarits
-
-	x- tester le pro boolean à la place des operateur sur edit mesh pour créer le sol
-	-- decouper une plane en fonction des murs en spline pour faire les sol (la technique ultime pour avoir des spline propres)
-	
-	x- determiner l'orientation des gabarit de box
-		-- mettre le repere perpendiculaire automatique
-
-	/- reprendre le déroulé du script en séparant prépa et finalisation, notament au niveau des sols et surtout des plintes
-	
 	-- plutot que de faire des murs de differentes hauteur, proposer de monter ou descendre les splines de la difference entre mur haut et mur bas (xform) avec un picker
-		-- fonction pour monter et descendre la selection spline (move_spline_sandbox.ms)
-
-	-- integrer les fonctions de creation de plans et de resize
-	x- intergrer l ajusteur de repere
-		x- integrer la fonction d'ajustement directement dans le rollout de gabarit
-		-- rendre parametrable l'avant et l'apres
-		
-	x- créer un bouton pour importer les portes et les fenetres
-	/- sauvegarder les derniers reglages
+		-- cf move_spline_sandbox.ms
+		/- fonction pour monter et descendre la selection spline
+		-- picker pour retourner le segment de la spline sur laquelle on pique
 	
+	-- preparation percement (cf prepa_percement_sandbox.ms)
+		-- rendre editable tous les objets à la construction (type de fenetre) pour en ajouter ou en supprimer (creation ou suppression de calque)
+		x- ajustement des reperes de percement
+			x- integrer la fonction d'ajustement directement dans le rollout de gabarit
+			-- debug:
+				-- pour qu'il s'auto aligne au mur
+				-- pour qu'il fonctionne en horaire et en anti horaire (actuellement fonctionne seulement en anti horaire)
+			
+		-- rendre parametrable l'avant et l'apres (à editer lorsqu'on pourra ajouter des types de gabarit cf rebuild)
+		-- rendre invisible l'operation d'ajustement des reperes de fenetres, la faire executer à la creation des gabarits
+		-- mettre le repere perpendiculaire automatique(pour les murs en biais)
+		-- automatiser l'import et les placement des portes		
+	
+	-- créer une méthode de découpe de plane pour créer le sol afin que ce soit plus propre
+	
+	-- clarifier creation des sols
+		-- cf multiID_sol_sandbox.ms
+		-- une fois que la spline de sol est propre, ajouter un editpoly dessus et changer l'id de materiaux en fonction
+			-- en fonction de l'idée de materiaux faire des actions. ex: placard(import placard)- gaines(separer et relever) - terrasses(supprimer gaines)
+		
 	-- fonction pour placer automatiquement les lights additionnels
 		-- placer les lights devant les fenetres et au dessus de chaque piece
 	
-	-- créer des focntion pour merger du mobilier standard (toilette, vasque, baignoire, placard, cuisine, cadre) sur des repere (spline) 
-	
--- debug
-	-- l'ajusteur de percement
-		-- pour qu'il s'auto aligne au mur
-		-- pour qu'il fonctionne en horaire et en anti horaire (actuellement fonctionne seulement en anti horaire)
-	
+	-- refléchir à des fonction pour merger du mobilier standard (toilette, vasque, baignoire, placard, cuisine, cadre) sur des repere (spline) 
+		
 -- rebuild:
 	-- créé un fonction qui rammasse tous les objets présents sur les calque de construction
-	-- utiliser l'appartenance à un calque comme un tag pour triter l'objet à la construction
-	-- rendre editable tous les objets à la construction (type de fenetre) pour en ajouter ou en supprimer (creation ou suppression de calque)
+	-- utiliser l'appartenance à un calque comme un tag pour traiter l'objet à la construction
+	
+
 	-- associer un objet à merger avec un repere
 	-- memoriser les configuration pour tout un projet
 	
+	
 -- deroulement:
 	x- murs
-	x- sols
 	x- ouverture
+	x- sols
 	- sol terrasse
 	- garde corps
 	/- placement fenetre
@@ -69,16 +59,11 @@
 	
 */
 
-
 ------------ DECLARATION DES VARIABLES ----------------------
 
 
 -- filein @"N:/Ressources_Nico/github/00_wip/Maxscript/cellsCreator/001/adjust_gabarit.ms"
 -- toto()
-
-
-try(closeRolloutFloater  dRolFloater)catch()
-dRolFloater = newRolloutFloater "Creation de plans de cellules" 350 650 80 200
 
 global countPlan = 0
 global planFile = undefined
@@ -88,7 +73,7 @@ global resizerTool = @"N:/Ressources_Nico/github/00_wip/Maxscript/plansManagemen
 global cleanSplineTool = @"N:/Ressources_Nico/github/00_wip/Maxscript/MODELING_TOOLS/001/cleanSpline.ms"
 
 filein cleanSplineTool
-filein "adjust_gabarit.ms"
+
 
 global importfolderFEN = "M:\\Interieur\\Cellules\\Modelisation\\Fenetres\\"
 global importfolderPOR = "M:\\Interieur\\Cellules\\Modelisation\\Portes\\"
@@ -111,6 +96,7 @@ global splinesMursBalconLName = "_Splines Murs Balcon"
 global splinesMursFondLName = "_Splines Murs Fond"
 global splinesMursIntName = "_Splines Murs Int"
 
+
 global SplinesFenetresLName = "__Splines Fenetres"
 global SplinesPFenetresLName = "__Splines PFenetres"
 global SplinesPortesLName = "__Splines Portes"
@@ -123,6 +109,7 @@ global solsPrepaLname = "____ Sol construction"
 
 global solsLname = "Sol"
 global AptLName  = "Appartement"
+
 
 
 -- Preparation des calques de travail
@@ -158,8 +145,10 @@ fn inverseKnotOrder l =
 	)else()
 )
 
+filein "adjust_gabarit.ms" quiet: true
 
-
+try(closeRolloutFloater  dRolFloater)catch()
+dRolFloater = newRolloutFloater "Creation de plans de cellules" 350 650 80 200
 
 -- classof prepareScene.RFSIze
 
@@ -241,8 +230,6 @@ rollout prepareScene "Preparer le cellule" width:350 height:230
 	)
 )
 
-
-
 rollout addPlan "Preparation du plan" width:350 height:230
 (	
 	local params = #("open")
@@ -307,7 +294,6 @@ rollout addPlan "Preparation du plan" width:350 height:230
 	
 		
 )
-
 	
 fn createWall oneArray hauteur epaisseur =
 (
@@ -374,8 +360,8 @@ rollout addExtWall "Preparation des Murs" width:350 height:230
 	(
 		button extwallInverser "Inverser sens spline"  across: 2
 		button delAllModBT "Supprimer Modifiers"
-		button createSelectionBT "Créer murs sur Selection" across: 2
-		checkButton hideLayerCB "\"Murs\" layers visibility toggle"
+		button createSelectionBT "Créer murs sur Selection" -- across: 2
+-- 		checkButton hideLayerCB "\"Murs\" layers visibility toggle"
 	)
 	
 	on addExtWall open do
@@ -389,18 +375,18 @@ rollout addExtWall "Preparation des Murs" width:350 height:230
 	)
 
 	
-	on hideLayerCB changed state do
-	(
-		local layerList = #(splinesMursExtLName, splinesMursBalconLName, splinesMursFondLName, splinesMursIntName)
-		for n in layerList do
-		(
-			l = LayerManager.getLayerFromName n
-			if l != undefined then
-			(
-				l.on =  state
-			)else()
-		)
-	)
+-- 	on hideLayerCB changed state do
+-- 	(
+-- 		local layerList = #(splinesMursExtLName, splinesMursBalconLName, splinesMursFondLName, splinesMursIntName)
+-- 		for n in layerList do
+-- 		(
+-- 			l = LayerManager.getLayerFromName n
+-- 			if l != undefined then
+-- 			(
+-- 				l.on =  state
+-- 			)else()
+-- 		)
+-- 	)
 	
 	on extWallLayerBT pressed do
 	(		
@@ -622,12 +608,7 @@ rollout openingWall "Preparation des percements" width:350 height:230
 	)
 	 
 	button createGabaritBT "Créer les Gabarits" -- across: 2
--- 	button 'wallOpen' "Ouvrir les murs" -- pos:[120,90] width:100 height:20 align:#left
-	group "Tools"
-	(
-		checkButton hideSplineLayerCB "\"Spline\" visibility toggle" across: 2
-		checkButton hideGabaritsLayerCB "\"Gabarits\" visibility toggle"
-	)
+
 	
 	on openingWall open do
 	(
@@ -899,31 +880,31 @@ rollout openingWall "Preparation des percements" width:350 height:230
 		if isvalidnode MurOrig then MurOrig.ishidden = true
 	)
 	
-	on hideSplineLayerCB changed state do
-	(
-		local layerList = #(SplinesFenetresLName, SplinesPFenetresLName, SplinesPortesLName)
-		for n in layerList do
-		(
-			l = LayerManager.getLayerFromName n
-			if l != undefined then
-			(
-				l.on =  state
-			)else()
-		)
-	)
-	
-	on hideGabaritsLayerCB changed state do
-	(
-		local layerList = #(TmpFenLName, TmpPFenLName, TmpPortesLName)
-		for n in layerList do
-		(
-			l = LayerManager.getLayerFromName n
-			if l != undefined then
-			(
-				l.on =  state
-			)else()
-		)
-	)
+-- 	on hideSplineLayerCB changed state do
+-- 	(
+-- 		local layerList = #(SplinesFenetresLName, SplinesPFenetresLName, SplinesPortesLName)
+-- 		for n in layerList do
+-- 		(
+-- 			l = LayerManager.getLayerFromName n
+-- 			if l != undefined then
+-- 			(
+-- 				l.on =  state
+-- 			)else()
+-- 		)
+-- 	)
+-- 	
+-- 	on hideGabaritsLayerCB changed state do
+-- 	(
+-- 		local layerList = #(TmpFenLName, TmpPFenLName, TmpPortesLName)
+-- 		for n in layerList do
+-- 		(
+-- 			l = LayerManager.getLayerFromName n
+-- 			if l != undefined then
+-- 			(
+-- 				l.on =  state
+-- 			)else()
+-- 		)
+-- 	)
 )
 
 fn createPlinte l =
@@ -960,13 +941,8 @@ rollout createGround "Preparation des sols" width:350 height:230
 		
 	group "tools"
 	(
-		button cleanSplineBT "Clean Spline" across: 2
-		checkbutton hideLayerCB "\"Prepa Sols\" visibility"
+		button cleanSplineBT "Clean Spline" -- across: 2
 	)
-	
-	
-
--- 	button 'groundFinalize' "Finaliser les sols" -- pos:[120,10] width:100 height:20 align:#left	
 	
 	-- fusionne les murs
 	function unifyWall2  = 
@@ -1063,8 +1039,6 @@ rollout createGround "Preparation des sols" width:350 height:230
 		local solPrepaL = LayerManager.getLayerFromName solsPrepaLname
 		if solPrepaL == undefined then solPrepaL = LayerManager.newLayerFromName solsPrepaLname
 		
--- 		hideOthersLayer solPrepaL
--- 		unifyWall()
 		unifyWall2()
 	)
 	
@@ -1080,10 +1054,15 @@ rollout createGround "Preparation des sols" width:350 height:230
 		local oldSol = $Sol_construction
 		if isvalidnode oldSol then delete oldSol
 		
+		bakL = LayerManager.current
+		solPrepaL.on = true
 		solPrepaL.current = true
+		
 		hideOthersLayer solPrepaL
 		tmpMurs = unifyWall2()
 		extractSol()
+		bakL.current = true
+		
 		delete tmpMurs
 		messageBox "Supprimez la Splines du contour exterieur et les splines des gaines"
 	)
@@ -1124,22 +1103,9 @@ rollout createGround "Preparation des sols" width:350 height:230
 		else()
 	)
 	
-	on hideLayerCB changed state do
-	(
-		local layerList = #(solsPrepaLname)
-		for n in layerList do
-		(
-			l = LayerManager.getLayerFromName n
-			if l != undefined then
-			(
-				l.on =  state
-			)else()
-		)
-	)
-	
 	on cleanSplineBT pressed do
 	(
--- 		filein cleanSplineTool
+		filein cleanSplineTool
 		sel = selection as array
 		for s in sel do cleanspline s
 	)
@@ -1190,22 +1156,7 @@ rollout creationAptRLT "Création Appartement"
 	button createGaineBT "creation des gaines"  across: 2 enabled: false
 -- 	button createSolBT "creation des sol" across: 2
 	button openWallBT "ouverture des murs"
-	
-	checkbutton hideLayerCB "\"Appartement\" visibility"
-	
-	on hideLayerCB changed state do
-	(		
-		local layerList = #(solsLname, AptLName)
-		for n in layerList do
-		(
-			l = LayerManager.getLayerFromName n
-			if l != undefined then
-			(
-				l.on = state
-			)else()
-		)
-	)
-	
+		
 	on creationAptRLT open do
 	(
 		loadRolloutParams creationAptRLT params
@@ -1258,15 +1209,6 @@ rollout creationAptRLT "Création Appartement"
 			addmodifier theGaineCopy (edit_poly())
 			move theGaineCopy [0,0,105]
 		)
-		
--- 		if theGaineCopy == undefined then()
--- 		else if isvalidnode theGaineCopy then
--- 		(
--- 			addmodifier theGaineCopy (edit_poly())
--- 			move theGaineCopy [0,0,105]
-			
--- 		)
--- 		else()
 	)
 	
 	on createSolBT pressed do
@@ -1417,7 +1359,10 @@ rollout importAssetRLT "import assets"
 -- 			format "sel: %\n" assetsList[i]
 			if doesfileexist assetsList[i] then 
 			(
+				local befCount = objects.count
 				mergemaxfile assetsList[i] 
+				clearselection()
+				for i = (befCount + 1) to objects.count do selectmore objects[i]
 			)
 		)
 	)
@@ -1468,14 +1413,89 @@ rollout importAssetRLT "import assets"
 
 rollout displayRLT "display"
 (
+	local mursList = #(splinesMursExtLName, splinesMursBalconLName, splinesMursFondLName, splinesMursIntName)
+	local spGabList = #(SplinesFenetresLName, SplinesPFenetresLName, SplinesPortesLName)
+	local gabList = #(TmpFenLName, TmpPFenLName, TmpPortesLName)
+	local prepSolList = #(solsPrepaLname)
+	local AptList = #(solsLname, AptLName)
+	
+	group "hide/unhidde"
+	(
+		checkButton hideMursCB "Prepa Murs" across: 3
+		checkButton hideSplineGabaritsLayerCB "Prepa Gabarits" 
+		checkButton hideGabaritsLayerCB "Gabarits" 
+		checkbutton hidePrepaSolLayerCB "Prepa Sols" across: 2
+		checkbutton hideAptLayerCB "Appartement"
+	)
+	
+	group "transparence"
+	(
+		checkButton transMursCB "Transparence Murs" -- across: 3
+	)
+	
+	fn hideLayers layerList state = 
+	(
+		for n in layerList do
+		(
+			l = LayerManager.getLayerFromName n
+			if l != undefined then
+			(
+				l.on = state
+			)else()
+		)
+	)
+	
+	fn transLayer n state =
+	(
+		l = LayerManager.getLayerFromName n
+		l.nodes &mursNodes
+		format "mursNodes: %\n" mursNodes
+		for m in mursNodes do
+		(
+			m.xray = state
+		) 
+	)
+		
+	on hideMursCB changed state do
+	(		
+		hideLayers mursList state
+	)
+	
+	on hideSplineGabaritsLayerCB changed state do
+	(		
+		hideLayers spGabList state
+	)
+	
+	on hideGabaritsLayerCB changed state do
+	(		
+		hideLayers gabList state
+	)
+	
+	on hidePrepaSolLayerCB changed state do
+	(		
+		hideLayers prepSolList state
+	)
+	
+	on hideAptLayerCB changed state do
+	(		
+		hideLayers AptList state
+	)
+	
+	on transMursCB changed state do
+	(
+		for l in mursList do transLayer l state
+	)
+	
 	
 )
+
 
 addRollout prepareScene dRolFloater 
 addRollout addPlan dRolFloater --rolledUp:true
 
-addRollout addExtWall dRolFloater --rolledUp:false
+addRollout displayRLT dRolFloater
 
+addRollout addExtWall dRolFloater --rolledUp:false
 addRollout openingWall dRolFloater --rolledUp:false
 
 addRollout createGround dRolFloater --rolledUp:false

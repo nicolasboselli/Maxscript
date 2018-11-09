@@ -222,10 +222,9 @@ fn returnBBsize5 ref =
 fn replaceObject2 ref target  rescaleX2: true rescaleY: true rescaleZ: true copyType: 1 aligntype: 2 =
 (
 -- 	memo:
-	-- fonctionne sur les objets seul ou sur les groupe(dummy)
-	-- s il y a une tete de groupe dans la selection c'est cet objet qui devient ref
-	-- sinon c'est le premier objet de la selection
-		-- ou une matrix construite sur le centre de la selection et l'orientation du premier objet
+	-- fonctionne sur les objets seul ou sur les groupe(dummy), ne fonctionne pas sur les selection multiples sans groupe
+	-- sortir le clonage de l'objet de la fonction 
+
 	
 -- 	format "rescaleX2: %\n" rescaleX2
 -- 	if rescaleX2 then format "x yeaH!!!\n"

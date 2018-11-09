@@ -240,10 +240,9 @@ fn addtolayer pack dest =
 )
 
 
+
 try(closeRolloutFloater modToolRF)catch()
-
-
-
+modToolRF = newRolloutFloater "Modeling Tools" 350 1050 80 200
 
 rollout miscRLT "Modeling Tools"
 (
@@ -463,7 +462,7 @@ rollout miscRLT "Modeling Tools"
 -- createDialog miscRLT --style: #(#style_minimizebox, #style_titlebar ,#style_border , #style_sysmenu,#style_maximizebox )
 
 
-modToolRF = newRolloutFloater "Modeling Tools" 350 1050 80 200
+
 
 addRollout miscRLT modToolRF --rolledUp:false
 -- extractFacesRLT

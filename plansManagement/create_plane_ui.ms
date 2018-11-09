@@ -443,6 +443,7 @@ rollout createPlaneRLT "create plane"
 			sel[1].backfacecull = on
 		)
 	)
+	
 	on refreshFoldBT pressed do
 	(
 		collectPlansList()

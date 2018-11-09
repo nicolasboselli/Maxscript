@@ -1,0 +1,19 @@
+-- créer un mulitmaterial
+-- avec une interface changer l id de materiaux (gaines placard, terrasse, habitat, chambre, toilette, sdb)
+	-- prévoir la possibiliter d'ajouter des types d'id pour de nouveau type d'action
+-- appliquer des action en focntion ndu type d'idée
+	-- creation des plintes
+		-- créer une plinte ou pas
+		-- appliquer le bon id à la plinte 
+		-- percer la plinte
+		-- fusionner toutes les plintes
+	-- creation des sol
+		-- appliquer la bonne idée de materiaux au sol
+		-- fusionner les sols
+	-- creation  des gaines
+		-- detacher chaque gaines et la monter à 110 cm en appliqueant un materiau gris
+	-- creation des placard
+		-- creer un gabarit pour les placards
+		-- importer un placard en random
+		-- resizer le placard à la taille du gabarit
+		

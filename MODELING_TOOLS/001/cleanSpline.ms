@@ -29,7 +29,7 @@ fn cleanspline s =
 				
 				if ang< tres then 
 				(
-					format "knot to del # i: %, ang: % \n" i ang
+-- 					format "knot to del # i: %, ang: % \n" i ang
 					deleteKnot s sp i
 				)
 				else
@@ -55,12 +55,12 @@ fn cleanspline s =
 				
 				if ang< tres then 
 				(
-					format "knot to del # i: %, ang: % \n" knCount ang
+-- 					format "knot to del # i: %, ang: % \n" knCount ang
 					deleteKnot s sp knCount
 				)
 				else
 				(
-					format "knot to keep # i: %, ang: % \n" knCount ang
+-- 					format "knot to keep # i: %, ang: % \n" knCount ang
 				)
 			)
 			
@@ -80,12 +80,12 @@ fn cleanspline s =
 				
 				if ang< tres then 
 				(
-					format "knot to del # i: %, ang: % \n" 1 ang
+-- 					format "knot to del # i: %, ang: % \n" 1 ang
 					deleteKnot s sp 1
 				)
 				else
 				(
-					format "knot to keep # i: %, ang: % \n" 1 ang
+-- 					format "knot to keep # i: %, ang: % \n" 1 ang
 				)
 			)
 			
@@ -115,10 +115,10 @@ fn cleanspline s =
 					append knotDel i
 					deleteKnot s sp i
 				)
-				else format "knot to keep # i: %, ang: % \n" i ang
+-- 				else format "knot to keep # i: %, ang: % \n" i ang
 			)
 	-- 		updateShape  s
-			format "spline: %, sp:%, knot delete: %\n" s.name sp knotDel
+-- 			format "spline: %, sp:%, knot delete: %\n" s.name sp knotDel
 			
 		)
 		else(format "spline: %, sp:%, pas d'optimisation\n" s.name sp)

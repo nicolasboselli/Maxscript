@@ -4,8 +4,11 @@
 		-- aligner sur le fond de la box
 	-- faire fonctionner sur une selection d'objet en respectant la hierarchie
 	
-	/- proposer l alignement pivot>pivot ou pivot>centre ou centre/pivot:
-		-- prob: pour fonctionner vraiment il faut revoir la fonction de replace pour qu'elle ne crée pas de groupe
+	-- faire une version de l'interface mini
+	
+	-- proposer de travailler sur l'original ou la copie
+	
+	x- proposer l alignement pivot>pivot ou pivot>centre ou centre/pivot:
 	-- proposer aligner sur x y z
 	-- proposer un remap x sur x y ou z puis y sur x y ou z
 	
@@ -25,7 +28,7 @@ filein "objReplacerDef2.ms"
 try(destroydialog objReplacerRLT)catch()
 rollout objReplacerRLT "objects replacer "
 (
-	local params = #("pos","rescaleXCB", "rescaleYCB", "rescaleZCB", "randomCB", "rescaleOnBT", "cloneTypeRB", "alignTypeTB")
+	local params = #("pos","rescaleXCB", "rescaleYCB", "rescaleZCB", "randomCB", "rescaleOnBT", "cloneTypeRB", "alignTypeTB", "layerRB")
 	--vars
 	local modFFD
 	local refObj = undefined
@@ -139,12 +142,13 @@ rollout objReplacerRLT "objects replacer "
 	-- ui	
 	group "Muli-Selections:"
 	(
-		multiListBox refArMLB "selection:" height: 30
-		button addSelBT "add" across: 2
+		multiListBox refArMLB "selection:" height: 15
+		button addSelBT "add" across: 3
+		button selSelBT "select" -- across: 2
 		button removeBT "remove"
 	)
 	
-	group "layer"
+	group "layers"
 	(
 		radiobuttons layerRB "layer:" labels: #("source layer", "target layer") offsets:#([80,-16], [80,-16]) -- enabled: false
 	)
@@ -206,6 +210,11 @@ rollout objReplacerRLT "objects replacer "
 	)
 	
 	-- connections
+	on selSelBT pressed do
+	(
+		local refSelAr = for i in refArMLB.selection collect refAr[i]
+		select refSelAr
+	)
 	
 	on addSelBT pressed do
 	(
@@ -274,16 +283,49 @@ rollout objReplacerRLT "objects replacer "
 						if isvalidnode refSelAr[j] then
 						(
 							local res = #()
-							-- operation de replace
-							res = replaceObject2 refSelAr[j] s  rescaleX2: rescaleXCB.state rescaleY: rescaleYCB.state rescaleZ: rescaleZCB.state copyType: cloneTypeRB.state aligntype: alignTypeTB.state
-							format  "result: %\n" res
+							local copyRef
 							
-							if res == undefined then()
-							else if res.count > 0 then
+							-- copy ref 
+							if cloneTypeRB.state == 1 then
+							(
+								maxOps.cloneNodes refSelAr[j] cloneType: #copy newNodes:&copyRef
+							)
+							else if cloneTypeRB.state == 2 then
+							(
+								maxOps.cloneNodes refSelAr[j] cloneType: #instance newNodes:&copyRef
+							)
+							else()
+							
+							-- unhide de la copy
+							if copyRef == undefined then()
+							else if copyRef.count > 0 then
 							(
 								for o in res do o.ishidden = false
 							)
 							else()
+							
+							-- plcement sur layer
+							if layerRB.state == 1 then
+							(
+								
+							)
+							else if layerRB.state == 2 then
+							(
+								for c in copyRef do s.layer.addnode c
+							)
+							else()
+
+							-- trouver la tete de hierarcchie de la copy
+							local copyHead = findHeadsOfHierarchy2 copyRef
+							
+							-- replace
+							if copyHead.count == 1 then 
+							(
+								res = replaceObject3 copyHead[1] s  rescaleX2: rescaleXCB.state rescaleY: rescaleYCB.state rescaleZ: rescaleZCB.state \
+								aligntype: alignTypeTB.state
+								
+								format  "result: %\n" res
+							)							
 						)
 						else
 						(
@@ -345,9 +387,6 @@ rollout objReplacerRLT "objects replacer "
 		)
 	)
 )
-createdialog objReplacerRLT width: 400
+createdialog objReplacerRLT width: 350
 
-objReplacerRLT.refArMLB.selection.count
 
--- objs = objects as array 
--- objs[objs.count]
