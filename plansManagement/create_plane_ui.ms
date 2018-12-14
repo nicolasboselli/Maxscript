@@ -421,10 +421,15 @@ rollout createPlaneRLT "create plane"
 	on initFromPlaneBT pressed do
 	(
 		sel = selection as array
-		for s in sel do
+		if sel.count == 1 then
 		(
-			format "%\n" s.material.diffuseMap.filename
+			format "%\n" (getFilenamePath (sel[1].material.diffuseMap.filename))
+			rootPlans = (getFilenamePath (sel[1].material.diffuseMap.filename))
+			root = rootPlans
+			collectPlansList()
+			refreshUI()
 		)
+		else()
 	)
 	
 	on bmpFitBT pressed do

@@ -49,6 +49,6 @@ fn cleanFaceBorder s facesel tres: 0.1 =
 		s.editablePoly.remove  selLevel: #vertex
 	)
 )
--- cleanFaceBorder $ (polyop.getFaceSelection $)
+cleanFaceBorder $ (polyop.getFaceSelection $)
 
 -- polyop.deleteVerts s vertTodel

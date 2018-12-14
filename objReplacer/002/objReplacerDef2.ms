@@ -41,9 +41,6 @@ fn checkReference2 sel =
 )
 
 
-
-
-
 fn returnBBsize3 ref = 
 (
 	bb = nodeGetBoundingBox ref ref.transform

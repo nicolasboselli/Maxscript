@@ -1,12 +1,15 @@
--- memoriser les reglages avec la selection dans le multibox, structure
--- memoriser les reglages dans un fichier ini
-	-- manager les sauvegardes de fichier ini globales et locales
--- créer les calques en fonction du nom du percement
--- 
+/*
+	maj:
+		-- memoriser les reglages avec la selection dans le multibox, structure
+		-- memoriser les reglages dans un fichier ini
+			-- manager les sauvegardes de fichier ini globales et locales
+		x- créer les calques en fonction du nom du percement
+	-- 
+*/
 
 global splinesPerceAr = #("Fenetres", "PFenetres", "Portes", "Placard", "Porte_entree")
 
-struct spPerceSet (name, hauteur, allege, debordAv, debordAr, filemane)
+struct spPerceSet (name, wirecolor, hauteur, allege, debordAv, debordAr, filemane)
 
 fn collectLayer pattern: "*" =
 (
@@ -50,9 +53,9 @@ rollout prepaPercementRLT "preparation percement v2"
 	local prepaSuf = "__Splines "
 	local gabSuf = "___Gabarits "
 	-- UI
-	group "configuration"
+	group "configuration:"
 	(
-		dropdownlist  configDDL "config:"
+		dropdownlist  configDDL "select:"
 		button saveBT "save" across: 3
 		button saveAsBT "saveAs"
 		button loadBT "load"
@@ -60,12 +63,16 @@ rollout prepaPercementRLT "preparation percement v2"
 	
 	multilistbox drillingMLB "percements:"
 	
-	group "parametres:"
+	group "paramètres:"
 	(
 		spinner heightSP "hauteur:"  type: #worldunits range: [0,500, 215]
 		spinner allegeSP "allege:" type: #worldunits range: [0,500, 0]
 		spinner innerSP "debord avant:" type: #worldunits range: [0,500, 0]
 		spinner outerSP "debord arriere:" type: #worldunits range: [0,500, 0]
+	)
+	
+	group "objet associé:"
+	(
 		edittext mergeET readonly: false text: "toto"
 		button pathBT "..."
 	)
@@ -112,6 +119,7 @@ rollout prepaPercementRLT "preparation percement v2"
 			-- creation du layer
 			l = LayerManager.getLayerFromName layername
 			if l == undefined then l = LayerManager.newLayerFromName layername
+			--  ajouter la selection d'objets au calque selectionné
 		)
 	)
 	

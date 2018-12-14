@@ -32,10 +32,12 @@ for sp = 1 to spCount do
 		
 		-- decalage
 		local decayK = 50	
+		local shift2 = -10
+		local shift3 = 15
 		
-		local Pt1pos = [decayK, -10, 10]
-		local Pt2pos = [decayK, -10, -10]
-		local Pt3pos = [decayK, 25, -20]
+		local Pt1pos = [decayK, shift2, 10]
+		local Pt2pos = [decayK, shift2, -10]
+		local Pt3pos = [decayK, shift3, -20]
 
 		-- tracer un rayon jusqu au sol
 		local testRay = ray (Pt3pos * TM) [0,0,-1]

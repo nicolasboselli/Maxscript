@@ -1,12 +1,17 @@
 /*
 -- maj:		
+-- OUTILS MURS
 	-- créer un auto snap des spline de murs
+	
+	-- creer une spline avec l'extrude et le shell correctement configurer, dans le calque adapté
 	
 	-- plutot que de faire des murs de differentes hauteur, proposer de monter ou descendre les splines de la difference entre mur haut et mur bas (xform) avec un picker
 		-- cf move_spline_sandbox.ms
 		/- fonction pour monter et descendre la selection spline
+			- changer la hauter des segments en fonction de l'id de leur id de materiau sur tout la spline
 		-- picker pour retourner le segment de la spline sur laquelle on pique
-	
+
+-- OUTILS FENETRES
 	-- preparation percement (cf prepa_percement_sandbox.ms)
 		-- rendre editable tous les objets à la construction (type de fenetre) pour en ajouter ou en supprimer (creation ou suppression de calque)
 		x- ajustement des reperes de percement
@@ -19,43 +24,30 @@
 		-- rendre invisible l'operation d'ajustement des reperes de fenetres, la faire executer à la creation des gabarits
 		-- mettre le repere perpendiculaire automatique(pour les murs en biais)
 		-- automatiser l'import et les placement des portes		
-	
+ 
+-- OUTILS SOLS
 	-- créer une méthode de découpe de plane pour créer le sol afin que ce soit plus propre
 	
 	-- clarifier creation des sols
 		-- cf multiID_sol_sandbox.ms
 		-- une fois que la spline de sol est propre, ajouter un editpoly dessus et changer l'id de materiaux en fonction
 			-- en fonction de l'idée de materiaux faire des actions. ex: placard(import placard)- gaines(separer et relever) - terrasses(supprimer gaines)
-		
+
+-- OUTILS DIVERS
 	-- fonction pour placer automatiquement les lights additionnels
 		-- placer les lights devant les fenetres et au dessus de chaque piece
 	
 	-- refléchir à des fonction pour merger du mobilier standard (toilette, vasque, baignoire, placard, cuisine, cadre) sur des repere (spline) 
 		
--- rebuild:
-	-- créé un fonction qui rammasse tous les objets présents sur les calque de construction
+	-- paramétrer le rendu vray et l'éclairage pour avoir un rendu plus homogène
+	
+-- dev:
+	-- créé un fonction qui ramasse tous les objets présents sur les calque de construction
 	-- utiliser l'appartenance à un calque comme un tag pour traiter l'objet à la construction
 	
-
 	-- associer un objet à merger avec un repere
 	-- memoriser les configuration pour tout un projet
 	
-	
--- deroulement:
-	x- murs
-	x- ouverture
-	x- sols
-	- sol terrasse
-	- garde corps
-	/- placement fenetre
-	/- placement porte
-	- lights
-	- placard
-	- sdb
-	- cuisines
-	- cadres
-	- plantes
-	- reste
 	
 */
 
@@ -95,7 +87,6 @@ global splinesMursExtLName =  "_Splines Murs Ext"
 global splinesMursBalconLName = "_Splines Murs Balcon"
 global splinesMursFondLName = "_Splines Murs Fond"
 global splinesMursIntName = "_Splines Murs Int"
-
 
 global SplinesFenetresLName = "__Splines Fenetres"
 global SplinesPFenetresLName = "__Splines PFenetres"
@@ -151,7 +142,6 @@ try(closeRolloutFloater  dRolFloater)catch()
 dRolFloater = newRolloutFloater "Creation de plans de cellules" 350 650 80 200
 
 -- classof prepareScene.RFSIze
-
 rollout prepareScene "Preparer le cellule" width:350 height:230
 (	
 -- 	local openState = false
@@ -320,9 +310,7 @@ rollout addExtWall "Preparation des Murs" width:350 height:230
 	
 	local params = #("open", "extwallHauteurSP", "extwallEpaisseurSP", "terrassewallHauteurSP", "terrassewallEpaisseurSP", "backwallHauteurSP", \
 		"backwallHauteurSP", "intwallHauteurSP", "intwallEpaisseurSP" )
-	
-	
-		
+
 	group "Murs Exterieurs:"
 	(
 		spinner extwallHauteurSP "Hauteur :" type: #worldunits range: [0,500, 110] across: 2
@@ -1064,7 +1052,7 @@ rollout createGround "Preparation des sols" width:350 height:230
 		bakL.current = true
 		
 		delete tmpMurs
-		messageBox "Supprimez la Splines du contour exterieur et les splines des gaines"
+-- 		messageBox "Supprimez la Splines du contour exterieur et les splines des gaines"
 	)
 	
 	on createGaineBT pressed do

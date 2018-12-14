@@ -413,10 +413,11 @@ rollout planResizerRLT "blueprint resizer" width: 250
 	
 	on placeObjBT changed state do
 	(
-		format "scalerArray: %\n" scalerArray
-		for s in scalerArray do s.ishidden == false
+		format "place root - scalerArray: %\n" scalerArray
+		-- unhide helpers
 		l = LayerManager.getLayerFromName "helpers"	
 		l.on = true
+		for s in scalerArray do s.ishidden = false
 		
 		when transform scalerArray[1]  changes do (
 			distResize_et.text = ((distance scalerArray[1] scalerArray[2]) as string) + "cm"
@@ -448,8 +449,11 @@ rollout planResizerRLT "blueprint resizer" width: 250
 	
 	on placeTgtBT changed state do
 	(
-		format "scalerArray: %\n" scalerArray
-		for s in scalerArray do s.ishidden == false
+		format "place target - scalerArray: %\n" scalerArray
+		-- unhide helpers
+		l = LayerManager.getLayerFromName "helpers"	
+		l.on = true
+		for s in scalerArray do s.ishidden = false
 		
 		when transform scalerArray[2]  changes do (
 			distResize_et.text = ((distance scalerArray[1] scalerArray[2]) as string) + "cm"
@@ -533,9 +537,9 @@ rollout planResizerRLT "blueprint resizer" width: 250
 	
 	on centerRef_bt pressed do
 	(
-		print mapAsRef_et.text
+-- 		print mapAsRef_et.text
 		mapRef = getnodebyname mapAsRef_et.text
-		print mapRef
+-- 		print mapRef
 		if mapRef != undefined then
 		(	
 			startSize.rotation = mapRef.rotation

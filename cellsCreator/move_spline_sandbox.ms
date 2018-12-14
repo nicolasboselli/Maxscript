@@ -1,21 +1,30 @@
 
-
+-- getSplineSelection $
+-- numsplines $
 fn moveSplineSeg s mov:[0,0,0] =
 (
-	kSel = #()
-	segSel = getSegSelection s 1
-	for i in segsel do
+
+-- 	spSel = getSplineSelection s
+	numsp = numsplines s
+-- 	spSel = 1
+	for spSel = 1 to numsp do
 	(
-		appendifunique kSel  i
-		appendifunique kSel  (i +1)
+		kSel = #()
+		segSel = getSegSelection s spSel
+		for i in segsel do
+		(
+			appendifunique kSel  i
+			appendifunique kSel  (i +1)
+		)
+		
+		for k in kSel do
+		(
+			local pos = getKnotPoint s spSel k
+			local newPos = pos +mov
+			setKnotPoint s spSel k newPos
+		)
 	)
-	
-	for k in kSel do
-	(
-		local pos = getKnotPoint s 1 k
-		local newPos = pos +mov
-		setKnotPoint s 1 k newPos
-	)
+
 	updateShape s
 )
 

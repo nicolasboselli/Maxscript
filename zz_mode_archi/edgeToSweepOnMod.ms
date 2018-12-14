@@ -50,10 +50,27 @@ fn createBoxOrient2 s =
 
 fn createBoxOrientOnMod s =
 (
-	s.modifiers[#edit_poly].GetSelection  #face
-)
+	s.edit_poly.GetSelection  #face
+	fSel = (s.edit_poly.GetSelection  #face) as array
+	
+	-- recupération des id de points 
+	pts = for i = 1 to 3 collect s.edit_poly.GetFaceVertex  fSel[1] i
+		
+	-- recuperation des position de points
+	ptsPos = for p in pts collect s.edit_poly.getVertex p 
+		
+	-- calcul des vecteurs
+	v1 = normalize(ptsPos[1] - ptsPos[2])
+	v2 = normalize(ptsPos[2] - ptsPos[3])
+	
+	-- cross vecteurs
+	theZ = normalize (cross v1 v2)
+	theY = normalize (cross [0,0,1] theZ )
+	theX = normalize (cross theY theZ)
+	theTM = matrix3   theX theY theZ ptsPos[1]
 
--- $.modifiers[#edit_poly].GetSelection  #face
+	box transform: theTM
+)
 
 fn resetInPlace2 s tmpParent =
 (
@@ -181,154 +198,188 @@ rollout edgeToShapeOnModRLT "edge to shape"
 	on extractBT pressed do
 	(
 		sel = selection as array
+		s = sel[1]
 		
 		undo on
 		(
-			for s in sel do
+
+-- 				local goNext = true
+			format "traitement start: %\n" s.name
+-- 				select s
+			-- ignore les objets avec des modifier edit_poly sans selection de face
+			if classof (modPanel.getCurrentObject()) == Editable_Poly and  (polyop.getfaceselection s).count > 0 then
 			(
-				
-				
-				
-				-- create box orient
-				if createBoxOrientCB.state == true and subobjectLevel == 4 and (polyop.getfaceselection s).count > 0 then
+				format "faces selection on editable_poly: %\n" s.name
+-- 					select s
+			)
+			else if classof (modPanel.getCurrentObject()) == Edit_Poly and ((s.edit_poly.GetSelection  #face) as array).count > 0 then
+			(
+-- 				select s
+				format "faces selection on edit_poly modifier: %\n" s.name
+			)
+			else if classof (modPanel.getCurrentObject()) == Edit_Poly and ((s.edit_poly.GetSelection  #edge) as array).count > 0 then
+			(
+-- 					selLev = 2
+				format "edges selection on edit_poly modifier: %\n" s.name
+-- 					continue
+			)
+			else
+			(
+				format "ignore %\n" s.name
+				continue
+			)
+											
+			-- create box orient sur une selection de face
+			if createBoxOrientCB.state == true and subobjectLevel == 4 then
+			(
+				if classof (modPanel.getCurrentObject()) == Editable_Poly and  (polyop.getfaceselection s).count > 0 then
 				(
-					if classof (modPanel.getCurrentObject()) == Editable_Poly then
-					(
-						boxorient = createBoxOrient2 s
-					)
-					else if classof (modPanel.getCurrentObject()) == Edit_Poly then
-					(
-						local tmp = copy s
-						converttopoly tmp
-						boxorient = createBoxOrientOnMod tmp
-						delete tmp
-					)
-					else(boxorient = undefined)
-					
-				)else  (print "select faces")
-					
-				showsource createBoxOrient2
-				-- convert selection if necessary
-				if subObjectLevel == 4 then
-				(
-					if classof (modPanel.getCurrentObject()) == Editable_Poly then
-					(
-						s.ConvertSelectionToBorder #Face #Edge
-						selLev = 4
-					)
-					else if classof (modPanel.getCurrentObject()) == Edit_Poly then
-					(
-						s.modifiers[#Edit_Poly].ConvertSelectionToBorder #Face #Edge
-						selLev = 4
-					)
-					else(boxorient = undefined)
-					
-				)else (selLev = 2)
-				
-				-- create shape
-				newName = uniqueName (s.name + "_shape")
-				
-				if classof (modPanel.getCurrentObject()) == Editable_Poly then
-				(
-					s.createShape  newName  false s
+					boxorient = createBoxOrient2 s
 				)
-				else if classof (modPanel.getCurrentObject()) == Edit_Poly then
+				else if classof (modPanel.getCurrentObject()) == Edit_Poly and ((s.edit_poly.GetSelection  #face) as array).count > 0 then
 				(
-					s.modifiers[#Edit_Poly].CreateShape newName
+					boxorient = createBoxOrientOnMod s
 				)
 				else(boxorient = undefined)
+			)else  (format "select faces\n")
 				
-				newShape = getnodebyname newName
-				updateshape newShape
-				
-				-- reset xform 
-				if boxOrient != undefined and xformOnBoxCB.state == true then 
-				(
-					-- on box orient
-					resetInPlace2 newShape boxOrient
-					if collapseXformCB2.state == true do
-					(
-						converttosplineshape  newShape
-						updateshape newShape
-					)
-				)
-				else if resetXformCB.state then
-				(
-					-- on world
-					resetxform newShape 
-					if collapseXformCB.state == true do
-					(
-						converttosplineshape  newShape
-						updateshape newShape
-					)
-				)else()
-				
-				
-				if delBoxOrientCB.state and  isvalidnode boxorient then delete boxorient
-				
-				-- option: remove edge
-				if removeEdgeCB.state == True do removeEdgeAndVerticesFN s
-				
-				if addExtrusionCB.state == true do
-				(
-					myExtrusion = Extrude amount: extSize capStart: off capEnd: off
-					addmodifier newShape myExtrusion
-				)
-				
-				-- option: add sweep
-				if addSweepCB.state == true do
-				(
-					
-					mySweep = Sweep CurrentBuiltInShape: 2 PivotAlignment:8 SmoothPath: false
-					mySmooth = Smooth name: "my_Smooth" autosmooth: on
-					
-					addmodifier newShape mySweep
-
-					redrawViews()
-					
-					newSweep = getnodebyname newShape.name
-
-					newSweep.modifiers[#Sweep][4].length = 20
-					newSweep.modifiers[#Sweep][4].width = 20
-				)
-				
-				-- option keep selection
-				
+			-- convert face selection en sdge selection si necessaire
+			if subObjectLevel == 4 then
+			(
 				if classof (modPanel.getCurrentObject()) == Editable_Poly then
 				(
-					if keepSelCB.state == true then
-					(
-						select s
-						modPanel.setCurrentObject s
--- 						modPanel.setCurrentObject s.modifiers[#edit_poly]
-						subobjectLevel = selLev
-					)
-					else
-					(
-						subobjectLevel = 0		
-						select newShape
-					)
+					s.ConvertSelectionToBorder #Face #Edge
+					selLev = 4
 				)
 				else if classof (modPanel.getCurrentObject()) == Edit_Poly then
 				(
-					if keepSelCB.state == true then
+					s.modifiers[#Edit_Poly].ConvertSelectionToBorder #Face #Edge
+					selLev = 4
+				)
+				else(boxorient = undefined)
+			)else (selLev = 2)
+			
+			-- create shape
+			objSCount = objects.count
+			newName = uniqueName (s.name + "_shape")
+			
+			if classof (modPanel.getCurrentObject()) == Editable_Poly then
+			(
+				s.createShape  newName  false s
+			)
+			else if classof (modPanel.getCurrentObject()) == Edit_Poly then
+			(
+				s.Edit_Poly.CreateShape newName
+			)
+			else(boxorient = undefined)
+			
+			newShapes = for i = objSCount + 1  to objects.count collect objects[i]
+			if newShapes.count > 0 then for s in newShapes do updateshape s
+			format "newShapes:%\n" newShapes
+-- 			newShape = getnodebyname newName
+-- 			if isvalidnode newShape then updateshape newShape
+			
+			-- reset xform 
+			if isvalidnode boxOrient and xformOnBoxCB.state == true then 
+			(
+				-- on box orient
+-- 				format "reset on box Start\n"
+				
+				for ns in newShapes do
+				(
+					resetInPlace2 ns boxOrient
+					if collapseXformCB2.state do
 					(
-						select s
--- 						modPanel.setCurrentObject s
-						modPanel.setCurrentObject s.modifiers[#edit_poly]
-						subobjectLevel = selLev
-					)
-					else
-					(
-						subobjectLevel = 0		
-						select newShape
+						converttosplineshape  ns
+						updateshape ns
 					)
 				)
-				else()
 			)
+			else if resetXformCB.state then
+			(
+				-- on world
+				for ns in newShapes do
+				(
+					resetxform ns 
+					if collapseXformCB.state  do
+					(
+						converttosplineshape ns
+						updateshape ns
+					)
+				)
+			)else()
+			
+			
+			if delBoxOrientCB.state and  isvalidnode boxorient then delete boxorient
+			
+			-- option: remove edge
+			if removeEdgeCB.state == True do removeEdgeAndVerticesFN s
+			
+			if addExtrusionCB.state == true and  newShapes.count > 0 do
+			(
+				myExtrusion = Extrude amount: extSize capStart: off capEnd: off
+				for ns in newShapes do addmodifier ns myExtrusion
+			)
+			
+			-- option: add sweep
+			if addSweepCB.state == true and newShapes.count > 0 do
+			(
+				
+				mySweep = Sweep CurrentBuiltInShape: 2 PivotAlignment:8 SmoothPath: false
+				mySmooth = Smooth name: "my_Smooth" autosmooth: on
+				
+-- 				addmodifier newShape mySweep
+				for ns in newShapes do
+				(
+					addmodifier ns mySweep
+						
+					redrawViews()
+					
+					newSweep = getnodebyname ns.name
+
+					ns.Sweep[4].length = 20
+					ns.Sweep[4].width = 20
+				)
+			)
+			-- option keep selection
+-- 			format "current: %\n"  (modPanel.getCurrentObject())
+				
+				
+			if classof (modPanel.getCurrentObject()) == Editable_Poly then
+			(
+				format "sel: %\n" sel
+				if keepSelCB.state then
+				(
+-- 					select sel
+					if sel.count == 1 then
+					(
+						format "Keep Editable poly\n"
+						modPanel.setCurrentObject s
+						subobjectLevel = selLev
+					)
+				)
+				else
+				(
+					subobjectLevel = 0		
+					select newShapes
+				)
+			)
+			else if classof (modPanel.getCurrentObject()) == Edit_Poly then
+			(
+				if keepSelCB.state == true then
+				(
+-- 					select sel
+					subobjectLevel = selLev
+				)
+				else
+				(
+					subobjectLevel = 0		
+					select newShapes
+				)
+			)
+			else()
 		)
 	)
-	
 	
 	on resetXformCB changed state do
 	(

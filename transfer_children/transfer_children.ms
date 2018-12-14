@@ -1,10 +1,12 @@
 -- transfer children
 /*
-memo UI:
--- faire apparaitre les target à la selection de point source
--- un bouton pour forcer le passage d'une target en master
--- un bouton pour transferer les children sur la selection
--- un bouton pour updater toutes les target
+maj:
+	-x faire apparaitre les target depuis le point source
+	-x un bouton pour forcer le passage d'une target en master
+	-- un bouton pour updater les children sur la selection
+	-- un bouton pour updater toutes les target de la scene
+	-- dupliquer et renommer les calques en fonction de la target
+	-- proposer le choix entre copy ou instance(forcement la copy remplacerait tous les enfants)
 */
 
  
@@ -97,7 +99,7 @@ fn findRealSource2 o =
 
 -- $.banode
 
-fn transferChildren source target checkSource: false presName: true presMat: true presTrans: true =
+fn transferChildren source target checkSource: false presName: true presMat: true presTrans: true presLayer: true =
 (
 	format "########### transfer start: %\n" target.name
 	/*
@@ -112,7 +114,8 @@ fn transferChildren source target checkSource: false presName: true presMat: tru
 	*/
 	
 	-- option pour remonter à la source
-		-- si la source n'est pas tagger comme source mais a une source qui existe dans la scene prendre cette source
+		-- si la source n'est pas tagger comme source et a une source qui existe dans la scene prendre cette source
+	
 	if checkSource then
 	(
 		realSource = findRealSource source
@@ -143,7 +146,7 @@ fn transferChildren source target checkSource: false presName: true presMat: tru
 	--creation de la copy
 	maxOps.cloneNodes childrenAr cloneType:#instance newNodes:&copyChilds
 	
-	-- prendre en charge les instances de railclone: desinstancier les railclones
+	-- prise en charge des instances de railclone: desinstancier les railclones
 		-- aprés la copy desinstancier collecter les railclone et affecter l'instance de la spline d'origine
 	for cc in copyChilds where classof cc == railclone_pro do
 	(
@@ -204,6 +207,8 @@ fn transferChildren source target checkSource: false presName: true presMat: tru
 				
 				-- préserver le nom
 				if presName then copyChilds[i].name = ct.name
+					
+				if presLayer then ct.layer.addnode copyChilds[i]
 			)
 -- 			else(format "% instance of nothing\n"  copyChilds[i].name )
 			else()
@@ -279,6 +284,7 @@ rollout transferChildrenRLT "transfer Children"
 		checkbox presNameCB "preserve name" checked: true
 		checkbox presMatCB "preserve material" checked: true
 		checkbox presTransCB "preserve transform" checked: true
+		checkbox presLayerCB "preserve layer" checked: true
 	)
 	
 	button transferOnSelBT "Transfer Children on sel"
@@ -312,7 +318,7 @@ rollout transferChildrenRLT "transfer Children"
 		(
 			for i = 2 to sel.count do
 			(
-				transferChildren sel[1] sel[i] checkSource: true presName: presNameCB.state presMat:  presMatCB.state
+				transferChildren sel[1] sel[i] checkSource: true presName: presNameCB.state presMat:  presMatCB.state presLayer: presLayerCB.state
 			)
 		)
 		else

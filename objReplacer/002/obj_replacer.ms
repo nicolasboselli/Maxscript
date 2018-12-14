@@ -28,7 +28,7 @@ filein "objReplacerDef2.ms"
 try(destroydialog objReplacerRLT)catch()
 rollout objReplacerRLT "objects replacer "
 (
-	local params = #("pos","rescaleXCB", "rescaleYCB", "rescaleZCB", "randomCB", "rescaleOnBT", "cloneTypeRB", "alignTypeTB", "layerRB")
+	local params = #("pos","rescaleXCB", "rescaleYCB", "rescaleZCB", "randomCB", "cloneTypeRB", "alignTypeTB", "layerRB", "workOnRB")
 	--vars
 	local modFFD
 	local refObj = undefined
@@ -148,14 +148,19 @@ rollout objReplacerRLT "objects replacer "
 		button removeBT "remove"
 	)
 	
+	group "working on"
+	(
+		radiobuttons workOnRB "layer:" labels: #("original", "copy") offsets:#([50,-16], [80,-16])
+	)
+	
 	group "layers"
 	(
-		radiobuttons layerRB "layer:" labels: #("source layer", "target layer") offsets:#([80,-16], [80,-16]) -- enabled: false
+		radiobuttons layerRB "layer:" labels: #("source", "target") offsets:#([50,-16], [80,-16]) -- enabled: false
 	)
 	
 	group "rescale on bounding box:"
 	(
-		checkbox rescaleOnBT "on" enabled: false checked: true
+-- 		checkbox rescaleOnBT "on" enabled: false checked: true
 		checkbox rescaleXCB "x"  checked: true across: 3 
 		checkbox rescaleYCB "y"  checked: true -- enabled: false
 		checkbox rescaleZCB "z"  checked: true
@@ -163,7 +168,7 @@ rollout objReplacerRLT "objects replacer "
 	
 	group "Clone type:"
 	(
-		radiobuttons cloneTypeRB "clone type:" labels: #("copy", "instance")  offsets:#([80,-16], [80,-16]) 
+		radiobuttons cloneTypeRB "clone type:" labels: #("copy", "instance")   offsets:#([80,-16], [80,-16]) 
 	)
 	
 	group "Align type (ref > target):"
@@ -200,7 +205,7 @@ rollout objReplacerRLT "objects replacer "
 		refAr = for ref in refAr where isvalidnode ref collect ref
 		loadRolloutParams objReplacerRLT Params
 		if RLTvers != undefined then objReplacerRLT.title = objReplacerRLT.title + " v." + (RLTvers as string)
-		enableBT rescaleOnBT.state
+-- 		enableBT rescaleOnBT.state
 		refreshUI()
 	)
 	
@@ -239,10 +244,10 @@ rollout objReplacerRLT "objects replacer "
 		refreshUI()
 	)
 	
-	on rescaleOnBT changed state do
-	(
-		enableBT state
-	)
+-- 	on rescaleOnBT changed state do
+-- 	(
+-- 		enableBT state
+-- 	)
 	
 	on replaceV2BT pressed do
 	(
@@ -286,13 +291,28 @@ rollout objReplacerRLT "objects replacer "
 							local copyRef
 							
 							-- copy ref 
-							if cloneTypeRB.state == 1 then
+							if workOnRB.state == 1 then
+							(
+								copyref = #(refSelAr[j])
+							)
+							else if cloneTypeRB.state == 1  then
 							(
 								maxOps.cloneNodes refSelAr[j] cloneType: #copy newNodes:&copyRef
 							)
 							else if cloneTypeRB.state == 2 then
 							(
 								maxOps.cloneNodes refSelAr[j] cloneType: #instance newNodes:&copyRef
+							)
+							else()
+							
+							-- placement sur layer
+							if layerRB.state == 1 then
+							(
+								
+							)
+							else if layerRB.state == 2 then
+							(
+								for c in copyRef do s.layer.addnode c
 							)
 							else()
 							
@@ -304,16 +324,7 @@ rollout objReplacerRLT "objects replacer "
 							)
 							else()
 							
-							-- plcement sur layer
-							if layerRB.state == 1 then
-							(
-								
-							)
-							else if layerRB.state == 2 then
-							(
-								for c in copyRef do s.layer.addnode c
-							)
-							else()
+
 
 							-- trouver la tete de hierarcchie de la copy
 							local copyHead = findHeadsOfHierarchy2 copyRef
@@ -352,9 +363,27 @@ rollout objReplacerRLT "objects replacer "
 		
 		format "start picker\n"
 		local refSelAr = for i in refArMLB.selection collect refAr[i]
-		if refSelAr.count > 0 then
+		if refSelAr.count == 1  then
 		(
-			maxOps.cloneNodes refSelAr[1] cloneType:#instance newNodes:&mergedNodes
+-- 			maxOps.cloneNodes refSelAr[1] cloneType:#instance newNodes:&mergedNodes
+			
+-- 			local mergedNodes
+							
+			-- copy ref 
+			if workOnRB.state == 1 then
+			(
+				mergedNodes = #(refSelAr[1])
+			)
+			else if cloneTypeRB.state == 1  then
+			(
+				maxOps.cloneNodes refSelAr[1] cloneType: #copy newNodes:&mergedNodes
+			)
+			else if cloneTypeRB.state == 2 then
+			(
+				maxOps.cloneNodes refSelAr[1] cloneType: #instance newNodes:&mergedNodes
+			)
+			else()
+			
 			
 			for m in mergedNodes do m.ishidden = false
 			
@@ -366,6 +395,7 @@ rollout objReplacerRLT "objects replacer "
 			
 			format "mergedNodes: %\n" mergedNodes
 			format "toParent: %\n" toParent
+			-- alignement de l'objet sur le helper
 			mergedNodes[1].transform.controller.value = matrix3 1
 			
 			if state == true do

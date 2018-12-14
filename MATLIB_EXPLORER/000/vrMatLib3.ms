@@ -129,10 +129,15 @@ struct matStruct
 )
 
 try(closeRolloutFloater matLibRF)catch()
+matLibRF = newRolloutFloater "Mat Lib Tools" 350 1050 -- 80 200
 
 -- rollout
 rollout vrMatRlt "Material LIbrary Tools"
 (
+	local pos = [0,0]
+	local RFPos = [80,80]
+	local RFSIze = [350,800]
+	
 	local armadasScriptsIni = (GetDir #maxData) + "armadasScriptsIni.ini"
 	
 	local params = #("vrLibPath", "autosaveCB", "open", "RFPos", "RFSIze")
@@ -148,10 +153,7 @@ rollout vrMatRlt "Material LIbrary Tools"
 	global matAr = #()
 	
 	local altDir = @"M:\Textures"
-	
-	local RFPos = [80,80]
-	local RFSIze = [350,800]
-	
+		
 -- 	UI
 	group "library file:"
 	(
@@ -722,7 +724,6 @@ rollout libColBmpRLT "Libray Bmp Collector Tools"
 
 -- createdialog vrMatRlt
 
-matLibRF = newRolloutFloater "Mat Lib Tools" 350 1050 -- 80 200
 
 addRollout vrMatRlt matLibRF --rolledUp:false
 addRollout libMissBmpRLT matLibRF --rolledUp:false
