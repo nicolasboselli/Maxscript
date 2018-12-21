@@ -25,6 +25,8 @@ rollout testPickerRLT "Test Picker"
 			local myRay = mapScreenToWorldRay viewPoint
 			local arr = intersectRayScene myRay
 			
+			format "myRay: %\n" myRay
+			
 			local viewMatrix =  Inverse(viewport.getTM())
 			local viewPos = viewMatrix.pos
 			local nearestDist = 1000000
@@ -46,10 +48,31 @@ rollout testPickerRLT "Test Picker"
 				)
 			)
 			format "goodRes: %\n" goodRes
+			
+			snapMode.display = false
+			snapMode.active = true
+			
 			format "hitPoint: %\n" snapMode.hitPoint 
 			format "node: %\n" snapMode.node 
 			
+			-- Selectionner une face
+			-- ajouter un editmesh sur l'objet
+			if isvalidnode snapMode.node then
+			(
+				format "hit: %\n"(intersectRayEx snapMode.node myRay)
+			)
+			-- recuperer les trois vertex de la face
+			-- dans le poly retourner la face avec les trois vertex
+			
+			-- selectionner un edge
+			
 		)
+		
+		on stop do 
+		(
+			format "stop\n"
+		)
+		
 	)
 	
 	on pickCB changed state do
