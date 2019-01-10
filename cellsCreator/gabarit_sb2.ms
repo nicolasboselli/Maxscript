@@ -1,5 +1,6 @@
 -- recupérer les spline des fenetres, porte ... etc...
 /*
+ debug: le sript ne fonctionne pas sur des repères déja réorientés
 */
 
 global 	layerList = #("_Splines Murs Ext", 
@@ -199,15 +200,15 @@ fn adjustGabaritSpline2 s shift1: 3 shift2: 3 =
 
 )
 
--- sel  = selection as array
--- shift1 = 3
--- shift2 = 3
--- for s in sel do
--- (
--- 	copyS = copy s
--- 	copyS.wirecolor = s.wirecolor
--- 	s.layer.Addnode copyS
--- 	adjustGabaritSpline2 s shift1: 3 shift2: 30
--- 	
--- )
+sel  = selection as array
+shift1 = 3
+shift2 = 3
+for s in sel do
+(
+	copyS = copy s
+	copyS.wirecolor = s.wirecolor
+	s.layer.Addnode copyS
+	adjustGabaritSpline2 s shift1: 3 shift2: 30
+	
+)
 

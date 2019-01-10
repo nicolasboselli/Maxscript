@@ -155,7 +155,7 @@ rollout boxerizeRLT "Boxerize"
 	group "boxerize:"
 	(
 		spinner boxOutlineSP "Outline Size:" type: #worldunits range:[0,1000,2] -- enabled: false
-		spinner boxSizeSP "Shell Inner:" type: #worldunits range:[0,1000,28]
+		spinner boxSizeSP "Shell Normal:" type: #worldunits range:[0,1000,28]
 		spinner boxSizeOutSP "Shell Outer:" type: #worldunits range:[0,1000,0]
 		
 -- 		button boxBT "Create Box"

@@ -18,7 +18,7 @@
 			x- integrer la fonction d'ajustement directement dans le rollout de gabarit
 			-- debug:
 				-- pour qu'il s'auto aligne au mur
-				-- pour qu'il fonctionne en horaire et en anti horaire (actuellement fonctionne seulement en anti horaire)
+				x- pour qu'il fonctionne en horaire et en anti horaire (actuellement fonctionne seulement en anti horaire)
 			
 		-- rendre parametrable l'avant et l'apres (à editer lorsqu'on pourra ajouter des types de gabarit cf rebuild)
 		-- rendre invisible l'operation d'ajustement des reperes de fenetres, la faire executer à la creation des gabarits
@@ -84,9 +84,9 @@ global filesPOR
 
 -- vars layer
 global splinesMursExtLName =  "_Splines Murs Ext"
-global splinesMursBalconLName = "_Splines Murs Balcon"
+global splinesMursBalconLName = "_Splines Murs Terrasses" 
 global splinesMursFondLName = "_Splines Murs Fond"
-global splinesMursIntName = "_Splines Murs Int"
+global splinesMursIntName = "_Splines Murs Interieurs"
 
 global SplinesFenetresLName = "__Splines Fenetres"
 global SplinesPFenetresLName = "__Splines PFenetres"
@@ -294,9 +294,11 @@ fn createWall oneArray hauteur epaisseur =
 		
 	for obj in oneArray  do 
 	( 
+		-- nettoyage de la spline
 		local modcount = obj.modifiers.count
 		for i = 1 to modCount do deletemodifier obj 1
-			
+		
+		-- creation du mur
 		addmodifier obj extMod
 		addmodifier obj shellMod
 		addmodifier obj uvwMapMod
@@ -632,7 +634,7 @@ rollout openingWall "Preparation des percements" width:350 height:230
 		format "theNodesFenetres: %\n" theNodesFenetres
 		for f in theNodesFenetres do
 		(
-			adjustGabaritSpline f shift1: 3 shift2: 3
+			adjustGabaritSpline2 f shift1: 3 shift2: 3
 		)
 	)
 	
@@ -660,7 +662,7 @@ rollout openingWall "Preparation des percements" width:350 height:230
 		format "theNodesPortes: %\n" theNodesPortes
 		for p in theNodesPortes do
 		(
-			adjustGabaritSpline p shift1: 3 shift2: 3
+			adjustGabaritSpline2 p shift1: 3 shift2: 3
 		)
 	)
 	
@@ -689,7 +691,7 @@ rollout openingWall "Preparation des percements" width:350 height:230
 		format "theNodesPFen: %\n" theNodesPFen
 		for pf in theNodesPFen do
 		(
-			adjustGabaritSpline pf shift1: 3 shift2: 3
+			adjustGabaritSpline2 pf shift1: 3 shift2: 3
 		)
 	)
 	
@@ -868,31 +870,6 @@ rollout openingWall "Preparation des percements" width:350 height:230
 		if isvalidnode MurOrig then MurOrig.ishidden = true
 	)
 	
--- 	on hideSplineLayerCB changed state do
--- 	(
--- 		local layerList = #(SplinesFenetresLName, SplinesPFenetresLName, SplinesPortesLName)
--- 		for n in layerList do
--- 		(
--- 			l = LayerManager.getLayerFromName n
--- 			if l != undefined then
--- 			(
--- 				l.on =  state
--- 			)else()
--- 		)
--- 	)
--- 	
--- 	on hideGabaritsLayerCB changed state do
--- 	(
--- 		local layerList = #(TmpFenLName, TmpPFenLName, TmpPortesLName)
--- 		for n in layerList do
--- 		(
--- 			l = LayerManager.getLayerFromName n
--- 			if l != undefined then
--- 			(
--- 				l.on =  state
--- 			)else()
--- 		)
--- 	)
 )
 
 fn createPlinte l =

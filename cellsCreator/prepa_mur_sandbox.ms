@@ -1,49 +1,35 @@
 /*
 maj:
-	- ajouter les boutons pour monter ou descendre le mur
-	
 
+	- sur le bouton create new faire qu'on crée une spline avec l'extrude et shell correctement configuré sur le bon layer
+	
+	x- utiliser parametres stockés à l'exterieur pour prametrer la creations des murs
+	x-- memoriser les modifications des parametres pdt la session
+		-- memoriser les parametres à la fermeture dans le fichier ini
+	
+	-- ajouter, supprimer, renommer des types de mur
+		-- memoriser les modification
+	-- enregistrer et administrer les config de cellules(faire du groupe "configuration" un rollout independant chargeable par les prepas "murs", "percement", "sol") 
+	
+	- ajouter les boutons pour monter ou descendre le mur
+	- rendre le wirecolor editable
 */
 
-global splinesWallAr = #("Ext", "Terrasses", "Fond", "Interieurs")
+global cellSetPath = @"N:/Ressources_Nico/github/00_wip/Maxscript/cellsCreator/cellSettings/*"
+-- getfiles cellSetPath
 
 struct spMurSet (name, wirecolor, hauteur, epaisseur)
 
-global cellSetIni = "N:/Ressources_Nico/github/00_wip/Maxscript/cellsCreator/cellSettings.ini"
-
-totalMurs = #()
-mursSettingsAr = getINISetting cellSetIni "mursSettings"
-for o in  mursSettingsAr do
-(
--- 	format "%\n" (getINISetting cellSetIni "mursSettings" o) 
-	append totalMurs (execute(getINISetting cellSetIni "mursSettings" o))
-)
-totalMurs
-
-for j = 1 to totalMurs[1].count do
-(
-	for k = 1 to totalMurs.count do
-	(
-		format "% ;" totalMurs[k][j]
-		tmp = spMurSet name:   wirecolor: hauteur: epaisseur:
-	)
-	format "\n" 
-)
-
--- local oneMur =  spMurSet name:  wirecolor: hauteur: epaisseur:
-testSet = getINISetting cellSetIni "mursSettings2" "tmp"
-one = execute testSet
-one = spMurSet name: "ploufe" wirecolor: red hauteur: 50 epaisseur: 20
-one as string
-setINISetting cellSetIni "mursSettings2" "one" (one as string)
-
-
 try(destroydialog prepaMursRLT)catch()
-rollout prepaMursRLT "preparation murs v2"
+rollout prepaMursRLT "preparation murs v2" width:350
 (
+	local cellSetAr = #()
 	local layerStructAr = #()
 	
-	local mursPref = "_Splines Murs "
+	local cellSetIni = @"N:/Ressources_Nico/github/00_wip/Maxscript/cellsCreator/cellSettings/cellSettings.ini"
+	local mursPrefix = "_Splines Murs "
+	
+	local murSel = undefined 
 	
 	group "configuration:"
 	(
@@ -53,59 +39,113 @@ rollout prepaMursRLT "preparation murs v2"
 		button loadBT "load"
 	)
 	
-	multilistbox mursMLB "Murs:"
+	group "types murs:"
+	(
+		multilistbox mursMLB "Murs:" height: 6
+		button addtypeBT "add" across: 2
+		button delTypeBT "delete"
+		button renTypeBT "rename"
+	)
 	
 	group "paramètres:"
 	(
-		spinner heightSP "hauteur:"  type: #worldunits range: [0,500, 215]
-		spinner epaisseurSP "epaisseur:" type: #worldunits range: [0,500, 20]
--- 		spinner innerSP "debord avant:" type: #worldunits range: [0,500, 0]
--- 		spinner outerSP "debord arriere:" type: #worldunits range: [0,500, 0]
+		spinner hauteurSP "hauteur:"  type: #worldunits range: [0,1000, 215] across: 2
+		spinner epaisseurSP "epaisseur:" type: #worldunits range: [0,1000, 20]
 	)
 	
 	group "actions:"
 	(
-		button addToLayerBT "add to layer"
-		button createNewBT "create new"
+		button addToLayerBT "add to layer" across: 3
+		button createNewBT "create new" enabled: false
+		button createSelWallBT "creation des murs"
 -- 		button adjustBT "adjust gabarits"
 	)
 	
 	group "tools:"
 	(
-		button extwallInverser "Inverser sens spline"  --across: 2
+		button extwallInverser "Inverser sens spline"  across: 2 -- enabled: false 
 		button delAllModBT "Supprimer Modifiers"
-		button createSelectionBT "Créer murs sur Selection"
+		button createSelectionBT "Créer murs sur Selection"  enabled: false
 	)
 	
-	button cerateWallBT "creation des murs"
+	button createWallBT "creation de tous les murs" enabled: false
 	
-	on prepaMursRLT open do
+	fn refreshUI =
 	(
-		-- charger le fichier ini
-		mursMLB.items = for p in splinesWallAr collect p
-			
-		for p in splinesWallAr do
+		configDDL.items = for c in cellSetAr collect (getFilenameFile c)
+		
+		mursMLB.items = for p in layerStructAr collect p.name
+		
+		if murSel == undefined then
 		(
-			local one = spMurSet name:  (mursPref + p) hauteur: 230 epaisseur: 20
-			append layerStructAr one
+			hauteurSP.value = 666
+			epaisseurSP.value = 666
+			addToLayerBT.enabled = false
+			createSelWallBT.enabled = false
+		)
+		else
+		(
+			hauteurSP.value = murSel.hauteur
+			epaisseurSP.value = murSel.epaisseur
+			addToLayerBT.enabled = true
+			createSelWallBT.enabled = true
 		)
 	)
 	
+	on prepaMursRLT open do
+	(
+		-- collecte des settings de cellules
+		cellSetAr = getfiles cellSetPath
+		
+		-- collecte des types de mur
+		mursSettingsAr = getINISetting cellSetIni "mursSettings2"
+		for o in  mursSettingsAr do
+		(
+-- 			format "%\n" (getINISetting cellSetIni "mursSettings2" o) 
+			append layerStructAr (execute(getINISetting cellSetIni "mursSettings2" o))
+		)
+		layerStructAr
+		
+		refreshUI()
+	)
+	
+	on mursMLB selectionend do
+	(
+		selIds =  (mursMLB.selection as array)
+		if selIds.count == 1 then
+		(
+			murSel = layerStructAr[selIds[1]]
+		)
+		else
+		(
+			murSel = undefined
+		)
+
+		refreshUI()
+	)		
+	
+	on hauteurSP changed val do
+	(
+		if murSel == undefined then()
+		else mursel.hauteur = val
+	)
+	
+	on epaisseurSP changed val do
+	(
+		if murSel == undefined then()
+		else mursel.epaisseur = val
+	)
+	
+	
 	on addToLayerBT pressed do
 	(
-		local id
-		local sel = mursMLB.selection as array
 		local objs = selection as array
 		
-		if sel.count == 0 or sel.count > 1 then()
-		else if objs.count > 0 then
+		if objs.count == 0 or murSel == undefined then()
+		else if objs.count > 0 and murSel != undefined then
 		(
-			format "objs: %\n" objs
-			local n = splinesWallAr[sel[1]]
-			local layername = mursPref + n
-
--- 			format "layername: %\n" layername
-			-- creation du layer
+			-- creation du calque
+			local layername = mursPrefix + murSel.name
 			l = LayerManager.getLayerFromName layername
 			if l == undefined then l = LayerManager.newLayerFromName layername
 				
@@ -113,11 +153,55 @@ rollout prepaMursRLT "preparation murs v2"
 			for o in objs do
 			(
 				l.addnode o
-				o.wirecolor = brown
+				o.wirecolor = murSel.wirecolor
 				-- appliquer le traitement
 			)
+			
+			createWall objs murSel.hauteur murSel.epaisseur
 		)
 		else()
+	)
+	
+	on createSelWallBT pressed  do
+	(
+		local murLayer = undefined
+		
+		-- check le type de mur
+		if murSel == undefined then()
+		else
+		(
+			local layername = mursPrefix + murSel.name
+			murLayer = LayerManager.getLayerFromName layername
+		)
+		
+		-- creation des murs
+		if murLayer == undefined then
+		(
+			messageBox "Pour créer les murs terrasse vous devez 'Préparer murBalcon'"
+		)
+		else
+		(
+			murLayer.nodes &theNodes
+			createWall theNodes  murSel.hauteur  murSel.epaisseur
+		)
+	)
+	
+	on delAllModBT pressed do
+	(
+		sel = selection as array
+		for s in sel do
+		(
+			local modcount = s.modifiers.count
+			for i = 1 to modCount do deletemodifier s 1
+		)
+	)
+	
+	on extwallInverser pressed  do
+	(	
+		sel = selection as array
+		for s in sel do inverseKnotOrder s
+			
+		select sel
 	)
 )
 createdialog prepaMursRLT

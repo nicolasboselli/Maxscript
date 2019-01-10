@@ -1,10 +1,13 @@
 /*
 	maj:
-		-- memoriser les reglages avec la selection dans le multibox, structure
-		-- memoriser les reglages dans un fichier ini
-			-- manager les sauvegardes de fichier ini globales et locales
-		x- créer les calques en fonction du nom du percement
-	-- 
+		-- faire evoluer sur le modèle de la prepa des murs
+			-- rafraichir les reglages avec la selection dans le multibox, structure
+			-- memoriser les reglages dans un fichier ini
+				-- manager les sauvegardes de fichier ini globales et locales
+			x- créer les calques en fonction du nom du percement
+
+		-- associer un objet avec un type de gabarit
+			-- tester si on peu merger des grouge depuis un fichier max seulement par le nom
 */
 
 global splinesPerceAr = #("Fenetres", "PFenetres", "Portes", "Placard", "Porte_entree")
