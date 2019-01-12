@@ -1,21 +1,35 @@
 -- recupérer les spline des fenetres, porte ... etc...
 /*
+	-- BUG:
+	les focntions ne se chargent pas correctement au demarrage du script cellcreator.ms
 */
 
-global 	layerList = #("_Splines Murs Ext", 
-		"_Splines Murs Balcon",
-		"_Splines Murs Fond",
-		"_Splines Murs Int",
-		"_Splines Murs Interieurs",
-		"_Splines Murs Terrasses"
+
+		
+fn collectLayerNames pattern: "*" =
+(
+	local layerFoundAr = #()
+	for i = 0 to  (LayerManager.count - 1) do
+	(
+		l = LayerManager.getLayer i
+		
+		if  matchpattern l.name pattern: pattern then
+		(
+			append layerFoundAr l.name
+-- 			"l.name: %\n" l.name
 		)
+	)
+	layerFoundAr
+)
+
+-- global mursLayerList  = collectLayerNames pattern: "_Splines Murs *" 
 
 -- teste si le repère est dans un mur
 fn testImpactID l id =
 (
 	-- return boolean
 
-	
+	local mursLayerList  = collectLayerNames pattern: "_Splines Murs *"
 	theZ = [0,0,1]
 	impact = false
 	
@@ -27,7 +41,7 @@ fn testImpactID l id =
 	if intersectTestI.count > 0 then 
 	(
 		format "intersectTestI: %\n" intersectTestI[1][1].layer.name
-		res = finditem layerList intersectTestI[1][1].layer.name
+		res = finditem mursLayerList intersectTestI[1][1].layer.name
 		format "res: %\n" res
 		if res > 0 then impact = true 
 	)
@@ -35,9 +49,6 @@ fn testImpactID l id =
 	impact
 )
 -- testImpactID $ 4
-
-
-
 
 -- si un repère est dans un mur retourne un nouvel ordre des points du repère
 fn collectNewOrder s =
@@ -81,6 +92,7 @@ fn collectNewOrder s =
 	-- fonctionne à partir du premier point du repère calculer (newOrder[1])
 fn getMurImpacted rayStart =
 (	
+	local mursLayerList  = collectLayerNames pattern: "_Splines Murs *"
 	local theMur
 	theZ = [0,0,1]
 	posI = rayStart - [0,0,500]
@@ -91,7 +103,7 @@ fn getMurImpacted rayStart =
 	if intersectTestI.count > 0 then
 	(
 -- 		format "layer name: %\n" intersectTestI[1][1].layer.name		
-		res = finditem layerList intersectTestI[1][1].layer.name
+		res = finditem mursLayerList intersectTestI[1][1].layer.name
 -- 		format "res: %\n" res
 		if res > 0 then theMur = intersectTestI[1][1]
 	)

@@ -48,6 +48,13 @@
 	-- associer un objet à merger avec un repere
 	-- memoriser les configuration pour tout un projet
 	
+-- arbo:
+	-- mettre toutes les ressources utilisees par le script
+			-- fichier max light et cam
+			-- fichier light additive
+			-- preset passe
+			-- material library et map associé
+			-- fichier asset standard: max porte interieure, porte entree, porte placard, placard
 	
 */
 
@@ -60,12 +67,14 @@
 global countPlan = 0
 global planFile = undefined
 
-global objectReplacerTool = @"N:/Ressources_Nico/github/00_wip/Maxscript/objReplacer/002/obj_replacer.ms"
-global resizerTool = @"N:/Ressources_Nico/github/00_wip/Maxscript/plansManagement/Plan_resizer.ms"
-global cleanSplineTool = @"N:/Ressources_Nico/github/00_wip/Maxscript/MODELING_TOOLS/001/cleanSpline.ms"
+global objectReplacerTool = getroot() + "objReplacer/002/obj_replacer.ms"
+global resizerTool = getroot() + "plansManagement/Plan_resizer.ms"
+global cleanSplineTool = getroot() + "MODELING_TOOLS/001/cleanSpline.ms"
 
 filein cleanSplineTool
 
+-- global cellRoot = @"M:\Interieur\Cellules\"
+global cellRoot = @"J:\_svn\zz_ressources3D\Cellules\"
 
 global importfolderFEN = "M:\\Interieur\\Cellules\\Modelisation\\Fenetres\\"
 global importfolderPOR = "M:\\Interieur\\Cellules\\Modelisation\\Portes\\"
@@ -74,7 +83,7 @@ global importfolderPOR = "M:\\Interieur\\Cellules\\Modelisation\\Portes\\"
 global importfolderCAM = @"M:\Light\"
 global importfolderPST = "M:\\Interieur\\Cellules\\Modelisation\\Presets\\"
 global importfolderVray = "M:\\Interieur\\Cellules\\Modelisation\\Vray\\"
-global importfolderLIB = "M:\\Interieur\\Cellules\\Modelisation\\Library\\"
+global importfolderLIB = cellRoot + @"Modelisation\Library\"
 global importfolderAMB = "M:\\Interieur\\Cellules\\Modelisation\\Ambiances\\"
 
 global filesFEN
@@ -106,11 +115,16 @@ global AptLName  = "Appartement"
 -- Preparation des calques de travail
 function createWorkLayer = 
 (	
-	layerList = #( splinesMursExtLName, 
-		splinesMursBalconLName ,
-		splinesMursFondLName ,
-		splinesMursIntName ,
-		SplinesFenetresLName ,
+-- 	layerList = #( splinesMursExtLName, 
+-- 		splinesMursBalconLName ,
+-- 		splinesMursFondLName ,
+-- 		splinesMursIntName ,
+-- 		SplinesFenetresLName ,
+-- 		SplinesPFenetresLName ,
+-- 		SplinesPortesLName
+-- 	)
+	
+	layerList = #( SplinesFenetresLName ,
 		SplinesPFenetresLName ,
 		SplinesPortesLName
 	)
@@ -136,7 +150,23 @@ fn inverseKnotOrder l =
 	)else()
 )
 
-filein "adjust_gabarit.ms" quiet: true
+filein "adjust_gabarit.ms" -- quiet: true
+
+fn collectLayer pattern: "*" =
+(
+	local layerFoundAr = #()
+	for i = 0 to  (LayerManager.count - 1) do
+	(
+		l = LayerManager.getLayer i
+		
+		if  matchpattern l.name pattern: pattern then
+		(
+			append layerFoundAr l
+-- 			"l.name: %\n" l.name
+		)
+	)
+	layerFoundAr
+)
 
 try(closeRolloutFloater  dRolFloater)catch()
 dRolFloater = newRolloutFloater "Creation de plans de cellules" 350 650 80 200
@@ -912,6 +942,7 @@ rollout createGround "Preparation des sols" width:350 height:230
 	-- fusionne les murs
 	function unifyWall2  = 
 	(			
+		/*
 		target = LayerManager.getLayerFromName splinesMursIntName				
 		target.nodes &theNodesInt		
 -- 		target.on = false
@@ -924,11 +955,22 @@ rollout createGround "Preparation des sols" width:350 height:230
 		target.nodes &theNodesFond			
 -- 		target.on = false	
 			
-		target = LayerManager.getLayerFromName splinesMursBalconLName
-		target.nodes &theNodesBalc	
+-- 		target = LayerManager.getLayerFromName splinesMursBalconLName
+-- 		target.nodes &theNodesBalc	
 -- 		target.on = false	
 
-		local theMurs = theNodesInt + theNodesExt + theNodesFond + theNodesBalc
+		local theMurs = theNodesInt + theNodesExt + theNodesFond -- + theNodesBalc
+		*/
+-- 		
+		local mursLayerList = collectLayer pattern: "_Splines Murs *"
+		local theMurs = #()
+		for l in mursLayerList do 
+		(
+			l.nodes &tmpAr
+			for t in tmpAr do append theMurs t
+		)
+		
+		
 		
 -- 		fusion des murs
 		local solPrepaL = LayerManager.getLayerFromName solsPrepaLname					
@@ -1225,20 +1267,28 @@ rollout creationAptRLT "Création Appartement"
 			
 			-- recuperation des mur
 			theMurs = #()
-			MursBalL = LayerManager.getLayerFromName splinesMursBalconLName
-			MursBalL.nodes &MursBal
+-- 			MursBalL = LayerManager.getLayerFromName splinesMursBalconLName
+-- 			MursBalL.nodes &MursBal
+-- 			
+-- 			MursExtL = LayerManager.getLayerFromName splinesMursExtLName
+-- 			MursExtL.nodes &MursExt
+-- 			
+-- 			MursFondL = LayerManager.getLayerFromName splinesMursFondLName
+-- 			MursFondL.nodes &MursFond
+-- 			
+-- 			MursIntL = LayerManager.getLayerFromName splinesMursIntName
+-- 			MursIntL.nodes &MursIntL
+-- 			
+-- 			theMursOrig = MursBal + MursExt + MursFond + MursIntL
 			
-			MursExtL = LayerManager.getLayerFromName splinesMursExtLName
-			MursExtL.nodes &MursExt
-			
-			MursFondL = LayerManager.getLayerFromName splinesMursFondLName
-			MursFondL.nodes &MursFond
-			
-			MursIntL = LayerManager.getLayerFromName splinesMursIntName
-			MursIntL.nodes &MursIntL
-			
-			theMursOrig = MursBal + MursExt + MursFond + MursIntL
-			
+			local mursLayerList = collectLayer pattern: "_Splines Murs *"
+			local theMursOrig = #()
+			for l in mursLayerList do 
+			(
+				l.nodes &tmpAr
+				for t in tmpAr do append theMursOrig t
+			)
+				
 			--recuperation du materiau
 			local tempLib
 			f = importfolderLIB + "\\Cells_materials.mat"
@@ -1281,11 +1331,15 @@ rollout creationAptRLT "Création Appartement"
 
 rollout importAssetRLT "import assets"
 (
+	/*
+	todo:
+		-- créer les fonctions pour manager une liste d'asset en dur et relatifs à un repertoire
+	*/
 	local params = #("open")
 	
-	local assetsList = #(@"M:\Interieur\Cellules\Modelisation\Library\Objects\portes.max",
-	@"M:\Elements_batiments\Fenetres\exterieur\pack_fenetres_V3.max",
-	@"M:\Interieur\Cellules\Modelisation\Library\Objects\additive_lights.max"
+	local assetsList = #((cellRoot + @"Modelisation\Library\Objects\portes.max"),
+	(cellRoot + @"Modelisation\Library\Objects\additive_lights.max"),
+	@"M:\Elements_batiments\Fenetres\exterieur\pack_fenetres_V3.max"
 	)
 	
 	group "asset list"
@@ -1299,6 +1353,7 @@ rollout importAssetRLT "import assets"
 		button addSliceBT "add slice" across: 2 -- enabled: false
 		button objRepBT "objects replacer" -- enabled: false
 	)
+	
 	
 	fn refreshUI =
 	(
@@ -1321,13 +1376,13 @@ rollout importAssetRLT "import assets"
 -- 		format "sel: %\n" assetMLB.selection
 		for i in assetMLB.selection do
 		(
--- 			format "sel: %\n" assetsList[i]
+			format "sel: %\n" assetsList[i]
 			if doesfileexist assetsList[i] then 
 			(
 				local befCount = objects.count
-				mergemaxfile assetsList[i] 
-				clearselection()
-				for i = (befCount + 1) to objects.count do selectmore objects[i]
+				mergemaxfile assetsList[i] #select
+-- 				clearselection()
+-- 				for i = (befCount + 1) to objects.count do selectmore objects[i]
 			)
 		)
 	)
@@ -1378,7 +1433,8 @@ rollout importAssetRLT "import assets"
 
 rollout displayRLT "display"
 (
-	local mursList = #(splinesMursExtLName, splinesMursBalconLName, splinesMursFondLName, splinesMursIntName)
+-- 	local mursList = #(splinesMursExtLName, splinesMursBalconLName, splinesMursFondLName, splinesMursIntName)
+	local mursList = collectLayerNames pattern: "_Splines Murs *" 
 	local spGabList = #(SplinesFenetresLName, SplinesPFenetresLName, SplinesPortesLName)
 	local gabList = #(TmpFenLName, TmpPFenLName, TmpPortesLName)
 	local prepSolList = #(solsPrepaLname)

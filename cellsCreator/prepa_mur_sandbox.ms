@@ -15,7 +15,7 @@ maj:
 	- rendre le wirecolor editable
 */
 
-global cellSetPath = @"N:/Ressources_Nico/github/00_wip/Maxscript/cellsCreator/cellSettings/*"
+global cellSetPath = getroot() +"cellsCreator/cellSettings/*"
 -- getfiles cellSetPath
 
 struct spMurSet (name, wirecolor, hauteur, epaisseur)
@@ -26,7 +26,7 @@ rollout prepaMursRLT "preparation murs v2" width:350
 	local cellSetAr = #()
 	local layerStructAr = #()
 	
-	local cellSetIni = @"N:/Ressources_Nico/github/00_wip/Maxscript/cellsCreator/cellSettings/cellSettings.ini"
+	local cellSetIni = getRoot() + "cellsCreator/cellSettings/cellSettings.ini"
 	local mursPrefix = "_Splines Murs "
 	
 	local murSel = undefined 
@@ -42,7 +42,7 @@ rollout prepaMursRLT "preparation murs v2" width:350
 	group "types murs:"
 	(
 		multilistbox mursMLB "Murs:" height: 6
-		button addtypeBT "add" across: 2
+		button addtypeBT "add" across: 3
 		button delTypeBT "delete"
 		button renTypeBT "rename"
 	)
@@ -177,7 +177,7 @@ rollout prepaMursRLT "preparation murs v2" width:350
 		-- creation des murs
 		if murLayer == undefined then
 		(
-			messageBox "Pour créer les murs terrasse vous devez 'Préparer murBalcon'"
+			messageBox "Pour créer les murs  vous devez créer le calque des murs'"
 		)
 		else
 		(
