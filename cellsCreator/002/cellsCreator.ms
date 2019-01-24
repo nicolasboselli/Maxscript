@@ -73,8 +73,8 @@ global cleanSplineTool = getroot() + "MODELING_TOOLS/001/cleanSpline.ms"
 
 filein cleanSplineTool
 
--- global cellRoot = @"M:\Interieur\Cellules\"
-global cellRoot = @"J:\_svn\zz_ressources3D\Cellules\"
+global cellRoot = @"M:\Interieur\Cellules\"
+-- global cellRoot = @"J:\_svn\zz_ressources3D\Cellules\"
 
 global importfolderFEN = "M:\\Interieur\\Cellules\\Modelisation\\Fenetres\\"
 global importfolderPOR = "M:\\Interieur\\Cellules\\Modelisation\\Portes\\"

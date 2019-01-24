@@ -33,7 +33,7 @@ for sp = 1 to spCount do
 		-- decalage
 		local decayK = 50	
 		local shift2 = -10
-		local shift3 = 15
+		local shift3 = 5
 		
 		local Pt1pos = [decayK, shift2, 10]
 		local Pt2pos = [decayK, shift2, -10]
