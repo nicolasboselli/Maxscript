@@ -55,6 +55,12 @@ rollout opaRLT "plan manipulator"
 		button opa100BT "100"  enabled: false
 	)
 	
+	group "hd material:"
+	(
+		button trueBT "true" across: 2
+		button falseBT "false"
+	)
+	
 	group "rotate:"
 	(
 		-- import rotater
@@ -191,6 +197,18 @@ rollout opaRLT "plan manipulator"
 		print width
 		mapName_et.width = width - 100
 	)
+	
+	on trueBT pressed do
+	(
+		enableHardwareMaterial $.material  true
+		showHWTextureMap $.material  true
+	)
+	
+	on falseBT pressed do
+	(
+		enableHardwareMaterial $.material  false
+		showHWTextureMap $.material  false
+	)		
 )
 
 
