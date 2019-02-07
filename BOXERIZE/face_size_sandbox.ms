@@ -1,10 +1,17 @@
+/*
+ce serait peut etre plus efficace de mesurer les tailles des box et de les mettre dans des sous calques
+*/
+
+
 struct faceStr (id, size, idmat = 1)
 
 surfaces = for i = 1 to $.numfaces collect  (faceStr id:i size: (polyop.getFaceArea $ i))
 
+-- creation du multimaterial
+	
 	
 -- positions =for i = 1 to 10 collect (random [0,0,0] [100,100,0])
- 
+
 fn compareFN v1 v2 =
 (
 	local d = (v1.size) - (v2.size)
