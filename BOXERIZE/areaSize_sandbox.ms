@@ -1,5 +1,7 @@
 struct boxStr (size, obj)
 
+colorAr = #(yellow, blue, red, orange, green, brown, gray)
+
 fn compareFN v1 v2 =
 (
 	local d = (v1.size) - (v2.size)
@@ -27,10 +29,12 @@ qsort boxesAr compareFN
 
 tres = 3
 randomColor = color (random 0 255) (random 0 255) (random 0 255)
+j = 1
 for i = 1 to (boxesAr.count) do
 (
 	
-	boxesAr[i].obj.wirecolor = randomColor
+-- 	boxesAr[i].obj.wirecolor = randomColor
+	boxesAr[i].obj.wirecolor = colorAr[j]
 	boxesAr[i].obj.name = "fenetre_detach_" + (i as string)
 	-- teste le seuil
 	local res
@@ -47,14 +51,19 @@ for i = 1 to (boxesAr.count) do
 	-- si le seuil est depassé calcule une nouvelle couleur
 	if res > tres then 
 	(
-		format "BREAK: %, %, %\n" res  boxesAr[i].size boxesAr[i].obj.name
+		format "BREAK: %, %, %, %\n" res  boxesAr[i].size boxesAr[i].obj.name j
 		randomColor = color (random 0 255) (random 0 255) (random 0 255)
--- 		boxesAr[i].obj.wirecolor = randomColor
+		
+-- 		randomColor = colorAr[j]
+-- 		j += 1
+-- 		if j > 7 then j = 1
 	)
 	else
 	(
-		format " %, %\n" res  boxesAr[i].obj.name
-	)	
+-- 		boxesAr[i].obj.wirecolor = randomColor
+-- 		format " %, %\n" res  boxesAr[i].obj.name
+	)
+	boxesAr[i].obj.wirecolor = randomColor
 )
 
 

@@ -1,28 +1,13 @@
--- $.scale
--- placer le plan de decoupe au dessus de l'etage, r0_bat au dessus du rdc
-
-
-
 /*
-fn sortbyname v1 v2 =
-(
-	-- qsort <array> sortbyname
--- 	vars
-	local d
-	
-	if ( (toLower v1.name) < (toLower v2.name)) then
-		d=-1
-	else
-		d=1
-	
---compare les numeros entre eux et les classe	
-	case of
-	(
-		(d < 0.): -1
-		(d > 0.): 1
-		default: 0
-	)
-)
+memo:
+	-- placer le plan de decoupe au dessus de l'etage, r0_bat au dessus du rdc
+	-- penser à mettre les repères des coupe dans l'ordre croisant
+
+maj:
+	-- determiner automatiquement sur quel calque il faut ajouter les objets qui ne se découpe pas
+	-- copier en instance les modifiers de l'objes d'origine
+		-- lorsqu'il y a un modifier edit poly dans la pile, collapser tout ce qui est en dessous 
+	-- collapser les slice en option
 */
 
 fn sortbyname v1 v2 =
@@ -65,74 +50,58 @@ fn sliceObject b rep =
 (
 	for i = 1 to ( rep.count  )do
 	(
+		-- creation de la copie
 		local modCount
 		local b2 = copy b
--- 		format "copy: %\n" b2.name
-		resetxform b2
 		
--- 		resetxform b2
--- 		/*
+		-- reset x form au dessus du baseobject
+		resetxform b2
+
 		modCount = b2.modifiers.count
 		xformMod = b2.modifiers[1]
 		addmodifier b2 xformMod before: modCount
 		deleteModifier b2 1
 		maxOps.CollapseNodeTo b2 modCount true
--- 		*/
--- 		format "resetxform\n" 
--- 		converttomesh b2
--- 		format "converttomesh\n" 
--- 		update b2
+
 		
 		if i <= rep.count and i > 1 then
 		(
 			format "etage: % traitement 1\n" rep[i].name
--- 			b2 = copy b
 			b2.name = b.name +"_r" +  ((i - 1) as string)
-	-- 		print "check 1"
 			
 			sl = SliceModifier name: "delete_down" Slice_Type:3
 			modCount = b2.modifiers.count
 			addmodifier b2 sl before: modCount
 			b2.modifiers["delete_down"].slice_plane.position.z = in coordsys b2 rep[i - 1].position.z
-	-- 		print "check 2"
 			
 			sl = SliceModifier name: "delete_up" Slice_Type:2
 			modCount = b2.modifiers.count
 			addmodifier b2 sl before: modCount
 			b2.modifiers["delete_up"].slice_plane.position.z = in coordsys b2 rep[i].position.z
-	-- 		print "check 3"
 			
 			l = layermanager.getLayerFromName  rep[i].name
 			if l == undefined then l = layermanager.newLayerFromName  rep[i].name
 			l.addnode b2
 			
--- 			if b2.numfaces == 0 then delete b2
-	-- 		print "check 4"
 		)
 		else if i == 1 then
 		(
 			format "etage: % traitement 2\n" rep[i].name
--- 			b1 = copy b
 			b2.name = b.name +"_r" +  ((i - 1) as string)
-	-- 		print "check1"
 			
 			sl = SliceModifier name: "delete_up" Slice_Type:2
 			modCount = b2.modifiers.count
 			addmodifier b2 sl before: modCount
 			b2.modifiers["delete_up"].slice_plane.position.z = in coordsys b2 rep[i].position.z
-	-- 		print "check2"
 
 			l = layermanager.getLayerFromName  rep[i].name
 			if l == undefined then l = layermanager.newLayerFromName  rep[i].name
 			l.addnode b2
 			
--- 			if b2.numfaces == 0 then delete b2
-	-- 		print "check3"
 		)
 		else if i == (rep.count + 1) then
 		(
 			format "etage: % traitement 3\n" rep[i].name
--- 			b3 = copy b
 			b2.name = b.name +"_r" +  (i as string)
 			
 			sl = SliceModifier name: "delete_down" Slice_Type:3
@@ -143,9 +112,8 @@ fn sliceObject b rep =
 			l = layermanager.getLayerFromName  rep[i - 1].name
 			if l == undefined then l = layermanager.newLayerFromName  rep[i].name
 			l.addnode b2
-			
--- 			if b2.numfaces == 0 then delete b2
 		)
+		
 		if b2.numfaces == 0 then 
 		(
 			format "delete: %\n" b2.name
@@ -166,28 +134,75 @@ try(destroydialog decoupEtageRLT)catch()
 rollout decoupEtageRLT "découpe etage"
 (
 	global rep -- = #()
+	
+	local validRep = undefined
 	group "plans de découpe:"
 	(
-		multilistbox CutPlaneMLB "liste de plans:" tooltip: "Les plans de découpe les plus hauts dans la scene sont les plus bas dans la liste.\n\nUn plan de découpe doit toujours être au dessus de l'étage découpé."
+		multilistbox CutPlaneMLB "liste de plans:"  tooltip: "Les plans de découpe les plus hauts dans la scene sont les plus bas dans la liste.\n\nUn plan de découpe doit toujours être au dessus de l'étage découpé."
+		edittext planeNameET "name:" readonly: true
 		button addBT "add" across: 2
 		button clearBT "clear"
 		button upBT "^" across: 2 
 		button dwBT "v"
 		button sortBT "sort"
+		button showHideBT "show/hide"
 	)
 	
-	button showHideBT "show/hide"
-	button decoupeBT "decoupe"
-	button addToLayBT "add to layer"
+	group "decoupe"
+	(
+		checkbox collapseCB "collapse slice" enabled: false
+		button decoupeBT "decoupe"
+	)
+	
+	group "layer"
+	(
+		button autoAddBT "auto add to layer" enbled: false
+		button addToLayBT "add to layer"
+	)
+	
 	
 	fn refreshUI =
 	(
 		CutPlaneMLB.items = for c in rep collect c.name
+			
+		if isvalidnode validRep then
+		(
+			planeNameET.text = validRep.name 
+			planeNameET.readonly = false
+		)
+		else 
+		(
+			planeNameET.text = "NONE"
+			planeNameET.readonly = true
+		)
 	)
 	
 	on decoupEtageRLT open do
 	(
 		if rep == undefined then rep = #()
+		refreshUI ()
+	)
+	
+	on CutPlaneMLB selectionend do
+	(
+		selAr = CutPlaneMLB.selection as array
+-- 		format "selId: %\n"  selId
+		if selAr.count == 1  then
+		(
+			validRep = rep[selAr[1]]
+		)
+		else
+		(
+			validRep = undefined
+		)
+		refreshUI ()
+		
+	)
+	
+	on planeNameET entered val do
+	(
+		format "val: %\n" val
+		if isvalidnode validRep then validRep.name = val
 		refreshUI ()
 	)
 	
@@ -243,11 +258,9 @@ rollout decoupEtageRLT "découpe etage"
 	on showHideBT pressed do
 	(
 		local selAr = CutPlaneMLB.selection as array
-		format "selAr: %\n" selAr
+-- 		format "selAr: %\n" selAr
 		for i in selAr do
 		(
--- 		if selAr.count == 1 then
--- 		(
 			format "layer: %\n"  rep[i].name
 			l = layermanager.getLayerFromName  rep[i].name
 			if l != undefined then
