@@ -4,10 +4,9 @@ memo:
 	-- penser à mettre les repères des coupe dans l'ordre croisant
 
 maj:
-	-- determiner automatiquement sur quel calque il faut ajouter les objets qui ne se découpe pas
-	-- copier en instance les modifiers de l'objes d'origine
+	x- copier en instance les modifiers de l'objes d'origine
 		-- lorsqu'il y a un modifier edit poly dans la pile, collapser tout ce qui est en dessous 
-	-- collapser les slice en option
+	-- decouper des splines en conservant les modificateurs dessus
 */
 
 fn sortbyname v1 v2 =
@@ -43,26 +42,26 @@ fn moveItem oneAr idAr jump: 1 =
 -- upItem arrayTest #(5,4,3,2,1) jump: 1
 -- arrayTest
 
-
-
 -- $.modifiers.count
-fn sliceObject b rep =
+fn sliceObject b rep collapseSlice: false addEditPoly: false =
 (
+	local tmpEP = EditPolyMod ()
+	
 	for i = 1 to ( rep.count  )do
 	(
 		-- creation de la copie
 		local modCount
 		local b2 = copy b
 		
+		-- suppression des modifiers
+		modCount = b2.modifiers.count
+		for i = 1 to modCount do deletemodifier b2 1
+		
 		-- reset x form au dessus du baseobject
 		resetxform b2
-
+		maxOps.CollapseNodeTo b2 1 true
+		
 		modCount = b2.modifiers.count
-		xformMod = b2.modifiers[1]
-		addmodifier b2 xformMod before: modCount
-		deleteModifier b2 1
-		maxOps.CollapseNodeTo b2 modCount true
-
 		
 		if i <= rep.count and i > 1 then
 		(
@@ -82,7 +81,6 @@ fn sliceObject b rep =
 			l = layermanager.getLayerFromName  rep[i].name
 			if l == undefined then l = layermanager.newLayerFromName  rep[i].name
 			l.addnode b2
-			
 		)
 		else if i == 1 then
 		(
@@ -97,7 +95,6 @@ fn sliceObject b rep =
 			l = layermanager.getLayerFromName  rep[i].name
 			if l == undefined then l = layermanager.newLayerFromName  rep[i].name
 			l.addnode b2
-			
 		)
 		else if i == (rep.count + 1) then
 		(
@@ -114,25 +111,89 @@ fn sliceObject b rep =
 			l.addnode b2
 		)
 		
+		-- collapse du slice
+		if collapseSlice then maxOps.CollapseNodeTo b2 1 true
+		
+		-- add edit_poly
+		if addEditPoly then addmodifier b2 tmpEP
+		
+		-- suppression des objets sans faces
 		if b2.numfaces == 0 then 
 		(
 			format "delete: %\n" b2.name
 			delete b2
 		)
+		
+		-- ajout des instances de modifiers
+		-- copie des modifiers 
+		if isvalidnode b2 then for i = 1 to b.modifiers.count do 
+		(
+			if i == 1 then addmodifier b2 b.modifiers[i] -- before: 1
+			else addmodifier b2 b.modifiers[i] before: 1
+		)
 	)
+	
 	b.boxmode = true
 	b.showFrozenInGray = true
 	b.isfrozen = true
 	b.wirecolor = (color 125 125 125)
-
-	
 )
--- rep
 
+-- rep
+fn sortbySize v1 v2 =
+(
+	-- qsort <array> sortbyname
+-- 	vars
+	local d
+	
+	if ( ( v1.zSize) < ( v2.zSize)) then 	d=-1
+	else 	d=1
+	
+--compare les numeros entre eux et les classe	
+	if (d < 0.) then -1
+	else if (d > 0.) then 1
+	else 0
+)
+
+fn autoAddObjToLayer rep sel =
+(
+	struct repST (obj, zSize)
+	struct objST (obj, zSize)
+-- 	sel = selection as array
+
+	local repStAr = for r in rep collect  repST obj: r zSize: r.center.z
+	local objSTAr =  for s in sel collect  objST obj: s zSize: s.center.z
+		
+	local allAr = repStAr + objSTAr
+	local layerToAddOn
+
+	qsort allAr sortbySize
+
+	for i = allAr.count to 1 by - 1 do 
+	(
+		
+		local a = allAr[i]
+		
+		if (iskindof a repST) then 
+		(
+			layerToAddOn = layermanager.getLayerFromName  a.obj.name
+			if layerToAddOn == undefined then layerToAddOn = layermanager.newLayerFromName a.obj.name
+		)
+		else if (iskindof a objST) and layerToAddOn != undefined then
+		(
+			layerToAddOn.addnode a.obj
+		)
+		else()
+	)
+)
+-- sel = selection as array
+-- autoAddObjToLayer rep sel
 
 try(destroydialog decoupEtageRLT)catch()
 rollout decoupEtageRLT "découpe etage"
 (
+	local params = #("pos", "autoSelLayCB", "autoSelREpCB", "collapseCB", "addPolyModCB")
+	
 	global rep -- = #()
 	
 	local validRep = undefined
@@ -145,12 +206,19 @@ rollout decoupEtageRLT "découpe etage"
 		button upBT "^" across: 2 
 		button dwBT "v"
 		button sortBT "sort"
+	)
+	
+	group "display"
+	(
+		checkbox autoSelLayCB  "autoSel Layer"
+		checkbox autoSelREpCB  "autoSel Rep"
 		button showHideBT "show/hide"
 	)
 	
 	group "decoupe"
 	(
-		checkbox collapseCB "collapse slice" enabled: false
+		checkbox collapseCB "collapse slice" -- enabled: false
+		checkbox addPolyModCB "add edit poly" -- enabled: false
 		button decoupeBT "decoupe"
 	)
 	
@@ -179,24 +247,60 @@ rollout decoupEtageRLT "découpe etage"
 	
 	on decoupEtageRLT open do
 	(
+		loadRolloutParams decoupEtageRLT params
 		if rep == undefined then rep = #()
 		refreshUI ()
 	)
 	
+	on decoupEtageRLT close do
+	(
+		writeRolloutParams decoupEtageRLT params
+	)
+	
+-- 	layermanager.current.name
+	
 	on CutPlaneMLB selectionend do
 	(
+		local l
+		
+		-- retoune le repere selectionne
 		selAr = CutPlaneMLB.selection as array
--- 		format "selId: %\n"  selId
 		if selAr.count == 1  then
 		(
 			validRep = rep[selAr[1]]
+			if isvalidnode validRep then l = layermanager.getLayerFromName validRep.name
+			if l != undefined then l.current = true
 		)
 		else
 		(
 			validRep = undefined
 		)
-		refreshUI ()
+
+		-- auto selection des objets d'un layer
+		if autoSelLayCB.state then
+		(
+			if isvalidnode validRep then l = layermanager.getLayerFromName validRep.name
+				
+			if l != undefined then
+			(
+				l.nodes &tmpSel
+				select tmpSel
+			)
+			else
+			(
+				clearselection()
+			)
+		)
 		
+		if autoSelRepCB.state and isvalidnode validRep then select validRep
+		
+		refreshUI ()
+	)
+	
+	on CutPlaneMLB doubleClicked arg do
+	(
+		local l = layermanager.getLayerFromName rep[arg].name
+		if l != undefined then l.on = not l.on
 	)
 	
 	on planeNameET entered val do
@@ -254,20 +358,32 @@ rollout decoupEtageRLT "découpe etage"
 		rep = #()
 		refreshUI ()		
 	)
+--  refLayer.on = not refLayer.on
 	
 	on showHideBT pressed do
 	(
 		local selAr = CutPlaneMLB.selection as array
--- 		format "selAr: %\n" selAr
+		format "selAr: %\n" selAr
+		local tmpState
+
+		-- toggle
 		for i in selAr do
 		(
-			format "layer: %\n"  rep[i].name
-			l = layermanager.getLayerFromName  rep[i].name
-			if l != undefined then
+			local l = layermanager.getLayerFromName  rep[i].name
+			
+			if l == undefined then ()
+			else
 			(
-				l.ishidden = not l.ishidden
+				if tmpState == undefined then 
+				(
+					tmpState = l.on
+					l.on = not tmpState
+				)
+				else
+				(
+					l.on = not tmpState
+				)
 			)
--- 			if l == undefined then l = layermanager.newLayerFromName  rep[selAr[1]].name
 		)
 	)
 	
@@ -276,8 +392,14 @@ rollout decoupEtageRLT "découpe etage"
 		local sel = selection as array
 		if rep.count > 0 then 
 		(
-			for s in sel do sliceObject s rep
+			for s in sel do sliceObject s rep collapseSlice: collapseCB.state addEditPoly: addPolyModCB.state
 		)
+	)
+	
+	on autoAddBT pressed do
+	(
+		sel = selection as array
+		autoAddObjToLayer rep sel
 	)
 	
 	on addToLayBT pressed do
@@ -288,7 +410,7 @@ rollout decoupEtageRLT "découpe etage"
 			format "layer: %\n"  rep[selAr[1]].name
 			l = layermanager.getLayerFromName  rep[selAr[1]].name
 			if l == undefined then l = layermanager.newLayerFromName  rep[selAr[1]].name
-			for s in selection do
+			for s in selection do 
 			(
 				format "addnode: % on layer: %\n" s.name l.name
 				l.addnode s

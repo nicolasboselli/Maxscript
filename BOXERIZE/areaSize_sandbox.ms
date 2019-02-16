@@ -1,3 +1,9 @@
+/*
+maj:
+	-- calculer les couleur de manière à toujours retomber sur les memes
+		-- en fonction des taille de boite?
+*/
+
 struct boxStr (size, obj)
 
 colorAr = #(yellow, blue, red, orange, green, brown, gray)
@@ -34,36 +40,32 @@ for i = 1 to (boxesAr.count) do
 (
 	
 -- 	boxesAr[i].obj.wirecolor = randomColor
-	boxesAr[i].obj.wirecolor = colorAr[j]
+-- 	boxesAr[i].obj.wirecolor = colorAr[j]
+	boxesAr[i].obj.wirecolor = randomColor
 	boxesAr[i].obj.name = "fenetre_detach_" + (i as string)
+	
 	-- teste le seuil
 	local res
+	local lastRes
+	
 	if i < boxesAr.count then
 	(
 		res = boxesAr[i + 1].size - boxesAr[i].size 
+		if res > tres then 
+		(
+		-- si le seuil est depassé, si l'objet suivant est beaucoup plus grand que l'objet traité alors  calcul d'une nouvelle couleur appliqué au prochain tour
+			format "BREAK: %, size: %, %, %\n" res  boxesAr[i].size boxesAr[i].obj.name j
+			randomColor = color (random 0 255) (random 0 255) (random 0 255)
+		)
 	)
 	else if i == boxesAr.count then
 	(
-		res = boxesAr[i].size - boxesAr[i-1].size 
+		-- traitement special pour le dernier objet de la selection
+		lastRes = boxesAr[i].size - boxesAr[i-1].size
+		if lastRes > tres then  boxesAr[i].obj.wirecolor = color (random 0 255) (random 0 255) (random 0 255)
 	)
 	else continue
-	
-	-- si le seuil est depassé calcule une nouvelle couleur
-	if res > tres then 
-	(
-		format "BREAK: %, %, %, %\n" res  boxesAr[i].size boxesAr[i].obj.name j
-		randomColor = color (random 0 255) (random 0 255) (random 0 255)
-		
--- 		randomColor = colorAr[j]
--- 		j += 1
--- 		if j > 7 then j = 1
-	)
-	else
-	(
--- 		boxesAr[i].obj.wirecolor = randomColor
--- 		format " %, %\n" res  boxesAr[i].obj.name
-	)
-	boxesAr[i].obj.wirecolor = randomColor
+
 )
 
 
