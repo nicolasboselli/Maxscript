@@ -9,23 +9,26 @@ snapMode.hitPoint
 snapMode.node 
 
 */
+-- $.getVertexFace 1 1
 
+-- polyop.getFaceDeg $ 1
 
 try(destroydialog testPickerRLT)catch()
 rollout testPickerRLT "Test Picker"
 (
 	local goodRes
-	
 	checkbutton pickCB "pick"
 	
 	tool testTool
 	(
 		on mousePoint clickno do
 		(
+			format "########## start click\n"
+			
 			local myRay = mapScreenToWorldRay viewPoint
 			local arr = intersectRayScene myRay
 			
-			format "myRay: %\n" myRay
+-- 			format "myRay: %\n" myRay
 			
 			local viewMatrix =  Inverse(viewport.getTM())
 			local viewPos = viewMatrix.pos
@@ -47,10 +50,19 @@ rollout testPickerRLT "Test Picker"
 					)
 				)
 			)
-			format "goodRes: %\n" goodRes
+-- 			format "goodRes: %\n" goodRes
+			
+-- 			snapMode.getOSnapNumItems 1 
+-- 			snapMode.getOSnapItemName 1 5
 			
 			snapMode.display = false
 			snapMode.active = true
+
+			-- active vertex, edge et face
+			snapMode.setOSnapItemActive 1 5 true
+			max drawingaids; max drawingaids 
+			
+			format "snapMode.active: %\n" snapMode.active 
 			
 			format "hitPoint: %\n" snapMode.hitPoint 
 			format "node: %\n" snapMode.node 
@@ -60,19 +72,24 @@ rollout testPickerRLT "Test Picker"
 			if isvalidnode snapMode.node then
 			(
 				format "hit: %\n"(intersectRayEx snapMode.node myRay)
+-- 				tmpHit = intersectRayEx snapMode.node myRay
+-- 				if tmpHit != undefined then
+-- 				(
+-- 					format "face id: %\n" tmpHit[2]
+-- 					format "vx: %\n" (meshop.getVertsUsingFace snapMode.node tmpHit[2])
+-- 				)
 			)
 			-- recuperer les trois vertex de la face
 			-- dans le poly retourner la face avec les trois vertex
 			
 			-- selectionner un edge
-			
+-- 			snapMode.active = false
 		)
 		
 		on stop do 
 		(
-			format "stop\n"
+			format "######## stop #######\n"
 		)
-		
 	)
 	
 	on pickCB changed state do

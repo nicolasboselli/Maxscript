@@ -5,13 +5,19 @@ maj:
 	-x un bouton pour forcer le passage d'une target en master
 	-- un bouton pour updater les children sur la selection
 	-- un bouton pour updater toutes les target de la scene
+	
 	-- dupliquer et renommer les calques en fonction de la target
 	-- proposer le choix entre copy ou instance(forcement la copy remplacerait tous les enfants)
+	-- rescale en fonction d'un gabarit (object replacer)
+	
+debug:
+	-- ne copie pas les objet en instance dans les enfants(? ça semble fonctionner, peut etre que je n'avais pas bien parenter les objets)
+
+rebuild:
+	-- s'appuyer sur un modifier et pas les propriétés d'objets
 */
 
- 
-
-fn tagSourceProperties s =
+ fn tagSourceProperties s =
 (
 	local str = stringstream ""
 	format "isChildrenTransferPoint = %\n isSource = %\n sourceName = %\n" true true s.name to: str
@@ -135,6 +141,7 @@ fn transferChildren source target checkSource: false presName: true presMat: tru
 	(
 		for ch in c.children do appendifunique childrenAr ch
 	)
+	format "childrenAr.count: %\n" childrenAr.count
 	
 	-- collecte des  enfants de la target
 	childTargetAr = #(target)
@@ -145,6 +152,7 @@ fn transferChildren source target checkSource: false presName: true presMat: tru
 	
 	--creation de la copy
 	maxOps.cloneNodes childrenAr cloneType:#instance newNodes:&copyChilds
+	format "copyChilds.count: %\n" copyChilds.count
 	
 	-- prise en charge des instances de railclone: desinstancier les railclones
 		-- aprés la copy desinstancier collecter les railclone et affecter l'instance de la spline d'origine
@@ -273,6 +281,7 @@ fn getTargets source =
 try(destroyDialog transferChildrenRLT)catch()
 rollout transferChildrenRLT "transfer Children"
 (
+	local params = #("pos", "presNameCB", "presMatCB", "presTransCB", "presLayerCB")
 
 	group "Tools"
 	(
@@ -288,14 +297,26 @@ rollout transferChildrenRLT "transfer Children"
 	)
 	
 	button transferOnSelBT "Transfer Children on sel"
-	button updateTargetsBT "Update Targets"
-	
+	button updateTargetsBT "Update Targets of sel"
+	button updateSelBT "Update Sel" enabled: false
+	button updateAllBT "Update All" enabled: false
+		
 	group "info"
 	(
 		button getTargetsBT "print Targets"
 		button selectTargetsBT "select Targets"
 		button selectMasterBT "select Master"
 		button changeWireColorBT "change wirecolor"
+	)
+	
+	on transferChildrenRLT open do
+	(
+		loadRolloutParams transferChildrenRLT params
+	)
+	
+	on transferChildrenRLT close do
+	(
+		writeRolloutParams transferChildrenRLT params
 	)
 	
 	on makeMaster pressed do
@@ -351,11 +372,8 @@ rollout transferChildrenRLT "transfer Children"
 	on selectTargetsBT pressed do
 	(
 		sel = selection as array
--- 		print "check1"
 		src = findRealSource sel[1]
--- 		print "check2"
 		select src
--- 		print "check3"
 		selectmore (getTargets src)
 		
 	)
