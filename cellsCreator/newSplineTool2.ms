@@ -1,3 +1,5 @@
+max modify mode
+
 s = SplineShape ()
 updateShape s
 
@@ -12,6 +14,8 @@ select s
 enableShowEndRes true
 enableShowEndRes false
 enableShowEndRes true
+
+showEndResult 
 
 modPanel.setCurrentObject s.baseobject 
 splineOps.startCreateLine s

@@ -19,9 +19,6 @@ fn compareFN v1 v2 =
 	)
 )
 
-
-
-
 fn wirecolorByBoxSize sel tres:3 =
 (
 	-- memo:
@@ -73,8 +70,8 @@ fn wirecolorByBoxSize sel tres:3 =
 	)
 )
 
-sel = selection as array
-wirecolorByBoxSize sel
+-- sel = selection as array
+-- wirecolorByBoxSize sel
 
 
 

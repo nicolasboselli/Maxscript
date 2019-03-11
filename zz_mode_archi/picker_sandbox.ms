@@ -8,6 +8,9 @@ maj:
 snapMode.hitPoint 
 snapMode.node 
 
+debug: les parametres du snaps ne sont pas setter
+
+
 */
 -- $.getVertexFace 1 1
 
@@ -26,64 +29,51 @@ rollout testPickerRLT "Test Picker"
 			format "########## start click\n"
 			
 			local myRay = mapScreenToWorldRay viewPoint
-			local arr = intersectRayScene myRay
 			
--- 			format "myRay: %\n" myRay
+			format "node: %\n" snapMode.node.name
 			
-			local viewMatrix =  Inverse(viewport.getTM())
-			local viewPos = viewMatrix.pos
-			local nearestDist = 1000000
-			goodRes = undefined
-				
-			if arr.count>0 do	
-			(				
-				for obj in arr where not obj[1].ishidden do
-				(					
-					tmpDist = distance viewPos obj[2].pos
-					
-					if tmpDist < nearestDist do
-					(
--- 							format "mn: %\n" mn.name
-						nearestDist = tmpDist
-						goodRes = obj
--- 							format "obj: %\n" obj
-					)
-				)
-			)
--- 			format "goodRes: %\n" goodRes
-			
--- 			snapMode.getOSnapNumItems 1 
--- 			snapMode.getOSnapItemName 1 5
-			
-			snapMode.display = false
-			snapMode.active = true
-
-			-- active vertex, edge et face
-			snapMode.setOSnapItemActive 1 5 true
-			max drawingaids; max drawingaids 
-			
-			format "snapMode.active: %\n" snapMode.active 
-			
-			format "hitPoint: %\n" snapMode.hitPoint 
-			format "node: %\n" snapMode.node 
+			selVx = #()
+			polyFaceAr = #()
 			
 			-- Selectionner une face
 			-- ajouter un editmesh sur l'objet
+			em = (Edit_Mesh ())
+			addmodifier snapMode.node  em
+				
 			if isvalidnode snapMode.node then
 			(
-				format "hit: %\n"(intersectRayEx snapMode.node myRay)
--- 				tmpHit = intersectRayEx snapMode.node myRay
--- 				if tmpHit != undefined then
--- 				(
+				tmpHit = intersectRayEx snapMode.node myRay
+				if tmpHit != undefined then
+				(
 -- 					format "face id: %\n" tmpHit[2]
--- 					format "vx: %\n" (meshop.getVertsUsingFace snapMode.node tmpHit[2])
--- 				)
+					-- recuperer les trois vertex de la face
+					selVx = meshop.getVertsUsingFace snapMode.node tmpHit[2]
+-- 					format "vx: %\n" selVx
+				)
 			)
-			-- recuperer les trois vertex de la face
-			-- dans le poly retourner la face avec les trois vertex
 			
-			-- selectionner un edge
--- 			snapMode.active = false
+			deletemodifier snapMode.node  em
+			
+			-- si l'objet est un editable poly
+			-- dans le poly retourner les faces avec les trois vertex
+			for id in selVx do
+			(
+				polyFace = polyop.getFacesUsingVert snapMode.node # {id}
+-- 				format "polyFace: %\n" polyFace
+				append polyFaceAr polyFace
+			)
+			
+			-- recouper les bitarray			
+			for  p in polyFaceAr do polyFaceAr[1] *= p
+			faceSel = (polyFaceAr[1] as array)[1]
+			format "faceSel: %\n" faceSel
+			
+			-- si l'objet a un modifier edit poly
+			-- si l'objet est une spline
+			-- si l'objet est un mesh
+			
+
+			
 		)
 		
 		on stop do 
@@ -96,6 +86,13 @@ rollout testPickerRLT "Test Picker"
 	(
 		if state do
 		(
+			snapMode.display = false
+			snapMode.active = true
+
+			-- active vertex, edge et face
+			snapMode.setOSnapItemActive 7 5 true
+			max drawingaids; max drawingaids 
+			
 			continueTool = true
 			while continueTool == true do
 			(
