@@ -237,83 +237,57 @@ rollout planResizerRLT "blueprint resizer" width: 250
 		on mousePoint clickno do
 		(
 			local myRay = mapScreenToWorldRay viewPoint
-			format "node: %\n" snapMode.node.name
--- 			local arr = intersectRayScene myRay
+-- 			format "node: %\n" snapMode.node.name
 			
--- 			local viewMatrix =  Inverse(viewport.getTM())
--- 			local viewPos = viewMatrix.pos
--- 			local nearestDist = 1000000
--- 			local goodRes = undefined
--- 			
--- 			if arr.count>0 do	
--- 			(				
--- 				for obj in arr do
--- 				(
--- 					if obj[1] != sourceObj and obj[1].ishidden == false do
--- 					(
--- 						tmpDist = distance viewPos obj[2].pos
--- 						
--- 						if tmpDist < nearestDist do
--- 						(
--- 							nearestDist = tmpDist
--- 							goodRes = obj
--- 						)
--- 					)
--- 				)
--- 			)			
-
 			
--- 			if goodRes != undefined do
--- 			(
--- 				sourceObj.controller.pos.controller.value =  goodRes[2].pos
--- 				sourceObj.dir =  goodRes[2].dir
--- 			)
+			em = (Edit_Mesh ())
+			addmodifier snapMode.node  em
+				
+			if isvalidnode snapMode.node then
+			(
+				tmpHit = intersectRayEx snapMode.node myRay
+				if tmpHit != undefined then
+				(
+-- 					format "face id: %\n" tmpHit[2]
+					-- recuperer les trois vertex de la face
+					selVx = meshop.getVertsUsingFace snapMode.node tmpHit[2]
+-- 					format "vx: %\n" selVx
+				)
+			)
+			
+			deletemodifier snapMode.node  em	
 		)
 
 		on mouseMove clickno do
 		(
+				
 			if lButton == true do
 			(
 				local myRay = mapScreenToWorldRay viewPoint
-				format "node: %\n" snapMode.node.name
-				
-				/*
-				local arr = intersectRayScene myRay
-				
-				local viewMatrix =  Inverse(viewport.getTM())
-				local viewPos = viewMatrix.pos
-				local nearestDist = 1000000
-				local goodRes = undefined
-				
-				if arr.count>0 do	
-				(				
-					for obj in arr do
-					(
-						if obj[1] != sourceObj  and obj[1].ishidden == false do
-						(
-							tmpDist = distance viewPos obj[2].pos
-							
-							if tmpDist < nearestDist do
-							(
-								nearestDist = tmpDist
-								goodRes = obj
-							)
-						)
-					)
-				)			
-				
-				if goodRes != undefined do
+				if snapMode.node != undefined then format "node: %\n" snapMode.node.name
+									
+				if isvalidnode snapMode.node then
 				(
-					undo on
+					em = (Edit_Mesh ())
+					addmodifier snapMode.node  em
+					
+					tmpHit = intersectRayEx snapMode.node myRay
+					if tmpHit != undefined then
 					(
-						sourceObj.controller.pos.controller.value =  goodRes[2].pos
-						sourceObj.dir =  goodRes[2].dir
+	-- 					format "face id: %\n" tmpHit[2]
+						-- recuperer les trois vertex de la face
+						selVx = meshop.getVertsUsingFace snapMode.node tmpHit[2]
+	-- 					format "vx: %\n" selVx
 					)
+					
+					deletemodifier snapMode.node  em
 				)
-				*/
+				
+				
 				
 			)
 		)
+		
 	)
 	
 -- 	UI
@@ -529,7 +503,7 @@ rollout planResizerRLT "blueprint resizer" width: 250
 			continueTool = true
 			while continueTool == true do
 			(
-				continueTool = starttool placeObjTool
+				continueTool = starttool placeObjTool2
 			)
 			placeObjBT.state = false
 		)
@@ -561,7 +535,7 @@ rollout planResizerRLT "blueprint resizer" width: 250
 			continueTool = true
 			while continueTool == true do
 			(
-				continueTool = starttool placeObjTool
+				continueTool = starttool placeObjTool2
 			)
 			placeTgtBT.state = false
 		)
