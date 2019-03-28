@@ -124,7 +124,7 @@ try(destroydialog boxerizeRLT)catch()
 rollout boxerizeRLT "Boxerize"
 (
 	local wireAr = #(green, red, blue, orange, yellow, brown)
-	local params = #("pos", "boxOutlineSP", "boxSizeSP", "boxSizeOutSP")
+	local params = #("pos", "boxOutlineSP", "boxSizeSP", "boxSizeOutSP","wireTresSP")
 	local RLTvers = getScriptVersion (getThisScriptFilename())
 	
 	group "faces:"
@@ -162,6 +162,7 @@ rollout boxerizeRLT "Boxerize"
 	
 	group "wirecolor:"
 	(
+		spinner wireTresSP "Shell Outer:" type: #worldunits range:[0,1000,3]
 		button wireBySizeBT "Wire By Size" 
 	)
 	button boxBT2 "BOXERIZE"
@@ -278,7 +279,8 @@ rollout boxerizeRLT "Boxerize"
 	on wireBySizeBT pressed do
 	(
 		sel = selection as array
-		wirecolorByBoxSize sel
+		format "wireTresSP: %\n" wireTresSP.value
+		wirecolorByBoxSize sel tres: wireTresSP.value
 	)
 	
 	on boxBT2 pressed do

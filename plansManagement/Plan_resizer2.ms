@@ -137,157 +137,48 @@ rollout planResizerRLT "blueprint resizer" width: 250
 	
 -- 	tools
 	
-	tool placeObjTool
-	(
-
-		on mousePoint clickno do
-		(
--- 			print clickno
-			local myRay = mapScreenToWorldRay viewPoint
--- 			print myRay
-			local arr = intersectRayScene myRay
--- 			print "===="
--- 			print arr
-			
-			local viewMatrix =  Inverse(viewport.getTM())
-			local viewPos = viewMatrix.pos
-			local nearestDist = 1000000
-			local goodRes = undefined
-			
-			if arr.count>0 do	
-			(				
-				for obj in arr do
-				(
-					if obj[1] != sourceObj and obj[1].ishidden == false do
-					(
-						tmpDist = distance viewPos obj[2].pos
-						
-						if tmpDist < nearestDist do
-						(
--- 							print  obj[1]
--- 							print tmpDist
-							nearestDist = tmpDist
-							goodRes = obj
-						)
-					)
-				)
-			)			
--- 			print "==== result"
--- 			print goodRes
-			
-			if goodRes != undefined do
-			(
-				sourceObj.controller.pos.controller.value =  goodRes[2].pos
-				sourceObj.dir =  goodRes[2].dir
-			)
-		)
-
-		on mouseMove clickno do
-		(
-			if lButton == true do
-			(
-				local myRay = mapScreenToWorldRay viewPoint
-	-- 			print myRay
-				local arr = intersectRayScene myRay
-	-- 			print "===="
--- 				print arr
--- 				print "ploufe"
-				
-				local viewMatrix =  Inverse(viewport.getTM())
-				local viewPos = viewMatrix.pos
-				local nearestDist = 1000000
-				local goodRes = undefined
-				
-				if arr.count>0 do	
-				(				
-					for obj in arr do
-					(
-						if obj[1] != sourceObj  and obj[1].ishidden == false do
-						(
-							tmpDist = distance viewPos obj[2].pos
-							
-							if tmpDist < nearestDist do
-							(
-	-- 							print  obj[1]
-	-- 							print tmpDist
-								nearestDist = tmpDist
-								goodRes = obj
-							)
-						)
-					)
-				)			
-	-- 			print "==== result"
-	-- 			print goodRes
-				
-				if goodRes != undefined do
-				(
-					undo on
-					(
-						sourceObj.controller.pos.controller.value =  goodRes[2].pos
-						sourceObj.dir =  goodRes[2].dir
-					)
-				)
-			)
-		)
-	)
-	
 	tool placeObjTool2
 	(
-
+		
+		local snapNode
+		
 		on mousePoint clickno do
 		(
 			local myRay = mapScreenToWorldRay viewPoint
--- 			format "node: %\n" snapMode.node.name
+			if snapMode.node != undefined then snapNode = snapMode.node
 			
-			
-			em = (Edit_Mesh ())
-			addmodifier snapMode.node  em
-				
-			if isvalidnode snapMode.node then
+			format "snapNdeo: %\n" snapNode
+			if isvalidnode snapNode then
 			(
-				tmpHit = intersectRayEx snapMode.node myRay
+				tmpHit = intersectRayEx snapNode myRay
+				format "tmpHit: %\n" tmpHit
 				if tmpHit != undefined then
-				(
--- 					format "face id: %\n" tmpHit[2]
-					-- recuperer les trois vertex de la face
-					selVx = meshop.getVertsUsingFace snapMode.node tmpHit[2]
--- 					format "vx: %\n" selVx
+				(				
+					sourceObj.controller.pos.controller.value =  tmpHit[1].pos
+					sourceObj.dir =  tmpHit[1].dir
+					
 				)
 			)
-			
-			deletemodifier snapMode.node  em	
 		)
 
 		on mouseMove clickno do
 		(
-				
 			if lButton == true do
 			(
 				local myRay = mapScreenToWorldRay viewPoint
-				if snapMode.node != undefined then format "node: %\n" snapMode.node.name
+-- 				if snapMode.node != undefined then snapNode = snapMode.node
 									
-				if isvalidnode snapMode.node then
+				if isvalidnode snapNode then
 				(
-					em = (Edit_Mesh ())
-					addmodifier snapMode.node  em
-					
-					tmpHit = intersectRayEx snapMode.node myRay
+					tmpHit = intersectRayEx snapNode myRay
 					if tmpHit != undefined then
 					(
-	-- 					format "face id: %\n" tmpHit[2]
-						-- recuperer les trois vertex de la face
-						selVx = meshop.getVertsUsingFace snapMode.node tmpHit[2]
-	-- 					format "vx: %\n" selVx
+						sourceObj.controller.pos.controller.value =  tmpHit[1].pos
+						sourceObj.dir =  tmpHit[1].dir
 					)
-					
-					deletemodifier snapMode.node  em
-				)
-				
-				
-				
+				)				
 			)
 		)
-		
 	)
 	
 -- 	UI
@@ -490,11 +381,15 @@ rollout planResizerRLT "blueprint resizer" width: 250
 		
 		sourceObj = startPt
 		
+		-- activaton du snap
+		bakSnapDisplay = snapMode.display
+		bakSnapActive = snapMode.active
+		bakFaceSnap = snapMode.getOSnapItemActive 7 5
+		
 		snapMode.display = false
-		snapMode.active = true
-
-		-- active vertex, edge et face
+		snapMode.active = true		
 		snapMode.setOSnapItemActive 7 5 true
+		
 		max drawingaids; max drawingaids 
 		
 		
@@ -511,6 +406,10 @@ rollout planResizerRLT "blueprint resizer" width: 250
 		startPt.parent = bakParent
 		endPt.parent = bakChildParent
 		
+		-- apply bak settings
+		snapMode.display = bakSnapDisplay
+		snapMode.active = bakSnapActive		
+		snapMode.setOSnapItemActive 7 5 bakFaceSnap
 
 	)
 	
@@ -530,8 +429,19 @@ rollout planResizerRLT "blueprint resizer" width: 250
 		endPt.parent = undefined
 		sourceObj = endPt
 		
+		-- activaton du snap
+		bakSnapDisplay = snapMode.display
+		bakSnapActive = snapMode.active
+		bakFaceSnap = snapMode.getOSnapItemActive 7 5
+		
+		snapMode.display = false
+		snapMode.active = true		
+		snapMode.setOSnapItemActive 7 5 true
+		
+		max drawingaids; max drawingaids 
 		if state == true do
 		(
+			format "place tangent: % \n" sourceObj
 			continueTool = true
 			while continueTool == true do
 			(
@@ -541,6 +451,11 @@ rollout planResizerRLT "blueprint resizer" width: 250
 		)
 		
 		endPt.parent = bakParent
+		
+		-- apply bak settings
+		snapMode.display = bakSnapDisplay
+		snapMode.active = bakSnapActive		
+		snapMode.setOSnapItemActive 7 5 bakFaceSnap
 		
 	)
 	

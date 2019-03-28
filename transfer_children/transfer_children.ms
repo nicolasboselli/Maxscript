@@ -298,7 +298,7 @@ rollout transferChildrenRLT "transfer Children"
 	
 	button transferOnSelBT "Transfer Children on sel"
 	button updateTargetsBT "Update Targets of sel"
-	button updateSelBT "Update Sel" enabled: false
+	button updateSelBT "Update Sel" enabled: true
 	button updateAllBT "Update All" enabled: false
 		
 	group "info"
@@ -361,6 +361,16 @@ rollout transferChildrenRLT "transfer Children"
 		)
 	)
 	
+	on updateSelBT pressed do
+	(
+		sel = selection as array
+		for s in sel do
+		(
+			src = findRealSource s
+			format "s: %, src: %\n" s.name src.name
+			transferChildren src s checkSource: true presName:  presNameCB.state presMat:  presMatCB.state
+		)
+	)
 		
 	on getTargetsBT pressed do
 	(
