@@ -8,7 +8,7 @@ rollout vmesh_roll "  Vray Proxy Displays" --- by Budi G ( Oct 2010 )
 	 radiobuttons display_btn "" labels:#("bounding box", "preview from file", "point", "faces", "whole mesh") default:0 columns:1
 	)
 	
-	button prevBT "change all scene proxies display"
+	button prevBT "display all proxies as box"
 	
 	fn display_type sel type = ( for i in sel do if classof i == VRayProxy then ( i.display = type ) else () )
 		
@@ -31,7 +31,7 @@ rollout vmesh_roll "  Vray Proxy Displays" --- by Budi G ( Oct 2010 )
 
 	on prevBT pressed do
 	(
-		for o in geometry where iskindof o vrayproxy do o.display = (display_btn.state - 1)
+		for o in geometry where iskindof o vrayproxy do o.display = 0
 	)
 	
 ) -- dialog
