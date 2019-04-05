@@ -52,6 +52,8 @@ fn rafle layerList: #() =
 try(destroydialog prepaPercementRLT)catch()
 rollout prepaPercementRLT "preparation percement v2"
 (
+	local params = #("open")
+	
 	local cellSetAr = #()
 	local layerStructAr = #()
 	
@@ -65,25 +67,29 @@ rollout prepaPercementRLT "preparation percement v2"
 	group "configuration:"
 	(
 		dropdownlist  configDDL "select:"
-		button saveBT "save" across: 3
-		button saveAsBT "saveAs"
-		button loadBT "load"
+		button saveBT "save" across: 3 enabled: false
+		button saveAsBT "saveAs" enabled: false
+		button loadBT "load" enabled: false
 	)
 	
-	multilistbox drillingMLB "percements:"
+	group "types percements:"
+	(
+		multilistbox drillingMLB "percements:"
+	)
 	
 	group "paramètres:"
 	(
-		spinner heightSP "hauteur:"  type: #worldunits range: [0,500, 215]
+		spinner heightSP "hauteur:"  type: #worldunits range: [0,500, 215] across: 2
 		spinner allegeSP "allege:" type: #worldunits range: [0,500, 0]
-		spinner innerSP "debord arriere:" type: #worldunits range: [0,500, 0]
+		spinner innerSP "debord arriere:" type: #worldunits range: [0,500, 0] across: 2
 		spinner outerSP "debord avant:" type: #worldunits range: [0,500, 0]
+
 	)
 	
 	group "objet associé:"
 	(
-		edittext mergeET readonly: false text: "toto"
-		button pathBT "..."
+		edittext mergeET caption: "objet associé" readonly: false text: "toto" enabled: false
+		button pathBT "..." enabled: false
 	)
 	
 	group "actions:"
@@ -154,6 +160,9 @@ rollout prepaPercementRLT "preparation percement v2"
 	-- actions
 	on prepaPercementRLT open do
 	(
+		
+		loadRolloutParams prepaPercementRLT params
+		
 		cellSetAr = getfiles cellSetPath
 -- 		format "cellSetAr: %\n" cellSetAr
 		if cellSetAr.count == 0 then()
@@ -161,6 +170,11 @@ rollout prepaPercementRLT "preparation percement v2"
 -- 		format "cellSetAr: %\n" layerStructAr
 		refreshUI()
 		
+	)
+	
+	on prepaPercementRLT close do
+	(
+		writeRolloutParams prepaPercementRLT params
 	)
 	
 	on loadBT pressed do
@@ -337,6 +351,6 @@ rollout prepaPercementRLT "preparation percement v2"
 		)			
 	)
 )
-createdialog prepaPercementRLT
+-- createdialog prepaPercementRLT
 
 

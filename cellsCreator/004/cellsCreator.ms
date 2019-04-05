@@ -13,15 +13,15 @@
 
 -- OUTILS FENETRES
 	-- preparation percement (cf prepa_percement_sandbox.ms)
-		-- rendre editable tous les objets à la construction (type de fenetre) pour en ajouter ou en supprimer (creation ou suppression de calque)
+		/- rendre editable tous les objets à la construction (type de fenetre) pour en ajouter ou en supprimer (creation ou suppression de calque)
 		x- ajustement des reperes de percement
 			x- integrer la fonction d'ajustement directement dans le rollout de gabarit
 			-- debug:
 				-- pour qu'il s'auto aligne au mur
 				x- pour qu'il fonctionne en horaire et en anti horaire (actuellement fonctionne seulement en anti horaire)
 			
-		-- rendre parametrable l'avant et l'apres (à editer lorsqu'on pourra ajouter des types de gabarit cf rebuild)
-		-- rendre invisible l'operation d'ajustement des reperes de fenetres, la faire executer à la creation des gabarits
+		x- rendre parametrable l'avant et l'apres (à editer lorsqu'on pourra ajouter des types de gabarit cf rebuild)
+		x- rendre invisible l'operation d'ajustement des reperes de fenetres, la faire executer à la creation des gabarits
 		-- mettre le repere perpendiculaire automatique(pour les murs en biais)
 		-- automatiser l'import et les placement des portes		
  
@@ -93,18 +93,18 @@ global filesPOR
 -- try(closerolloutfloater dRolFloater) catch()
 
 -- vars layer
-global splinesMursExtLName =  "_Splines Murs Ext"
-global splinesMursBalconLName = "_Splines Murs Terrasses" 
-global splinesMursFondLName = "_Splines Murs Fond"
-global splinesMursIntName = "_Splines Murs Interieurs"
+-- global splinesMursExtLName =  "_Splines Murs Ext"
+-- global splinesMursBalconLName = "_Splines Murs Terrasses" 
+-- global splinesMursFondLName = "_Splines Murs Fond"
+-- global splinesMursIntName = "_Splines Murs Interieurs"
 
-global SplinesFenetresLName = "__Splines Fenetres"
-global SplinesPFenetresLName = "__Splines PFenetres"
-global SplinesPortesLName = "__Splines Portes"
+-- global SplinesFenetresLName = "__Splines Fenetres"
+-- global SplinesPFenetresLName = "__Splines PFenetres"
+-- global SplinesPortesLName = "__Splines Portes"
 
- global TmpFenLName = "___Gabarits Fenetres"
- global TmpPFenLName = "___Gabarits PFenetres"
- global TmpPortesLName  =  "___Gabarits Portes"
+--  global TmpFenLName = "___Gabarits Fenetres"
+--  global TmpPFenLName = "___Gabarits PFenetres"
+--  global TmpPortesLName  =  "___Gabarits Portes"
 
 global solsPrepaLname = "____ Sol construction"
 
@@ -114,6 +114,7 @@ global AptLName  = "Appartement"
 
 
 -- Preparation des calques de travail
+/*
 function createWorkLayer = 
 (	
 -- 	layerList = #( splinesMursExtLName, 
@@ -135,6 +136,7 @@ function createWorkLayer =
 		if  LayerManager.getLayerFromName l == undefined then LayerManager.newLayerFromName l
 	)
 )
+*/
 
 -- inversion du sens de la spline
 fn inverseKnotOrder l =
@@ -152,6 +154,9 @@ fn inverseKnotOrder l =
 )
 
 filein "adjust_gabarit.ms" -- quiet: true
+filein "prepa_mur_rlt.ms" -- quiet: true
+filein "prepa_percement_rlt.ms" -- quiet: true
+
 
 fn collectLayer pattern: "*" =
 (
@@ -187,7 +192,7 @@ rollout prepareScene "Preparer le cellule" width:350 height:230
 	
 	on prepareScene open do
 	(
-		createWorkLayer()
+-- 		createWorkLayer()
 		
 		-- pref du rollout loader à l'ouverture
 		loadRolloutParams prepareScene params
@@ -342,6 +347,7 @@ fn createWall oneArray hauteur epaisseur =
 	)
 )
 
+/*
 rollout addExtWall "Preparation des Murs" width:350 height:230
 (	
 	
@@ -569,6 +575,7 @@ rollout addExtWall "Preparation des Murs" width:350 height:230
 		else if mursIntAr.count > 0 then 	createWall theNodes  intwallHauteurSP.value  intwallEpaisseurSP.value
 	)
 )
+*/
 
 fn hideOthersLayer l =
 (
@@ -618,7 +625,7 @@ fn collectGabarit2 =
 	allGab
 )
 -- collectGabarit2()
-
+/*
 fn collectGabarit =
 (
 	-- recuperation des blocs de gabarits sur les calques
@@ -638,7 +645,9 @@ fn collectGabarit =
 	
 	(nnl1 + nnl2 + nnl3)
 )
+*/
 
+/*
 rollout openingWall "Preparation des percements" width:350 height:230
 (	
 	local params = #("open", "windowHauteurSP", "windowAllegeSP", "porteHauteurSP", "porteAllegeSP", "porteFenetreHauteurSP", "porteFenetreAllegeSP" )
@@ -941,6 +950,7 @@ rollout openingWall "Preparation des percements" width:350 height:230
 	)
 	
 )
+*/
 
 fn createPlinte l =
 (
@@ -1461,8 +1471,12 @@ rollout importAssetRLT "import assets"
 rollout displayRLT "display"
 (
 -- 	local mursList = #(splinesMursExtLName, splinesMursBalconLName, splinesMursFondLName, splinesMursIntName)
+	
+	local params = #("open")
+	
 	local mursList = collectLayerNames pattern: "_Splines Murs *" 
 	local spGabList = #(SplinesFenetresLName, SplinesPFenetresLName, SplinesPortesLName)
+-- 	local spGabList = collectLayerNames pattern: "_Splines Murs *" 
 	local gabList = #(TmpFenLName, TmpPFenLName, TmpPortesLName)
 	local prepSolList = #(solsPrepaLname)
 	local AptList = #(solsLname, AptLName)
@@ -1503,6 +1517,16 @@ rollout displayRLT "display"
 			m.xray = state
 		) 
 	)
+	
+	on displayRLT open do
+	(
+		loadRolloutParams displayRLT params
+	)
+	
+	on displayRLT close do
+	(
+		writeRolloutParams displayRLT params
+	)
 		
 	on hideMursCB changed state do
 	(		
@@ -1534,17 +1558,19 @@ rollout displayRLT "display"
 		for l in mursList do transLayer l state
 	)
 	
-	
 )
 
-
-addRollout prepareScene dRolFloater 
 addRollout addPlan dRolFloater --rolledUp:true
+addRollout prepareScene dRolFloater 
+
 
 addRollout displayRLT dRolFloater
 
-addRollout addExtWall dRolFloater --rolledUp:false
-addRollout openingWall dRolFloater --rolledUp:false
+-- addRollout addExtWall dRolFloater --rolledUp:false
+addRollout prepaMursRLT dRolFloater 
+
+-- addRollout openingWall dRolFloater --rolledUp:false
+addRollout prepaPercementRLT dRolFloater
 
 addRollout createGround dRolFloater --rolledUp:false
 

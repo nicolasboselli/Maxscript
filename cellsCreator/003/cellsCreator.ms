@@ -152,6 +152,9 @@ fn inverseKnotOrder l =
 )
 
 filein "adjust_gabarit.ms" -- quiet: true
+filein "prepa_mur_rlt.ms" -- quiet: true
+filein "prepa_percement_rlt.ms" -- quiet: true
+
 
 fn collectLayer pattern: "*" =
 (
@@ -187,7 +190,7 @@ rollout prepareScene "Preparer le cellule" width:350 height:230
 	
 	on prepareScene open do
 	(
-		createWorkLayer()
+-- 		createWorkLayer()
 		
 		-- pref du rollout loader à l'ouverture
 		loadRolloutParams prepareScene params
@@ -341,6 +344,7 @@ fn createWall oneArray hauteur epaisseur =
 -- 			format "mur balcon: %\n" obj.name
 	)
 )
+
 
 rollout addExtWall "Preparation des Murs" width:350 height:230
 (	
@@ -569,6 +573,7 @@ rollout addExtWall "Preparation des Murs" width:350 height:230
 		else if mursIntAr.count > 0 then 	createWall theNodes  intwallHauteurSP.value  intwallEpaisseurSP.value
 	)
 )
+
 
 fn hideOthersLayer l =
 (
@@ -941,6 +946,7 @@ rollout openingWall "Preparation des percements" width:350 height:230
 	)
 	
 )
+
 
 fn createPlinte l =
 (
@@ -1461,8 +1467,12 @@ rollout importAssetRLT "import assets"
 rollout displayRLT "display"
 (
 -- 	local mursList = #(splinesMursExtLName, splinesMursBalconLName, splinesMursFondLName, splinesMursIntName)
+	
+	local params = #("open")
+	
 	local mursList = collectLayerNames pattern: "_Splines Murs *" 
 	local spGabList = #(SplinesFenetresLName, SplinesPFenetresLName, SplinesPortesLName)
+-- 	local spGabList = collectLayerNames pattern: "_Splines Murs *" 
 	local gabList = #(TmpFenLName, TmpPFenLName, TmpPortesLName)
 	local prepSolList = #(solsPrepaLname)
 	local AptList = #(solsLname, AptLName)
@@ -1503,6 +1513,16 @@ rollout displayRLT "display"
 			m.xray = state
 		) 
 	)
+	
+	on displayRLT open do
+	(
+		loadRolloutParams displayRLT params
+	)
+	
+	on displayRLT close do
+	(
+		writeRolloutParams displayRLT params
+	)
 		
 	on hideMursCB changed state do
 	(		
@@ -1534,17 +1554,19 @@ rollout displayRLT "display"
 		for l in mursList do transLayer l state
 	)
 	
-	
 )
 
-
-addRollout prepareScene dRolFloater 
 addRollout addPlan dRolFloater --rolledUp:true
+addRollout prepareScene dRolFloater 
+
 
 addRollout displayRLT dRolFloater
 
-addRollout addExtWall dRolFloater --rolledUp:false
-addRollout openingWall dRolFloater --rolledUp:false
+-- addRollout addExtWall dRolFloater --rolledUp:false
+addRollout prepaMursRLT dRolFloater 
+
+-- addRollout openingWall dRolFloater --rolledUp:false
+addRollout prepaPercementRLT dRolFloater
 
 addRollout createGround dRolFloater --rolledUp:false
 

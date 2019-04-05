@@ -148,15 +148,14 @@ rollout objReplacerRLT "objects replacer "
 		button removeBT "remove"
 	)
 	
-	group "working on"
+	group "copy options:"
 	(
-		radiobuttons workOnRB "layer:" labels: #("original", "copy") offsets:#([50,-16], [80,-16])
+		radiobuttons workOnRB "object:" labels: #("original", "copy") offsets:#([50,-16], [80,-16])
+		radiobuttons layerRB "layer:" labels: #("source", "target") offsets:#([50,-16], [80,-16]) -- enabled: false
+		radiobuttons cloneTypeRB "clone type:" labels: #("copy", "instance")   offsets:#([80,-16], [80,-16]) 
 	)
 	
-	group "layers"
-	(
-		radiobuttons layerRB "layer:" labels: #("source", "target") offsets:#([50,-16], [80,-16]) -- enabled: false
-	)
+
 	
 	group "rescale on bounding box:"
 	(
@@ -165,11 +164,7 @@ rollout objReplacerRLT "objects replacer "
 		checkbox rescaleYCB "y"  checked: true -- enabled: false
 		checkbox rescaleZCB "z"  checked: true
 	)
-	
-	group "Clone type:"
-	(
-		radiobuttons cloneTypeRB "clone type:" labels: #("copy", "instance")   offsets:#([80,-16], [80,-16]) 
-	)
+
 	
 	group "Align type (ref > target):"
 	(

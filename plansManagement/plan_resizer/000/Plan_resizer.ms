@@ -137,137 +137,28 @@ rollout planResizerRLT "blueprint resizer" width: 250
 	
 -- 	tools
 	
-	tool placeObjTool
-	(
-
-		on mousePoint clickno do
-		(
--- 			print clickno
-			local myRay = mapScreenToWorldRay viewPoint
--- 			print myRay
-			local arr = intersectRayScene myRay
--- 			print "===="
--- 			print arr
-			
-			local viewMatrix =  Inverse(viewport.getTM())
-			local viewPos = viewMatrix.pos
-			local nearestDist = 1000000
-			local goodRes = undefined
-			
-			if arr.count>0 do	
-			(				
-				for obj in arr do
-				(
-					if obj[1] != sourceObj and obj[1].ishidden == false do
-					(
-						tmpDist = distance viewPos obj[2].pos
-						
-						if tmpDist < nearestDist do
-						(
--- 							print  obj[1]
--- 							print tmpDist
-							nearestDist = tmpDist
-							goodRes = obj
-						)
-					)
-				)
-			)			
--- 			print "==== result"
--- 			print goodRes
-			
-			if goodRes != undefined do
-			(
-				sourceObj.controller.pos.controller.value =  goodRes[2].pos
-				sourceObj.dir =  goodRes[2].dir
-			)
-		)
-
-		on mouseMove clickno do
-		(
-			if lButton == true do
-			(
-				local myRay = mapScreenToWorldRay viewPoint
-	-- 			print myRay
-				local arr = intersectRayScene myRay
-	-- 			print "===="
--- 				print arr
--- 				print "ploufe"
-				
-				local viewMatrix =  Inverse(viewport.getTM())
-				local viewPos = viewMatrix.pos
-				local nearestDist = 1000000
-				local goodRes = undefined
-				
-				if arr.count>0 do	
-				(				
-					for obj in arr do
-					(
-						if obj[1] != sourceObj  and obj[1].ishidden == false do
-						(
-							tmpDist = distance viewPos obj[2].pos
-							
-							if tmpDist < nearestDist do
-							(
-	-- 							print  obj[1]
-	-- 							print tmpDist
-								nearestDist = tmpDist
-								goodRes = obj
-							)
-						)
-					)
-				)			
-	-- 			print "==== result"
-	-- 			print goodRes
-				
-				if goodRes != undefined do
-				(
-					undo on
-					(
-						sourceObj.controller.pos.controller.value =  goodRes[2].pos
-						sourceObj.dir =  goodRes[2].dir
-					)
-				)
-			)
-		)
-	)
-	
 	tool placeObjTool2
 	(
-
+		
+		local snapNode
+		
 		on mousePoint clickno do
 		(
 			local myRay = mapScreenToWorldRay viewPoint
-			format "node: %\n" snapMode.node.name
--- 			local arr = intersectRayScene myRay
+			if snapMode.node != undefined then snapNode = snapMode.node
 			
--- 			local viewMatrix =  Inverse(viewport.getTM())
--- 			local viewPos = viewMatrix.pos
--- 			local nearestDist = 1000000
--- 			local goodRes = undefined
--- 			
--- 			if arr.count>0 do	
--- 			(				
--- 				for obj in arr do
--- 				(
--- 					if obj[1] != sourceObj and obj[1].ishidden == false do
--- 					(
--- 						tmpDist = distance viewPos obj[2].pos
--- 						
--- 						if tmpDist < nearestDist do
--- 						(
--- 							nearestDist = tmpDist
--- 							goodRes = obj
--- 						)
--- 					)
--- 				)
--- 			)			
-
-			
--- 			if goodRes != undefined do
--- 			(
--- 				sourceObj.controller.pos.controller.value =  goodRes[2].pos
--- 				sourceObj.dir =  goodRes[2].dir
--- 			)
+			format "snapNode: %\n" snapNode
+			if isvalidnode snapNode then
+			(
+				tmpHit = intersectRayEx snapNode myRay
+				format "tmpHit: %\n" tmpHit
+				if tmpHit != undefined then
+				(				
+					sourceObj.controller.pos.controller.value =  tmpHit[1].pos
+					sourceObj.dir =  tmpHit[1].dir
+					
+				)
+			)
 		)
 
 		on mouseMove clickno do
@@ -275,43 +166,17 @@ rollout planResizerRLT "blueprint resizer" width: 250
 			if lButton == true do
 			(
 				local myRay = mapScreenToWorldRay viewPoint
-				format "node: %\n" snapMode.node.name
-				
-				/*
-				local arr = intersectRayScene myRay
-				
-				local viewMatrix =  Inverse(viewport.getTM())
-				local viewPos = viewMatrix.pos
-				local nearestDist = 1000000
-				local goodRes = undefined
-				
-				if arr.count>0 do	
-				(				
-					for obj in arr do
-					(
-						if obj[1] != sourceObj  and obj[1].ishidden == false do
-						(
-							tmpDist = distance viewPos obj[2].pos
-							
-							if tmpDist < nearestDist do
-							(
-								nearestDist = tmpDist
-								goodRes = obj
-							)
-						)
-					)
-				)			
-				
-				if goodRes != undefined do
+-- 				if snapMode.node != undefined then snapNode = snapMode.node
+									
+				if isvalidnode snapNode then
 				(
-					undo on
+					tmpHit = intersectRayEx snapNode myRay
+					if tmpHit != undefined then
 					(
-						sourceObj.controller.pos.controller.value =  goodRes[2].pos
-						sourceObj.dir =  goodRes[2].dir
+						sourceObj.controller.pos.controller.value =  tmpHit[1].pos
+						sourceObj.dir =  tmpHit[1].dir
 					)
-				)
-				*/
-				
+				)				
 			)
 		)
 	)
@@ -320,16 +185,19 @@ rollout planResizerRLT "blueprint resizer" width: 250
 
 	-- pick blueprint resizer
 			-- create resizer
-	group "Scaler:"
+	group "Inspection:"
 	(
 		edittext scalerSpyET "scaler in scene :" readonly: true
 		
-		button createScaler_bt "create scaler" across:3
-		button selScaler_bt "select scaler"
-		button centerScaler_bt "center map" 
-		
-		checkbutton placeObjBT "snapping root" enabled: false across: 2
-		checkbutton placeTgtBT "snapping target" enabled: false
+		button createScaler_bt "create scaler"  enabled: false across:3
+		button selScaler_bt "select scaler" enabled: false
+		button centerScaler_bt "center map" enabled: false
+	)
+	
+	group "Scaler:"
+	(
+		checkbutton placeObjBT "snapping root" enabled: true across: 2
+		checkbutton placeTgtBT "snapping target" enabled: true
 		
 -- 		spinner multiScaler "Scaler size x" range: [0,100,1] type:#float across:2
 		button resizeScaler "size x 10" across: 2
@@ -361,6 +229,7 @@ rollout planResizerRLT "blueprint resizer" width: 250
 -- 	UI functions
 	fn refreshUI  =
 	(
+		
 		if scalerArray == undefined then
 		(
 
@@ -406,6 +275,7 @@ rollout planResizerRLT "blueprint resizer" width: 250
 			distResize_et.enabled = true
 			refreshDistResize_pb.enabled = true
 		)
+		
 	)
 
 -- 	actions
@@ -508,9 +378,6 @@ rollout planResizerRLT "blueprint resizer" width: 250
 			distResize_et.text = ((distance scalerArray[1] scalerArray[2]) as string) + "cm"
 		)
 		
-		
-		
-		-- casse des restaurations 
 		bakParent = startPt.parent
 		bakChildParent = endPt.parent
 		
@@ -519,37 +386,39 @@ rollout planResizerRLT "blueprint resizer" width: 250
 		
 		sourceObj = startPt
 		
-		
 		-- settings du snap
-			-- active snap
-		local snapModeState = snapMode.active
-		if not snapModeState then snapMode.active = true
+		-- activaton du display
 
-			-- active face
-		faceSnapState = snapMode.getOSnapItemActive 7 5
-		if not faceSnapState then snapMode.setOSnapItemActive 7 5 true
-		max drawingaids; max drawingaids 
-			-- desactive reste
+		-- activaton du snap
+		local bakSnapActive = snapMode.active
+		if not bakSnapActive then snapMode.active = true
+			
+		-- active face
+		bakFaceSnap = snapMode.getOSnapItemActive 7 5
+		if not bakFaceSnap then snapMode.setOSnapItemActive 7 5 true
+		-- desactiver reste
 		
-		-- placement du root
+		max drawingaids; max drawingaids 
+		
+		
 		if state == true do
 		(
 			continueTool = true
 			while continueTool == true do
 			(
-				continueTool = starttool placeObjTool
+				continueTool = starttool placeObjTool2
 			)
 			placeObjBT.state = false
 		)
 		
-		-- restauration des parentés
 		startPt.parent = bakParent
 		endPt.parent = bakChildParent
 		
-		-- restauration  des settings de snap
-		snapMode.active = snapModeState
-		snapMode.setOSnapItemActive 7 5 faceSnapState
-		max drawingaids; max drawingaids 
+		-- apply bak settings
+-- 		snapMode.display = bakSnapDisplay
+		snapMode.active = bakSnapActive		
+		snapMode.setOSnapItemActive 7 5 bakFaceSnap
+
 	)
 	
 	on placeTgtBT changed state do
@@ -568,17 +437,34 @@ rollout planResizerRLT "blueprint resizer" width: 250
 		endPt.parent = undefined
 		sourceObj = endPt
 		
+		-- snap setting				
+		-- activaton du snap
+		local bakSnapActive = snapMode.active
+		if not bakSnapActive then snapMode.active = true
+			
+		-- active face		
+		bakFaceSnap = snapMode.getOSnapItemActive 7 5
+		if not bakFaceSnap then snapMode.setOSnapItemActive 7 5 true
+-- 		
+		max drawingaids; max drawingaids 
 		if state == true do
 		(
+			format "place tangent: % \n" sourceObj
 			continueTool = true
 			while continueTool == true do
 			(
-				continueTool = starttool placeObjTool
+				continueTool = starttool placeObjTool2
 			)
 			placeTgtBT.state = false
 		)
 		
 		endPt.parent = bakParent
+		
+		-- apply bak settings
+-- 		snapMode.display = bakSnapDisplay
+		snapMode.active = bakSnapActive		
+		snapMode.setOSnapItemActive 7 5 bakFaceSnap
+		
 	)
 	
 	on resizeScaler pressed do

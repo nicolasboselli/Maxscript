@@ -3,7 +3,7 @@
 	global pickAndMergePath = "PICKNMERGE/001/pickandmerge.ms"
 	global objReplacerPath = "objReplacer/000/obj_replacer.ms"
 -- 	global cellsCreatorPath = @"M:\Interieur\Cellules\Modelisation\cellsCreator.ms"
-	global cellsCreatorPath = "cellsCreator/001/cellsCreator.ms"
+	global cellsCreatorPath = "cellsCreator/003/cellsCreator.ms"
 	
 	macroScript PickAndMerge
 	category: "VisioLab"

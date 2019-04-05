@@ -19,6 +19,8 @@ global cellSetPath = getroot() +"cellsCreator/cellSettings/*"
 
 struct spMurSet (name, wirecolor, hauteur, epaisseur)
 
+filein "move_spline_rlt.ms"
+
 try(destroydialog MursStyleNameRLT)catch()
 rollout MursStyleNameRLT "rename style de mur"
 (
@@ -45,9 +47,12 @@ rollout MursStyleNameRLT "rename style de mur"
 )
 
 try(destroydialog prepaMursRLT)catch()
-rollout prepaMursRLT "preparation murs v2" width:350
+rollout prepaMursRLT "preparation murs v2" -- width:350
 (
 	global selectedMurTypeName
+	
+	local params = #("open")
+	
 	local cellSetAr = #()
 	local layerStructAr = #()
 	
@@ -58,18 +63,18 @@ rollout prepaMursRLT "preparation murs v2" width:350
 	
 	group "configuration:"
 	(
-		dropdownlist  configDDL "select:"
-		button saveBT "save" across: 3  -- enabled: false
+		dropdownlist  configDDL "select:"  enabled: false
+		button saveBT "save" across: 3  enabled: false
 		button saveAsBT "saveAs" enabled: false
-		button loadBT "load"
+		button loadBT "load"  enabled: false
 	)
 	
 	group "types murs:"
 	(
 		multilistbox mursMLB "Murs:" height: 6
-		button addtypeBT "add" across: 3
-		button delTypeBT "delete"
-		button renTypeBT "rename"  --enabled: false
+		button addtypeBT "add" across: 3 enabled: false
+		button delTypeBT "delete" enabled: false
+		button renTypeBT "rename"  enabled: false --enabled: false 
 	)
 	
 	group "paramètres:"
@@ -90,6 +95,7 @@ rollout prepaMursRLT "preparation murs v2" width:350
 	(
 		button extwallInverser "Inverser sens spline"  across: 2 -- enabled: false 
 		button delAllModBT "Supprimer Modifiers"
+		button moveSplineBT "Move Spline"  across: 2 --enabled: false
 		button createSelectionBT "Créer murs sur Selection"  enabled: false
 	)
 	
@@ -119,7 +125,7 @@ rollout prepaMursRLT "preparation murs v2" width:350
 		)
 	)
 	
-	
+	-- UI functions
 	fn loadSettings f =
 	(
 		layerStructAr = #()
@@ -145,10 +151,12 @@ rollout prepaMursRLT "preparation murs v2" width:350
 		refreshUI()
 	)
 	
+	-- actions
 	on prepaMursRLT open do
 	(
 		-- collecte des settings de cellules
 		cellSetAr = getfiles cellSetPath
+		loadRolloutParams prepaMursRLT params
 		
 		-- collecte des types de mur
 		if cellSetAr.count == 0 then()
@@ -156,7 +164,12 @@ rollout prepaMursRLT "preparation murs v2" width:350
 		
 		refreshUI()
 	)
-		
+	
+	on prepaMursRLT close do
+	(
+		writeRolloutParams prepaMursRLT params
+	)
+	
 	on loadBT pressed do
 	(		
 		local config = cellSetAr[configDDL.selection]
@@ -318,8 +331,14 @@ rollout prepaMursRLT "preparation murs v2" width:350
 			
 		select sel
 	)
+	
+	on moveSplineBT pressed do
+	(
+		try(destroydialog moveSplineRLT)catch()
+		createdialog moveSplineRLT
+	)
 )
-createdialog prepaMursRLT
+-- createdialog prepaMursRLT
 
 
 
