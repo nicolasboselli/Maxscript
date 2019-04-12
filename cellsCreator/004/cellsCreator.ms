@@ -93,50 +93,15 @@ global filesPOR
 -- try(closerolloutfloater dRolFloater) catch()
 
 -- vars layer
--- global splinesMursExtLName =  "_Splines Murs Ext"
--- global splinesMursBalconLName = "_Splines Murs Terrasses" 
--- global splinesMursFondLName = "_Splines Murs Fond"
--- global splinesMursIntName = "_Splines Murs Interieurs"
-
--- global SplinesFenetresLName = "__Splines Fenetres"
--- global SplinesPFenetresLName = "__Splines PFenetres"
--- global SplinesPortesLName = "__Splines Portes"
-
---  global TmpFenLName = "___Gabarits Fenetres"
---  global TmpPFenLName = "___Gabarits PFenetres"
---  global TmpPortesLName  =  "___Gabarits Portes"
+global mursPrefix = "_Splines Murs "
+global prepaSuf = "__Splines "
+global gabSuf = "___Gabarits "
+global decSuf = "____Decoupes "
 
 global solsPrepaLname = "____ Sol construction"
 
 global solsLname = "Sol"
 global AptLName  = "Appartement"
-
-
-
--- Preparation des calques de travail
-/*
-function createWorkLayer = 
-(	
--- 	layerList = #( splinesMursExtLName, 
--- 		splinesMursBalconLName ,
--- 		splinesMursFondLName ,
--- 		splinesMursIntName ,
--- 		SplinesFenetresLName ,
--- 		SplinesPFenetresLName ,
--- 		SplinesPortesLName
--- 	)
-	
-	layerList = #( SplinesFenetresLName ,
-		SplinesPFenetresLName ,
-		SplinesPortesLName
-	)
-	
-	for l in layerList do
-	(
-		if  LayerManager.getLayerFromName l == undefined then LayerManager.newLayerFromName l
-	)
-)
-*/
 
 -- inversion du sens de la spline
 fn inverseKnotOrder l =
@@ -154,8 +119,7 @@ fn inverseKnotOrder l =
 )
 
 filein "adjust_gabarit.ms" -- quiet: true
-filein "prepa_mur_rlt.ms" -- quiet: true
-filein "prepa_percement_rlt.ms" -- quiet: true
+
 
 
 fn collectLayer pattern: "*" =
@@ -176,7 +140,8 @@ fn collectLayer pattern: "*" =
 
 try(closeRolloutFloater  dRolFloater)catch()
 dRolFloater = newRolloutFloater "Creation de plans de cellules" 350 650 80 200
-
+-- RLTvers = getScriptVersion (getThisScriptFilename())
+dRolFloater.title =  dRolFloater.title +" v." + ((getScriptVersion (getThisScriptFilename())) as string)
 -- classof prepareScene.RFSIze
 rollout prepareScene "Preparer le cellule" width:350 height:230
 (	
@@ -192,7 +157,7 @@ rollout prepareScene "Preparer le cellule" width:350 height:230
 	
 	on prepareScene open do
 	(
--- 		createWorkLayer()
+-- 	createWorkLayer()
 		
 		-- pref du rollout loader à l'ouverture
 		loadRolloutParams prepareScene params
@@ -234,7 +199,7 @@ rollout prepareScene "Preparer le cellule" width:350 height:230
 	on loadRenderPset pressed  do
 	(		
 		renderSceneDialog.close()
-		
+		-- render size
 		renderWidth = 4900
 		renderHeight = 4165
 		
@@ -250,6 +215,8 @@ rollout prepareScene "Preparer le cellule" width:350 height:230
 		-- parametre color mapping
 		-- parametre ao
 		-- parametre chemin d'enregistrement
+		-- paremetre environnement
+		backgroundColor = color 255 255 255
 		
 		/*
 		filesVray = importfolderVray + "\\Correction_Couleur.vccglb"
@@ -324,258 +291,9 @@ rollout addPlan "Preparation du plan" width:350 height:230
 		)
 	)
 )
-	
-fn createWall oneArray hauteur epaisseur =
-(
-	extMod = Extrude amount: hauteur capStart: off capEnd: off
-	shellMod = Shell outerAmount: 0.0 innerAmount: epaisseur	overrideInnerMatID: on	 matInnerID: 2 overrideOuterMatID: on matOuterID: 1 \
-	overrideMatID: on matID: 3 autoSmoothAngle: 0 straightenCorners: on
-	uvwMapMod = Uvwmap maptype: 4 length: 150 width: 150 height: 150
-		
-	for obj in oneArray  do 
-	( 
-		-- nettoyage de la spline
-		local modcount = obj.modifiers.count
-		for i = 1 to modCount do deletemodifier obj 1
-		
-		-- creation du mur
-		addmodifier obj extMod
-		addmodifier obj shellMod
-		addmodifier obj uvwMapMod
-		
--- 			format "mur balcon: %\n" obj.name
-	)
-)
 
-/*
-rollout addExtWall "Preparation des Murs" width:350 height:230
-(	
-	
-	local params = #("open", "extwallHauteurSP", "extwallEpaisseurSP", "terrassewallHauteurSP", "terrassewallEpaisseurSP", "backwallHauteurSP", \
-		"backwallHauteurSP", "intwallHauteurSP", "intwallEpaisseurSP" )
-
-	group "Murs Exterieurs:"
-	(
-		spinner extwallHauteurSP "Hauteur :" type: #worldunits range: [0,500, 110] across: 2
-		spinner extwallEpaisseurSP "Epaisseur :" type: #worldunits range: [0,500, 34]
-		button extWallLayerBT "add to layer" across: 2
-		button extwallCreate "Créer murs exterieurs"   
-	)
-	
-	group "Murs Terrasses:"
-	(
-		spinner terrassewallHauteurSP "Hauteur :"type: #worldunits range: [0,500, 20]	across: 2
-		spinner terrassewallEpaisseurSP "Epaisseur :"  type: #worldunits range: [0,500, 20]
-		button terWallLayerBT "add to layer" across: 2
-		button terWallCreateBT "Créer murs terrasse"
-	)
-	
-	
-	group "Murs du Fond:"
-	(
-		spinner backwallHauteurSP "Hauteur :" type: #worldunits range: [0,500, 230] across: 2
-		spinner backwallEpaisseurSP "Epaisseur :" type: #worldunits range: [0,500, 20] 
-		button backWallLayerBT "add to layer" across: 2
-		button 'backwallCreate' "Créer murs Fond" 
-	)
-	
-	group "Murs Interieurs:"
-	(
-		spinner intwallHauteurSP "Hauteur :" type: #worldunits range: [0,500, 230] across: 2
-		spinner intwallEpaisseurSP "Epaisseur :" type: #worldunits range: [0,500, 10] 
-		button intWallLayerBT  "add to layer" across: 2
-		button 'intwallCreate' "Créer murs Interieur" -- across: 2
-	)
-	
-	group "Tools:"
-	(
-		button extwallInverser "Inverser sens spline"  across: 2
-		button delAllModBT "Supprimer Modifiers"
-		button createSelectionBT "Créer murs sur Selection" -- across: 2
--- 		checkButton hideLayerCB "\"Murs\" layers visibility toggle"
-	)
-	
-	on addExtWall open do
-	(
-		loadRolloutParams addExtWall params
-	)
-	
-	on addExtWall close do
-	(
-		writeRolloutParams addExtWall params
-	)
-
-	
--- 	on hideLayerCB changed state do
--- 	(
--- 		local layerList = #(splinesMursExtLName, splinesMursBalconLName, splinesMursFondLName, splinesMursIntName)
--- 		for n in layerList do
--- 		(
--- 			l = LayerManager.getLayerFromName n
--- 			if l != undefined then
--- 			(
--- 				l.on =  state
--- 			)else()
--- 		)
--- 	)
-	
-	on extWallLayerBT pressed do
-	(		
-		l = LayerManager.getLayerFromName splinesMursExtLName
-		sel = selection as array
-		for s in sel do 
-		(
-			l.addnode s
-			s.wirecolor = orange
-		)
-	)
-		
-	on extwallCreate pressed  do
-	(	
-		
-		-- CREATION des murs exterieurs
-		target = LayerManager.getLayerFromName splinesMursExtLName
-		if target == undefined then 
-		(
-			messageBox "Pour créer les mur Exterieur vous devez 'Préparer murExt'"
-		) 
-		else 
-		(
-			target.nodes &theNodes
-			
-			createWall theNodes  extwallHauteurSP.value extwallEpaisseurSP.value
-		)
-	)
-	
-	on terWallLayerBT pressed do
-	(
-		l = LayerManager.getLayerFromName splinesMursBalconLName
-		sel = selection as array
-		for s in sel do
-		(
-			l.addnode s
-			s.wirecolor = gray
-		)
-	)
-	
-	on terWallCreateBT pressed do
-	(
-		-- creation de balcon
-		target = LayerManager.getLayerFromName splinesMursBalconLName
-		if target == undefined then
-		(
-			messageBox "Pour créer les murs terrasse vous devez 'Préparer murBalcon'"
-		)
-		else
-		(
-			target.nodes &theNodes
-			createWall theNodes  terrassewallHauteurSP.value  terrassewallEpaisseurSP.value
-		)
-	)
-	
-	on backWallLayerBT pressed do
-	(		
-		l = LayerManager.getLayerFromName splinesMursFondLName
-		sel = selection as array
-		for s in sel do 
-		(
-			l.addnode s
-			s.wirecolor = yellow
-		)
-	)
-	
-	on backwallCreate pressed  do
-	(	
-		target = LayerManager.getLayerFromName splinesMursFondLName
-			
-		if target == undefined then 
-		(
-			messageBox "Pour créer les mur du Fond vous devez 'Préparer murFond'"
-		) 
-		else
-		(
-			target.nodes &theNodes
-			createWall theNodes backwallHauteurSP.value backwallEpaisseurSP.value
-		)
-	)
-	
-		
-	on intWallLayerBT pressed do
-	(		
-		l = LayerManager.getLayerFromName splinesMursIntName
-		sel = selection as array
-		for s in sel do 
-		(
-			l.addnode s
-			s.wirecolor = brown
-		)
-	)
-	
-	on intwallCreate pressed  do
-	(	
-		
-		target = LayerManager.getLayerFromName splinesMursIntName
-		
-		if target == undefined then 
-		(
-			messageBox "Pour créer les mur Interieurs vous devez 'Préparer murInt'"
-		) 
-		else
-		(
-			target.nodes &theNodes
-			createWall theNodes  intwallHauteurSP.value  intwallEpaisseurSP.value
-		)
-	)
-	
-	
-	-- TOOLS
-	
-	on extwallInverser pressed  do
-	(	
-		sel = selection as array
-		for s in sel do inverseKnotOrder s
-			
-		select sel
-	)
-	
-	on delAllModBT pressed do
-	(
-		sel = selection as array
-		for s in sel do
-		(
-			local modcount = s.modifiers.count
-			for i = 1 to modCount do deletemodifier s 1
-		)
-	)
-	
-	on createSelectionBT pressed do
-	(
-		format "youpi\n"
-		theNodes = selection as array
-		
-		local mursExtAr = #()
-		local mursBalconAr = #()
-		local mursFondAr = #()
-		local mursIntAr = #()
-		
-		for n in theNOdes do
-		(
-			if n.layer.name ==splinesMursExtLName then( append mursExtAr n)
-			else if n.layer.name == splinesMursBalconLName then( append mursBalconAr n)
-			else if n.layer.name == splinesMursFondLName then( append mursFondAr n)
-			else if n.layer.name == splinesMursIntName then( append mursIntAr n) 
-		)
-		
-		format "mursExtAr: %, mursBalconAr: %, mursFondAr: % mursIntAr:%\n" mursExtAr mursBalconAr mursFondAr mursIntAr
-		
--- 		dans la selection determiner les types de murs
-		if mursExtAr.count > 0 then 	createWall theNodes  extwallHauteurSP.value  extwallEpaisseurSP.value
-		else if mursBalconAr.count > 0 then 	createWall theNodes  terrassewallHauteurSP.value  terrassewallEpaisseurSP.value
-		else if mursFondAr.count > 0 then 	createWall theNodes  backwallHauteurSP.value  backwallEpaisseurSP.value
-		else if mursIntAr.count > 0 then 	createWall theNodes  intwallHauteurSP.value  intwallEpaisseurSP.value
-	)
-)
-*/
+filein "prepa_mur_rlt.ms" -- quiet: true
+filein "prepa_percement_rlt.ms" -- quiet: true
 
 fn hideOthersLayer l =
 (
@@ -618,339 +336,12 @@ fn rafle layerList: #() =
 	all
 )
 
-fn collectGabarit2 =
+fn collectGabarit2 onePattern =
 (
-	local lAr = collectLayer pattern: "___Gabarits*"
+	local lAr = collectLayer pattern: onePattern
 	local allGab = rafle layerList: lAr
 	allGab
 )
--- collectGabarit2()
-/*
-fn collectGabarit =
-(
-	-- recuperation des blocs de gabarits sur les calques
-	local nnl1 = #()
-	local nnl2 = #()
-	local nnl3 = #()
-
-	-- recuperation des blocs de gabarits sur les calques
-	TmpPFenL = LayerManager.getLayerFromName TmpPFenLName
-	if TmpPFenL != undefined then TmpPFenL.nodes & nnl1
-		
-	TmpfenL = LayerManager.getLayerFromName TmpFenLName
-	if TmpfenL != undefined then TmpfenL.nodes & nnl2
-	
-	TmpPorteL = LayerManager.getLayerFromName TmpPortesLName
-	if TmpPorteL != undefined then TmpPorteL.nodes & nnl3
-	
-	(nnl1 + nnl2 + nnl3)
-)
-*/
-
-/*
-rollout openingWall "Preparation des percements" width:350 height:230
-(	
-	local params = #("open", "windowHauteurSP", "windowAllegeSP", "porteHauteurSP", "porteAllegeSP", "porteFenetreHauteurSP", "porteFenetreAllegeSP" )
-		
-	group "Fenêtres:"
-	(
-		spinner windowHauteurSP "Hauteur:" type: #worldunits range: [0,500, 215] across: 2 -- pos:[12,10] text:"135"	width:160
-		spinner windowAllegeSP "Allege:" type: #worldunits range: [0.5,500, 90] -- across: 2 -- pos:[182,10] text:"90" width:150
-		button addToFenLayerBT "add to layer" across: 2
-		button adjustToFenBT "adjust fenêtres"
-	)
-	
-	group "Portes:"
-	(
-		spinner porteHauteurSP "Hauteur:" type: #worldunits range: [0,500, 204] across: 2  -- pos:[12,35] text:"204"	width:160
-		spinner porteAllegeSP "Allege:" type: #worldunits range: [0.5,500, 0.5] 
-		button addToPorteLayerBT "add to layer" across: 2
-		button adjustToPorteBT "adjust portes"
-	)
-	
-	group "Porte-Fenêtres:"
-	(
-		spinner porteFenetreHauteurSP "Hauteur: " type: #worldunits range: [0,500, 215] across: 2  -- pos:[12,60] text:"215" width:200
-		spinner porteFenetreAllegeSP "Allege: " type: #worldunits range: [0.5,500, 0.5]
-		button addToPorteFenLayerBT "add to layer" across: 2
-		button adjustToPorteFenetreBT "adjust portes Fenêtres"
-	)
-	 
-	button createGabaritBT "Créer les Gabarits" -- across: 2
-
-	
-	on openingWall open do
-	(
-		loadRolloutParams openingWall params
-	)
-	
-	on openingWall close do
-	(
-		writeRolloutParams openingWall params
-	)
-	
-	on addToFenLayerBT pressed do
-	(
-		fenL = LayerManager.getLayerFromName SplinesFenetresLName	
-		if fenL == undefined then()
-		else
-		(
-			sel = selection as array
-			for s in sel do
-			(
-				fenL.addnode s
-				s.wirecolor = blue
-				s.name = uniquename "Fline_"
-			)
-		)
-	)
-	
-	on adjustToFenBT pressed do
-	(
-		fenL = LayerManager.getLayerFromName SplinesFenetresLName	
-		fenL.nodes &theNodesFenetres
-		
-		format "theNodesFenetres: %\n" theNodesFenetres
-		for f in theNodesFenetres do
-		(
-			adjustGabaritSpline2 f shift1: 3 shift2: 3
-		)
-	)
-	
-	on addToPorteLayerBT pressed do
-	(		
-		porteL = LayerManager.getLayerFromName SplinesPortesLName				
-		if porteL == undefined then()
-		else
-		(
-			sel = selection as array
-			for s in sel do 
-			(
-				porteL.addnode s
-				s.wirecolor = red
-				s.name = uniquename "PLine_"
-			)
-		)
-	)
-	
-	on adjustToPorteBT pressed do
-	(
-		porteL = LayerManager.getLayerFromName SplinesPortesLName	
-		porteL.nodes &theNodesPortes
-		
-		format "theNodesPortes: %\n" theNodesPortes
-		for p in theNodesPortes do
-		(
-			adjustGabaritSpline2 p shift1: 3 shift2: 3
-		)
-	)
-	
-	
-	on addToPorteFenLayerBT pressed do
-	(
-		PFenL = LayerManager.getLayerFromName SplinesPFenetresLName	
-		if PFenL == undefined then()
-		else
-		(
-			sel = selection as array
-			for s in sel do 
-			(
-				PFenL.addnode s
-				s.wirecolor = green
-				s.name = uniquename "PFline_"
-			)
-		)
-	)
-	
-	on adjustToPorteFenetreBT pressed do
-	(
-		PFenL = LayerManager.getLayerFromName SplinesPFenetresLName	
-		PFenL.nodes &theNodesPFen
-		
-		format "theNodesPFen: %\n" theNodesPFen
-		for pf in theNodesPFen do
-		(
-			adjustGabaritSpline2 pf shift1: 3 shift2: 3
-		)
-	)
-	
-	on createGabaritBT pressed do
-	(
-		-- creation des bloc de portes 
-		porteL = LayerManager.getLayerFromName SplinesPortesLName				
-		porteL.nodes &theNodesPortes	
-	
-		TmpPorteL = LayerManager.getLayerFromName TmpPortesLName
-		if TmpPorteL == undefined then TmpPorteL = LayerManager.newLayerFromName TmpPortesLName
-		else
-		(
-			-- nettoyage des calques temporaire de gabarit avant la création
-			TmpPorteL.nodes &portesToDel
-			delete portesToDel
-		)
-
-		local PorteExtMod = extrude amount: (porteHauteurSP.value - porteAllegeSP.value) capStart: on capEnd: on
--- 			local PorteUVMod = Uvwmap maptype: 4 length: 150 width: 150 height: 150
-					
-		for p in theNodesPortes do
-		(
-			p.pos.z = 0
-			local newP = copy p
-			
-			TmpPorteL.addnode newP
-			move newP [0,0, porteAllegeSP.value]
-			
-			addmodifier newP PorteExtMod
--- 				addmodifier newP PorteUVMod
-			converttopoly newP
--- 			newP.pivot = newP.center
-			newP.wirecolor = red
-			
-		)
-		
-		porteL.on = false
-		
-		-- creation des bloc de portes fenetres
-		PFenL = LayerManager.getLayerFromName SplinesPFenetresLName				
-		PFenL.nodes &theNodesPFenetres	
-		
-		TmpPFenL = LayerManager.getLayerFromName TmpPFenLName
-		if TmpPFenL == undefined then TmpPFenL = LayerManager.newLayerFromName TmpPFenLName
-		else
-		(
-			-- nettoyage des calques temporaire de gabarit avant la création
-			TmpPFenL.nodes &PfenToDel
-			delete PfenToDel
-		)
-		
-		PFenExtMod = extrude amount: (porteFenetreHauteurSP.value - porteFenetreAllegeSP.value ) capStart: on capEnd: on
--- 			PFenUVMod = Uvwmap maptype: 4 length: 150 width: 150 height: 150
-		
-		for f in theNodesPFenetres do
-		(
-			f.pos.z = 0
-			local newPF = copy f
-			
-			TmpPFenL.addnode newPF
-			move newPF [0,0, porteFenetreAllegeSP.value]
-			
-			addmodifier newPF PFenExtMod
--- 				addmodifier newPF PFenUVMod
-			converttopoly newPF
--- 			newPF.pivot = newPF.center
-			newPF.wirecolor = green
-		)
-
-		PFenL.on = false
-		
-		-- creation des bloc de fenetres 
-		fenL = LayerManager.getLayerFromName SplinesFenetresLName				
-		fenL.nodes &theNodesFenetres
-		
-		TmpfenL = LayerManager.getLayerFromName TmpFenLName
-		if TmpfenL == undefined then TmpfenL = LayerManager.newLayerFromName TmpFenLName 
-		else
-		(
-			-- nettoyage des calques temporaire de gabarit avant la création
-			TmpfenL.nodes &fenToDel
-			delete fenToDel
-		)
-		
-		FenExtMod = extrude amount: (windowHauteurSP.value - windowAllegeSP.value) capStart: on capEnd: on
--- 			FenUVMod = Uvwmap maptype: 4 length: 150 width: 150 height: 150
-		
-		for f in theNodesFenetres do
-		(
-			f.pos.z = 0
-			local newF = copy f
-			
-			TmpfenL.addnode newF
-			move newF [0,0, windowAllegeSP.value]
-			
-			addmodifier newF FenExtMod
--- 				addmodifier newF FenUVMod
-			converttopoly newF
--- 			newF.pivot = newF.center
-			newF.wirecolor = blue
-		)
-		fenL.on = false		
-	)
-	
-	on wallOpen pressed  do
-	(		
-	
-		-- ouverture des murs
-		--  creation et nettoyage du calque appartement
-		AptL = LayerManager.getLayerFromName "Appartement"
-		if AptL == undefined then AptL = LayerManager.newLayerFromName "Appartement"
-		else
-		(
-			AptL.nodes &tmpAptNodes
-			delete tmpAptNodes
-		)
-			
-		-- recuperation du calque murs
--- 		local MursL = LayerManager.getLayerFromName solsPrepaLname
-		
-		-- recuperation des blocs de gabarits sur les calques	
-		nnl = collectGabarit2 ()
-		
-		-- recuperation des mur
-		theMurs = #()
-		MursBalL = LayerManager.getLayerFromName splinesMursBalconLName
-		MursBalL.nodes &MursBal
-		
-		MursExtL = LayerManager.getLayerFromName splinesMursExtLName
-		MursExtL.nodes &MursExt
-		
-		MursFondL = LayerManager.getLayerFromName splinesMursFondLName
-		MursFondL.nodes &MursFond
-		
-		MursIntL = LayerManager.getLayerFromName splinesMursIntName
-		MursIntL.nodes &MursIntL
-		
-		theMursOrig = MursBal + MursExt + MursFond + MursIntL
-		
-		--recuperation du materiau
-		local tempLib
-		f = importfolderLIB + "\\Cells_materials.mat"
-		if doesfileexist f then tempLib = loadTempMaterialLibrary f
-		
-		-- copies des murs
-		for m in theMursOrig do
-		(
-			newM = copy m
-			converttomesh newM
-			
-			-- descente des vertex
-			for i in newM.verts do
-			(
-				if (i.pos.z<2) then	i.pos.z = -20
-			)	
-			
-			-- decoupe du mur
-			for obj in nnl  do ( newM - obj)
-			
-			-- ajout au calque murL
-			AptL.addnode newM
-			
-			-- ajout du materiaux
-			if tempLib != undefined then newM.material = tempLib[1]
-
-			-- ajout de smooth
-			addmodifier newM (smooth())
-			
-			-- ajout du murs aux objets à decouper
-			append theMurs newM			
-		)
-		
-		-- cachage des murs fusionner
-		MurOrig = getNodeByName "Murs"
-		if isvalidnode MurOrig then MurOrig.ishidden = true
-	)
-	
-)
-*/
 
 fn createPlinte l =
 (
@@ -992,35 +383,14 @@ rollout createGround "Preparation des sols" width:350 height:230
 	-- fusionne les murs
 	function unifyWall2  = 
 	(			
-		/*
-		target = LayerManager.getLayerFromName splinesMursIntName				
-		target.nodes &theNodesInt		
--- 		target.on = false
-			
-		target = LayerManager.getLayerFromName splinesMursExtLName				
-		target.nodes &theNodesExt		
--- 		target.on = false
-			
-		target = LayerManager.getLayerFromName splinesMursFondLName				
-		target.nodes &theNodesFond			
--- 		target.on = false	
-			
--- 		target = LayerManager.getLayerFromName splinesMursBalconLName
--- 		target.nodes &theNodesBalc	
--- 		target.on = false	
 
-		local theMurs = theNodesInt + theNodesExt + theNodesFond -- + theNodesBalc
-		*/
--- 		
-		local mursLayerList = collectLayer pattern: "_Splines Murs *"
+		local mursLayerList = collectLayer pattern: (mursPrefix + "*")
 		local theMurs = #()
 		for l in mursLayerList do 
 		(
 			l.nodes &tmpAr
 			for t in tmpAr do append theMurs t
 		)
-		
-		
 		
 -- 		fusion des murs
 		local solPrepaL = LayerManager.getLayerFromName solsPrepaLname					
@@ -1194,7 +564,7 @@ fn openPlinte p =
 	p.material = tempLib[2]
 	
 	-- collect des gabarits
-	local nnl = collectGabarit2 ()
+	local nnl = collectGabarit2 (decSuf + "*")
 	
 	-- booleans
 	if isvalidnode p then
@@ -1301,24 +671,25 @@ rollout creationAptRLT "Création Appartement"
 		
 			-- ouverture des murs
 			--  creation et nettoyage du calque appartement
-			AptL = LayerManager.getLayerFromName "Appartement"
-			if AptL == undefined then AptL = LayerManager.newLayerFromName "Appartement"
+			AptL = LayerManager.getLayerFromName AptLName
+			if AptL == undefined then AptL = LayerManager.newLayerFromName AptLName
 			else
 			(
 				AptL.nodes &tmpAptNodes
 				delete tmpAptNodes
 			)
-				
-			-- recuperation du calque murs
--- 			local MursL = LayerManager.getLayerFromName solsPrepaLname
 			
+
 			-- recuperation des blocs de gabarits sur les calques	
-			nnl = collectGabarit2 ()
+			nnl = collectGabarit2 (decSuf + "*")
 			
+			-- maj: au lieu d'utiliser les gabarits de fenetre on créé des gabarts avec 3cm de debord
+				-- deplacer dans percement
+			nnl2 =#()
 			-- recuperation des mur
-			theMurs = #()
+-- 			local theMurs = #()
 			
-			local mursLayerList = collectLayer pattern: "_Splines Murs *"
+			local mursLayerList = collectLayer pattern: (mursPrefix +  "*")
 			local theMursOrig = #()
 			for l in mursLayerList do 
 			(
@@ -1346,7 +717,7 @@ rollout creationAptRLT "Création Appartement"
 				-- decoupe du mur
 				for obj in nnl  do ( newM - obj)
 				
-				-- ajout au calque murL
+				-- ajout au calque appart
 				AptL.addnode newM
 				
 				-- ajout du materiaux
@@ -1356,7 +727,7 @@ rollout creationAptRLT "Création Appartement"
 				addmodifier newM (smooth())
 				
 				-- ajout du murs aux objets à decouper
-				append theMurs newM			
+-- 				append theMurs newM			
 			)
 			
 			-- cachage des murs fusionner
@@ -1474,12 +845,16 @@ rollout displayRLT "display"
 	
 	local params = #("open")
 	
-	local mursList = collectLayerNames pattern: "_Splines Murs *" 
-	local spGabList = #(SplinesFenetresLName, SplinesPFenetresLName, SplinesPortesLName)
--- 	local spGabList = collectLayerNames pattern: "_Splines Murs *" 
-	local gabList = #(TmpFenLName, TmpPFenLName, TmpPortesLName)
+	local mursList 
+	local spGabList 
+	local gabList 
+	
+-- 	local spGabList = #(SplinesFenetresLName, SplinesPFenetresLName, SplinesPortesLName)
+-- 	local gabList = #(TmpFenLName, TmpPFenLName, TmpPortesLName)
 	local prepSolList = #(solsPrepaLname)
 	local AptList = #(solsLname, AptLName)
+	
+
 	
 	group "hide/unhidde"
 	(
@@ -1518,8 +893,18 @@ rollout displayRLT "display"
 		) 
 	)
 	
+	fn collectList =
+	(
+		
+		mursList = collectLayerNames pattern: (mursPrefix + "*") 
+		spGabList = collectLayerNames pattern: (prepaSuf + "*") 
+		gabList = collectLayerNames pattern: (gabSuf + "*") 
+	)
+	
+	
 	on displayRLT open do
 	(
+		collectList()
 		loadRolloutParams displayRLT params
 	)
 	
@@ -1530,31 +915,37 @@ rollout displayRLT "display"
 		
 	on hideMursCB changed state do
 	(		
+		collectList()
 		hideLayers mursList state
 	)
 	
 	on hideSplineGabaritsLayerCB changed state do
-	(		
+	(	
+		collectList()		
 		hideLayers spGabList state
 	)
 	
 	on hideGabaritsLayerCB changed state do
-	(		
+	(	
+		collectList()
 		hideLayers gabList state
 	)
 	
 	on hidePrepaSolLayerCB changed state do
-	(		
+	(	
+		collectList()
 		hideLayers prepSolList state
 	)
 	
 	on hideAptLayerCB changed state do
 	(		
+		collectList()
 		hideLayers AptList state
 	)
 	
 	on transMursCB changed state do
 	(
+		collectList()
 		for l in mursList do transLayer l state
 	)
 	

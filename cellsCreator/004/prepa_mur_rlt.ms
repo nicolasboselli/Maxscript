@@ -15,11 +15,35 @@ maj:
 */
 
 global cellSetPath = getroot() +"cellsCreator/cellSettings/*"
+global selectedMurTypeName
 -- getfiles cellSetPath
 
 struct spMurSet (name, wirecolor, hauteur, epaisseur)
 
 filein "move_spline_rlt.ms"
+
+fn createWall oneArray hauteur epaisseur =
+(
+	extMod = Extrude amount: hauteur capStart: off capEnd: off
+	shellMod = Shell outerAmount: 0.0 innerAmount: epaisseur	overrideInnerMatID: on	 matInnerID: 2 overrideOuterMatID: on matOuterID: 1 \
+	overrideMatID: on matID: 3 autoSmoothAngle: 0 straightenCorners: on
+	uvwMapMod = Uvwmap maptype: 4 length: 150 width: 150 height: 150
+		
+	for obj in oneArray  do 
+	( 
+		-- nettoyage de la spline
+		local modcount = obj.modifiers.count
+		for i = 1 to modCount do deletemodifier obj 1
+		
+		-- creation du mur
+		addmodifier obj extMod
+		addmodifier obj shellMod
+		addmodifier obj uvwMapMod
+		
+-- 			format "mur balcon: %\n" obj.name
+	)
+)
+
 
 try(destroydialog MursStyleNameRLT)catch()
 rollout MursStyleNameRLT "rename style de mur"
@@ -49,7 +73,7 @@ rollout MursStyleNameRLT "rename style de mur"
 try(destroydialog prepaMursRLT)catch()
 rollout prepaMursRLT "preparation murs v2" -- width:350
 (
-	global selectedMurTypeName
+
 	
 	local params = #("open")
 	
@@ -57,7 +81,7 @@ rollout prepaMursRLT "preparation murs v2" -- width:350
 	local layerStructAr = #()
 	
 	local cellSetIni -- = getRoot() + "cellsCreator/cellSettings/cellSettings.ini"
-	local mursPrefix = "_Splines Murs "
+-- 	local mursPrefix = "_Splines Murs "
 	
 	local murSel = undefined 
 	
@@ -71,10 +95,11 @@ rollout prepaMursRLT "preparation murs v2" -- width:350
 	
 	group "types murs:"
 	(
-		multilistbox mursMLB "Murs:" height: 6
+		
 		button addtypeBT "add" across: 3 enabled: false
 		button delTypeBT "delete" enabled: false
 		button renTypeBT "rename"  enabled: false --enabled: false 
+		multilistbox mursMLB "Murs:" height: 6
 	)
 	
 	group "paramètres:"

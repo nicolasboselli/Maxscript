@@ -8,10 +8,13 @@
 
 		-- associer un objet avec un type de gabarit
 			-- tester si on peu merger des grouge depuis un fichier max seulement par le nom
+			
+		-- pour l'operation de percement, utiliser un gabarit special généré à la volé (avec debord de 3 cm), plutot que les gabarits de fenetre
 */
 
 
 global cellSetPath = getroot() +"cellsCreator/cellSettings/*"
+global selectedPerceTypeName
 
 struct spPerceSet (name, wirecolor, hauteur, allege, debordAv, debordAr, filename)
 
@@ -49,17 +52,46 @@ fn rafle layerList: #() =
 
 -- layers[1].nodes &tmp
 
+try(destroydialog PercementStyleNameRLT)catch()
+rollout PercementStyleNameRLT "rename style de mur"
+(
+	
+	edittext nameET "name:"
+	button renameBT "ok"
+	
+	on PercementStyleNameRLT open do
+	(
+		if selectedPerceTypeName != undefined then nameET.text = selectedPerceTypeName
+		else(nameET.text = "ERROR!")
+	)
+	
+	on renameBT pressed do
+	(
+		selectedPerceTypeName = nameET.text
+		destroydialog PercementStyleNameRLT
+	)
+	
+	on nameET entered newName do
+	(
+-- 		format "newName: % \n" newName
+		renameBT.pressed()
+	)
+)
+
+
 try(destroydialog prepaPercementRLT)catch()
 rollout prepaPercementRLT "preparation percement v2"
 (
+	
+	
 	local params = #("open")
 	
 	local cellSetAr = #()
 	local layerStructAr = #()
 	
 	local cellSetIni -- = getRoot() + "cellsCreator/cellSettings/cellSettings.ini"
-	local prepaSuf = "__Splines "
-	local gabSuf = "___Gabarits "
+-- 	local prepaSuf = "__Splines "
+-- 	local gabSuf = "___Gabarits "
 	
 	local drilSel = undefined
 	
@@ -74,6 +106,10 @@ rollout prepaPercementRLT "preparation percement v2"
 	
 	group "types percements:"
 	(
+		
+		button addtypeBT "add" across: 3 enabled: true
+		button delTypeBT "delete" enabled: true
+		button renTypeBT "rename"  enabled: true --enabled: false 
 		multilistbox drillingMLB "percements:"
 	)
 	
@@ -81,8 +117,8 @@ rollout prepaPercementRLT "preparation percement v2"
 	(
 		spinner heightSP "hauteur:"  type: #worldunits range: [0,500, 215] across: 2
 		spinner allegeSP "allege:" type: #worldunits range: [0,500, 0]
-		spinner innerSP "debord arriere:" type: #worldunits range: [0,500, 0] across: 2
-		spinner outerSP "debord avant:" type: #worldunits range: [0,500, 0]
+		spinner innerSP "debord arriere:" type: #worldunits range: [-500,500, 0] across: 2
+		spinner outerSP "debord avant:" type: #worldunits range: [-500,500, 0]
 
 	)
 	
@@ -94,11 +130,13 @@ rollout prepaPercementRLT "preparation percement v2"
 	
 	group "actions:"
 	(
-		button addToLayerBT "add to layer"
+		button addToLayerBT "add to layer" across: 2
 		button adjustBT "adjust gabarits" enabled: false
 	)
+	
+	button createDecoupeBT "create decoupe" across:2
+	button createGabaritsBT "create gabarits" 
 
-	button createGabaritsBT "create gabarits"
 	
 	-- functions
 	fn refreshUI =
@@ -211,14 +249,54 @@ rollout prepaPercementRLT "preparation percement v2"
 			drilSel = undefined
 		)
 		
-		format "drilSel: %\n" drilSel
+-- 		format "drilSel: %\n" drilSel
 		refreshUI()
 		
 		-- todo chager les parametres d'une structure
 -- 		format "sel: %\n" drillingMLB.selection
 	)
 	
-
+	on addtypeBT pressed do
+	(
+-- 		newType = spMurSet name:"New" wirecolor:orange hauteur:230 epaisseur:35
+		newType = spPerceSet name: "New"  wirecolor: orange hauteur: 230 allege:0.5 debordAv:3 debordAr:3 filename: "new"
+		append layerStructAr newType
+		refreshUI()
+		drillingMLB.selection = #(drillingMLB.items.count)
+-- 		renTypeBT.pressed()
+		drillingMLB.selectionend()
+	)
+	
+	on delTypeBT pressed do
+	(
+		selIds =  (drillingMLB.selection as array)
+		format "selIds: %\n" selIds
+		
+		
+		for i = selIds.count to i = 1 by - 1 do
+		(
+			format "layer: %\n" layerStructAr[selIds[i]]
+			deleteitem layerStructAr selIds[i]
+		)
+		refreshUI()
+	)
+	
+	on renTypeBT pressed do
+	(
+		selIds =  (drillingMLB.selection as array)
+		
+		if selIds.count == 1 then
+		(
+			tmpName = layerStructAr[selIds[1]]
+			format "tmpName: %\n" tmpName.name
+			selectedPerceTypeName = tmpName.name
+			createdialog PercementStyleNameRLT modal: true
+			format "selectedPerceTypeName: %\n" selectedPerceTypeName
+			if selectedPerceTypeName != undefined then tmpName.name = selectedPerceTypeName
+		)
+		
+		refreshUI()
+	)
 	
 	-- Settings UI
 	on heightSP changed val do
@@ -277,7 +355,7 @@ rollout prepaPercementRLT "preparation percement v2"
 	on adjustBT pressed do
 	(
 -- 		collecter tous les calques de reperes
-		local layerList = collectLayer pattern: "__Splines *"
+		local layerList = collectLayer pattern: (prepaSuf +  "*")
 		local objs = rafle layerList: layers
 		-- pour chaque calque
 			-- trouver les reglages correspondants
@@ -321,7 +399,7 @@ rollout prepaPercementRLT "preparation percement v2"
 					delete fenToDel
 				)
 				
-				-- collecter les objets du calque
+				-- collecter les objets du calque repere
 				l.nodes &tmpObj
 -- 				format "type: %, tmpObj: %\n" oneStruct.name tmpObj
 				-- pour chaque objet
@@ -349,6 +427,53 @@ rollout prepaPercementRLT "preparation percement v2"
 				)
 			)
 		)			
+	)
+	
+	on createDecoupeBT pressed do
+	(
+		for oneStruct in prepaPercementRLT.layerStructAr do
+		(
+			-- trouver le calques de repere
+			l = LayerManager.getLayerFromName (prepaSuf + oneStruct.name)
+			if l == undefined then (format "fail oneStruct: %\n" oneStruct.name)
+			else
+			(
+				-- créer les calques de decoupe
+				TmpDecLName = decSuf + oneStruct.name
+				TmpDecL = LayerManager.getLayerFromName TmpDecLName
+				if TmpDecL == undefined then TmpDecL = LayerManager.newLayerFromName TmpDecLName 
+				else
+				(
+					-- nettoyage des calques temporaire de gabarit avant la création
+					TmpDecL.nodes &decToDel
+					delete decToDel
+				)
+				-- collecter les objets du calque repere
+				l.nodes &tmpObj
+-- 				format "type: %, tmpObj: %\n" oneStruct.name tmpObj
+			-- pour chaque type de fenetre collecte des splines
+				FenExtMod = extrude amount: (oneStruct.hauteur - oneStruct.allege) capStart: on capEnd: on
+			
+				for o in tmpObj do
+				(						
+					o2 = copy o
+					o2.pos.z = 0.5
+					
+					-- ajuster l'objet
+					format "adjust % settings on %\n" oneStruct.name o.name
+					adjustGabaritSpline2 o2 shift1: 3 shift2: 3
+					
+					-- appliquer les réglages du calque
+					move o2 [0,0,oneStruct.allege]
+					addmodifier o2 FenExtMod
+					converttopoly o2
+					o2.wirecolor = oneStruct.wirecolor
+					
+					-- placer le gabarit dans le calque
+					TmpDecL.addnode o2
+				)
+			)
+		)
 	)
 )
 -- createdialog prepaPercementRLT

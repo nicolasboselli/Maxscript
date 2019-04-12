@@ -42,8 +42,6 @@ fn sortbyname v1 v2 =
 	else 0
 )
 
-
-
 try(destroyDialog mxsLaunchRLT)catch()
 
 struct favFileClass
