@@ -6,13 +6,27 @@
 
 fn findVray  =
 (
+	local goodR
 	for r in rendererClass.classes do
 	(
-		if matchPattern  (r as string)  pattern: "V_Ray_Adv*" do return r
-		break
+-- 		format "r: %\n" r
+		if matchPattern  (r as string)  pattern: "V_Ray_Adv*" then
+		(
+			goodR = r
+			exit
+		)
+		else if matchPattern  (r as string)  pattern: "V_Ray_Next*" then
+		(
+			goodR = r
+			exit
+		)
+		else()
 	)
+-- 	format "good r: %\n" goodR
+	 goodR
 )
 
+findVray()
 
 -- 	functions
 fn createInfiniteGround =

@@ -7,7 +7,22 @@ maj:
 	x- copier en instance les modifiers de l'objes d'origine
 		-- lorsqu'il y a un modifier edit poly dans la pile, collapser tout ce qui est en dessous 
 	-- decouper des splines en conservant les modificateurs dessus
+	/- decouper les groupe
+		x- ignorer les groupe
+		-- dupliquer les groupe et les slicer
+	x-- collapser les railclone
+		debug: les railclone se deplace	-- collapser les splines
+	
+	-- autoload des railclone avec le spline
+	
+	-- determinier automatiquement s il faut faire une decoupe ou un auto load
+	
+rebuild
+	-- dupliquer l'objet à découper avant de le decouper puis supprimer le treitement
+	-- sortir les operation de freeze de la fonction de decoupe
 */
+
+-- classof $
 
 fn sortbyname v1 v2 =
 (
@@ -43,16 +58,17 @@ fn moveItem oneAr idAr jump: 1 =
 -- arrayTest
 
 -- $.modifiers.count
-fn sliceObject b rep collapseSlice: false addEditPoly: false =
+fn sliceObject b rep collapseSlice: false addEditPoly: false collapseRC: true =
 (
 	local tmpEP = EditPolyMod ()
-	
+		
 	for i = 1 to ( rep.count  )do
 	(
+			
 		-- creation de la copie
 		local modCount
 		local b2 = copy b
-		
+				
 		-- suppression des modifiers
 		modCount = b2.modifiers.count
 		for i = 1 to modCount do deletemodifier b2 1
@@ -133,10 +149,10 @@ fn sliceObject b rep collapseSlice: false addEditPoly: false =
 		)
 	)
 	
-	b.boxmode = true
-	b.showFrozenInGray = true
-	b.isfrozen = true
-	b.wirecolor = (color 125 125 125)
+-- 	b.boxmode = true
+-- 	b.showFrozenInGray = true
+-- 	b.isfrozen = true
+-- 	b.wirecolor = (color 125 125 125)
 )
 
 -- rep
@@ -392,7 +408,31 @@ rollout decoupEtageRLT "découpe etage"
 		local sel = selection as array
 		if rep.count > 0 then 
 		(
-			for s in sel do sliceObject s rep collapseSlice: collapseCB.state addEditPoly: addPolyModCB.state
+			for s in sel do 
+			(
+				-- ignore group
+				if iskindof s dummy then continue
+					
+				-- creation de la copy de securité
+				local copySel
+				maxOps.clonenodes s newNodes:&copySel
+				local copyS = copySel[1]
+			
+				-- collapse railclone
+				if iskindof copyS railclone_pro then converttopoly copyS
+				
+				
+-- 				if iskindof s railclone_pro then converttopoly s
+				sliceObject copyS rep collapseSlice: collapseCB.state addEditPoly: addPolyModCB.state
+				
+				-- suppression de la copy
+				delete copyS
+				
+				s.boxmode = true
+				s.showFrozenInGray = true
+				s.isfrozen = true
+				s.wirecolor = (color 125 125 125)
+			)
 		)
 	)
 	

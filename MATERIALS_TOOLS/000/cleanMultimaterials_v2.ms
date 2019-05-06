@@ -58,7 +58,6 @@ fn collectObjByMat matRef objSet =
 	sameMultiMatObjList
 )
 
-
 fn clusterAttach objArr =
 (
 	j = 1
@@ -193,6 +192,7 @@ for j = 1 to visSelMultiMat.count do
 
 -- collecte des objets visibles
 visSel = for o in  $* where o.ishidden == false collect o
+format "visSel count before: %\n" visSel.count
 
 -- collecte des multimateriaux de la scene
 multiMatList = getclassinstances multimaterial target: scenematerials
@@ -200,16 +200,29 @@ format "multiMatList count: %\n" multiMatList.count
 
 for m in multiMatList do
 (
+	local sel
+	local splitObj
+	local oneObj
+	
 	sel = collectObjByMat m visSel
 	format "sel: %\n" sel
-	oneObj = clusterAttach sel
-	format "mulitmat: % obj: %\n" m.name oneObj
 	
-	if not oneObj == undefined then 
+	if sel.count <= 1 then continue
+	else
 	(
-		local splitObj = exploseMeshBymat oneObj
+		oneObj = clusterAttach sel
+		format "mulitmat: % sel.count: % obj: %\n" m.name sel.count oneObj
+		
+		if not isvalidnode oneObj then continue
+		else
+		(		
+			splitObj = exploseMeshBymat oneObj
+		)
 	)
 )
+
+visSel = for o in  $* where o.ishidden == false collect o
+format "visSel count after: %\n" visSel.count
 
 -- ############################################## ATTACH MESH AVEC MEME MONOMAT
 -- sur la selection d'objet mono mat
