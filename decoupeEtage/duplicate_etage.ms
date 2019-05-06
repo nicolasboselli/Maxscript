@@ -35,16 +35,20 @@ fn incrementName n charId: 1 inc: 1 =
 
 fn copyIncNameNMove s id:1 jump:1 moving: true decay: [0,0,300] =
 (
-	local newS = copy s
--- 	local var = s.name
--- 	var[id] = (((var[id] as integer) + jump) as string)
--- 	newS.name = var
+	local newS
+	local newName = incrementName s.name charId: id inc: jump
 	
-	newS.name = incrementName s.name charId: id inc: jump
-	
-	newS.wirecolor = s.wirecolor
-	
-	if moving then move newS decay
+	if newName == undefined then (format "fail: %\n" s.name)
+	else
+	(
+		newS = copy s
+		
+		newS.name = newName
+		
+		newS.wirecolor = s.wirecolor
+		
+		if moving then move newS decay
+	)
 	newS
 )
 
@@ -97,7 +101,7 @@ rollout incNameRLT "Duplicate Etages"
 		for s in sel do
 		(
 			copyS = copyIncNameNMove s id:idSP.value jump:jumpSP.value moving: true decay: [xSp.value, ySP.value, zSp.value]
-			append newSel copyS
+			if not copyS == undefined then append newSel copyS
 		)
 		select newSel
 	)
