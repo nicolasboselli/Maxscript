@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<graph version="0.50" uuid="b1c56cfc-a582-4c88-bbee-05955f17de77">
+  <meta_info>
+    <graph_version guid="891a0515-6469-4fcc-9b8a-1de3b789628c" number="0.0.1" />
+    <identifier>custom_cube_sandbox</identifier>
+    <simulation>true</simulation>
+    <graph_editor_UI>true</graph_editor_UI>
+  </meta_info>
+  <nodes>
+    <node operator="SquareBoxMesh" id="0" position="100:140" size="154:0" />
+    <node operator="Parameter: Single" id="6" name="Size" min_value="-10000" max_value="10000" default_value="10" system_units_value="true" position="-200:80" size="150:0" />
+    <node operator="Output: geometry" id="1" position="460:180" size="150:0" />
+  </nodes>
+  <connections>
+    <connection sourcenode="0" destnode="1" sourceport="0" destport="0" />
+    <connection sourcenode="6" destnode="0" sourceport="0" destport="0" />
+  </connections>
+</graph>

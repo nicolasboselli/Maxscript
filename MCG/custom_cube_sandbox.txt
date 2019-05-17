@@ -1,0 +1,7 @@
+(InstanceState state, Float Size) => 
+  {
+    Mesh _0CreateBox; // 0:Cube Mesh Primitive->0:Box Mesh Primitive 86379
+    
+    _0CreateBox = CreateBox(Size, Size, Size);
+    _0CreateBox;
+    }

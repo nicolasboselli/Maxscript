@@ -208,7 +208,7 @@ fn autoAddObjToLayer rep sel =
 try(destroydialog decoupEtageRLT)catch()
 rollout decoupEtageRLT "découpe etage"
 (
-	local params = #("pos", "autoSelLayCB", "autoSelREpCB", "collapseCB", "addPolyModCB")
+	local params = #("pos", "autoSelLayCB", "autoSelREpCB", "collapseCB", "addPolyModCB", "freezeOldCB", "boxOldCB")
 	
 	global rep -- = #()
 	
@@ -233,6 +233,8 @@ rollout decoupEtageRLT "découpe etage"
 	
 	group "decoupe"
 	(
+		checkbox freezeOldCB "freeze old"
+		checkbox boxOldCB "box old"
 		checkbox collapseCB "collapse slice" -- enabled: false
 		checkbox addPolyModCB "add edit poly" -- enabled: false
 		button decoupeBT "decoupe"
@@ -428,10 +430,14 @@ rollout decoupEtageRLT "découpe etage"
 				-- suppression de la copy
 				delete copyS
 				
-				s.boxmode = true
-				s.showFrozenInGray = true
-				s.isfrozen = true
-				s.wirecolor = (color 125 125 125)
+				if boxOldCB.state then s.boxmode = true
+					
+				if freezeOldCB.state then
+				(
+					s.showFrozenInGray = true
+					s.isfrozen = true
+					s.wirecolor = (color 125 125 125)
+				)
 			)
 		)
 	)

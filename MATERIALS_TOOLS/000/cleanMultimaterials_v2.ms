@@ -11,7 +11,7 @@ memo:
 
 
 -- ### collect same multi material
-fn collectSameMultiMat3 matRef matSet=
+fn collectSameMultiMat3 matRef matSet =
 (
 -- 	matRef = $.material
 	local sameMultiMatList = #(matRef)
@@ -161,7 +161,6 @@ for o in visSel where classof o.material == multimaterial do
 )
 format "visSelMultiMat count: %\n" visSelMultiMat.count
 
-
 for j = 1 to visSelMultiMat.count do
 (
 	local matList = collectSameMultiMat3 visSelMultiMat[j] visSelMultiMat
@@ -207,7 +206,17 @@ for m in multiMatList do
 	sel = collectObjByMat m visSel
 	format "sel: %\n" sel
 	
-	if sel.count <= 1 then continue
+	if sel.count == 0 then continue
+	else if sel.count == 1 then
+	(
+		oneObj = sel[1]
+		format "mulitmat: % sel.count: % obj: %\n" m.name sel.count oneObj
+		if not isvalidnode oneObj then continue
+		else
+		(		
+			splitObj = exploseMeshBymat oneObj
+		)
+	)
 	else
 	(
 		oneObj = clusterAttach sel
@@ -220,14 +229,11 @@ for m in multiMatList do
 		)
 	)
 )
-
 visSel = for o in  $* where o.ishidden == false collect o
 format "visSel count after: %\n" visSel.count
 
 -- ############################################## ATTACH MESH AVEC MEME MONOMAT
 -- sur la selection d'objet mono mat
-
-
 -- fusion des objets visibles par mateiraux
 visSel = for o in  $* where o.ishidden == false collect o
 format "visSel count: %\n" visSel.count
@@ -242,8 +248,7 @@ for m in meditMonoMatList do
 	sel = collectObjByMat m visSel
 	format "mat: % attach count: %\n"  m.name sel.count
 -- 	combineMesh sel
-	
-	
+		
 	if sel.count > 5000 then
 	(
 		

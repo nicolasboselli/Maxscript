@@ -173,7 +173,7 @@ rollout Pt2vue_renderer_UI "Batch Render Automator" width: 500
 		button createBatchRenderBT "Batch from Cam" enabled: false
 		button batchFromStateBT "Batch from State"
 	)
-	
+	/*
 	group "Animation - Batch Render"
 	(
 		edittext savepathMaqET  "Path:" text: "" readonly: true
@@ -181,6 +181,7 @@ rollout Pt2vue_renderer_UI "Batch Render Automator" width: 500
 -- 		button createBatchRenderBTMaq "Batch from Cam"
 		button batchFromStateMaqBT "Batch from sel State"
 	)
+	*/
 	
 -- 	functions UI dependant
 	fn refreshUI =

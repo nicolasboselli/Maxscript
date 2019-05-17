@@ -1,0 +1,271 @@
+(InstanceState state, Integer col count, Float col size, Float row size, Integer rows count) => 
+  {
+    Integer _0One; // 12:Plus One->1:One Integer 65137
+    Integer _1Add; // 12:Plus One->0:Add 65136
+    Array[Float] _2RangeInclusiveFloat; // 8:Array of Sampled Floats->2:Array of Floats Inclusive 65111
+    Fn0[->Vector3] _16__thunk__;
+    Fn0[->Vector3] _30__thunk__;
+    Fn0[->Vector3] _37__thunk__;
+    Fn0[->Vector3] _44__thunk__;
+    Fn1[Float->Line] _45Pass-through: function1; // 0:Pass-through: Fn1 65109
+    Array[Line] _46Map; // 8:Array of Sampled Floats->3:For Each 65110
+    Array[Line] _47Reverse; // 9:Plane QuadMesh Primitive from Lines->11:Reverse 65107
+    Fn0[->Array[Float]] _51__thunk__;
+    Fn1[Line->Array[Vector3]] _52Pass-through: function1; // 0:Pass-through: Fn1 65104
+    Array[Array[Vector3]] _53Map; // 9:Flat Map->4:For Each 65106
+    Array[Vector3] _54Flatten; // 9:Flat Map->3:Flatten 65105
+    Boolean _55False; // 9:Plane QuadMesh Primitive from Lines->5:False 65134
+    QuadMesh _56QuadMeshStrip; // 9:Plane QuadMesh Primitive from Lines->0:QuadMesh Strip 65102
+    Mesh _57Triangulate; // 14:Mesh from QuadMesh with Hidden Edges->2:Mesh from QuadMesh 65097
+    Boolean _58True; // 3:Mesh Hide QuadMesh Edges->12:True 65090
+    Boolean _59False; // 3:Mesh Hide QuadMesh Edges->13:False 65091
+    Array[Boolean] _60Array_3; // 3:Mesh Hide QuadMesh Edges->11:Array 3 65089
+    Array[Boolean] _61Reverse; // 3:Mesh Hide QuadMesh Edges->14:Reverse 65092
+    Array[Boolean] _62Concatenate; // 3:Mesh Hide QuadMesh Edges->15:Join Arrays 65088
+    Integer _63FaceCount; // 3:Mesh Hide QuadMesh Edges->3:Mesh Face Count 65096
+    Integer _64Two; // 4:Divide by Two->2:Two Integer 65095
+    Integer _65Divide; // 4:Divide by Two->1:Divide 65094
+    Array[Array[Boolean]] _66ArrayOf; // 3:Mesh Hide QuadMesh Edges->6:Array of Value 65087
+    Array[Boolean] _67Flatten; // 3:Mesh Hide QuadMesh Edges->10:Flatten 65086
+    Mesh _68SetVisibleEdges; // 3:Mesh Hide QuadMesh Edges->9:Mesh Set Edge Visibility 65085
+    
+    _0One = One();
+    
+    _1Add = Add(col count, _0One);
+    
+    _2RangeInclusiveFloat = RangeInclusiveFloat(_1Add);
+    
+    _16__thunk__ = Internal__Memoize(() => 
+      {
+        Float _3Constant; // 1:DEPRECATED Origin->2:Constant 65148
+        Vector3 _4Vector3; // 1:DEPRECATED Origin->1:Vector 65147
+        Float _5FloatZero; // 1:Vector from X->5:Zero Float 65151
+        Vector3 _6Vector3; // 1:Vector from X->0:Vector 65150
+        Line _7Line; // 10:Line from Vector->0:Line 65146
+        Vector3 _8LineA; // 11:Offset Line->0:Line Point A 65142
+        Float _9FloatZero; // 4:Vector from Y->5:Zero Float 65154
+        Vector3 _10Vector3; // 4:Vector from Y->1:Vector 65153
+        Vector3 _11Add; // 11:Offset Line->6:Add 65141
+        Vector3 _12LineB; // 11:Offset Line->1:Line Point B 65144
+        Vector3 _13Add; // 11:Offset Line->5:Add 65143
+        Line _14Line; // 11:Offset Line->3:Line 65140
+        Vector3 _15LineA; // 10:Line from Interpolated Segments->2:Line Point A 65117
+        
+        _3Constant = 0;
+        
+        _4Vector3 = Vector3(_3Constant, _3Constant, _3Constant);
+        
+        _5FloatZero = FloatZero();
+        
+        _6Vector3 = Vector3(col size, _5FloatZero, _5FloatZero);
+        
+        _7Line = Line(_4Vector3, _6Vector3);
+        
+        _8LineA = LineA(_7Line);
+        
+        _9FloatZero = FloatZero();
+        
+        _10Vector3 = Vector3(_9FloatZero, row size, _9FloatZero);
+        
+        _11Add = Add(_8LineA, _10Vector3);
+        
+        _12LineB = LineB(_7Line);
+        
+        _13Add = Add(_12LineB, _10Vector3);
+        
+        _14Line = Line(_11Add, _13Add);
+        
+        _15LineA = LineA(_14Line);
+        _15LineA;
+        });
+    
+    _30__thunk__ = Internal__Memoize(() => 
+      {
+        Float _17Constant; // 1:DEPRECATED Origin->2:Constant 65148
+        Vector3 _18Vector3; // 1:DEPRECATED Origin->1:Vector 65147
+        Float _19FloatZero; // 1:Vector from X->5:Zero Float 65151
+        Vector3 _20Vector3; // 1:Vector from X->0:Vector 65150
+        Line _21Line; // 10:Line from Vector->0:Line 65146
+        Vector3 _22LineA; // 11:Offset Line->0:Line Point A 65142
+        Float _23FloatZero; // 4:Vector from Y->5:Zero Float 65154
+        Vector3 _24Vector3; // 4:Vector from Y->1:Vector 65153
+        Vector3 _25Add; // 11:Offset Line->6:Add 65141
+        Vector3 _26LineB; // 11:Offset Line->1:Line Point B 65144
+        Vector3 _27Add; // 11:Offset Line->5:Add 65143
+        Line _28Line; // 11:Offset Line->3:Line 65140
+        Vector3 _29LineB; // 10:Line from Interpolated Segments->3:Line Point B 65118
+        
+        _17Constant = 0;
+        
+        _18Vector3 = Vector3(_17Constant, _17Constant, _17Constant);
+        
+        _19FloatZero = FloatZero();
+        
+        _20Vector3 = Vector3(col size, _19FloatZero, _19FloatZero);
+        
+        _21Line = Line(_18Vector3, _20Vector3);
+        
+        _22LineA = LineA(_21Line);
+        
+        _23FloatZero = FloatZero();
+        
+        _24Vector3 = Vector3(_23FloatZero, row size, _23FloatZero);
+        
+        _25Add = Add(_22LineA, _24Vector3);
+        
+        _26LineB = LineB(_21Line);
+        
+        _27Add = Add(_26LineB, _24Vector3);
+        
+        _28Line = Line(_25Add, _27Add);
+        
+        _29LineB = LineB(_28Line);
+        _29LineB;
+        });
+    
+    _37__thunk__ = Internal__Memoize(() => 
+      {
+        Float _31Constant; // 1:DEPRECATED Origin->2:Constant 65148
+        Vector3 _32Vector3; // 1:DEPRECATED Origin->1:Vector 65147
+        Float _33FloatZero; // 1:Vector from X->5:Zero Float 65151
+        Vector3 _34Vector3; // 1:Vector from X->0:Vector 65150
+        Line _35Line; // 10:Line from Vector->0:Line 65146
+        Vector3 _36LineA; // 10:Line from Interpolated Segments->7:Line Point A 65120
+        
+        _31Constant = 0;
+        
+        _32Vector3 = Vector3(_31Constant, _31Constant, _31Constant);
+        
+        _33FloatZero = FloatZero();
+        
+        _34Vector3 = Vector3(col size, _33FloatZero, _33FloatZero);
+        
+        _35Line = Line(_32Vector3, _34Vector3);
+        
+        _36LineA = LineA(_35Line);
+        _36LineA;
+        });
+    
+    _44__thunk__ = Internal__Memoize(() => 
+      {
+        Float _38Constant; // 1:DEPRECATED Origin->2:Constant 65148
+        Vector3 _39Vector3; // 1:DEPRECATED Origin->1:Vector 65147
+        Float _40FloatZero; // 1:Vector from X->5:Zero Float 65151
+        Vector3 _41Vector3; // 1:Vector from X->0:Vector 65150
+        Line _42Line; // 10:Line from Vector->0:Line 65146
+        Vector3 _43LineB; // 10:Line from Interpolated Segments->8:Line Point B 65121
+        
+        _38Constant = 0;
+        
+        _39Vector3 = Vector3(_38Constant, _38Constant, _38Constant);
+        
+        _40FloatZero = FloatZero();
+        
+        _41Vector3 = Vector3(col size, _40FloatZero, _40FloatZero);
+        
+        _42Line = Line(_39Vector3, _41Vector3);
+        
+        _43LineB = LineB(_42Line);
+        _43LineB;
+        });
+    
+    _45Pass-through: function1 = (Float x0) => 
+      {
+        Vector3 _0Lerp; // 10:Line from Interpolated Segments->4:Lerp 65116
+        Vector3 _1Lerp; // 10:Line from Interpolated Segments->9:Lerp 65119
+        Line _2Line; // 10:Line from Interpolated Segments->10:Line 65115
+        
+        _0Lerp = Lerp(_16__thunk__(), _30__thunk__(), x0);
+        
+        _1Lerp = Lerp(_37__thunk__(), _44__thunk__(), x0);
+        
+        _2Line = Line(_0Lerp, _1Lerp);
+        _2Line;
+        };
+    
+    _46Map = Map(_2RangeInclusiveFloat, _45Pass-through: function1);
+    
+    _47Reverse = Reverse(_46Map);
+    
+    _51__thunk__ = Internal__Memoize(() => 
+      {
+        Integer _48One; // 13:Plus One->1:One Integer 65157
+        Integer _49Add; // 13:Plus One->0:Add 65156
+        Array[Float] _50RangeInclusiveFloat; // 5:Array of Sampled Floats->2:Array of Floats Inclusive 65130
+        
+        _48One = One();
+        
+        _49Add = Add(rows count, _48One);
+        
+        _50RangeInclusiveFloat = RangeInclusiveFloat(_49Add);
+        _50RangeInclusiveFloat;
+        });
+    
+    _52Pass-through: function1 = (Line x0) => 
+      {
+        Fn0[->Vector3] _1__thunk__;
+        Fn0[->Vector3] _3__thunk__;
+        Fn1[Float->Vector3] _4Pass-through: function1; // 0:Pass-through: Fn1 65128
+        Array[Vector3] _5Map; // 5:Array of Sampled Floats->3:For Each 65129
+        
+        _1__thunk__ = Internal__Memoize(() => 
+          {
+            Vector3 _0LineA; // 7:Points on Line->3:Line Point A 65132
+            
+            _0LineA = LineA(x0);
+            _0LineA;
+            });
+        
+        _3__thunk__ = Internal__Memoize(() => 
+          {
+            Vector3 _2LineB; // 7:Points on Line->4:Line Point B 65133
+            
+            _2LineB = LineB(x0);
+            _2LineB;
+            });
+        
+        _4Pass-through: function1 = (Float x0) => 
+          {
+            Vector3 _0Lerp; // 2:Array of Interpolated Vectors->3:Lerp 65131
+            
+            _0Lerp = Lerp(_1__thunk__(), _3__thunk__(), x0);
+            _0Lerp;
+            };
+        
+        _5Map = Map(_51__thunk__(), _4Pass-through: function1);
+        _5Map;
+        };
+    
+    _53Map = Map(_47Reverse, _52Pass-through: function1);
+    
+    _54Flatten = Flatten(_53Map);
+    
+    _55False = False();
+    
+    _56QuadMeshStrip = QuadMeshStrip(_54Flatten, _1Add, _55False, _55False);
+    
+    _57Triangulate = Triangulate(_56QuadMeshStrip);
+    
+    _58True = True();
+    
+    _59False = False();
+    
+    _60Array_3 = Array_3(_58True, _58True, _59False);
+    
+    _61Reverse = Reverse(_60Array_3);
+    
+    _62Concatenate = Concatenate(_60Array_3, _61Reverse);
+    
+    _63FaceCount = FaceCount(_57Triangulate);
+    
+    _64Two = Two();
+    
+    _65Divide = Divide(_63FaceCount, _64Two);
+    
+    _66ArrayOf = ArrayOf(_62Concatenate, _65Divide);
+    
+    _67Flatten = Flatten(_66ArrayOf);
+    
+    _68SetVisibleEdges = SetVisibleEdges(_57Triangulate, _67Flatten);
+    _68SetVisibleEdges;
+    }

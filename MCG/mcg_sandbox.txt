@@ -1,0 +1,73 @@
+(InstanceState state, Float cube_size, Float amount, Float inset, Integer mat id, Integer smooth id) => 
+  {
+    Mesh _0CreateBox; // 6:Cube Mesh Primitive->0:Box Mesh Primitive 53836
+    Array[Integer] _1Mesh_Face_Polygon_Ids; // 5:Mesh Polygons->2:Mesh Face Polygon Ids 53834
+    Array[Integer] _2Indices; // 3:Group Indices by Value->4:Indices 53832
+    Fn0[->Array[Integer]] _3__thunk__;
+    Array[Pair[Integer,Array[Integer]]] _4Group_by_Key; // 3:Group Indices by Value->3:Group by Key 53831
+    Fn0[->Boolean] _6__thunk__;
+    Fn0[->Float] _7__thunk__;
+    Fn0[->Float] _8__thunk__;
+    Fn0[->Integer] _9__thunk__;
+    Fn0[->Integer] _10__thunk__;
+    Mesh _11Aggregate; // 7:Mesh Extrude Polygons->3:Aggregate 53825
+    
+    _0CreateBox = CreateBox(cube_size, cube_size, cube_size);
+    
+    _1Mesh_Face_Polygon_Ids = Mesh_Face_Polygon_Ids(_0CreateBox);
+    
+    _2Indices = Indices(_1Mesh_Face_Polygon_Ids);
+    
+    _3__thunk__ = Internal__Memoize(() => 
+      {
+        _1Mesh_Face_Polygon_Ids;
+        });
+    
+    _4Group_by_Key = Group_by_Key(_2Indices, (Integer x0) => 
+      {
+        Integer _0At; // 3:Group Indices by Value->5:At 53833
+        
+        _0At = At(_3__thunk__(), x0);
+        _0At;
+        });
+    
+    _6__thunk__ = Internal__Memoize(() => 
+      {
+        Boolean _5True; // 7:Mesh Extrude Polygons->6:True 53828
+        
+        _5True = True();
+        _5True;
+        });
+    
+    _7__thunk__ = Internal__Memoize(() => 
+      {
+        amount;
+        });
+    
+    _8__thunk__ = Internal__Memoize(() => 
+      {
+        inset;
+        });
+    
+    _9__thunk__ = Internal__Memoize(() => 
+      {
+        mat id;
+        });
+    
+    _10__thunk__ = Internal__Memoize(() => 
+      {
+        smooth id;
+        });
+    
+    _11Aggregate = Aggregate(_4Group_by_Key, _0CreateBox, (Mesh x0, Pair[Integer,Array[Integer]] x1) => 
+      {
+        Array[Integer] _0PairItem2; // 7:Mesh Extrude Polygons->4:Pair Item 2 53827
+        Mesh _1Mesh_Extrude_Faces; // 7:Mesh Extrude Polygons->2:Mesh Extrude Faces 53826
+        
+        _0PairItem2 = PairItem2(x1);
+        
+        _1Mesh_Extrude_Faces = Mesh_Extrude_Faces(x0, _0PairItem2, _6__thunk__(), _7__thunk__(), _8__thunk__(), _9__thunk__(), _10__thunk__());
+        _1Mesh_Extrude_Faces;
+        });
+    _11Aggregate;
+    }

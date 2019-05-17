@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<graph version="0.50" uuid="865a1c61-a160-4294-ad9a-347f65ac5b95">
+  <meta_info>
+    <graph_version guid="4c51737b-5794-4ded-ab02-a624bfc98629" number="0.0.34" />
+    <identifier>cube_sphere</identifier>
+    <displayName>sandbox2</displayName>
+    <category>MCG tools</category>
+    <graph_editor_UI>true</graph_editor_UI>
+  </meta_info>
+  <nodes>
+    <node operator="Parameter: Single" id="3" name="amount" min_value="-10000" max_value="10000" default_value="5" position="-140:-500" size="150:0" />
+    <node operator="Mesh Extrude All Polygons" id="16" position="360:-180" size="190:0" />
+    <node operator="Parameter: Single" id="8" name="inset" min_value="-10000" max_value="10000" default_value="5" position="-360:-420" size="150:0" />
+    <node operator="Output: geometry" id="0" position="860:100" size="140:0" />
+    <node operator="Parameter: Int32" id="4" name="face" min_value="-10000" max_value="10000" default_value="5" position="-160:420" size="154:0" />
+    <node operator="Parameter: Single" id="2" name="Size" min_value="0" max_value="100" default_value="10" position="-320:200" size="140:0" />
+    <node operator="Parameter: Int32" id="12" name="smooth id" min_value="-10000" max_value="10000" default_value="5" position="-240:20" size="154:0" />
+    <node operator="Parameter: Single" id="7" name="cube_size" min_value="-10000" max_value="10000" default_value="0" position="-820:-80" size="150:0" />
+    <node operator="Parameter: Int32" id="11" name="mat id" min_value="-10000" max_value="10000" default_value="5" position="-300:-200" size="154:0" />
+    <node operator="SquareBoxMesh" id="6" position="-40:-60" size="154:0" />
+    <node operator="SphereTriMesh" id="1" position="160:240" size="166:0" />
+    <node operator="CombineMeshes" id="5" position="460:220" size="150:0" />
+  </nodes>
+  <connections>
+    <connection sourcenode="7" destnode="6" sourceport="0" destport="0" />
+    <connection sourcenode="2" destnode="1" sourceport="0" destport="0" />
+    <connection sourcenode="4" destnode="1" sourceport="0" destport="1" />
+    <connection sourcenode="4" destnode="1" sourceport="0" destport="2" />
+    <connection sourcenode="1" destnode="5" sourceport="0" destport="1" />
+    <connection sourcenode="3" destnode="16" sourceport="0" destport="1" />
+    <connection sourcenode="6" destnode="16" sourceport="0" destport="0" />
+    <connection sourcenode="8" destnode="16" sourceport="0" destport="2" />
+    <connection sourcenode="11" destnode="16" sourceport="0" destport="3" />
+    <connection sourcenode="12" destnode="16" sourceport="0" destport="4" />
+    <connection sourcenode="16" destnode="0" sourceport="0" destport="0" />
+  </connections>
+</graph>
