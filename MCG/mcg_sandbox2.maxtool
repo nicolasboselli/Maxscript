@@ -1,25 +1,35 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <graph version="0.50" uuid="5a320102-d18c-4169-b235-696febae92fb">
   <meta_info>
-    <graph_version guid="426f2664-84b8-4221-b7a7-7a0598f0af8a" number="0.0.3" />
+    <graph_version guid="46c69d5e-842b-4e37-9a1b-795e4c0da22b" number="0.0.8" />
     <identifier>sandbox2</identifier>
     <displayName>sandbox2</displayName>
     <category>MCG tools</category>
     <graph_editor_UI>true</graph_editor_UI>
   </meta_info>
   <nodes>
-    <node operator="Parameter: Single" id="3" name="col size" min_value="-10000" max_value="10000" default_value="50" system_units_value="true" position="120:100" size="150:0" />
+    <node operator="Parameter: Int32" id="9" name="mat_id" min_value="-10000" max_value="10000" default_value="1" position="340:-80" size="154:0" />
+    <node operator="Parameter: Single" id="3" name="col size" min_value="-10000" max_value="10000" default_value="50" system_units_value="true" position="100:140" size="150:0" />
+    <node operator="Parameter: Int32" id="10" name="smooth_id" min_value="-10000" max_value="10000" default_value="0" position="920:320" size="154:0" />
     <node operator="XYPlane" id="0" position="720:200" size="160:0" />
-    <node operator="Parameter: Int32" id="1" name="col count" min_value="-10000" max_value="10000" default_value="1" position="300:-40" size="154:0" />
-    <node operator="Parameter: Int32" id="2" name="rows count" min_value="-10000" max_value="10000" default_value="1" position="320:460" size="154:0" />
-    <node operator="Parameter: Single" id="4" name="row size" min_value="-10000" max_value="10000" default_value="50" system_units_value="true" position="100:300" size="150:0" />
-    <node operator="Output: geometry" id="5" position="1040:280" size="150:0" />
+    <node operator="Parameter: Int32" id="1" name="col count" min_value="-10000" max_value="10000" default_value="1" position="80:-40" size="154:0" />
+    <node operator="Parameter: Int32" id="2" name="rows count" min_value="-10000" max_value="10000" default_value="1" position="160:520" size="154:0" />
+    <node operator="Parameter: Single" id="4" name="row size" min_value="-10000" max_value="10000" default_value="50" system_units_value="true" position="20:320" size="150:0" />
+    <node operator="Mesh Extrude All Polygons" id="6" position="1240:100" size="190:0" />
+    <node operator="Parameter: Single" id="7" name="amount" min_value="-10000" max_value="10000" default_value="0" system_units_value="true" position="920:-120" size="150:0" />
+    <node operator="Output: geometry" id="5" position="1620:300" size="150:0" />
+    <node operator="Parameter: Single" id="8" name="inset" min_value="-10000" max_value="10000" default_value="0.5" position="480:-200" size="150:0" />
   </nodes>
   <connections>
-    <connection sourcenode="3" destnode="0" sourceport="0" destport="1" />
-    <connection sourcenode="2" destnode="0" sourceport="0" destport="3" />
-    <connection sourcenode="1" destnode="0" sourceport="0" destport="0" />
+    <connection sourcenode="8" destnode="6" sourceport="0" destport="2" />
+    <connection sourcenode="0" destnode="6" sourceport="0" destport="0" />
+    <connection sourcenode="7" destnode="6" sourceport="0" destport="1" />
+    <connection sourcenode="9" destnode="6" sourceport="0" destport="3" />
+    <connection sourcenode="10" destnode="6" sourceport="0" destport="4" />
+    <connection sourcenode="6" destnode="5" sourceport="0" destport="0" />
     <connection sourcenode="4" destnode="0" sourceport="0" destport="2" />
-    <connection sourcenode="0" destnode="5" sourceport="0" destport="0" />
+    <connection sourcenode="3" destnode="0" sourceport="0" destport="1" />
+    <connection sourcenode="1" destnode="0" sourceport="0" destport="0" />
+    <connection sourcenode="2" destnode="0" sourceport="0" destport="3" />
   </connections>
 </graph>
