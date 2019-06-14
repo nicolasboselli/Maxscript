@@ -40,7 +40,7 @@ fn createWall oneArray hauteur epaisseur =
 		addmodifier obj shellMod
 		addmodifier obj uvwMapMod
 		
--- 			format "mur balcon: %\n" obj.name
+		-- 	format "mur balcon: %\n" obj.name
 	)
 )
 
@@ -73,7 +73,6 @@ rollout MursStyleNameRLT "rename style de mur"
 try(destroydialog prepaMursRLT)catch()
 rollout prepaMursRLT "preparation murs v2" -- width:350
 (
-
 	
 	local params = #("open")
 	
@@ -85,13 +84,16 @@ rollout prepaMursRLT "preparation murs v2" -- width:350
 	
 	local murSel = undefined 
 	
+	/*
 	group "configuration:"
 	(
+		
 		dropdownlist  configDDL "select:"  enabled: false
 		button saveBT "save" across: 3  enabled: false
 		button saveAsBT "saveAs" enabled: false
 		button loadBT "load"  enabled: false
 	)
+	*/
 	
 	group "types murs:"
 	(
@@ -129,7 +131,7 @@ rollout prepaMursRLT "preparation murs v2" -- width:350
 	-- fonction ui dependant
 	fn refreshUI =
 	(
-		configDDL.items = for c in cellSetAr collect (getFilenameFile c)
+-- 		configDDL.items = for c in cellSetAr collect (getFilenameFile c)
 		
 -- 		mursMLB.items = for i = layerStructAr.count to 1 by -1 collect layerStructAr[i].name
 		mursMLB.items = for p in layerStructAr collect p.name
@@ -151,6 +153,7 @@ rollout prepaMursRLT "preparation murs v2" -- width:350
 	)
 	
 	-- UI functions
+	/*
 	fn loadSettings f =
 	(
 		layerStructAr = #()
@@ -175,17 +178,18 @@ rollout prepaMursRLT "preparation murs v2" -- width:350
 		)
 		refreshUI()
 	)
+	*/
 	
 	-- actions
 	on prepaMursRLT open do
 	(
 		-- collecte des settings de cellules
-		cellSetAr = getfiles cellSetPath
+-- 		cellSetAr = getfiles cellSetPath
 		loadRolloutParams prepaMursRLT params
 		
 		-- collecte des types de mur
-		if cellSetAr.count == 0 then()
-		else loadSettings cellSetAr[1]
+-- 		if cellSetAr.count == 0 then()
+-- 		else loadSettings cellSetAr[1]
 		
 		refreshUI()
 	)
@@ -195,6 +199,7 @@ rollout prepaMursRLT "preparation murs v2" -- width:350
 		writeRolloutParams prepaMursRLT params
 	)
 	
+	/*
 	on loadBT pressed do
 	(		
 		local config = cellSetAr[configDDL.selection]
@@ -221,7 +226,7 @@ rollout prepaMursRLT "preparation murs v2" -- width:350
 	(
 		loadBT.pressed()
 	)
-	
+	*/
 	on mursMLB selectionend do
 	(
 		selIds =  (mursMLB.selection as array)

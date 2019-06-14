@@ -7,6 +7,7 @@ maj:
 	x- copier en instance les modifiers de l'objes d'origine
 		-- lorsqu'il y a un modifier edit poly dans la pile, collapser tout ce qui est en dessous 
 	-- decouper des splines en conservant les modificateurs dessus
+	-- collapse des sweeps
 	/- decouper les groupe
 		x- ignorer les groupe
 		-- dupliquer les groupe et les slicer
@@ -423,6 +424,20 @@ rollout decoupEtageRLT "découpe etage"
 				-- collapse railclone
 				if iskindof copyS railclone_pro then converttopoly copyS
 				
+				-- traitement sweep
+				local id = 0
+				for i = 1 to copyS.modifiers.count do
+				(
+					if iskindof copyS.modifiers[i] sweep then 	
+					(
+						format "m: %, i: %\n" copyS.modifiers[i] i
+						id = i
+				-- 		collapseSweep = true
+						exit
+					)
+				)
+
+				if id > 0 then maxOps.CollapseNodeTo copyS id false
 				
 -- 				if iskindof s railclone_pro then converttopoly s
 				sliceObject copyS rep collapseSlice: collapseCB.state addEditPoly: addPolyModCB.state

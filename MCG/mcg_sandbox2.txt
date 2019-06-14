@@ -1,43 +1,43 @@
 (InstanceState state, Integer col count, Float col size, Float row size, Integer rows count, Float amount, Float inset, Integer mat_id, Integer smooth_id) => 
   {
-    Integer _0One; // 12:Plus One->1:One Integer 56793
-    Integer _1Add; // 12:Plus One->0:Add 56792
-    Array[Float] _2RangeInclusiveFloat; // 8:Array of Sampled Floats->2:Array of Floats Inclusive 56767
+    Integer _0One; // 12:Plus One->1:One Integer 54071
+    Integer _1Add; // 12:Plus One->0:Add 54070
+    Array[Float] _2RangeInclusiveFloat; // 8:Array of Sampled Floats->2:Array of Floats Inclusive 54045
     Fn0[->Vector3] _16__thunk__;
     Fn0[->Vector3] _30__thunk__;
     Fn0[->Vector3] _37__thunk__;
     Fn0[->Vector3] _44__thunk__;
-    Fn1[Float->Line] _45Pass-through: function1; // 0:Pass-through: Fn1 56765
-    Array[Line] _46Map; // 8:Array of Sampled Floats->3:For Each 56766
-    Array[Line] _47Reverse; // 9:Plane QuadMesh Primitive from Lines->11:Reverse 56763
+    Fn1[Float->Line] _45Pass-through: function1; // 0:Pass-through: Fn1 54043
+    Array[Line] _46Map; // 8:Array of Sampled Floats->3:For Each 54044
+    Array[Line] _47Reverse; // 9:Plane QuadMesh Primitive from Lines->11:Reverse 54041
     Fn0[->Array[Float]] _51__thunk__;
-    Fn1[Line->Array[Vector3]] _52Pass-through: function1; // 0:Pass-through: Fn1 56760
-    Array[Array[Vector3]] _53Map; // 9:Flat Map->4:For Each 56762
-    Array[Vector3] _54Flatten; // 9:Flat Map->3:Flatten 56761
-    Boolean _55False; // 9:Plane QuadMesh Primitive from Lines->5:False 56790
-    QuadMesh _56QuadMeshStrip; // 9:Plane QuadMesh Primitive from Lines->0:QuadMesh Strip 56758
-    Mesh _57Triangulate; // 14:Mesh from QuadMesh with Hidden Edges->2:Mesh from QuadMesh 56753
-    Boolean _58True; // 3:Mesh Hide QuadMesh Edges->12:True 56746
-    Boolean _59False; // 3:Mesh Hide QuadMesh Edges->13:False 56747
-    Array[Boolean] _60Array_3; // 3:Mesh Hide QuadMesh Edges->11:Array 3 56745
-    Array[Boolean] _61Reverse; // 3:Mesh Hide QuadMesh Edges->14:Reverse 56748
-    Array[Boolean] _62Concatenate; // 3:Mesh Hide QuadMesh Edges->15:Join Arrays 56744
-    Integer _63FaceCount; // 3:Mesh Hide QuadMesh Edges->3:Mesh Face Count 56752
-    Integer _64Two; // 4:Divide by Two->2:Two Integer 56751
-    Integer _65Divide; // 4:Divide by Two->1:Divide 56750
-    Array[Array[Boolean]] _66ArrayOf; // 3:Mesh Hide QuadMesh Edges->6:Array of Value 56743
-    Array[Boolean] _67Flatten; // 3:Mesh Hide QuadMesh Edges->10:Flatten 56742
-    Mesh _68SetVisibleEdges; // 3:Mesh Hide QuadMesh Edges->9:Mesh Set Edge Visibility 56741
-    Array[Integer] _69Mesh_Face_Polygon_Ids; // 5:Mesh Polygons->2:Mesh Face Polygon Ids 56734
-    Array[Integer] _70Indices; // 3:Group Indices by Value->4:Indices 56732
+    Fn1[Line->Array[Vector3]] _52Pass-through: function1; // 0:Pass-through: Fn1 54038
+    Array[Array[Vector3]] _53Map; // 9:Flat Map->4:For Each 54040
+    Array[Vector3] _54Flatten; // 9:Flat Map->3:Flatten 54039
+    Boolean _55False; // 9:Plane QuadMesh Primitive from Lines->5:False 54068
+    QuadMesh _56QuadMeshStrip; // 9:Plane QuadMesh Primitive from Lines->0:QuadMesh Strip 54036
+    Mesh _57Triangulate; // 14:Mesh from QuadMesh with Hidden Edges->2:Mesh from QuadMesh 54031
+    Boolean _58True; // 3:Mesh Hide QuadMesh Edges->12:True 54024
+    Boolean _59False; // 3:Mesh Hide QuadMesh Edges->13:False 54025
+    Array[Boolean] _60Array_3; // 3:Mesh Hide QuadMesh Edges->11:Array 3 54023
+    Array[Boolean] _61Reverse; // 3:Mesh Hide QuadMesh Edges->14:Reverse 54026
+    Array[Boolean] _62Concatenate; // 3:Mesh Hide QuadMesh Edges->15:Join Arrays 54022
+    Integer _63FaceCount; // 3:Mesh Hide QuadMesh Edges->3:Mesh Face Count 54030
+    Integer _64Two; // 4:Divide by Two->2:Two Integer 54029
+    Integer _65Divide; // 4:Divide by Two->1:Divide 54028
+    Array[Array[Boolean]] _66ArrayOf; // 3:Mesh Hide QuadMesh Edges->6:Array of Value 54021
+    Array[Boolean] _67Flatten; // 3:Mesh Hide QuadMesh Edges->10:Flatten 54020
+    Mesh _68SetVisibleEdges; // 3:Mesh Hide QuadMesh Edges->9:Mesh Set Edge Visibility 54019
+    Array[Integer] _69Mesh_Face_Polygon_Ids; // 5:Mesh Polygons->2:Mesh Face Polygon Ids 54012
+    Array[Integer] _70Indices; // 3:Group Indices by Value->4:Indices 54010
     Fn0[->Array[Integer]] _71__thunk__;
-    Array[Pair[Integer,Array[Integer]]] _72Group_by_Key; // 3:Group Indices by Value->3:Group by Key 56731
+    Array[Pair[Integer,Array[Integer]]] _72Group_by_Key; // 3:Group Indices by Value->3:Group by Key 54009
     Fn0[->Boolean] _74__thunk__;
     Fn0[->Float] _75__thunk__;
-    Fn0[->Float] _76__thunk__;
-    Fn0[->Integer] _77__thunk__;
-    Fn0[->Integer] _78__thunk__;
-    Mesh _79Aggregate; // 7:Mesh Extrude Polygons->3:Aggregate 56725
+    Fn0[->Float] _78__thunk__;
+    Fn0[->Integer] _79__thunk__;
+    Fn0[->Integer] _80__thunk__;
+    Mesh _81Aggregate; // 7:Mesh Extrude Polygons->3:Aggregate 54003
     
     _0One = One();
     
@@ -47,19 +47,19 @@
     
     _16__thunk__ = Internal__Memoize(() => 
       {
-        Float _3Constant; // 1:DEPRECATED Origin->2:Constant 56804
-        Vector3 _4Vector3; // 1:DEPRECATED Origin->1:Vector 56803
-        Float _5FloatZero; // 1:Vector from X->5:Zero Float 56807
-        Vector3 _6Vector3; // 1:Vector from X->0:Vector 56806
-        Line _7Line; // 10:Line from Vector->0:Line 56802
-        Vector3 _8LineA; // 11:Offset Line->0:Line Point A 56798
-        Float _9FloatZero; // 4:Vector from Y->5:Zero Float 56810
-        Vector3 _10Vector3; // 4:Vector from Y->1:Vector 56809
-        Vector3 _11Add; // 11:Offset Line->6:Add 56797
-        Vector3 _12LineB; // 11:Offset Line->1:Line Point B 56800
-        Vector3 _13Add; // 11:Offset Line->5:Add 56799
-        Line _14Line; // 11:Offset Line->3:Line 56796
-        Vector3 _15LineA; // 10:Line from Interpolated Segments->2:Line Point A 56773
+        Float _3Constant; // 1:DEPRECATED Origin->2:Constant 54082
+        Vector3 _4Vector3; // 1:DEPRECATED Origin->1:Vector 54081
+        Float _5FloatZero; // 1:Vector from X->5:Zero Float 54085
+        Vector3 _6Vector3; // 1:Vector from X->0:Vector 54084
+        Line _7Line; // 10:Line from Vector->0:Line 54080
+        Vector3 _8LineA; // 11:Offset Line->0:Line Point A 54076
+        Float _9FloatZero; // 4:Vector from Y->5:Zero Float 54088
+        Vector3 _10Vector3; // 4:Vector from Y->1:Vector 54087
+        Vector3 _11Add; // 11:Offset Line->6:Add 54075
+        Vector3 _12LineB; // 11:Offset Line->1:Line Point B 54078
+        Vector3 _13Add; // 11:Offset Line->5:Add 54077
+        Line _14Line; // 11:Offset Line->3:Line 54074
+        Vector3 _15LineA; // 10:Line from Interpolated Segments->2:Line Point A 54051
         
         _3Constant = 0;
         
@@ -91,19 +91,19 @@
     
     _30__thunk__ = Internal__Memoize(() => 
       {
-        Float _17Constant; // 1:DEPRECATED Origin->2:Constant 56804
-        Vector3 _18Vector3; // 1:DEPRECATED Origin->1:Vector 56803
-        Float _19FloatZero; // 1:Vector from X->5:Zero Float 56807
-        Vector3 _20Vector3; // 1:Vector from X->0:Vector 56806
-        Line _21Line; // 10:Line from Vector->0:Line 56802
-        Vector3 _22LineA; // 11:Offset Line->0:Line Point A 56798
-        Float _23FloatZero; // 4:Vector from Y->5:Zero Float 56810
-        Vector3 _24Vector3; // 4:Vector from Y->1:Vector 56809
-        Vector3 _25Add; // 11:Offset Line->6:Add 56797
-        Vector3 _26LineB; // 11:Offset Line->1:Line Point B 56800
-        Vector3 _27Add; // 11:Offset Line->5:Add 56799
-        Line _28Line; // 11:Offset Line->3:Line 56796
-        Vector3 _29LineB; // 10:Line from Interpolated Segments->3:Line Point B 56774
+        Float _17Constant; // 1:DEPRECATED Origin->2:Constant 54082
+        Vector3 _18Vector3; // 1:DEPRECATED Origin->1:Vector 54081
+        Float _19FloatZero; // 1:Vector from X->5:Zero Float 54085
+        Vector3 _20Vector3; // 1:Vector from X->0:Vector 54084
+        Line _21Line; // 10:Line from Vector->0:Line 54080
+        Vector3 _22LineA; // 11:Offset Line->0:Line Point A 54076
+        Float _23FloatZero; // 4:Vector from Y->5:Zero Float 54088
+        Vector3 _24Vector3; // 4:Vector from Y->1:Vector 54087
+        Vector3 _25Add; // 11:Offset Line->6:Add 54075
+        Vector3 _26LineB; // 11:Offset Line->1:Line Point B 54078
+        Vector3 _27Add; // 11:Offset Line->5:Add 54077
+        Line _28Line; // 11:Offset Line->3:Line 54074
+        Vector3 _29LineB; // 10:Line from Interpolated Segments->3:Line Point B 54052
         
         _17Constant = 0;
         
@@ -135,12 +135,12 @@
     
     _37__thunk__ = Internal__Memoize(() => 
       {
-        Float _31Constant; // 1:DEPRECATED Origin->2:Constant 56804
-        Vector3 _32Vector3; // 1:DEPRECATED Origin->1:Vector 56803
-        Float _33FloatZero; // 1:Vector from X->5:Zero Float 56807
-        Vector3 _34Vector3; // 1:Vector from X->0:Vector 56806
-        Line _35Line; // 10:Line from Vector->0:Line 56802
-        Vector3 _36LineA; // 10:Line from Interpolated Segments->7:Line Point A 56776
+        Float _31Constant; // 1:DEPRECATED Origin->2:Constant 54082
+        Vector3 _32Vector3; // 1:DEPRECATED Origin->1:Vector 54081
+        Float _33FloatZero; // 1:Vector from X->5:Zero Float 54085
+        Vector3 _34Vector3; // 1:Vector from X->0:Vector 54084
+        Line _35Line; // 10:Line from Vector->0:Line 54080
+        Vector3 _36LineA; // 10:Line from Interpolated Segments->7:Line Point A 54054
         
         _31Constant = 0;
         
@@ -158,12 +158,12 @@
     
     _44__thunk__ = Internal__Memoize(() => 
       {
-        Float _38Constant; // 1:DEPRECATED Origin->2:Constant 56804
-        Vector3 _39Vector3; // 1:DEPRECATED Origin->1:Vector 56803
-        Float _40FloatZero; // 1:Vector from X->5:Zero Float 56807
-        Vector3 _41Vector3; // 1:Vector from X->0:Vector 56806
-        Line _42Line; // 10:Line from Vector->0:Line 56802
-        Vector3 _43LineB; // 10:Line from Interpolated Segments->8:Line Point B 56777
+        Float _38Constant; // 1:DEPRECATED Origin->2:Constant 54082
+        Vector3 _39Vector3; // 1:DEPRECATED Origin->1:Vector 54081
+        Float _40FloatZero; // 1:Vector from X->5:Zero Float 54085
+        Vector3 _41Vector3; // 1:Vector from X->0:Vector 54084
+        Line _42Line; // 10:Line from Vector->0:Line 54080
+        Vector3 _43LineB; // 10:Line from Interpolated Segments->8:Line Point B 54055
         
         _38Constant = 0;
         
@@ -181,9 +181,9 @@
     
     _45Pass-through: function1 = (Float x0) => 
       {
-        Vector3 _0Lerp; // 10:Line from Interpolated Segments->4:Lerp 56772
-        Vector3 _1Lerp; // 10:Line from Interpolated Segments->9:Lerp 56775
-        Line _2Line; // 10:Line from Interpolated Segments->10:Line 56771
+        Vector3 _0Lerp; // 10:Line from Interpolated Segments->4:Lerp 54050
+        Vector3 _1Lerp; // 10:Line from Interpolated Segments->9:Lerp 54053
+        Line _2Line; // 10:Line from Interpolated Segments->10:Line 54049
         
         _0Lerp = Lerp(_16__thunk__(), _30__thunk__(), x0);
         
@@ -199,9 +199,9 @@
     
     _51__thunk__ = Internal__Memoize(() => 
       {
-        Integer _48One; // 13:Plus One->1:One Integer 56813
-        Integer _49Add; // 13:Plus One->0:Add 56812
-        Array[Float] _50RangeInclusiveFloat; // 5:Array of Sampled Floats->2:Array of Floats Inclusive 56786
+        Integer _48One; // 13:Plus One->1:One Integer 54091
+        Integer _49Add; // 13:Plus One->0:Add 54090
+        Array[Float] _50RangeInclusiveFloat; // 5:Array of Sampled Floats->2:Array of Floats Inclusive 54064
         
         _48One = One();
         
@@ -215,12 +215,12 @@
       {
         Fn0[->Vector3] _1__thunk__;
         Fn0[->Vector3] _3__thunk__;
-        Fn1[Float->Vector3] _4Pass-through: function1; // 0:Pass-through: Fn1 56784
-        Array[Vector3] _5Map; // 5:Array of Sampled Floats->3:For Each 56785
+        Fn1[Float->Vector3] _4Pass-through: function1; // 0:Pass-through: Fn1 54062
+        Array[Vector3] _5Map; // 5:Array of Sampled Floats->3:For Each 54063
         
         _1__thunk__ = Internal__Memoize(() => 
           {
-            Vector3 _0LineA; // 7:Points on Line->3:Line Point A 56788
+            Vector3 _0LineA; // 7:Points on Line->3:Line Point A 54066
             
             _0LineA = LineA(x0);
             _0LineA;
@@ -228,7 +228,7 @@
         
         _3__thunk__ = Internal__Memoize(() => 
           {
-            Vector3 _2LineB; // 7:Points on Line->4:Line Point B 56789
+            Vector3 _2LineB; // 7:Points on Line->4:Line Point B 54067
             
             _2LineB = LineB(x0);
             _2LineB;
@@ -236,7 +236,7 @@
         
         _4Pass-through: function1 = (Float x0) => 
           {
-            Vector3 _0Lerp; // 2:Array of Interpolated Vectors->3:Lerp 56787
+            Vector3 _0Lerp; // 2:Array of Interpolated Vectors->3:Lerp 54065
             
             _0Lerp = Lerp(_1__thunk__(), _3__thunk__(), x0);
             _0Lerp;
@@ -289,7 +289,7 @@
     
     _72Group_by_Key = Group_by_Key(_70Indices, (Integer x0) => 
       {
-        Integer _0At; // 3:Group Indices by Value->5:At 56733
+        Integer _0At; // 3:Group Indices by Value->5:At 54011
         
         _0At = At(_71__thunk__(), x0);
         _0At;
@@ -297,7 +297,7 @@
     
     _74__thunk__ = Internal__Memoize(() => 
       {
-        Boolean _73True; // 7:Mesh Extrude Polygons->6:True 56728
+        Boolean _73True; // 7:Mesh Extrude Polygons->6:True 54006
         
         _73True = True();
         _73True;
@@ -308,30 +308,36 @@
         amount;
         });
     
-    _76__thunk__ = Internal__Memoize(() => 
+    _78__thunk__ = Internal__Memoize(() => 
       {
-        inset;
+        Float _76Constant; // 11:Constant 54099
+        Float _77Divide; // 12:Divide 54097
+        
+        _76Constant = 10;
+        
+        _77Divide = Divide(inset, _76Constant);
+        _77Divide;
         });
     
-    _77__thunk__ = Internal__Memoize(() => 
+    _79__thunk__ = Internal__Memoize(() => 
       {
         mat_id;
         });
     
-    _78__thunk__ = Internal__Memoize(() => 
+    _80__thunk__ = Internal__Memoize(() => 
       {
         smooth_id;
         });
     
-    _79Aggregate = Aggregate(_72Group_by_Key, _68SetVisibleEdges, (Mesh x0, Pair[Integer,Array[Integer]] x1) => 
+    _81Aggregate = Aggregate(_72Group_by_Key, _68SetVisibleEdges, (Mesh x0, Pair[Integer,Array[Integer]] x1) => 
       {
-        Array[Integer] _0PairItem2; // 7:Mesh Extrude Polygons->4:Pair Item 2 56727
-        Mesh _1Mesh_Extrude_Faces; // 7:Mesh Extrude Polygons->2:Mesh Extrude Faces 56726
+        Array[Integer] _0PairItem2; // 7:Mesh Extrude Polygons->4:Pair Item 2 54005
+        Mesh _1Mesh_Extrude_Faces; // 7:Mesh Extrude Polygons->2:Mesh Extrude Faces 54004
         
         _0PairItem2 = PairItem2(x1);
         
-        _1Mesh_Extrude_Faces = Mesh_Extrude_Faces(x0, _0PairItem2, _74__thunk__(), _75__thunk__(), _76__thunk__(), _77__thunk__(), _78__thunk__());
+        _1Mesh_Extrude_Faces = Mesh_Extrude_Faces(x0, _0PairItem2, _74__thunk__(), _75__thunk__(), _78__thunk__(), _79__thunk__(), _80__thunk__());
         _1Mesh_Extrude_Faces;
         });
-    _79Aggregate;
+    _81Aggregate;
     }

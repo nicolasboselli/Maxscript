@@ -12,6 +12,7 @@
 		-- picker pour retourner le segment de la spline sur laquelle on pique
 
 -- OUTILS FENETRES
+	-- bug: sur une spline fermer les reperes ne sont pas créé correctement
 	-- preparation percement (cf prepa_percement_sandbox.ms)
 		/- rendre editable tous les objets à la construction (type de fenetre) pour en ajouter ou en supprimer (creation ou suppression de calque)
 		x- ajustement des reperes de percement
@@ -60,6 +61,7 @@
 */
 
 ------------ DECLARATION DES VARIABLES ----------------------
+
 
 
 -- filein @"N:/Ressources_Nico/github/00_wip/Maxscript/cellsCreator/001/adjust_gabarit.ms"
@@ -120,6 +122,29 @@ fn inverseKnotOrder l =
 
 filein "adjust_gabarit.ms" -- quiet: true
 
+
+-- find vray
+fn findVray  =
+(
+	local goodR
+	for r in rendererClass.classes do
+	(
+-- 		format "r: %\n" r
+		if matchPattern  (r as string)  pattern: "V_Ray_Adv*" then
+		(
+			goodR = r
+			exit
+		)
+		else if matchPattern  (r as string)  pattern: "V_Ray_Next*" then
+		(
+			goodR = r
+			exit
+		)
+		else()
+	)
+-- 	format "good r: %\n" goodR
+	 goodR
+)
 
 
 fn collectLayer pattern: "*" =
@@ -194,11 +219,18 @@ rollout prepareScene "Preparer le cellule" width:350 height:230
 			LetCL.addnode o
 		)
 		
+		-- imposer l'angle de camera
+		
 	)
 		
 	on loadRenderPset pressed  do
 	(		
 		renderSceneDialog.close()
+		
+		-- setup vray
+		renderers.current = findvray()
+		showproperties renderers.current
+		
 		-- render size
 		renderWidth = 4900
 		renderHeight = 4165
@@ -213,19 +245,20 @@ rollout prepareScene "Preparer le cellule" width:350 height:230
 		
 		-- parametre la gi
 		-- parametre color mapping
+		renderers.current.colorMapping_type = 6
+
 		-- parametre ao
 		-- parametre chemin d'enregistrement
+		-- parametrer le gamma
+		-- parametrer affect background
+		renderers.current.colorMapping_affectBackground = false
+		
+		renderSceneDialog.open()
+		
 		-- paremetre environnement
 		backgroundColor = color 255 255 255
 		
-		/*
-		filesVray = importfolderVray + "\\Correction_Couleur.vccglb"
-		if doesfileexist filesVray then 
-		(
-			format "Import Vray Preset file : %\n" filesVray
-			vfbControl #loadglobalccpreset filesVray
-		)
-		*/
+		
 	)
 )
 
@@ -292,6 +325,7 @@ rollout addPlan "Preparation du plan" width:350 height:230
 	)
 )
 
+filein "config_rlt.ms"
 filein "prepa_mur_rlt.ms" -- quiet: true
 filein "prepa_percement_rlt.ms" -- quiet: true
 
@@ -683,7 +717,7 @@ rollout creationAptRLT "Création Appartement"
 			-- recuperation des blocs de gabarits sur les calques	
 			nnl = collectGabarit2 (decSuf + "*")
 			
-			-- maj: au lieu d'utiliser les gabarits de fenetre on créé des gabarts avec 3cm de debord
+			--x maj: au lieu d'utiliser les gabarits de fenetre on créé des gabarts avec 3cm de debord
 				-- deplacer dans percement
 			nnl2 =#()
 			-- recuperation des mur
@@ -957,6 +991,7 @@ addRollout prepareScene dRolFloater
 
 addRollout displayRLT dRolFloater
 
+addRollout savePrefRLT dRolFloater 
 -- addRollout addExtWall dRolFloater --rolledUp:false
 addRollout prepaMursRLT dRolFloater 
 

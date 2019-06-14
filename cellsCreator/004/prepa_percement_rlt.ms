@@ -96,6 +96,7 @@ rollout prepaPercementRLT "preparation percement v2"
 	local drilSel = undefined
 	
 	-- UI
+	/*
 	group "configuration:"
 	(
 		dropdownlist  configDDL "select:"
@@ -103,6 +104,7 @@ rollout prepaPercementRLT "preparation percement v2"
 		button saveAsBT "saveAs" enabled: false
 		button loadBT "load" enabled: false
 	)
+	*/
 	
 	group "types percements:"
 	(
@@ -141,7 +143,7 @@ rollout prepaPercementRLT "preparation percement v2"
 	-- functions
 	fn refreshUI =
 	(
-		configDDL.items = for c in cellSetAr collect (getFilenameFile c)
+-- 		configDDL.items = for c in cellSetAr collect (getFilenameFile c)
 		
 -- 		mursMLB.items = for i = layerStructAr.count to 1 by -1 collect layerStructAr[i].name
 		drillingMLB.items = for p in layerStructAr collect p.name
@@ -164,7 +166,7 @@ rollout prepaPercementRLT "preparation percement v2"
 			outerSP.value = drilsel.debordAr
 		)
 	)
-	
+	/*
 	fn loadSettings f =
 	(
 -- 		format "f:%\n" f
@@ -193,7 +195,7 @@ rollout prepaPercementRLT "preparation percement v2"
 		)
 		refreshUI()
 	)
-	
+	*/
 	
 	-- actions
 	on prepaPercementRLT open do
@@ -201,10 +203,10 @@ rollout prepaPercementRLT "preparation percement v2"
 		
 		loadRolloutParams prepaPercementRLT params
 		
-		cellSetAr = getfiles cellSetPath
+-- 		cellSetAr = getfiles cellSetPath
 -- 		format "cellSetAr: %\n" cellSetAr
-		if cellSetAr.count == 0 then()
-		else loadSettings cellSetAr[1]
+-- 		if cellSetAr.count == 0 then()
+-- 		else loadSettings cellSetAr[1]
 -- 		format "cellSetAr: %\n" layerStructAr
 		refreshUI()
 		
@@ -214,7 +216,7 @@ rollout prepaPercementRLT "preparation percement v2"
 	(
 		writeRolloutParams prepaPercementRLT params
 	)
-	
+	/*
 	on loadBT pressed do
 	(		
 		local config = cellSetAr[configDDL.selection]
@@ -236,7 +238,7 @@ rollout prepaPercementRLT "preparation percement v2"
 		
 		refreshUI()
 	)
-	
+	*/
 	on drillingMLB selectionend do
 	(
 		selIds =  (drillingMLB.selection as array)
@@ -477,5 +479,6 @@ rollout prepaPercementRLT "preparation percement v2"
 	)
 )
 -- createdialog prepaPercementRLT
+
 
 

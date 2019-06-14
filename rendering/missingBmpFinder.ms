@@ -1,7 +1,10 @@
 bmpAr = getclassinstances bitmaptexture target: scenematerials
 i = 1
 missingBMP = #()
-
+for b in bmpAr do 
+(
+	format "% , fileexist: % getfile: %, detDir: %\n" b.filename (doesfileexist b.filename) (getFiles  b.filename) (getDirectories b.filename)
+)
 
 for b in bmpAr do
 (
@@ -9,7 +12,7 @@ for b in bmpAr do
 	(
 		if doesfileexist b.filename then
 		(
-	-- 					format "Found: % %\n" i b.filename 
+			format "Found: % %\n" i b.filename 
 		)
 		else if not doesfileexist b.filename then
 		(

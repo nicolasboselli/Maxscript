@@ -26,7 +26,6 @@ fn findVray  =
 	 goodR
 )
 
-findVray()
 
 -- 	functions
 fn createInfiniteGround =
@@ -132,25 +131,6 @@ fn setVrayCamera =
 	
 	viewport.setCamera newCam
 )
-
-/*
-(
-	renderSceneDialog.close()
-	renderWidth = 1500
-	renderHeight = 1500
-	
-	max quick render
-	
-	-- Get the last Rendered image
-	img = getlastrenderedimage()
-	
-	-- Assign a filename
-	img.filename = maxFilePath + (getFilenameFile maxfilename) + ".jpg"
-	
-	-- Save it
-	save img gamma: 2.2
-)
-*/
 
 
 -- rollout
