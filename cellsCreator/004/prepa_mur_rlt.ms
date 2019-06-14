@@ -98,9 +98,9 @@ rollout prepaMursRLT "preparation murs v2" -- width:350
 	group "types murs:"
 	(
 		
-		button addtypeBT "add" across: 3 enabled: false
-		button delTypeBT "delete" enabled: false
-		button renTypeBT "rename"  enabled: false --enabled: false 
+		button addtypeBT "add" across: 3 enabled: true
+		button delTypeBT "delete" enabled: true
+		button renTypeBT "rename"  enabled: true 
 		multilistbox mursMLB "Murs:" height: 6
 	)
 	

@@ -112,7 +112,7 @@ rollout prepaPercementRLT "preparation percement v2"
 		button addtypeBT "add" across: 3 enabled: true
 		button delTypeBT "delete" enabled: true
 		button renTypeBT "rename"  enabled: true --enabled: false 
-		multilistbox drillingMLB "percements:"
+		multilistbox drillingMLB "percements:" height: 6
 	)
 	
 	group "paramètres:"

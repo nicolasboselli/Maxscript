@@ -228,7 +228,7 @@ rollout prepareScene "Preparer le cellule" width:350 height:230
 		renderSceneDialog.close()
 		
 		-- setup vray
-		renderers.current = findvray()
+		renderers.current = (findvray())()
 		showproperties renderers.current
 		
 		-- render size
@@ -257,8 +257,6 @@ rollout prepareScene "Preparer le cellule" width:350 height:230
 		
 		-- paremetre environnement
 		backgroundColor = color 255 255 255
-		
-		
 	)
 )
 
@@ -674,6 +672,7 @@ rollout creationAptRLT "Création Appartement"
 	
 	on createSolBT pressed do
 	(
+		format "start sol creation\n"
 		solsL = LayerManager.getLayerFromName solsLname
 		if solsL == undefined then solsL = LayerManager.newLayerFromName solsLname
 -- 		hideOthersLayer solsL
@@ -697,6 +696,7 @@ rollout creationAptRLT "Création Appartement"
 			createSol solToFinish
 		)
 		else()
+		format "end sol creation\n"
 	)
 	
 	
@@ -713,8 +713,10 @@ rollout creationAptRLT "Création Appartement"
 				delete tmpAptNodes
 			)
 			
-
-			-- recuperation des blocs de gabarits sur les calques	
+			-- creation des blocs de decoupes
+			prepaPercementRLT.createDecoupeBT.pressed()
+			
+			-- recuperation des blocs de decoupe sur les calques	
 			nnl = collectGabarit2 (decSuf + "*")
 			
 			--x maj: au lieu d'utiliser les gabarits de fenetre on créé des gabarts avec 3cm de debord
