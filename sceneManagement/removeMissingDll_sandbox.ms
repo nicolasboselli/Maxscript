@@ -1,11 +1,11 @@
-getclassinstances vrayMtl 
-getclassinstances CoronaNormal
-getclassinstances colorcorrect
-getclassinstances CoronaNormal
-getclassinstances CoronaNormal
+-- getclassinstances vrayMtl 
+-- getclassinstances CoronaNormal
+-- getclassinstances colorcorrect
+-- getclassinstances CoronaNormal
+-- getclassinstances CoronaNormal
 
-str = stringstream ""
-showClass "CoronaNormal" to: str
+-- str = stringstream ""
+-- showClass "CoronaNormal" to: str
 
 
 -- get list of missing plugin classes
@@ -31,7 +31,9 @@ while not (eof str) do (
 		) catch (
 			format "Cannot use % for searching missing plugins.\n" clsName
 		)
-	) else (
+	) 
+	else
+	(
 		format "Incorrect string found in missing plugin name list: %\n" tk
 	)
 )
@@ -39,56 +41,52 @@ while not (eof str) do (
 
 -- now search for instances of those missing plugins
 c = 0
+k = 0
 missingClasses = #()
 foundMissing = #()
-for j = 1 to cls.count do (
+for j = 1 to cls.count do
+(
 	cc = cls[j]
 	ci = getClassInstances cc
-	if ci.count > 0 then (
+	if ci.count > 0 then 
+	(
 		format "%: Found % instances of %: %\n" j ci.count cc ci
-		for c in ci do append missingClasses c
-		for i = 1 to ci.count do (
-			-- get current class
-			myClass = classOf cc
-			append foundMissing myClass
-			-- get list of all subclasses
-			allClasses = myClass.classes
-			for k = 1 to allClasses.count do (
-				-- search for useful replacement
-				if allClasses[k].creatable then (
-					-- create new instance of default (first) class
--- 						newInst = createInstance allClasses[k]
-					try (
-						-- replace all instances (requires 3ds Max 2008+ or AVG extensions)
--- 							q = replaceInstances ci[i] newInst
-						c += 1
-						-- and exit for k loop
-						exit
-					) catch (
-						format "Error replacing %\n" ci[i]
-						format "Exception: %\n" (getCurrentException())
-					)
-				)
-			) -- end: for k
-			-- todo: what happens if NO useful replacement was found?
-		) -- end: for i
-	) -- end: if
-) -- end: for j
-
+		for c in ci do 
+		(
+			format "%\n" (classof c)
+			reff = refs.dependents c
+			format "reff: %\n" reff
+			for r in reff where superclassof r == material do
+			(
+				k += 1
+				meditmaterials [k] = r
+				format "k: % mat: %\n"k r
+			)
+		)
+	) 
+	
+	if k == 24 then exit
+) 
 
 -- mat = refs.dependents missingClasses[2] immediateOnly: false
 -- meditmaterials[1] = mat[2]
 
-refss = refs.dependents missingClasses[1] -- immediateOnly: true
 
 -- edit material avec du raytrace
-maps = getclassinstances raytrace 
-maps = refs.dependents maps[1]
-i = 0
-for m in maps where superclassof m == material do
+rayTraceAr = getclassinstances raytrace 
+for r in rayTraceAr do
 (
-	i += 1
-	meditmaterials [i] = m
-	print m
+	maps = refs.dependents r
+	i = 0
+	if maps != undefined and maps.count>0 then
+	(
+		for m in maps where superclassof m == material do
+		(
+			i += 1
+			meditmaterials [i] = m
+	-- 		print m
+		)
+	)
+	else(format "no raytrace\n")
 )
 

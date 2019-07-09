@@ -56,7 +56,12 @@ fn writeRolloutParams rlt params =
 				(
 					setINISetting armadasScriptsIni cat p.name  (p.state as string)
 					format "name: %, value: %, classof: %\n" p.name p.state (classof p)
-				)				
+				)		
+				else if classof p == ComboBoxControl then
+				(
+					setINISetting armadasScriptsIni cat p.name  (p.selection as string)
+					format "name: %, value: %, classof: %\n" p.name p.selection (classof p)
+				)
 				else(format "__FAIL__  name: %, classof: %\n" p (classof p))
 			)
 			-- collect variable
@@ -176,6 +181,11 @@ fn loadRolloutParams rlt params =
 -- 					setINISetting armadasScriptsIni cat p.name  (p.state as string)
 -- 					format "name: %, value: %, classof: %\n" p.name p.value (classof p)
 				)	
+				else if classof p == ComboBoxControl   and val.count > 0 then
+				(
+					p.selection = val as integer
+					format "name: %, INT value: %\n" p val
+				)
 				else()
 			)
 			else if classof p == Array then

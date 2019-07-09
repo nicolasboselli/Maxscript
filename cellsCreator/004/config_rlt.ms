@@ -1,7 +1,9 @@
 -- maj:
+	-- memoriser la dernièe config selectionnée
+	-- charger automatiquement la dernière config selectionnée
 	-- rendre editable le chemin d'enregistrement des configs
 	-- ajouter une fonction delete
-
+-- savePrefRLT.configDDL.selection
 
 global cellSetPath = getroot() +"cellsCreator/cellSettings/*"
 
@@ -9,7 +11,7 @@ try(destroydialog savePrefRLT)catch()
 rollout savePrefRLT "cell configuration"
 (
 	
-	local params = #("open")
+	local params = #("open", "configDDL")
 	
 	local cellSetAr = #()
 	local layerStructAr = #()
@@ -36,7 +38,7 @@ rollout savePrefRLT "cell configuration"
 	fn loadSettings f =
 	(
 -- 		layerStructAr = #()
-		if 	prepaMursRLT.isdisplayed then 
+		if 	prepaMursRLT != undefined /*and prepaMursRLT.isdisplayed*/ then 
 		(
 			mursSettingsAr = getINISetting f "mursSettings2"
 			prepaMursRLT.layerStructAr = #()
@@ -47,7 +49,7 @@ rollout savePrefRLT "cell configuration"
 			)
 		)
 		
-		if prepaPercementRLT.isdisplayed then
+		if prepaPercementRLT != undefined /*and prepaPercementRLT.isdisplayed*/ then
 		(
 			setsAr = getINISetting f "drillSettings"
 			prepaPercementRLT.layerStructAr = #()
@@ -89,6 +91,7 @@ rollout savePrefRLT "cell configuration"
 		else loadSettings cellSetAr[1]
 		
 		refreshUI()
+		loadBT.pressed()
 	)
 	
 	on savePrefRLT close do
@@ -98,14 +101,17 @@ rollout savePrefRLT "cell configuration"
 	
 	on loadBT pressed do
 	(
-		local config = cellSetAr[configDDL.selection]
--- 		format "configSel: %\n"  config
+		if configDDL.selection > 0 then
+		(
+			local config = cellSetAr[configDDL.selection]
+	-- 		format "configSel: %\n"  config
 
-		if not doesfileexist config then()
-		else 	loadSettings config
-		format "layerStructAr: %\n" layerStructAr
-		for l in layerStructAr do format "%\n" l
-		refreshUI()
+			if not doesfileexist config then()
+			else 	loadSettings config
+			format "layerStructAr: %\n" layerStructAr
+			for l in layerStructAr do format "%\n" l
+			refreshUI()
+		)
 	)
 	
 	on saveBT pressed do

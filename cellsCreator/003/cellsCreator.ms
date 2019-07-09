@@ -69,7 +69,7 @@ global countPlan = 0
 global planFile = undefined
 
 global objectReplacerTool = getroot() + "objReplacer/002/obj_replacer.ms"
-global resizerTool = getroot() + "plansManagement/Plan_resizer.ms"
+global resizerTool = getroot() + "plansManagement/plan_resizer/001/Plan_resizer.ms"
 global cleanSplineTool = getroot() + "MODELING_TOOLS/001/cleanSpline.ms"
 
 filein cleanSplineTool
@@ -79,7 +79,7 @@ global cellRoot = @"M:\Interieur\Cellules\"
 
 global importfolderFEN = "M:\\Interieur\\Cellules\\Modelisation\\Fenetres\\"
 global importfolderPOR = "M:\\Interieur\\Cellules\\Modelisation\\Portes\\"
--- global importfolderCAM = "M:\\Interieur\\Cellules\\Modelisation\\CamLights\\"
+global importfolderCAM = "M:\\Interieur\\Cellules\\Modelisation\\CamLights\\"
 -- global importfolderCAM = @"M:\Elements_batiments\Light\"
 global importfolderCAM = @"M:\Light\"
 global importfolderPST = "M:\\Interieur\\Cellules\\Modelisation\\Presets\\"

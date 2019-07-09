@@ -8,22 +8,21 @@
 	-- plutot que de faire des murs de differentes hauteur, proposer de monter ou descendre les splines de la difference entre mur haut et mur bas (xform) avec un picker
 		-- cf move_spline_sandbox.ms
 		/- fonction pour monter et descendre la selection spline
-			- changer la hauter des segments en fonction de l'id de leur id de materiau sur tout la spline
 		-- picker pour retourner le segment de la spline sur laquelle on pique
 
 -- OUTILS FENETRES
 	-- bug: sur une spline fermer les reperes ne sont pas créé correctement
 	-- preparation percement (cf prepa_percement_sandbox.ms)
-		/- rendre editable tous les objets à la construction (type de fenetre) pour en ajouter ou en supprimer (creation ou suppression de calque)
+		x- rendre editable tous les objets à la construction (type de fenetre) pour en ajouter ou en supprimer (creation ou suppression de calque)
 		x- ajustement des reperes de percement
 			x- integrer la fonction d'ajustement directement dans le rollout de gabarit
 			-- debug:
-				-- pour qu'il s'auto aligne au mur
+				-- pour qu'il s'auto aligne au mur, mettre le repere perpendiculaire automatique(pour les murs en biais)
 				x- pour qu'il fonctionne en horaire et en anti horaire (actuellement fonctionne seulement en anti horaire)
 			
 		x- rendre parametrable l'avant et l'apres (à editer lorsqu'on pourra ajouter des types de gabarit cf rebuild)
 		x- rendre invisible l'operation d'ajustement des reperes de fenetres, la faire executer à la creation des gabarits
-		-- mettre le repere perpendiculaire automatique(pour les murs en biais)
+		
 		-- automatiser l'import et les placement des portes		
  
 -- OUTILS SOLS
@@ -71,9 +70,8 @@ global countPlan = 0
 global planFile = undefined
 
 global objectReplacerTool = getroot() + "objReplacer/002/obj_replacer.ms"
-global resizerTool = getroot() + "plansManagement/Plan_resizer.ms"
+global resizerTool = getroot() + "plansManagement/plan_resizer/001/Plan_resizer.ms"
 global cleanSplineTool = getroot() + "MODELING_TOOLS/001/cleanSpline.ms"
-
 filein cleanSplineTool
 
 global cellRoot = @"M:\Interieur\Cellules\"
@@ -323,9 +321,14 @@ rollout addPlan "Preparation du plan" width:350 height:230
 	)
 )
 
+
+
+
 filein "config_rlt.ms"
 filein "prepa_mur_rlt.ms" -- quiet: true
 filein "prepa_percement_rlt.ms" -- quiet: true
+
+
 
 fn hideOthersLayer l =
 (
@@ -596,6 +599,7 @@ fn openPlinte p =
 	p.material = tempLib[2]
 	
 	-- collect des gabarits
+	prepaPercementRLT.createDecoupeBT.pressed()
 	local nnl = collectGabarit2 (decSuf + "*")
 	
 	-- booleans
@@ -987,9 +991,9 @@ rollout displayRLT "display"
 	
 )
 
+
 addRollout addPlan dRolFloater --rolledUp:true
 addRollout prepareScene dRolFloater 
-
 
 addRollout displayRLT dRolFloater
 
@@ -1005,4 +1009,8 @@ addRollout createGround dRolFloater --rolledUp:false
 addRollout creationAptRLT dRolFloater --rolledUp:false
 
 addRollout importAssetRLT dRolFloater --rolledUp:false
+
+-- load preference
+-- PROB: 
+savePrefRLT.loadBT.pressed()
 

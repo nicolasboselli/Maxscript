@@ -1,0 +1,1 @@
+for s in selection do layermanager.current.addnode s

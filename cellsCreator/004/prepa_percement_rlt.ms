@@ -136,7 +136,7 @@ rollout prepaPercementRLT "preparation percement v2"
 		button adjustBT "adjust gabarits" enabled: false
 	)
 	
-	button createDecoupeBT "create decoupe" across:2
+	button createDecoupeBT "create decoupe" across:2 enabled: false
 	button createGabaritsBT "create gabarits" 
 
 	

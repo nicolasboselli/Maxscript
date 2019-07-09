@@ -690,6 +690,13 @@ rollout deMultiMatRLT "Materials Tools"
 		button listSceneMatBT "list scene materials"
 	)
 	
+	group "missing :"
+	(
+		button editMissBmpBT "edit bitmap" across: 3
+		button editMissDllBT "edit Dll"
+		button editRaytraceBT "edit raytrace"
+	)
+	
 	group "class materials"
 	(
 -- 		button collectMultiBT "publish multi-materials"
@@ -872,6 +879,131 @@ rollout deMultiMatRLT "Materials Tools"
 		qsort matAr sortMatbyname
 		for m in matAr do format "name: % class: %\n" m.name (classof m)
 	)
+	
+	on editMissBmpBT pressed do
+	(
+		local bmpAr = getclassinstances bitmaptexture target: scenematerials
+		local i = 1
+		for b in bmpAr do
+		(
+			
+			if not doesfileexist b.filename then
+			(
+				format "missing filename: %\n" b.filename
+				refdep = refs.dependents b  -- immediateOnly: true
+-- 				meditmaterials[i] = b
+				
+				i +=1
+				
+				for d in refdep do
+				(
+-- 					format "d: % classof: %, i:%\n" d (classof d) i
+					if classof d == vraymtl then 
+					(
+						format "d: % classof: %, i:%\n" d (classof d) i
+						if i < 24 then
+						(
+							meditmaterials[i] = d
+							i += 1
+						)
+					)
+				)
+			)
+			else
+			(
+				format "filename: %\n" b.filename
+			)
+			
+			if i == 24 then exit
+		)
+	)
+	
+	on editMissDllBT pressed do
+	(
+		-- get list of missing plugin classes
+		str = stringStream ""
+		apropos "*missing*" to:str
+		seek str 0
+		cls = #()
+		while not (eof str) do (
+			ln = readLine str
+			tk = filterString ln " "
+			if tk.count == 4 then (
+				clsName = tk[1]
+				try (
+					val = (execute clsName)
+					sc = superClassOf val
+					-- Alternative: check for .classID == #(-1,0)
+					if sc==MAXWrapper or sc==node or sc==material or sc==MAXWrapperNonRefTarg then (
+						append cls val
+						format "%: %\n" c val
+					) else (
+						format "Skipping % (%)\n" val sc
+					)
+				) catch (
+					format "Cannot use % for searching missing plugins.\n" clsName
+				)
+			) 
+			else
+			(
+				format "Incorrect string found in missing plugin name list: %\n" tk
+			)
+		)
+
+
+		-- now search for instances of those missing plugins
+		c = 0
+		k = 0
+		missingClasses = #()
+		foundMissing = #()
+		for j = 1 to cls.count do
+		(
+			cc = cls[j]
+			ci = getClassInstances cc
+			if ci.count > 0 then 
+			(
+				format "%: Found % instances of %: %\n" j ci.count cc ci
+				for c in ci do 
+				(
+					format "%\n" (classof c)
+					reff = refs.dependents c
+					format "reff: %\n" reff
+					for r in reff where superclassof r == material do
+					(
+						k += 1
+						meditmaterials [k] = r
+						format "k: % mat: %\n"k r
+					)
+				)
+			) 
+			
+			if k == 24 then exit
+		) 
+	)
+	
+	on editRaytraceBT pressed do
+	(
+		
+		-- edit material avec du raytrace
+		rayTraceAr = getclassinstances raytrace 
+		for r in rayTraceAr do
+		(
+			maps = refs.dependents r
+			i = 0
+			if maps != undefined and maps.count>0 then
+			(
+				for m in maps where superclassof m == material do
+				(
+					i += 1
+					meditmaterials [i] = m
+			-- 		print m
+				)
+			)
+			else(format "no raytrace\n")
+		)
+
+	)
+	
 	
 	on publishStandMatBT pressed do
 	(

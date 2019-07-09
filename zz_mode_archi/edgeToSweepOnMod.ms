@@ -207,7 +207,7 @@ rollout edgeToShapeOnModRLT "edge to shape"
 			format "traitement start: %\n" s.name
 -- 				select s
 			-- ignore les objets avec des modifier edit_poly sans selection de face
-			if classof (modPanel.getCurrentObject()) == Editable_Poly and  (polyop.getfaceselection s).count > 0 then
+			if classof (modPanel.getCurrentObject()) == Editable_Poly and  (polyop.getfaceselection s.baseobject).count > 0 then
 			(
 				format "faces selection on editable_poly: %\n" s.name
 -- 					select s

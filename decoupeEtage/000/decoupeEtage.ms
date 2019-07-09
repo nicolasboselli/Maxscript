@@ -2,6 +2,11 @@
 memo:
 	-- placer le plan de decoupe au dessus de l'etage, r0_bat au dessus du rdc
 	-- penser à mettre les repères des coupe dans l'ordre croisant
+	-- mettre le dernier repere au dessus du batiment
+	
+debug:
+	-- de instancier
+
 
 maj:
 	x- copier en instance les modifiers de l'objes d'origine
@@ -19,8 +24,8 @@ maj:
 	-- determinier automatiquement s il faut faire une decoupe ou un auto load
 	
 rebuild
-	-- dupliquer l'objet à découper avant de le decouper puis supprimer le treitement
-	-- sortir les operation de freeze de la fonction de decoupe
+	x- dupliquer l'objet à découper avant de le decouper puis supprimer le treitement
+	X- sortir les operation de freeze de la fonction de decoupe
 */
 
 -- classof $
@@ -250,8 +255,10 @@ rollout decoupEtageRLT "découpe etage"
 	
 	fn refreshUI =
 	(
+		rep = for r in rep where isvalidnode r collect r
 		CutPlaneMLB.items = for c in rep collect c.name
-			
+		
+		
 		if isvalidnode validRep then
 		(
 			planeNameET.text = validRep.name 
@@ -418,7 +425,7 @@ rollout decoupEtageRLT "découpe etage"
 					
 				-- creation de la copy de securité
 				local copySel
-				maxOps.clonenodes s newNodes:&copySel
+				maxOps.clonenodes s cloneType: #copy newNodes:&copySel
 				local copyS = copySel[1]
 			
 				-- collapse railclone
@@ -436,8 +443,21 @@ rollout decoupEtageRLT "découpe etage"
 						exit
 					)
 				)
-
 				if id > 0 then maxOps.CollapseNodeTo copyS id false
+					
+				
+				-- traitement d'un edit poly
+				local epId = 0
+				for i = 1 to copyS.modifiers.count do
+				(
+					if iskindof copyS.modifiers[i] edit_poly then 	
+					(
+						format "m: %, i: %\n" copyS.modifiers[i] i
+						maxOps.CollapseNodeTo copyS i false
+						exit
+					)
+				)
+				
 				
 -- 				if iskindof s railclone_pro then converttopoly s
 				sliceObject copyS rep collapseSlice: collapseCB.state addEditPoly: addPolyModCB.state

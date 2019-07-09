@@ -6,7 +6,7 @@ maj:
 	
 	x- ajouter, supprimer, renommer des types de mur
 		x- memoriser les modification
-	-- enregistrer et administrer les config de cellules(faire du groupe "configuration" un rollout independant chargeable par les prepas "murs", "percement", "sol") 
+	x-- enregistrer et administrer les config de cellules(faire du groupe "configuration" un rollout independant chargeable par les prepas "murs", "percement", "sol") 
 	
 	- créer un auto snp des spline aux murs
 	- sur le bouton create new faire qu'on crée une spline avec l'extrude et shell correctement configuré sur le bon layer
