@@ -66,7 +66,7 @@ getScriptVersion (getThisScriptFilename())
 */
 
 -- load le callback pour tagger si les fichiers ont du railclone à l interieur
-filein  ((getRoot ()) + "sceneManagement/tag_fileProperties.ms")
+-- filein  ((getRoot ()) + "sceneManagement/tag_fileProperties.ms")
 
 -- load function pour parenter comme dans maya
 filein ((getRoot ()) + "Rig/lastParent_def.ms")

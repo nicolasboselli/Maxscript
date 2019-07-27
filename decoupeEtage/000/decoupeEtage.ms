@@ -154,11 +154,6 @@ fn sliceObject b rep collapseSlice: false addEditPoly: false collapseRC: true =
 			else addmodifier b2 b.modifiers[i] before: 1
 		)
 	)
-	
--- 	b.boxmode = true
--- 	b.showFrozenInGray = true
--- 	b.isfrozen = true
--- 	b.wirecolor = (color 125 125 125)
 )
 
 -- rep
@@ -429,28 +424,21 @@ rollout decoupEtageRLT "découpe etage"
 				local copyS = copySel[1]
 			
 				-- collapse railclone
-				if iskindof copyS railclone_pro then converttopoly copyS
-				
-				-- traitement sweep
-				local id = 0
-				for i = 1 to copyS.modifiers.count do
-				(
-					if iskindof copyS.modifiers[i] sweep then 	
-					(
-						format "m: %, i: %\n" copyS.modifiers[i] i
-						id = i
-				-- 		collapseSweep = true
-						exit
-					)
-				)
-				if id > 0 then maxOps.CollapseNodeTo copyS id false
-					
-				
-				-- traitement d'un edit poly
+				if iskindof copyS.baseobject railclone_pro then converttopoly copyS
+							
+				-- ecrasement  d'un edit poly
 				local epId = 0
+				local collapseMode = false
 				for i = 1 to copyS.modifiers.count do
 				(
-					if iskindof copyS.modifiers[i] edit_poly then 	
+					-- traitement des edit_poly
+					if iskindof copyS.modifiers[i] edit_poly then collapseMode = true
+					-- traitement des sweep
+					else if iskindof copyS.modifiers[i] sweep then collapseMode = true
+					-- traitement des clones
+					else if iskindof copyS.modifiers[i] clone then collapseMode = true
+					
+					if collapseMode then 
 					(
 						format "m: %, i: %\n" copyS.modifiers[i] i
 						maxOps.CollapseNodeTo copyS i false
@@ -458,15 +446,15 @@ rollout decoupEtageRLT "découpe etage"
 					)
 				)
 				
-				
--- 				if iskindof s railclone_pro then converttopoly s
+				-- 	decoupage
 				sliceObject copyS rep collapseSlice: collapseCB.state addEditPoly: addPolyModCB.state
 				
 				-- suppression de la copy
 				delete copyS
 				
+				-- traitement de la source
 				if boxOldCB.state then s.boxmode = true
-					
+				
 				if freezeOldCB.state then
 				(
 					s.showFrozenInGray = true
@@ -496,7 +484,6 @@ rollout decoupEtageRLT "découpe etage"
 				format "addnode: % on layer: %\n" s.name l.name
 				l.addnode s
 			)
-			
 		)
 	)
 	

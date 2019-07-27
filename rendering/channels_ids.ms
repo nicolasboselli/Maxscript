@@ -1,5 +1,5 @@
 
--- appliquer une id de materiau au materiaux selectionné
+-- appliquer une id de materiau au materiaux des object selectionnés
 sel = selection as array
 matSel = for s in sel where s.material != undefined collect s.material
 	

@@ -3,12 +3,16 @@
 maj:
 	-x faire apparaitre les target depuis le point source
 	-x un bouton pour forcer le passage d'une target en master
-	-- un bouton pour updater les children sur la selection
+	-x un bouton pour updater les children sur la selection
 	-- un bouton pour updater toutes les target de la scene
 	
 	-- dupliquer et renommer les calques en fonction de la target
 	-- proposer le choix entre copy ou instance(forcement la copy remplacerait tous les enfants)
 	-- rescale en fonction d'un gabarit (object replacer)
+	
+	-- developper un explorer de la scene qui fasse ressortir les master et les targets
+		-- permettrait de renommer les master 
+	
 	
 debug:
 	-- ne copie pas les objet en instance dans les enfants(? ça semble fonctionner, peut etre que je n'avais pas bien parenter les objets)
@@ -20,7 +24,8 @@ rebuild:
  fn tagSourceProperties s =
 (
 	local str = stringstream ""
-	format "isChildrenTransferPoint = %\n isSource = %\n sourceName = %\n" true true s.name to: str
+	format "%: isChildrenTransferPoint = % isSource = % sourceName = %\n" s.name true true s.name
+	format "isChildrenTransferPoint = %\r\nisSource = %\r\nsourceName = %\r\n" true true s.name to: str
 	setUserPropBuffer s str
 -- 	print str
 )
@@ -29,7 +34,8 @@ rebuild:
 fn tagTargetProperties s sourceName =
 (
 	local str = stringstream ""
-	format "isChildrenTransferPoint = %\n isSource = %\n sourceName = %\n" true false sourceName to: str
+	format "%: isChildrenTransferPoint = % isSource = % sourceName = %\n" s.name true false sourceName
+	format "isChildrenTransferPoint = %\r\nisSource = %\r\nsourceName = %\n" true false sourceName to: str
 	setUserPropBuffer s str
 -- 	print str
 )
@@ -297,17 +303,25 @@ rollout transferChildrenRLT "transfer Children"
 	)
 	
 	button transferOnSelBT "Transfer Children on sel"
-	button updateTargetsBT "Update Targets of sel"
+	button updateTargetsBT "Update Targets" tooltip: "update targets of master selected"
 	button updateSelBT "Update Sel" enabled: true
 	button updateAllBT "Update All" enabled: false
+	
+	group "display"
+	(
+		button changeWireColorBT "change wirecolor"
+		button conformBT "conform to master"
+	)
+	
 		
 	group "info"
 	(
 		button getTargetsBT "print Targets"
 		button selectTargetsBT "select Targets"
 		button selectMasterBT "select Master"
-		button changeWireColorBT "change wirecolor"
+		
 	)
+
 	
 	on transferChildrenRLT open do
 	(
@@ -337,6 +351,7 @@ rollout transferChildrenRLT "transfer Children"
 		
 		if correctSel then 
 		(
+			tagSourceProperties sel[1]
 			for i = 2 to sel.count do
 			(
 				transferChildren sel[1] sel[i] checkSource: true presName: presNameCB.state presMat:  presMatCB.state presLayer: presLayerCB.state
@@ -371,7 +386,55 @@ rollout transferChildrenRLT "transfer Children"
 			transferChildren src s checkSource: true presName:  presNameCB.state presMat:  presMatCB.state
 		)
 	)
+	
+	on changeWireColorBT pressed do
+	(
+		local randomColor = color (random 0 255) (random 0 255) (random 0 255)
+		for s in selection do s.wirecolor = randomColor
+	)	
+	
+	on conformBT pressed do
+	(
 		
+		sel  = selection as array
+		(
+			for s in sel do
+			(
+				-- check: fonctionne que sur master
+				if not iskindof s point then continue
+
+				local isMaster = (getUserProp s "isSource")
+				if isMaster == undefined or not isMaster then
+				(
+					format "selectionnez un master"
+					continue
+				)
+					
+				-- activer le center marker sur le master
+				s.centermarker = on
+					
+				-- selectionner tous les enfants du mastere 
+				local tmpSel = #(s) 
+				for ts in tmpSel do for c in ts.children do append tmpSel c
+				-- et  appliquer au enfant du master le même wirecolor que le master
+				for ts in tmpSel do ts.wirecolor = s.wirecolor
+					
+				-- recupere toutes les targets
+				local targetsAr = getTargets s		
+					-- appliquer le meme wirecolor que le master
+				for t in targetsAr do
+				(
+					t.size = s.size*0.7
+					local tmpTgt = #(t) 
+					for tt in tmpTgt do for c in tt.children do append tmpTgt c
+					for tt in tmpTgt do tt.wirecolor = s.wirecolor
+				)
+					-- mettre une size à 70% du master
+
+				-- selectionner tous les enfants du master et leur appliquer le même wirecolor que le master
+			)
+		)
+	)
 	on getTargetsBT pressed do
 	(
 		sel = selection as array
@@ -395,11 +458,7 @@ rollout transferChildrenRLT "transfer Children"
 		select src
 	)
 	
-	on changeWireColorBT pressed do
-	(
-		local randomColor = color (random 0 255) (random 0 255) (random 0 255)
-		for s in selection do s.wirecolor = randomColor
-	)	
+
 )
 createDialog transferChildrenRLT
 

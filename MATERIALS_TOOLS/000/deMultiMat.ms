@@ -953,7 +953,7 @@ rollout deMultiMatRLT "Materials Tools"
 
 		-- now search for instances of those missing plugins
 		c = 0
-		k = 0
+		local k = 0
 		missingClasses = #()
 		foundMissing = #()
 		for j = 1 to cls.count do
@@ -971,14 +971,16 @@ rollout deMultiMatRLT "Materials Tools"
 					for r in reff where superclassof r == material do
 					(
 						k += 1
-						meditmaterials [k] = r
+						if k <= 24 then meditmaterials [k] = r
 						format "k: % mat: %\n"k r
 					)
+-- 					if k == 24 then exit
 				)
+-- 				if k == 24 then exit
 			) 
-			
-			if k == 24 then exit
+-- 			if k == 24 then exit
 		) 
+		format "total incompatible materials: %\n" k
 	)
 	
 	on editRaytraceBT pressed do

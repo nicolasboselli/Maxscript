@@ -7,15 +7,102 @@ retourner le slot sous la format d'id de subanim
 
 */
 
-
-
-bmpAr = getclassinstances bitmaptexture target: scenematerials
-
-
-
-
-i = 1
+-- collecter les dossier et enregistrer la liste dans un fichier
+fn collectDir dir subfolder: true =
+(
+	local dirArr = #(dir)
+	
+	for d in dirArr do
+	(
+		local dirTmp = GetDirectories  (d + "\\*")
 		
+		if dirTmp == undefined then ()
+		else if dirTmp.count == 0 then ()
+		else
+		(
+			for dt in dirTmp do
+			(
+				-- ajout des dossier à l'array, clé de la  recursivité
+				append dirArr dt
+			)
+		)
+
+-- 		if found then exit
+-- 		if maxFileCount > maxMaxFiles then exit
+		if dirArr.count > 2000 then exit
+	)
+	dirArr
+)
+
+oneDir = @"M:\"
+startTime  = timestamp()
+testDir = collectDir oneDir
+format "collect folders: % s\n" (((timestamp()) - startTime)/1000 as float)
+testDir.count
+
+-- remap en recoltnat les bitmap
+bmpAr = getclassinstances bitmaptexture target: scenematerials
+bmpAr.count
+
+-- sceneMaps = usedMaps()
+-- sceneMaps.count
+
+j = 0
+for i = 1 to  bmpAr.count do
+(
+	oneBmp = bmpAr[i].filename
+	if matchpattern oneBmp pattern: "M:*" then
+	(
+		format "i: % good Filename: %\n" i oneBmp
+	)
+	else  
+	(
+		j += 1
+		format "i: % bad Filename % : %\n" i j oneBmp
+		-- recherche sur M:
+	)
+)
+
+
+oneFile = filenameFromPath  bmpAr[1].filename
+startTime  = timestamp()
+for d in testDir do
+(
+
+	if doesfileexist (d + oneFile) then 	format "%\n" (d + oneFile)
+)
+format "collect folders: % s\n" (((timestamp()) - startTime)/1000 as float)
+
+
+
+-- remap en passant par l'asset manager: echec
+assetCount = (AssetManager.GetNumAssets() as integer)
+for i = 1 to assetCount do
+(
+	asset = AssetManager.GetAssetByIndex i
+	format "i: %, type:%, filename: %\n" i (asset.gettype()) asset.filename
+)
+
+
+assettest = AssetManager.GetAssetByIndex 10
+
+assettest.gettype()
+assettest.GetFileName() 
+
+
+-- remap en passant par les metadata: echec
+file = maxFilePath + maxFileName
+assetMetadata = getMAXFileAssetMetadata file
+assetMetadata.count
+assetMetadata[1].filename = (@"C:\Users\Visiolab\Desktop\test_meta1.jpg")
+
+for asset in assetMetadata do format "%\n" asset
+
+setMAXFileAssetMetadata file assetMetadata
+
+
+showinterface AssetManager
+
 for b in bmpAr do
 (
 	if b.filename != undefined then

@@ -1,5 +1,9 @@
 /*
 -- maj:		
+
+-- OUTILS DISPLAY
+	-- ajouter les calque decoupe
+
 -- OUTILS MURS
 	-- créer un auto snap des spline de murs
 	
@@ -24,6 +28,7 @@
 		x- rendre invisible l'operation d'ajustement des reperes de fenetres, la faire executer à la creation des gabarits
 		
 		-- automatiser l'import et les placement des portes		
+		-- mettre un check pour ne passer que des spline dans les calques de construction
  
 -- OUTILS SOLS
 	-- créer une méthode de découpe de plane pour créer le sol afin que ce soit plus propre
@@ -32,6 +37,8 @@
 		-- cf multiID_sol_sandbox.ms
 		-- une fois que la spline de sol est propre, ajouter un editpoly dessus et changer l'id de materiaux en fonction
 			-- en fonction de l'idée de materiaux faire des actions. ex: placard(import placard)- gaines(separer et relever) - terrasses(supprimer gaines)
+			
+	-- creation des jardin, terrasse rdc, ouverture escalier
 
 -- OUTILS DIVERS
 	-- fonction pour placer automatiquement les lights additionnels
@@ -580,7 +587,7 @@ fn createSol l =
 	fileMat = importfolderLIB + "\\Cells_materials.mat"
 	if doesfileexist fileMat then tempLib = loadTempMaterialLibrary fileMat
 	
-	l.material = tempLib[2]
+	l.material = tempLib["sol"]
 	
 	uvwMapMod = uvwmap maptype: 4 length: 200 width: 200 height: 200
 	solExtMod = extrude amount: -20 capstart: on capend: on
@@ -596,7 +603,7 @@ fn openPlinte p =
 	fileMat = importfolderLIB + "\\Cells_materials.mat"
 	if doesfileexist fileMat then tempLib = loadTempMaterialLibrary fileMat
 	
-	p.material = tempLib[2]
+	p.material = tempLib["sol"]
 	
 	-- collect des gabarits
 	prepaPercementRLT.createDecoupeBT.pressed()
@@ -761,7 +768,7 @@ rollout creationAptRLT "Création Appartement"
 				AptL.addnode newM
 				
 				-- ajout du materiaux
-				if tempLib != undefined then newM.material = tempLib[1]
+				if tempLib != undefined then newM.material = tempLib["Murs"]
 
 				-- ajout de smooth
 				addmodifier newM (smooth())
