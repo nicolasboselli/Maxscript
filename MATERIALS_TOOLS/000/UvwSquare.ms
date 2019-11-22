@@ -74,7 +74,7 @@ rollout UVSquareRLT "UVWmap Square"
 		
 	)
 )
-createdialog UVSquareRLT
+-- createdialog UVSquareRLT
 
 -- bb = #($Box001, $Box002)
 -- addmodifier bb (uvwmap())

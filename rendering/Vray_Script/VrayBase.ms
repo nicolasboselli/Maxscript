@@ -106,11 +106,15 @@ fn vrayBaseSetting =
 	imageSampler_type: 1 \
 	filter_on: false \
 	gi_on: true \
+	adaptiveSubdivision_minRate: 1 adaptiveSubdivision_maxRate: 8 adaptiveSubdivision_threshold: 0.005\
 	gi_primary_type: 0 gi_irradmap_showCalcPhase: true  gi_irradmap_showDirectLight: true  gi_irradmap_minRate: -4  gi_irradmap_maxRate: -3 gi_irradmap_subdivs: 37  gi_irradmap_preset: 2 \
 	gi_secondary_type: 3  lightcache_subdivs: 875 lightcache_storeDirectLight: 0 lightcache_showCalcPhase: 1 \
-	colorMapping_type: 0 colorMapping_darkMult: 1.0 colorMapping_brightMult: 1.0 colorMapping_gamma: 2.2 colorMapping_linearWorkflow: false --colorMapping_adaptationOnly: (colorMapTest())
+	gi_ao_on: on gi_ao_radius: 50 \
+	colorMapping_type: 6 colorMapping_darkMult: 1.0 colorMapping_brightMult: 0.65 colorMapping_gamma: 2.2 colorMapping_linearWorkflow: false colorMapping_adaptationOnly: 2
 )
 
+-- renderers.current.colorMapping_adaptationOnly 
+-- showproperties renderers.current
 
 fn setVrayCamera =
 (
@@ -171,6 +175,7 @@ rollout VrayRenderRLT "Vray Options"
 		button vrayExposureBT "vray exposure"
 		button createVrayGroundBT "vray ground"
 		button createVrayCamBT "vray cam from view"
+		button gammaBT "fileoutgamma 2.2"
 	)
 	
 	group "render thumbnail"
@@ -212,6 +217,11 @@ rollout VrayRenderRLT "Vray Options"
 	on createVrayCamBT pressed do
 	(
 		setVrayCamera ()
+	)
+	
+	on gammaBT pressed do
+	(
+		fileoutgamma = 2.2
 	)
 	
 	on renderBT pressed do

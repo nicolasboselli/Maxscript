@@ -10,6 +10,8 @@ maj:
 	-- proposer le choix entre copy ou instance(forcement la copy remplacerait tous les enfants)
 	-- rescale en fonction d'un gabarit (object replacer)
 	
+	-- remonter à la source/master lorsqu'on transfere une instance/target sur un nouveau point
+	
 	-- developper un explorer de la scene qui fasse ressortir les master et les targets
 		-- permettrait de renommer les master 
 	
@@ -284,6 +286,42 @@ fn getTargets source =
 -- getTargets $
 
 
+fn printMaster =
+(
+	-- publier les masters deleted et manquant
+	masterNamesAr = #()
+	for h in helpers where iskindof h point do
+	(
+	-- 	format "h: %\n" h.name
+		childTransPt = getUserProp h "isChildrenTransferPoint"
+	-- 	isSource = getUserProp h "isSource"
+-- 		format "childTransPt: %\n" childTransPt
+		
+		if iskindof childTransPt booleanclass then
+		(
+	-- 		format "sourceName: %\n" (getUserProp h "sourceName")
+			appendifunique masterNamesAr (getUserProp h "sourceName")
+		)
+	)
+	masterNamesAr
+	
+	for m in masterNamesAr do
+	(
+		oneMaster = getnodebyname m
+		
+-- 		calcul du nombre de tab pour le format
+		charNum = 28
+		tcount = (ceil (charNum - m.count - 6 + 2)/4.0) as integer
+		
+		multiT = ""
+		for i = 1 to tcount do multiT+= "\t"
+
+		format "name: % % node: %\n" m multiT oneMaster
+	)
+)
+-- printMaster()
+
+
 try(destroyDialog transferChildrenRLT)catch()
 rollout transferChildrenRLT "transfer Children"
 (
@@ -314,12 +352,17 @@ rollout transferChildrenRLT "transfer Children"
 	)
 	
 		
-	group "info"
+	group "selections"
 	(
-		button getTargetsBT "print Targets"
+		
 		button selectTargetsBT "select Targets"
 		button selectMasterBT "select Master"
-		
+	)
+	
+	group "infos"
+	(
+		button getTargetsBT "print Targets"
+		button publishMasterBT "publish master"
 	)
 
 	
@@ -412,7 +455,9 @@ rollout transferChildrenRLT "transfer Children"
 					
 				-- activer le center marker sur le master
 				s.centermarker = on
-					
+				s.box = on
+				s.size = 400
+				
 				-- selectionner tous les enfants du mastere 
 				local tmpSel = #(s) 
 				for ts in tmpSel do for c in ts.children do append tmpSel c
@@ -421,10 +466,13 @@ rollout transferChildrenRLT "transfer Children"
 					
 				-- recupere toutes les targets
 				local targetsAr = getTargets s		
-					-- appliquer le meme wirecolor que le master
+				-- appliquer le meme wirecolor que le master
 				for t in targetsAr do
 				(
-					t.size = s.size*0.7
+					t.size = s.size*0.25
+					t.centermarker = off
+					t.box = off
+					
 					local tmpTgt = #(t) 
 					for tt in tmpTgt do for c in tt.children do append tmpTgt c
 					for tt in tmpTgt do tt.wirecolor = s.wirecolor
@@ -435,6 +483,7 @@ rollout transferChildrenRLT "transfer Children"
 			)
 		)
 	)
+	
 	on getTargetsBT pressed do
 	(
 		sel = selection as array
@@ -455,10 +504,14 @@ rollout transferChildrenRLT "transfer Children"
 	(
 		sel = selection as array
 		src = findRealSource sel[1]
+		for s in src do format "%\n" s.name
 		select src
 	)
 	
-
+	on publishMasterBT pressed do
+	(
+		printMaster()
+	)
 )
 createDialog transferChildrenRLT
 

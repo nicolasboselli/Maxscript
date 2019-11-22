@@ -11,14 +11,16 @@ addmodifier s shellMod
 select s
 
 -- bug
-enableShowEndRes true
-enableShowEndRes false
-enableShowEndRes true
+-- enableShowEndRes true
+-- enableShowEndRes false
+-- enableShowEndRes true
 
-showEndResult 
 
 modPanel.setCurrentObject s.baseobject 
 splineOps.startCreateLine s
+
+showEndResult = true
+-- windows.ProcessPostedMessages()
 -- showEndResult  true 
 
 -- showEndResult 

@@ -59,7 +59,7 @@ rollout gridRLT "Grids Manager"
 	)
 	
 	-- ui
-	listbox gridsLB "Grids List :"
+	listbox gridsLB "Grids List :" height: 20
 	button refrListBT "refresh list"
 	button gridViewBT "grid view"
 	

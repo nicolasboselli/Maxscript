@@ -1,0 +1,76 @@
+-- pour chaque point de la spline calculer un vecteur pour aller au point suivant 
+-- tester le vecteur avec impatc sur la grille(ou la plane si ça ne pingue pas sur la grille)
+
+
+
+
+fn eraseSplineSeg s eraser = 
+(
+	local dodelete = false
+	-- 	spSel = getSplineSelection s
+	spCount = numsplines s
+	-- 	spSel = 1
+	for sp = 1 to spCount do
+	(
+		segCount = numSegments s sp
+		-- calcul du vecteur
+		for k = 1 to segCount do
+		(
+			k1 = getKnotPoint s sp k
+			k2 = getKnotPoint s sp (k+1)
+	-- 		format "s: %, sp:%  k:% k1:% k2:%\n" s.name sp  k k1 k2
+			v1 = normalize (k2-k1)
+			v2 = normalize (k1-k2)
+	-- 		format "v: %\n" v
+			ray1 = ray k1 v1
+			ray2 = ray k2 v2
+-- 			format "ray1:%\n" ray1
+-- 			format "ray2:%\n" ray2
+			
+-- 			point pos:ray1.pos dir: ray1.dir axistripod: on
+-- 			point pos:ray2.pos dir: ray2.dir axistripod: on
+			
+			res1 = intersectRay eraser ray1
+			res2 = intersectRay eraser ray2
+			
+			format "sp:%  k: % res1: % res2: % \n" sp k res1 res2
+			
+			if not res1 == undefined and not res2 == undefined then
+			(
+				format "sp:%  k: % res1: % res2: % \n" sp k res1 res2
+	-- 			format "res1: % res2: % \n" res1 res2
+-- 				format "k:%\n" k
+				dodelete = true
+				setSegSelection s sp #(k)
+			)
+		)
+	)
+
+
+	-- delete segment
+		format "start delete\n"
+		
+		max modify mode
+		select s
+
+		modPanel.setCurrentObject s
+		open s 1
+		subobjectLevel = 2
+		splineOps.delete s
+		windows.ProcessPostedMessages()
+		
+		subobjectLevel = 0
+-- 		updateshape s
+		clearselection()
+		format "start delete\n"
+	
+)
+
+
+
+-- classof $
+eraser = $Sphere001
+-- plan = $Grid001
+s = $Line001
+
+eraseSplineSeg s eraser

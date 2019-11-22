@@ -29,52 +29,62 @@ rollout testPickerRLT "Test Picker"
 			format "########## start click\n"
 			
 			local myRay = mapScreenToWorldRay viewPoint
-			
+			format "clickno:%\n" clickno
+			format "viewPoint: %\n" viewPoint
 			format "node: %\n" snapMode.node.name
 			
-			selVx = #()
-			polyFaceAr = #()
-			
-			-- Selectionner une face
-			-- ajouter un editmesh sur l'objet
-			em = (Edit_Mesh ())
-			addmodifier snapMode.node  em
+			-- si l'objet est un editable poly
+			if iskindof snapMode.node.baseobject editable_poly then
+			(
+							
+				-- Selectionner une face
+				selVx = #()
+				polyFaceAr = #()
 				
-			if isvalidnode snapMode.node then
+				-- ajouter un editmesh sur l'objet
+				em = (Edit_Mesh ())
+				addmodifier snapMode.node  em
+				
+				-- retourner la face de l'edit mesh selectionné
+				if isvalidnode snapMode.node then
+				(
+					tmpHit = intersectRayEx snapMode.node myRay
+					if tmpHit != undefined then
+					(
+	-- 					format "face id: %\n" tmpHit[2]
+						-- recuperer les trois vertex de la face
+						selVx = meshop.getVertsUsingFace snapMode.node tmpHit[2]
+	-- 					format "vx: %\n" selVx
+					)
+				)
+				deletemodifier snapMode.node  em
+				
+				-- dans le poly retourner les faces avec les trois vertex
+				for id in selVx do
+				(
+					polyFace = polyop.getFacesUsingVert snapMode.node # {id}
+	-- 				format "polyFace: %\n" polyFace
+					append polyFaceAr polyFace
+				)
+				
+				-- recouper les bitarray			
+				for  p in polyFaceAr do polyFaceAr[1] *= p
+				faceSel = (polyFaceAr[1] as array)[1]
+				format "faceSel: %\n" faceSel
+			)
+			-- si l'objet est une line avec un sweep
+			else if iskindof snapMode.node.baseobject line then
 			(
 				tmpHit = intersectRayEx snapMode.node myRay
-				if tmpHit != undefined then
-				(
--- 					format "face id: %\n" tmpHit[2]
-					-- recuperer les trois vertex de la face
-					selVx = meshop.getVertsUsingFace snapMode.node tmpHit[2]
--- 					format "vx: %\n" selVx
-				)
+				format "tmpHit:%\n" tmpHit
+				
+				-- à partir de la face selectionné retrouver l'id de la section correspondante
 			)
-			
-			deletemodifier snapMode.node  em
-			
-			-- si l'objet est un editable poly
-			-- dans le poly retourner les faces avec les trois vertex
-			for id in selVx do
-			(
-				polyFace = polyop.getFacesUsingVert snapMode.node # {id}
--- 				format "polyFace: %\n" polyFace
-				append polyFaceAr polyFace
-			)
-			
-			-- recouper les bitarray			
-			for  p in polyFaceAr do polyFaceAr[1] *= p
-			faceSel = (polyFaceAr[1] as array)[1]
-			format "faceSel: %\n" faceSel
-			
-			-- si l'objet a un modifier edit poly
-			-- si l'objet est une spline
 			-- si l'objet est un mesh
-			
-
-			
+			-- si l'objet est un edit poly avec un shell
 		)
+		
+		on mouseMove clickno do(/*format "######## move #######\n"*/)
 		
 		on stop do 
 		(

@@ -8,6 +8,8 @@
 for s in $* where s.material == undefined do selectmore s
 */
 
+filein "uvwsquare.ms"
+
 fn sortMatbyname v1 v2 =
 (
 	-- qsort <array> sortbyname
@@ -639,6 +641,7 @@ fn collectObjByMat matRef objSet =
 	sameMultiMatObjList
 )
 
+filein "empty_filename_sandbox.ms"
 
 -- 	local param = #("pos")
 
@@ -692,9 +695,10 @@ rollout deMultiMatRLT "Materials Tools"
 	
 	group "missing :"
 	(
-		button editMissBmpBT "edit bitmap" across: 3
+		button editMissBmpBT "edit bitmap" across: 2
 		button editMissDllBT "edit Dll"
-		button editRaytraceBT "edit raytrace"
+		button editRaytraceBT "edit raytrace" across: 2
+		button emptyFilenameBT "empty filename"
 	)
 	
 	group "class materials"
@@ -748,12 +752,12 @@ rollout deMultiMatRLT "Materials Tools"
 -- 		button countAllmatBT "in visibles objects "
 -- 	)
 	
-	group "uvw mapping box:"
-	(
-		button uv100 "100" across: 3
-		button uv250 "250"
-		button uv500 "500"
-	)
+-- 	group "uvw mapping box:"
+-- 	(
+-- 		button uv100 "100" across: 3
+-- 		button uv250 "250"
+-- 		button uv500 "500"
+-- 	)
 	
 	on deMultiMatRLT open do
 	(
@@ -1006,6 +1010,11 @@ rollout deMultiMatRLT "Materials Tools"
 
 	)
 	
+	on emptyFilenameBT pressed do
+	(
+		collectEmptyFilenameBitmap()
+	)
+	
 	
 	on publishStandMatBT pressed do
 	(
@@ -1122,14 +1131,7 @@ rollout deMultiMatRLT "Materials Tools"
 			countByMat medimat[i] sel
 			format "i: %\n" i
 		)
-	)
-	
-	on uv100 pressed do addUVWCube2 100
-		
-	on uv250 pressed do addUVWCube2 250
-		
-	on uv500 pressed do addUVWCube2 500
-	
+	)	
 	
 	
 )
@@ -1137,4 +1139,6 @@ rollout deMultiMatRLT "Materials Tools"
 
 
 addRollout deMultiMatRLT theNewMaterialToolFloater
+
+addRollout UVSquareRLT theNewMaterialToolFloater
 

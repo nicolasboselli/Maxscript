@@ -9,6 +9,8 @@ debug:
 x-sur des murs orienter en z l estract de spline est décalé
 */
 
+filein (getroot() + "MODELING_TOOLS\001\cleanspline.ms")
+
 fn round_to val n = 
 (
 	local mult = 10.0 ^ n
@@ -137,7 +139,7 @@ rollout edgeToShapeOnModRLT "edge to shape"
 	local Params = #("pos","size","addExtrusionCB", "addSweepCB", "extSizeSP", "addExtrusionCB", \
 		"removeEdgeCB", "resetXformCB", "collapseXformCB", \
 		"createBoxOrientCB", "xformOnBoxCB", 	"collapseXformCB2", \
-		"delBoxOrientCB", "keepSelCB")
+		"delBoxOrientCB", "keepSelCB", "cleanSplineCB", "centerPivotCB")
 -- function
 	
 	fn writePosition rlt =
@@ -162,15 +164,11 @@ rollout edgeToShapeOnModRLT "edge to shape"
 	)
 	
 -- 	ui
-	checkbox addSweepCB "add Sweep"
-	group "Extrusion options:"
+	group "poly options"
 	(
-		checkbox addExtrusionCB "add extrusion" 
-		checkbox addMatCB "add grid base material" enabled: false
-		spinner extSizeSP "extrusion size:" range: [0, 1000, extSize] type: #worldunits
-
+		checkbox removeEdgeCB "remove edge selection"
+		checkbox keepSelCB "keep selection"
 	)
-	checkbox removeEdgeCB "remove edge selection"
 	
 	group "reset x form (world):"
 	(
@@ -185,13 +183,20 @@ rollout edgeToShapeOnModRLT "edge to shape"
 		checkbox collapseXformCB2 "collapse x form"
 		checkbox delBoxOrientCB "delete Box orient"
 	)
-	
-	checkbox keepSelCB "keep selection"
-	
--- 	group "box orient:"
--- 	(
--- 		button boxOrientBT "create Box Orient"
--- 	)
+			
+	group "new splines options:"
+	(
+		checkbox cleanSplineCB "clean spline"
+		checkbox centerPivotCB "center pivot"
+	)
+
+	checkbox addSweepCB "add Sweep"
+	group "Extrusion options:"
+	(
+		checkbox addExtrusionCB "add extrusion" 
+		checkbox addMatCB "add grid base material" enabled: false
+		spinner extSizeSP "extrusion size:" range: [0, 1000, extSize] type: #worldunits
+	)
 	
 	button extractBT "extract"
 	
@@ -199,10 +204,10 @@ rollout edgeToShapeOnModRLT "edge to shape"
 	(
 		sel = selection as array
 		s = sel[1]
+		local bakSel = 
 		
 		undo on
 		(
-
 -- 				local goNext = true
 			format "traitement start: %\n" s.name
 -- 				select s
@@ -210,18 +215,17 @@ rollout edgeToShapeOnModRLT "edge to shape"
 			if classof (modPanel.getCurrentObject()) == Editable_Poly and  (polyop.getfaceselection s.baseobject).count > 0 then
 			(
 				format "faces selection on editable_poly: %\n" s.name
--- 					select s
+				bakSel = modPanel.getCurrentObject()
 			)
 			else if classof (modPanel.getCurrentObject()) == Edit_Poly and ((s.edit_poly.GetSelection  #face) as array).count > 0 then
 			(
--- 				select s
 				format "faces selection on edit_poly modifier: %\n" s.name
+				bakSel = modPanel.getCurrentObject()
 			)
 			else if classof (modPanel.getCurrentObject()) == Edit_Poly and ((s.edit_poly.GetSelection  #edge) as array).count > 0 then
 			(
--- 					selLev = 2
 				format "edges selection on edit_poly modifier: %\n" s.name
--- 					continue
+				bakSel = modPanel.getCurrentObject()
 			)
 			else
 			(
@@ -273,18 +277,17 @@ rollout edgeToShapeOnModRLT "edge to shape"
 			)
 			else(boxorient = undefined)
 			
+			-- collecte les nouvelles spline
 			newShapes = for i = objSCount + 1  to objects.count collect objects[i]
 			if newShapes.count > 0 then for s in newShapes do updateshape s
 			format "newShapes:%\n" newShapes
--- 			newShape = getnodebyname newName
--- 			if isvalidnode newShape then updateshape newShape
+
 			
 			-- reset xform 
 			if isvalidnode boxOrient and xformOnBoxCB.state == true then 
 			(
 				-- on box orient
 -- 				format "reset on box Start\n"
-				
 				for ns in newShapes do
 				(
 					resetInPlace2 ns boxOrient
@@ -309,12 +312,19 @@ rollout edgeToShapeOnModRLT "edge to shape"
 				)
 			)else()
 			
-			
+			-- option: delete box orient
 			if delBoxOrientCB.state and  isvalidnode boxorient then delete boxorient
+			
+			-- option: clean spline
+			if cleansplineCB.state then for ns in newShapes do cleanspline ns
+			
+			-- option: center pivot
+			if centerPivotCB.state then for ns in newShapes do ns.pivot = ns.center
 			
 			-- option: remove edge
 			if removeEdgeCB.state == True do removeEdgeAndVerticesFN s
 			
+			-- option: add extrusion
 			if addExtrusionCB.state == true and  newShapes.count > 0 do
 			(
 				myExtrusion = Extrude amount: extSize capStart: off capEnd: off
@@ -341,11 +351,12 @@ rollout edgeToShapeOnModRLT "edge to shape"
 					ns.Sweep[4].width = 20
 				)
 			)
+			
+
+			
 			-- option keep selection
 -- 			format "current: %\n"  (modPanel.getCurrentObject())
-				
-				
-			if classof (modPanel.getCurrentObject()) == Editable_Poly then
+			if classof bakSel == Editable_Poly then
 			(
 				format "sel: %\n" sel
 				if keepSelCB.state then
@@ -364,9 +375,9 @@ rollout edgeToShapeOnModRLT "edge to shape"
 					select newShapes
 				)
 			)
-			else if classof (modPanel.getCurrentObject()) == Edit_Poly then
+			else if classof bakSel == Edit_Poly then
 			(
-				if keepSelCB.state == true then
+				if keepSelCB.state then
 				(
 -- 					select sel
 					subobjectLevel = selLev

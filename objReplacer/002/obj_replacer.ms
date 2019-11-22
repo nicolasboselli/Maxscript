@@ -315,7 +315,7 @@ rollout objReplacerRLT "objects replacer "
 							if copyRef == undefined then()
 							else if copyRef.count > 0 then
 							(
-								for o in res do o.ishidden = false
+								for o in copyRef do o.ishidden = false
 							)
 							else()
 							

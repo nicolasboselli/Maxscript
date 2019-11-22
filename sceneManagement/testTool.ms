@@ -289,7 +289,6 @@ rollout testtoolRLT "test tool"
 					copy sourceObj
 				)
 			)
-
 		)
 		
 		on mouseMove clickno do
@@ -339,10 +338,6 @@ rollout testtoolRLT "test tool"
 				
 
 			)
-			
-
-			
-			 
 		)
 	)
 

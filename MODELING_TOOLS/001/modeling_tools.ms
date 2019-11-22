@@ -50,28 +50,18 @@ fn centerPivotDef sel =
 --debug: make usabled on multiselection
 fn makeFloorFN s outLIneVal: -15 innerAmountVal: 0 outerAmountVal: 10  collapseMesh: true =
 (
-	local sel =  currentSel
-
 	if classof s == splineshape do
 	(
 		if (isClosed s 1) then
 		(
-		undo off
-			(
--- 				myEditPoly = Edit_Poly()
--- 				addmodifier s myEditPoly
--- 				convertto s editable_poly
-				
+			undo off
+			(				
 				addmodifier s (edit_poly())
-				s.modifiers[1].SetSelection  #Face #{1}
-				s.modifiers[1].outlineAmount = outLIneVal
-				s.modifiers[1].SetOperation #outline
-
-				-- outline 15 cm
--- 				select s
--- 				polyop.setFaceSelection  s #all
--- 				s.outlineAmount = outLIneVal
--- 				s.EditablePoly.Outline ()
+				local faceAr = (for i = 1 to s.numfaces collect i) as bitarray
+				select s
+				s.edit_poly.SetSelection  #Face faceAr
+				s.edit_poly.outlineAmount = outLIneVal
+				s.edit_poly.SetOperation #outline
 
 				-- shell 10cm
 				myShell = Shell innerAmount: innerAmountVal outerAmount:outerAmountVal
@@ -84,8 +74,15 @@ fn makeFloorFN s outLIneVal: -15 innerAmountVal: 0 outerAmountVal: 10  collapseM
 -- 					sel.material = sceneMaterials["interieur"]
 			)
 		)
+		else
+		(
+			format "unclosed: %\n" s.name
+		)
 	)
 )
+-- sel = selection as array
+-- for s in sel do makeFloorFN s outLIneVal: -15 innerAmountVal: 0 outerAmountVal: 10  collapseMesh: false
+
 
 fn connectRingFN s loopNum: 1 =
 (
@@ -171,7 +168,6 @@ fn explodeByElts s =
 	detached
 )
 
-
 -- transfert
 fn transfertModifiers sel =
 (
@@ -185,7 +181,6 @@ fn transfertModifiers sel =
 		)
 	)
 )
-
 
 fn transferColor sel =
 (
@@ -211,9 +206,9 @@ fn extrudeFaces size delFace: true =
 	)
 )
 
-
 fn alignPivotOnEdge s =
 (
+	modPanel.setCurrentObject s
 	edg = polyop.getEdgeSelection s
 	edg as array
 	vx = polyop.getEdgeVerts s (edg as array)[1]
@@ -333,8 +328,6 @@ rollout miscRLT "Modeling Tools"
 		
 		writeRolloutParams miscRLT Params
 -- 		writePosition miscRLT.name miscRLT
-
-		
 	)
 	
 	on getInstBT pressed do
@@ -361,6 +354,7 @@ rollout miscRLT "Modeling Tools"
 	(
 		sel = selection as array
 		for s in sel do makeFloorFN s outLIneVal: outlineSP.value innerAmountVal: innerSp.value outerAmountVal: outerSp.value collapseMesh: collapseCB.checked
+		select sel
 	)
 		
 	on cleanCombineBT pressed do

@@ -2,7 +2,7 @@
 -- maj:		
 
 -- OUTILS DISPLAY
-	-- ajouter les calque decoupe
+	x- ajouter les calque decoupe
 
 -- OUTILS MURS
 	-- créer un auto snap des spline de murs
@@ -13,6 +13,8 @@
 		-- cf move_spline_sandbox.ms
 		/- fonction pour monter et descendre la selection spline
 		-- picker pour retourner le segment de la spline sur laquelle on pique
+		
+	-- debug: dans un virage plus serré le conform de gabarit ne fonctionne pas
 
 -- OUTILS FENETRES
 	-- bug: sur une spline fermer les reperes ne sont pas créé correctement
@@ -172,6 +174,7 @@ try(closeRolloutFloater  dRolFloater)catch()
 dRolFloater = newRolloutFloater "Creation de plans de cellules" 350 650 80 200
 -- RLTvers = getScriptVersion (getThisScriptFilename())
 dRolFloater.title =  dRolFloater.title +" v." + ((getScriptVersion (getThisScriptFilename())) as string)
+	
 -- classof prepareScene.RFSIze
 rollout prepareScene "Preparer le cellule" width:350 height:230
 (	
@@ -234,7 +237,7 @@ rollout prepareScene "Preparer le cellule" width:350 height:230
 		
 		-- setup vray
 		renderers.current = (findvray())()
-		showproperties renderers.current
+-- 		showproperties renderers.current
 		
 		-- render size
 		renderWidth = 4900
@@ -348,21 +351,21 @@ fn hideOthersLayer l =
 	)
 )
 
-fn collectLayer pattern: "*" =
-(
-	local layerFoundAr = #()
-	for i = 0 to  (LayerManager.count - 1) do
-	(
-		l = LayerManager.getLayer i
-		
-		if  matchpattern l.name pattern: pattern then
-		(
-			append layerFoundAr l
+-- fn collectLayer pattern: "*" =
+-- (
+-- 	local layerFoundAr = #()
+-- 	for i = 0 to  (LayerManager.count - 1) do
+-- 	(
+-- 		l = LayerManager.getLayer i
+-- 		
+-- 		if  matchpattern l.name pattern: pattern then
+-- 		(
+-- 			append layerFoundAr l
 -- 			"l.name: %\n" l.name
-		)
-	)
-	layerFoundAr
-)
+-- 		)
+-- 	)
+-- 	layerFoundAr
+-- )
 
 fn rafle layerList: #() =
 (
@@ -614,6 +617,11 @@ fn openPlinte p =
 	(
 		if nnl.count > 0 then (for obj in nnl  do ( p - obj))
 	)
+	
+	-- nettoyage des calques de découpes
+	-- suppression des calques
+	prepaPercementRLT.cleanDecoupeBT.pressed()
+	
 )
 
 rollout creationAptRLT "Création Appartement"
@@ -654,9 +662,11 @@ rollout creationAptRLT "Création Appartement"
 			plinteToOpen.name = "plinte"
 			solsL.addnode plinteToOpen
 			
-			openPlinte plinteToOpen			
+			openPlinte plinteToOpen		
 		)
 		else()
+		
+		
 	)
 	
 	on createGaineBT pressed do
@@ -777,6 +787,10 @@ rollout creationAptRLT "Création Appartement"
 -- 				append theMurs newM			
 			)
 			
+			-- nettoyage des calques de découpes
+			-- suppression des calques
+			prepaPercementRLT.cleanDecoupeBT.pressed()
+			
 			-- cachage des murs fusionner
 			MurOrig = getNodeByName "Murs"
 			if isvalidnode MurOrig then MurOrig.ishidden = true
@@ -895,20 +909,20 @@ rollout displayRLT "display"
 	local mursList 
 	local spGabList 
 	local gabList 
+	local decList
 	
 -- 	local spGabList = #(SplinesFenetresLName, SplinesPFenetresLName, SplinesPortesLName)
 -- 	local gabList = #(TmpFenLName, TmpPFenLName, TmpPortesLName)
 	local prepSolList = #(solsPrepaLname)
 	local AptList = #(solsLname, AptLName)
 	
-
-	
 	group "hide/unhidde"
 	(
 		checkButton hideMursCB "Prepa Murs" across: 3
 		checkButton hideSplineGabaritsLayerCB "Prepa Gabarits" 
 		checkButton hideGabaritsLayerCB "Gabarits" 
-		checkbutton hidePrepaSolLayerCB "Prepa Sols" across: 2
+		checkButton hideDecoupeLayerCB "Decoupe" across: 3
+		checkbutton hidePrepaSolLayerCB "Prepa Sols" 
 		checkbutton hideAptLayerCB "Appartement"
 	)
 	
@@ -942,10 +956,10 @@ rollout displayRLT "display"
 	
 	fn collectList =
 	(
-		
 		mursList = collectLayerNames pattern: (mursPrefix + "*") 
 		spGabList = collectLayerNames pattern: (prepaSuf + "*") 
 		gabList = collectLayerNames pattern: (gabSuf + "*") 
+		decList = collectLayerNames pattern: (decSuf + "*") 
 	)
 	
 	
@@ -976,6 +990,12 @@ rollout displayRLT "display"
 	(	
 		collectList()
 		hideLayers gabList state
+	)
+	
+	on hideDecoupeLayerCB changed state do
+	(
+		collectList()
+		hideLayers decList state
 	)
 	
 	on hidePrepaSolLayerCB changed state do

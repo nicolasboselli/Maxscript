@@ -40,12 +40,12 @@ fn testImpactID l id =
 		
 	if intersectTestI.count > 0 then 
 	(
-		format "intersectTestI: %\n" intersectTestI[1][1].layer.name
+-- 		format "intersectTestI: %\n" intersectTestI[1][1].layer.name
 		res = finditem mursLayerList intersectTestI[1][1].layer.name
-		format "res: %\n" res
+-- 		format "res: %\n" res
 		if res > 0 then impact = true 
 	)
-	format "impact: % intersectTestI: %\n" impact intersectTestI
+-- 	format "impact: % intersectTestI: %\n" impact intersectTestI
 	impact
 )
 -- testImpactID $ 4
@@ -56,7 +56,7 @@ fn collectNewOrder s =
 	newOrder = #(0,0,0,0)
 	for i = 1 to (numKnots s) do 
 	(
-		format "####\n"
+-- 		format "####\n"
 		local order
 		local h, j
 		local resH, resI, resJ
@@ -83,7 +83,7 @@ fn collectNewOrder s =
 -- 			format "i fail= %\n" i
 		)
 	)
-	format "s: % newOrder: %\n" s.name newOrder 
+-- 	format "s: % newOrder: %\n" s.name newOrder 
 	newOrder
 )
 -- collectNewOrder $
@@ -99,7 +99,7 @@ fn getMurImpacted rayStart =
 	
 	testRay = (ray posI theZ)
 	intersectTestI = intersectRayScene testRay
-	format "intersectTestI: %\n" intersectTestI
+-- 	format "intersectTestI: %\n" intersectTestI
 	if intersectTestI.count > 0 then
 	(
 -- 		format "layer name: %\n" intersectTestI[1][1].layer.name		
@@ -206,6 +206,7 @@ fn adjustGabaritSpline2 s shift1: 3 shift2: 3 =
 			setKnotType  s  1 i #corner
 		)
 		updateShape s
+		format "adjustement done: %\n" s.name
 	)
 	else(format "quelque chose a foiré\n")
 

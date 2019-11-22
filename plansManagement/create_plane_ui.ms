@@ -24,6 +24,10 @@ x- classer les plans par ordre alphbetique
 -- bmpAr = getClassInstances  Bitmaptexture target: scenematerials
 -- bmpAr[1].fileName
 
+sb = python.import "sandbox"
+-- python.reload t
+sb.hello()
+-- sb.returnBBsize3
 
 fn createPlansLayer =
 (
@@ -277,12 +281,23 @@ rollout createPlaneRLT "create plane"
 	
 	fn ajustUVWmap onePlane= 
 	(
-		myUV = Uvwmap()
-		myUV.length = onePlane.length
-		myUv.width = onePlane.width
-
-		addmodifier onePlane myUV	 
+		local bbsize = sb.returnBBsize3  onePlane
+-- 		format "bbsize: %\n" bbsize
+		local myUV
 		
+		try
+		(
+			myUV = onePlane.uvwmap
+			myUV.length = bbsize.y
+			myUv.width = bbsize.x
+		)
+		catch
+		(
+			myUV = Uvwmap length: bbsize.y width: bbsize.x
+			addmodifier onePlane myUV
+		)
+		
+		-- recupération des dimension du bmp en pixels
 		myBitmap = onePlane.material.diffusemap.bitmap
 		
 		bitHeight = myBitmap.height
@@ -299,7 +314,7 @@ rollout createPlaneRLT "create plane"
 		jpgListBox.items = for jpg in planObjList collect jpg.name
 	)
 
-	
+-- 	$.uvwmap
 -- 	collect jpg
 	on pathToSearchET entered onePathName do
 	(

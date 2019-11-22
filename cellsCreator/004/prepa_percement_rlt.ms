@@ -136,8 +136,12 @@ rollout prepaPercementRLT "preparation percement v2"
 		button adjustBT "adjust gabarits" enabled: false
 	)
 	
-	button createDecoupeBT "create decoupe" across:2 enabled: false
-	button createGabaritsBT "create gabarits" 
+	group "creation:"
+	(
+		button createDecoupeBT "create decoupe" across:2 enabled: false
+		button cleanDecoupeBT "clean decoupe"  --enabled: false
+		button createGabaritsBT "create gabarits" 
+	)
 
 	
 	-- functions
@@ -396,7 +400,7 @@ rollout prepaPercementRLT "preparation percement v2"
 				if TmpfenL == undefined then TmpfenL = LayerManager.newLayerFromName TmpFenLName 
 				else
 				(
-					-- nettoyage des calques temporaire de gabarit avant la création
+					-- nettoyage des calques de gabarit à la re - création
 					TmpfenL.nodes &fenToDel
 					delete fenToDel
 				)
@@ -407,10 +411,9 @@ rollout prepaPercementRLT "preparation percement v2"
 				-- pour chaque objet
 				FenExtMod = extrude amount: (oneStruct.hauteur - oneStruct.allege) capStart: on capEnd: on
 				
+				-- creation des gabarits
 				for o in tmpObj do
 				(
-					
-					
 					o2 = copy o
 					o2.pos.z = 0.5
 					
@@ -475,6 +478,21 @@ rollout prepaPercementRLT "preparation percement v2"
 					TmpDecL.addnode o2
 				)
 			)
+		)
+	)
+	
+	on cleanDecoupeBT pressed do
+	(
+		layerList = collectLayer pattern: (decSuf + "*")
+-- 		format "layerList: %\n" decToDel
+		decToDel = rafle layerList: layerList
+-- 		format "decToDel: %\n" decToDel
+		delete decToDel
+		for l in layerList do 
+		(
+			format "layer deleted: %\n" l.name
+			LayerManager.deleteLayerByName l.name
+			
 		)
 	)
 )

@@ -78,6 +78,8 @@ filein ((getRoot ()) + "rollout_pref/rollout_pref.ms")
 filein ((getRoot ()) + "sceneManagement/isolateSlectionCustom.ms")
 
 
+
+
 -- ########## UPDATE DES MACROS
 -- copy les icones des macros dans le dossier user
 -- maj: tester si la copie est nécessaire avant de le faire
@@ -108,7 +110,7 @@ fn copyBmpIcons =
 )
 copyBmpIcons()
 
--- nettoyage des macroscripts existant
+-- wip: nettoyage des macroscripts existant
 useMacrosPath =  (getdir #maxdata) + "\usermacros"
 armadasMacroAr = #()
 

@@ -162,7 +162,7 @@ rollout boxerizeRLT "Boxerize"
 	
 	group "wirecolor:"
 	(
-		spinner wireTresSP "Shell Outer:" type: #worldunits range:[0,1000,3]
+		spinner wireTresSP "treshold:" type: #worldunits range:[0,1000,3]
 		button wireBySizeBT "Wire By Size" 
 	)
 	button boxBT2 "BOXERIZE"

@@ -150,124 +150,138 @@ fn exploseMeshBymat s =
 	splitObjList
 )
 
-
--- #####################################################
--- collapse des multimariaux des objets visibles
-visSel = for o in  $* where o.ishidden == false collect o
-visSelMultiMat = #()
-for o in visSel where classof o.material == multimaterial do
+-- ################################	-- collapse des multimariaux des objets visibles
+fn collapseMultiMatonVisibleObjects =
 (
-	appendifunique visSelMultiMat o.material
-)
-format "visSelMultiMat count: %\n" visSelMultiMat.count
 
-for j = 1 to visSelMultiMat.count do
-(
-	local matList = collectSameMultiMat3 visSelMultiMat[j] visSelMultiMat
--- 	format "matList: %\n" matList
--- 	format "mat.name: % , % versions, collapse % materials\n" mat.name matList.count  (matList.count - 1)
-	if matList.count > 1 then
+	visSel = for o in  $* where o.ishidden == false collect o
+	visSelMultiMat = #()
+	for o in visSel where classof o.material == multimaterial do
 	(
-		format "matref : % , collapse % materiaux\n" j matList.count 
-		for i = 1 to matList.count do
+		appendifunique visSelMultiMat o.material
+	)
+	format "visSelMultiMat count: %\n" visSelMultiMat.count
+
+	for j = 1 to visSelMultiMat.count do
+	(
+		local matList = collectSameMultiMat3 visSelMultiMat[j] visSelMultiMat
+	-- 	format "matList: %\n" matList
+	-- 	format "mat.name: % , % versions, collapse % materials\n" mat.name matList.count  (matList.count - 1)
+		if matList.count > 1 then
 		(
-			replaceinstances matList[i] matList[1]
--- 			format "% replaces %\n" matList[1] matList[i]
--- 			format "medit: % , collapse: %/% \n" j i matList.count 
+			format "matref : % , collapse % materiaux\n" j matList.count 
+			for i = 1 to matList.count do
+			(
+				replaceinstances matList[i] matList[1]
+	-- 			format "% replaces %\n" matList[1] matList[i]
+	-- 			format "medit: % , collapse: %/% \n" j i matList.count 
+			)
+			
+			visSelMultiMat = #()
+			for o in visSel where classof o.material == multimaterial do
+			(
+				appendifunique visSelMultiMat o.material
+			)
+			format "visSelMultiMat count: %\n" visSelMultiMat.count
+			
+			j = 1
 		)
-		
-		visSelMultiMat = #()
-		for o in visSel where classof o.material == multimaterial do
-		(
-			appendifunique visSelMultiMat o.material
-		)
-		format "visSelMultiMat count: %\n" visSelMultiMat.count
-		
-		j = 1
 	)
 )
 
 -- ################################Attach/ EXPLODE MESH avec meme MULTIMAT 
-
--- collecte des objets visibles
-visSel = for o in  $* where o.ishidden == false collect o
-format "visSel count before: %\n" visSel.count
-
--- collecte des multimateriaux de la scene
-multiMatList = getclassinstances multimaterial target: scenematerials
-format "multiMatList count: %\n" multiMatList.count
-
-for m in multiMatList do
+fn explodeVisibleObjectsByMultiMat =
 (
-	local sel
-	local splitObj
-	local oneObj
-	
-	sel = collectObjByMat m visSel
-	format "sel: %\n" sel
-	
-	if sel.count == 0 then continue
-	else if sel.count == 1 then
+	local i = 0
+	-- collecte des objets visibles
+	visSel = for o in  $* where o.ishidden == false collect o
+	format "visSel count before: %\n" visSel.count
+
+	-- collecte des multimateriaux de la scene
+	multiMatList = getclassinstances multimaterial target: scenematerials
+	format "multiMatList count: %\n" multiMatList.count
+
+	for m in multiMatList do
 	(
-		oneObj = sel[1]
-		format "mulitmat: % sel.count: % obj: %\n" m.name sel.count oneObj
-		if not isvalidnode oneObj then continue
-		else
-		(		
-			splitObj = exploseMeshBymat oneObj
-		)
-	)
-	else
-	(
-		oneObj = clusterAttach sel
-		format "mulitmat: % sel.count: % obj: %\n" m.name sel.count oneObj
+		i += 1
+		local sel
+		local splitObj
+		local oneObj
 		
-		if not isvalidnode oneObj then continue
+		sel = collectObjByMat m visSel
+-- 		format "i: % mat: % sel: %\n" i m.name sel 
+		
+		if sel.count == 0 then continue
+		else if sel.count == 1 then
+		(
+			oneObj = sel[1]
+			format "i: % mulitmat: % sel.count: % obj: %\n" i m.name sel.count oneObj
+			if not isvalidnode oneObj then continue
+			else
+			(	
+				if not iskindof oneObj editable_mesh then  converttomesh oneObj
+				splitObj = exploseMeshBymat oneObj
+			)
+		)
 		else
-		(		
-			splitObj = exploseMeshBymat oneObj
+		(
+			oneObj = clusterAttach sel
+			format "i: % mulitmat: % sel.count: % obj: %\n" i m.name sel.count oneObj
+			
+			if not isvalidnode oneObj then continue
+			else
+			(		
+				splitObj = exploseMeshBymat oneObj
+			)
 		)
 	)
+	visSel = for o in  $* where o.ishidden == false collect o
+	format "visSel count after: %\n" visSel.count
 )
-visSel = for o in  $* where o.ishidden == false collect o
-format "visSel count after: %\n" visSel.count
 
 -- ############################################## ATTACH MESH AVEC MEME MONOMAT
 -- sur la selection d'objet mono mat
 -- fusion des objets visibles par mateiraux
-visSel = for o in  $* where o.ishidden == false collect o
-format "visSel count: %\n" visSel.count
-
-meditMonoMatList = #()
-for s in visSel where s.material != undefined and classof s.material != multimaterial do appendifunique meditMonoMatList s.material 
-format "meditMonoMatList count: %\n" meditMonoMatList.count
-
-
-for m in meditMonoMatList do
+fn attachVisiblesObjectsByMonoMat maxSel: 1000 =
 (
-	sel = collectObjByMat m visSel
-	format "mat: % attach count: %\n"  m.name sel.count
--- 	combineMesh sel
-		
-	if sel.count > 5000 then
+	visSel = for o in  $* where o.ishidden == false collect o
+	format "visSel count: %\n" visSel.count
+
+	meditMonoMatList = #()
+	for s in visSel where s.material != undefined and classof s.material != multimaterial do appendifunique meditMonoMatList s.material 
+	format "meditMonoMatList count: %\n" meditMonoMatList.count
+
+
+	for m in meditMonoMatList do
 	(
-		
--- 		select sel
-		format "attachement manuel\n"
--- 		exit
-	)
-	else if sel.count == 1 then
-	(
-		format "pas d'attachement à faire\n"
-	)
-	else
-	(
-		local bef = timestamp()
-		clusterAttach sel
-		format "attach done: % s\n" (((timestamp()) - bef) / 1000 as float)
--- 		combineMesh sel
+		sel = collectObjByMat m visSel
+		format "mat: % attach count: %\n"  m.name sel.count
+	-- 	combineMesh sel
+			
+		if sel.count > maxSel then
+		(
+			
+	-- 		select sel
+			format "attachement manuel\n"
+	-- 		exit
+		)
+		else if sel.count == 1 then
+		(
+			format "pas d'attachement à faire\n"
+		)
+		else
+		(
+			local bef = timestamp()
+			clusterAttach sel
+			format "attach done: % s\n" (((timestamp()) - bef) / 1000 as float)
+	-- 		combineMesh sel
+		)
 	)
 )
 
+
+-- collapseMultiMatonVisibleObjects()
+-- explodeVisibleObjectsByMultiMat()
+-- attachVisiblesObjectsByMonoMat maxSel: 1000
 
 

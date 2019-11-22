@@ -45,12 +45,19 @@ fn getRoot =
 )
 	
 -- pre Load des fonctions
+format "########### armadasScripts preload:\n"
 filein ((getRoot ()) + "scriptInstaller/armadasScriptsPreLoad.ms")
 
+-- load des modules pythons
+format "########### load python modules:\n"
+python.ExecuteFile((getRoot ()) + "scriptInstaller/load_py_module.py")
+
 -- load du fichier de macros armadas
+format "########### load armadas macros:\n"
 filein ((getRoot ()) + "scriptInstaller/armadasMacrosList.ms")
 
 -- load du fichier de macros visiolab
+format "########### load visiolab macros:\n"
 filein ((getRoot ()) + "scriptInstaller/visiolabMacrosList.ms")
 
 
