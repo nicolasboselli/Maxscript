@@ -214,6 +214,13 @@ rollout decoupEtageRLT "découpe etage"
 	global rep -- = #()
 	
 	local validRep = undefined
+	
+-- 	local oneStage
+	local onePlane
+	local oneLayer
+-- 	local oneGrid
+	local newCell
+	
 	group "plans de découpe:"
 	(
 		multilistbox CutPlaneMLB "liste de plans:"  tooltip: "Les plans de découpe les plus hauts dans la scene sont les plus bas dans la liste.\n\nUn plan de découpe doit toujours être au dessus de l'étage découpé."
@@ -247,22 +254,57 @@ rollout decoupEtageRLT "découpe etage"
 		button addToLayBT "add to layer"
 	)
 	
+	group "wall assitant"
+	(
+		checkbox wallAssistOnCB "on/off" visible: false
+		
+		edittext gridET "grille:"
+		edittext layerET "calque:"
+		edittext planeET "plan:"
+		
+		button checkBT "check" visible: false
+		button displayBT "display"
+		
+		checkbutton newCellCB "new cell"
+	)
+	
 	
 	fn refreshUI =
 	(
 		rep = for r in rep where isvalidnode r collect r
 		CutPlaneMLB.items = for c in rep collect c.name
 		
-		
 		if isvalidnode validRep then
 		(
 			planeNameET.text = validRep.name 
 			planeNameET.readonly = false
+			gridET.text = validRep.name 
+			gridET.readonly = false
 		)
 		else 
 		(
 			planeNameET.text = "NONE"
 			planeNameET.readonly = true
+			gridET.text =  "NONE"
+			gridET.readonly = false
+		)
+		
+		if isvalidnode onePlane then
+		(
+			planeET.text = onePlane.name
+		)
+		else
+		(
+			planeET.text = "NONE"
+		)
+		
+		if oneLayer != undefined then
+		(
+			layerET.text = oneLayer.name
+		)
+		else
+		(
+			layerET.text = "NONE"
 		)
 	)
 	
@@ -314,6 +356,8 @@ rollout decoupEtageRLT "découpe etage"
 		)
 		
 		if autoSelRepCB.state and isvalidnode validRep then select validRep
+		
+		checkBT.pressed()
 		
 		refreshUI ()
 	)
@@ -486,6 +530,69 @@ rollout decoupEtageRLT "découpe etage"
 			)
 		)
 	)
+	
+	on checkBT pressed do
+	(
+		if isvalidnode validRep then 
+		(
+			-- trouver le plan correpondant
+			onePlane = getnodebyname ("plane_" + validRep.name)
+			
+			-- trouver le calque correspondant
+			oneLayer = LayerManager.getLayerFromName validRep.name
+			
+-- 			format "onePlane: % oneLayer: %\n" onePlane.name  oneLayer.name
+		)		
+		else
+		(
+			onePlane = undefined
+			oneLayer = undefined 
+		)
+		
+		refreshUI()
+	)
+	
+	on displayBT pressed do
+	(
+		-- activer la grille selectionnée se caler dessus
+		activeGrid = validRep
+		viewport.setType #view_grid
+		viewport.setType #view_iso_user
+		-- unhider le plan
+		if oneLayer != undefined then oneLayer.on = true
+		-- unhider l'etage
+		if isvalidnode onePlane then onePlane.ishidden = false
+	)
+	
+	on newCellCB changed arg do
+	(
+		
+		if arg then
+		(
+			max modify mode
+
+			newCell= SplineShape ()
+			updateShape newCell
+			newCell.vertexTicks = on
+
+			addmodifier newCell (edit_poly ())
+
+			select newCell
+			
+			modPanel.setCurrentObject newCell.baseobject 
+			splineOps.startCreateLine newCell
+		)
+		else
+		(
+			showEndResult = true
+			newCell.vertexTicks = off
+			newCell.pivot = newCell.center
+			newCell.xray = on
+		)
+		
+		-- mettre en place un trigger qui reagit au clic droit douris pour comprendre que la creation est terminée
+	)
+	
 	
 )
 createdialog decoupEtageRLT

@@ -485,6 +485,7 @@ rollout planResizerRLT "blueprint resizer" width: 250
 -- 	-- resize with a dimension, resize with a size reference.
 
 -- 	-- create visual resizer	
+	/*
 	on selSize_bt pressed do
 	(
 		select refArray
@@ -541,35 +542,34 @@ rollout planResizerRLT "blueprint resizer" width: 250
 		)
 		
 	)
-		
+		*/
 -- 	-- resize!
 	on rescale_bt pressed do
 	(
-
-			local aimedDist = size_sp.value
-			format "aimedDist: %\n" aimedDist 
-					
-			if startPt != undefined and scalerParent != undefined and aimedDist != 0 then
-			(
-				reelDist = float( distance startPt endPt)
-				-- aimedDist =  float(distance startSize endSize)
-				ratio = aimedDist/reelDist
-
-				startPt.parent = undefined
-				scalerParent.parent = scaler
+		local aimedDist = size_sp.value
+		format "aimedDist: %\n" aimedDist 
 				
-				resizePlan scaler ratio
+		if startPt != undefined and scalerParent != undefined and aimedDist != 0 then
+		(
+			reelDist = float( distance startPt endPt)
+			-- aimedDist =  float(distance startSize endSize)
+			ratio = aimedDist/reelDist
+
+			startPt.parent = undefined
+			scalerParent.parent = scaler
+			
+			resizePlan scaler ratio
 -- 				scaler.scale = scaler.scale*ratio
-	-- 			startPt.scale = scaler.scale*ratio
-				scalerParent.parent = undefined
-				
-				scaler.scale = [1,1,1]
-				startPt.parent = scalerParent
-			)
-			else
-			(
-				format "correct your selection"
-			)
+-- 			startPt.scale = scaler.scale*ratio
+			scalerParent.parent = undefined
+			
+			scaler.scale = [1,1,1]
+			startPt.parent = scalerParent
+		)
+		else
+		(
+			format "correct your selection"
+		)
 		
 	)
 )

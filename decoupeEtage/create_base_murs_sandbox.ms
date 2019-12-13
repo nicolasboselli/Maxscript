@@ -51,3 +51,5 @@ fn createWall =
 
 	select wallSplines[1]
 )
+
+-- createWall()

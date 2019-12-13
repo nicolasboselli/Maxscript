@@ -15,34 +15,52 @@ for m in matSel do
 )
 matAr
 
+
 -- collecter les ids de materiau dans la scene
 sceneMat = getclassinstances vrayMtl target: scenematerials
+-- sceneMat.count
 usedIds = #()
 for m in sceneMat do
 (
+	
 	format "channel id: % mat name: %\n" m.effect_id m.name
 	appendifunique usedIds m.effect_id
 )
 usedIds
 
 -- appliquer les ids de materiaux en evitant les ids deja attribuées
-j = 0
-for i = 1 to (matAr.count + j) do
+-- j = 0
+forceID = false
+for i = 1 to matAr.count do
 (
-	if matAr[i].effectsChannel != 0 then
+	-- verifier l'id déja affecté 
+	local res = finditem usedIds i
+	
+	-- si l'idée est deja affecter passer
+	if res > 0 and not forceID then continue
+	
+	-- si une id est déja affecter au materiaux
+	if matAr[i].effect_id != 0 and not forceID then
 	(
-		res = finditem usedIds i
-		format "deja assign: %, %, %\n" i matAr[i].name matAr[i].effectsChannel
+			-- eviter de l'affecter ailleurs
+			-- 
+		format "i: % deja assign: % id: %\n" i matAr[i].name matAr[i].effect_id
 	)
 	else
 	(
-		format "assign: %, %\n" i matAr[i].name
+		matAr[i].override_effect_id = on
+		matAr[i].effect_id = i
+		format "id: % assign: %\n" i matAr[i].name
 	)
 )
 
 -- pour chaque chaque id de materiau créer un couche vray object selected
 -- ajouter la couche vrayMtlID
-	-- setter sur filtering et color
+rem =MaxOps.GetCurRenderElementMgr ()
+vrMtlID = VRayMtlID filterOn: true output_type: 1
+rem.AddRenderElement vrMtlID
+
+-- setter sur filtering et color
 rem =MaxOps.GetCurRenderElementMgr ()
 sceneMat = getclassinstances vrayMtl target: scenematerials
 for m in sceneMat do

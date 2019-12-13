@@ -47,7 +47,7 @@
 			o.weldth = 0
 
 			o.vmesh = 0
-			o.faceType = 1
+-- 			o.faceType = 1
 			i = i +1
 		)
 

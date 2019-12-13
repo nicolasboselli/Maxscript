@@ -6,6 +6,10 @@ onePath = @"N:\Ressources_Nico\github\\00_wip\Maxscript\python_test\sandbox"
 
 pySys = python.import  "sys"
 pySys.path.append(onePath)
+-- pySys.path.remove(onePath)
+
+for i = 1 to pySys.path.count do print pySys.path[i]
+
 -- test = pySys.path
 classof test
 

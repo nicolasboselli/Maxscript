@@ -16,6 +16,7 @@ for s in sel do
 	move newS [0,0,300]
 )
 */
+
 fn incrementName n charId: 1 inc: 1 =
 (
 	local newName

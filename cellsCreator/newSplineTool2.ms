@@ -8,6 +8,8 @@ shellMod = shell ()
 
 addmodifier s extMod
 addmodifier s shellMod
+-- addmodifier s (edit_poly ())
+
 select s
 
 -- bug

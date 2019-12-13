@@ -93,7 +93,6 @@ fn clusterAttach objArr =
 			j += 1
 
 			if (j + 1) > objArr.count then j = 1
-
 		)
 	)
 	objArr[1]
@@ -242,7 +241,7 @@ fn explodeVisibleObjectsByMultiMat =
 -- ############################################## ATTACH MESH AVEC MEME MONOMAT
 -- sur la selection d'objet mono mat
 -- fusion des objets visibles par mateiraux
-fn attachVisiblesObjectsByMonoMat maxSel: 1000 =
+fn attachVisiblesObjectsByMonoMat maxSel: 50 =
 (
 	visSel = for o in  $* where o.ishidden == false collect o
 	format "visSel count: %\n" visSel.count
@@ -260,10 +259,9 @@ fn attachVisiblesObjectsByMonoMat maxSel: 1000 =
 			
 		if sel.count > maxSel then
 		(
-			
-	-- 		select sel
+			select sel
 			format "attachement manuel\n"
-	-- 		exit
+			exit
 		)
 		else if sel.count == 1 then
 		(
@@ -276,12 +274,14 @@ fn attachVisiblesObjectsByMonoMat maxSel: 1000 =
 			format "attach done: % s\n" (((timestamp()) - bef) / 1000 as float)
 	-- 		combineMesh sel
 		)
+		windows.ProcessPostedMessages()
 	)
+	
 )
 
 
--- collapseMultiMatonVisibleObjects()
--- explodeVisibleObjectsByMultiMat()
--- attachVisiblesObjectsByMonoMat maxSel: 1000
+collapseMultiMatonVisibleObjects()
+explodeVisibleObjectsByMultiMat()
+attachVisiblesObjectsByMonoMat maxSel: 5000
 
 

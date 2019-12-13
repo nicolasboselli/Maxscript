@@ -201,6 +201,7 @@ fn explodeMultiMatDef s matchMat: false=
 )
 -- explodeMultiMatDef $ matchMat: true
 
+
 -- explose meshes
 fn getFacesID s =
 (
@@ -209,6 +210,54 @@ fn getFacesID s =
 	for i = 1 to faceMax do appendifunique idArray (getFaceMatID s i)
 	idArray
 )
+
+fn exploseMeshBymat s = 
+(
+	-- maj: mettre les morceaux sur le meme calque que l'objet unique
+	local splitObjList = #(s)
+	-- debug de l objet
+	resetpivot s
+	if (InstanceMgr.CanMakeObjectsUnique s) then (InstanceMgr.MakeObjectsUnique s #prompt )
+
+	idArray = getFacesID s
+
+	for id in idArray where id > 1 do
+	(
+		local new
+		local faceMax = meshop.getNumFaces s
+		local faceList = #()
+		for f = 1 to faceMax do
+		(
+			if (getFaceMatID s f ) == id do append faceList f
+		)
+-- 		format "id: % facelist: %\n" id (facelist as bitarray)
+		
+		local newMesh = meshop.detachFaces s faceList delete: true asMesh: true
+		
+		-- creation de la nouvelle mesh
+-- 		format "res: %\n" res
+		emesh = Editable_mesh() --create an empty Editable_mesh
+		emesh.mesh = newMesh --assign the detached faces to the new mesh
+		update emesh --update the mesh
+		
+		emesh.material = s.material[id]
+		emesh.transform = s.transform
+		
+		-- ajout des modifiers au nouvel objet créer
+		for m in  s.modifiers do addmodifier emesh m
+		
+		-- collecte des nouveaux objets créés
+		append splitObjList emesh
+		
+		-- ajout sur le meme calque
+		s.layer.addnode emesh
+	)
+	s.material = s.material[1]
+	update s
+	
+	splitObjList
+)
+
 
 -- refresh scenematerial
 fn updateSceneMaterials =
@@ -682,6 +731,7 @@ rollout deMultiMatRLT "Materials Tools"
 	(
 		checkbox matchMatCB "match materials" across:2
 		button explodeBT "explode by material"
+		button explodeMeshBT "explode mesh by material"
 	)
 	
 	group "scene Materials:"
@@ -830,6 +880,22 @@ rollout deMultiMatRLT "Materials Tools"
 		)
 	)
 	
+	on explodeMeshBT pressed do
+	(
+		sel = selection as array
+		for s in sel where classof s.material == multimaterial do
+		(
+			if classof s.baseobject == Editable_mesh then exploseMeshBymat s
+			else if iskindof s.baseobject editable_poly then 
+			(
+				addmodifier s  (Edit_Mesh ()) before: s.modifiers.count
+				maxOps.CollapseNodeTo s s.modifiers.count true
+				exploseMeshBymat s
+			)
+			else(format "classe à traiter: %\n" (classof s.baseobject ))
+		)
+	)
+
 	on skinMatBT pressed do 
 	(
 		sel = selection as array

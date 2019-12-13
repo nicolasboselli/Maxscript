@@ -163,7 +163,7 @@ rollout VrayRenderRLT "Vray Options"
 	*/
 
 	local vrayExp = vray_exposure_control shutter: 150 f_number: 9 iso: 100 wb_preset: 1 white_balance: [1,1,1]
-
+	local PhysExp = Physical_Camera_Exposure_Control use_physical_camera_controls: off global_ev: 14 
 	
 -- 	UI
 	button VRScenebaseBT "Vray scene Basic" 
@@ -206,7 +206,7 @@ rollout VrayRenderRLT "Vray Options"
 	
 	on vrayExposureBT pressed do
 	(
-		sceneExposureControl.exposureControl =  vrayExp
+		sceneExposureControl.exposureControl =  PhysExp
 	)
 	
 	on createVrayGroundBT pressed do
