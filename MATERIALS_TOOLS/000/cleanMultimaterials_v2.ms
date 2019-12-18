@@ -280,8 +280,35 @@ fn attachVisiblesObjectsByMonoMat maxSel: 50 =
 )
 
 
-collapseMultiMatonVisibleObjects()
-explodeVisibleObjectsByMultiMat()
-attachVisiblesObjectsByMonoMat maxSel: 5000
+-- collapseMultiMatonVisibleObjects()
+-- explodeVisibleObjectsByMultiMat()
+-- attachVisiblesObjectsByMonoMat maxSel: 5000
 
+try(destroydialog cleanMultiMatRLT)catch()
+rollout cleanMultiMatRLT "Clean Multimaterial"
+(
+	button cleanBT "clean"
+	
+	group "number of objects to attach:"
+	(
+		spinner maxSP "max:" range:[0,10000,5000] type:#integer
+		button attachBT "manual"
+	)
+	
+	on cleanBT pressed do
+	(
+		collapseMultiMatonVisibleObjects()
+		format "###############collapse done\n"
+		explodeVisibleObjectsByMultiMat()
+		format "############### explose by material done\n"
+		attachVisiblesObjectsByMonoMat maxSel: maxSP.value
+		format "############### attach done\n"
+	)		
+	
+	on attachBT pressed do
+	(
+		clusterAttach (selection as array)
+	)
+)
 
+createdialog cleanMultiMatRLT
