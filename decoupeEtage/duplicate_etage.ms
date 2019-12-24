@@ -48,6 +48,8 @@ fn copyIncNameNMove s id:1 jump:1 moving: true decay: [0,0,300] =
 		
 		newS.wirecolor = s.wirecolor
 		
+		s.layer.addnode newS
+		
 		if moving then move newS decay
 	)
 	newS

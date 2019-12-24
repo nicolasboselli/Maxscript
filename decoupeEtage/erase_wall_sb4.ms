@@ -120,6 +120,7 @@ fn eraseSplineSeg2 s sp segDel =
 		-- si la spline est ouverte
 		if isClosed s sp then
 		(
+			format "closed spline: % sp: % segDel: %\n" s sp segDel
 			-- mettre le segment selectionné en premier knot de la spline
 			if not segDel == segCount then setFirstKnot s sp (segDel + 1)
 			-- ouvrir la spline
@@ -128,6 +129,7 @@ fn eraseSplineSeg2 s sp segDel =
 		)
 		else
 		(
+			format "open spline: % sp: % segDel: %\n" s sp segDel
 		-- 	if not  isClosed s sp then
 		-- 	for sp = 1 to spCount do
 -- 			segCount = numSegments s sp
@@ -176,8 +178,9 @@ fn eraseSplineSeg2 s sp segDel =
 			
 			deleteSpline s sp
 			updateshape s
-			format "### erasing done\n"
+			
 		)
+		format "### erasing done\n"
 	)	
 )
 
@@ -232,6 +235,7 @@ rollout testPickerRLT "wall destructor"
 						(
 							-- ceation d'une copy pour permettre le control Z
 							local copyS = copy segtoDelAr[1]
+							segtoDelAr[1].layer.addnode copyS
 							copyS.wirecolor = segtoDelAr[1].wirecolor
 							copyS.name = segtoDelAr[1].name
 							delete segtoDelAr[1]

@@ -6,13 +6,13 @@
 	
 	-- faire une version de l'interface mini
 	
-	-- proposer de travailler sur l'original ou la copie
+	x- proposer de travailler sur l'original ou la copie
 	
 	x- proposer l alignement pivot>pivot ou pivot>centre ou centre/pivot:
 	-- proposer aligner sur x y z
 	-- proposer un remap x sur x y ou z puis y sur x y ou z
 	
-	-- ajouter un picker
+	/- ajouter un picker
 	
 	--  replace sur bounding box:
 		-- revoir le systeme pour ne plus avoir a creer de groupe dans le processus
@@ -28,7 +28,7 @@ filein "objReplacerDef2.ms"
 try(destroydialog objReplacerRLT)catch()
 rollout objReplacerRLT "objects replacer "
 (
-	local params = #("pos","rescaleXCB", "rescaleYCB", "rescaleZCB", "randomCB", "cloneTypeRB", "alignTypeTB", "layerRB", "workOnRB")
+	local params = #("pos","rescaleXCB", "rescaleYCB", "rescaleZCB", "randomCB", "cloneTypeRB", "alignTypeTB", "layerRB", "workOnRB","oneSelCB")
 	--vars
 	local modFFD
 	local refObj = undefined
@@ -142,10 +142,14 @@ rollout objReplacerRLT "objects replacer "
 	-- ui	
 	group "Muli-Selections:"
 	(
-		multiListBox refArMLB "selection:" height: 15
-		button addSelBT "add" across: 3
+		checkbox oneSelCB "selection unique" enabled: true
+		
+		multiListBox refArMLB "selection:" height: 5		
+		button addSelBT "add" across: 4
 		button selSelBT "select" -- across: 2
 		button removeBT "remove"
+		button clearBT "clear"
+		
 	)
 	
 	group "copy options:"
@@ -169,6 +173,11 @@ rollout objReplacerRLT "objects replacer "
 	group "Align type (ref > target):"
 	(
 		radiobuttons alignTypeTB "Align type:" labels: #("pivot > pivot", "pivot > center", "center > pivot", "center > center")  offsets:#([80,-16], [220,-32], [80,-32],[220,-48]) 
+	)
+	
+	group "Targets:"
+	(
+		button selByWcBT "select object by wirecolor"
 	)
 	
 	checkbox randomCB "random" across: 2
@@ -220,6 +229,9 @@ rollout objReplacerRLT "objects replacer "
 	(
 		local refObjTmp =  checkReference2 (selection as array)
 		
+		 
+		if oneSelCB.checked do refAr = #()
+		
 		for r in refObjTmp do appendifunique refAr r
 		
 		format "%\n" refAr.count
@@ -237,6 +249,25 @@ rollout objReplacerRLT "objects replacer "
 			deleteitem refAr refSelIdAr[i]
 		)
 		refreshUI()
+	)
+	
+	on clearBT pressed do
+	(
+		refAr = #()
+		refreshUI()
+	)
+	
+	on selByWcBT pressed do
+	(
+		local sel = selection as array
+		if sel.count > 0 then 
+		(
+			local sameWireAr = #()
+			local refWire = sel[1].wirecolor
+			for g in geometry where g.wirecolor == refWire do append sameWireAr g
+			select sameWireAr
+		)
+		
 	)
 	
 -- 	on rescaleOnBT changed state do

@@ -4,6 +4,8 @@
 
 
 -- appliquer une id de materiau aux materiaux des object selectionnés
+
+-- collecter les materiaux des objets selectionnés
 sel = selection as array
 matSel = for s in sel where s.material != undefined collect s.material
 	

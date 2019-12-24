@@ -8,19 +8,40 @@ debug:
 	-- de instancier
 
 maj:
-	x- copier en instance les modifiers de l'objes d'origine
-		-- lorsqu'il y a un modifier edit poly dans la pile, collapser tout ce qui est en dessous 
-	-- decouper des splines en conservant les modificateurs dessus
-	-- collapse des sweeps
-	/- decouper les groupe
-		x- ignorer les groupe
-		-- dupliquer les groupe et les slicer
-	x-- collapser les railclone
-		debug: les railclone se deplace	-- collapser les splines
+	A - decoupe
+		1 -  de objets avec modifier edit_poly
+			x-  collapser tout ce qui est en dessous et conserver les modifiers au dessus 
+		
+		2-  des spline avec modifier (sweep, shell, extrude)
+			x- converttopoly  et decouper
+			ou
+			- decouper des splines en conservant les modificateurs dessus
+			
+		3-  les groupe
+			x- ignorer les groupe
+			x- ignorer les objets d'un groupe
+			
+			-- dupliquer les groupe et les slicer
+			ou
+			-- duppliquer le groupe fusionner tous les objets et slicer
+
+		4 --  des raiclone
+			x-- converttopoly et decoupe
+			ou
+			-- decouper la spline et dupliquer le railclone
 	
-	-- autoload des railclone avec le spline
+		5 - modifier clone
+			x-- converttopoly et decoupe
+	
+	B- auto add to layer
+		4 -- raiclone 
+			/- deplacer les spline des railclone dans le même calque que les railclone à l'autoadd to layer
+			
+	-- collapser les splines(?)
+
 	
 	-- determinier automatiquement s il faut faire une decoupe ou un auto load
+		-- tester si un objet intersecte avec une grille
 	
 rebuild
 	x- dupliquer l'objet à découper avant de le decouper puis supprimer le treitement
@@ -202,19 +223,41 @@ fn autoAddObjToLayer rep sel =
 		else()
 	)
 )
--- sel = selection as array
--- autoAddObjToLayer rep sel
+
+fn checkPlan refName =
+(
+	local planesAr = #()
+	for s in $plane_* do
+	(
+		local repName = getuserprop s "rep" 
+
+		if repName != undefined then
+		(
+		
+			if  repName == refName then 
+			(
+				format "s: % repName: %\n" s.name repName
+				append planesAr s
+			)
+		)
+	)
+	planesAr
+)
+
+
 
 try(destroydialog decoupEtageRLT)catch()
 rollout decoupEtageRLT "découpe etage"
 (
 	local params = #("pos", "autoSelLayCB", "autoSelREpCB", "collapseCB", "addPolyModCB", "freezeOldCB", "boxOldCB")
 	
+	global repAr
 	global rep -- = #()
 	
 	local validRep = undefined
 	
 -- 	local oneStage
+	local planesAr
 	local onePlane
 	local oneLayer
 -- 	local oneGrid
@@ -222,6 +265,12 @@ rollout decoupEtageRLT "découpe etage"
 	
 	group "plans de découpe:"
 	(
+-- 		dropdownlist  setRepDL "sets:"
+		listbox  setRepDL "sets:" height: 5
+		button newSetBT "new" across: 3
+		button loadSetBT "load" -- across: 2
+		button delSetBT "del"
+		
 		multilistbox CutPlaneMLB "liste de plans:"  tooltip: "Les plans de découpe les plus hauts dans la scene sont les plus bas dans la liste.\n\nUn plan de découpe doit toujours être au dessus de l'étage découpé."
 		edittext planeNameET "name:" readonly: true
 		button addBT "add" across: 3
@@ -261,6 +310,7 @@ rollout decoupEtageRLT "découpe etage"
 		edittext gridET "grille:"
 		edittext layerET "calque:"
 		edittext planeET "plan:"
+		button tagBT "tag"
 		
 		button checkBT "check" visible: false
 		button displayBT "display"
@@ -271,8 +321,11 @@ rollout decoupEtageRLT "découpe etage"
 	
 	fn refreshUI =
 	(
+		setRepDL.items = for i = 1 to repAr.count collect (i as string)
+
 		rep = for r in rep where isvalidnode r collect r
 		CutPlaneMLB.items = for c in rep collect c.name
+		
 		
 		if isvalidnode validRep then
 		(
@@ -289,9 +342,15 @@ rollout decoupEtageRLT "découpe etage"
 			gridET.readonly = false
 		)
 		
-		if isvalidnode onePlane then
+		if planesAr.count > 0 then
 		(
-			planeET.text = onePlane.name
+			local str = stringstream ""
+			format "%" planesAr to: str
+			print str
+-- 			layerET.text = oneLayer.name
+			planeET.text = (str as string)
+			
+-- 			planeET.text = onePlane.name
 		)
 		else
 		(
@@ -311,6 +370,9 @@ rollout decoupEtageRLT "découpe etage"
 	on decoupEtageRLT open do
 	(
 		loadRolloutParams decoupEtageRLT params
+		
+		if planesAr == undefined then planesAr = #()
+		if repAr == undefined then repAr = #()
 		if rep == undefined then rep = #()
 		refreshUI ()
 	)
@@ -322,6 +384,31 @@ rollout decoupEtageRLT "découpe etage"
 	
 -- 	layermanager.current.name
 	
+	on newSetBT pressed do
+	(
+		append repAr rep
+		refreshUI ()
+	)
+	
+	on loadSetBT pressed do
+	(
+		format "set: %\n" (setRepDL.selection as integer)
+		rep = repAr[setRepDL.selection as integer]
+		refreshUI()
+	)
+	
+	on delSetBT pressed do
+	(
+		deleteitem repAr (setRepDL.selection as integer)
+		refreshUI()
+	)
+	
+	on setRepDL doubleClicked  id do
+	(
+		loadSetBT.pressed()
+	)
+	
+	
 	on CutPlaneMLB selectionend do
 	(
 		local l
@@ -332,7 +419,7 @@ rollout decoupEtageRLT "découpe etage"
 		(
 			validRep = rep[selAr[1]]
 			if isvalidnode validRep then l = layermanager.getLayerFromName validRep.name
-			if l != undefined then l.current = true
+-- 			if l != undefined then l.current = true
 		)
 		else
 		(
@@ -474,9 +561,13 @@ rollout decoupEtageRLT "découpe etage"
 			for s in sel do 
 			(
 				-- ignore group
-				if iskindof s dummy then continue
+				if isGroupHead s or isGroupMember s then 
+				(
+					format "ignore % is group member\n" s.name
+					continue
+				)
 					
-				-- creation de la copy de securité
+				-- creation de la copy de securité pour traiter les instances
 				local copySel
 				maxOps.clonenodes s cloneType: #copy newNodes:&copySel
 				local copyS = copySel[1]
@@ -484,7 +575,7 @@ rollout decoupEtageRLT "découpe etage"
 				-- collapse railclone
 				if iskindof copyS.baseobject railclone_pro then converttopoly copyS
 							
-				-- ecrasement  d'un edit poly
+				-- ecrasement  d'un modifier edit poly, sweep ou clone
 				local epId = 0
 				local collapseMode = false
 				for i = 1 to copyS.modifiers.count do
@@ -525,10 +616,16 @@ rollout decoupEtageRLT "découpe etage"
 	
 	on autoAddBT pressed do
 	(
-		sel = selection as array
+		local sel = selection as array
 		autoAddObjToLayer rep sel
+		-- traiter les spline des railclones deplacer
+		for s in sel where iskindof s railclone_pro do
+		(
+			for o in  s.banode do s.layer.addnode o
+			-- recuperer la spline
+		)
 	)
-	
+
 	on addToLayBT pressed do
 	(
 		local selAr = CutPlaneMLB.selection as array
@@ -551,6 +648,9 @@ rollout decoupEtageRLT "découpe etage"
 		(
 			-- trouver le plan correpondant
 			onePlane = getnodebyname ("plane_" + validRep.name)
+			planesAr = checkPlan validRep.name
+			appendifunique planesAr onePlane
+			format "planesAr: %\n" planesAr
 			
 			-- trouver le calque correspondant
 			oneLayer = LayerManager.getLayerFromName validRep.name
@@ -566,16 +666,32 @@ rollout decoupEtageRLT "découpe etage"
 		refreshUI()
 	)
 	
+	on tagBT pressed do
+	(
+		local sel = selection as array
+		for s in sel do setuserprop s "rep" validRep.name
+	)
+	
 	on displayBT pressed do
 	(
 		-- activer la grille selectionnée se caler dessus
 		activeGrid = validRep
 		viewport.setType #view_grid
 		viewport.setType #view_iso_user
-		-- unhider le plan
-		if oneLayer != undefined then oneLayer.on = true
-		-- unhider l'etage
-		if isvalidnode onePlane then onePlane.ishidden = false
+		
+		-- unhider le layer
+		for r in rep do
+		(
+			local l = layermanager.getLayerFromName r.name
+			l.ishidden = true
+		)	
+		
+		if oneLayer != undefined then oneLayer.ishidden = false
+		
+		-- unhider les plans
+-- 		if isvalidnode onePlane then onePlane.ishidden = false
+		for p in $plane_* do p.ishidden = true
+		for p in planesAr where isvalidnode p do p.ishidden = false
 	)
 	
 	on newCellCB changed arg do
@@ -602,6 +718,7 @@ rollout decoupEtageRLT "découpe etage"
 			newCell.vertexTicks = off
 			newCell.pivot = newCell.center
 			newCell.xray = on
+			newCell.wirecolor = color 135 6 6
 		)
 		
 		-- mettre en place un trigger qui reagit au clic droit douris pour comprendre que la creation est terminée

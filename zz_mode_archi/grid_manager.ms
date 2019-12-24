@@ -1,3 +1,15 @@
+/*
+maj:
+	-- callback pour la selection des grilles dans la scene
+	-- picker pour faire un placement auto des grilles
+	
+
+
+*/
+
+
+
+
 -- structure to collect and keep grid object
 struct gridST
 (

@@ -287,8 +287,10 @@ rollout miscRLT "Modeling Tools"
 	
 	group "splines"
 	(
-		button cleanSplineBT "clean splines" across: 2
+		button cleanSplineBT "clean splines" across: 3
 		button inverseKnotOrderBT "reverse spline"
+		button attachSplineBT "attach spline"
+		
 	)
 	
 	group "pivot"
@@ -407,6 +409,16 @@ rollout miscRLT "Modeling Tools"
 		sel = selection as array
 		for s in sel do inverseKnotOrder s
 		select sel
+	)
+	
+	on attachSplineBT pressed do
+	(
+		sel = selection as array
+		for i = 2 to sel.count do
+		(
+			addAndWeld sel[1] sel[i] -1
+		)
+		updateshape sel[1]
 	)
 	
 	on centerPivotBT pressed do centerPivotDef (selection as array)
