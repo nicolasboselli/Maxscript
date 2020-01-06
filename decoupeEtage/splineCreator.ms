@@ -5,21 +5,28 @@ rollout splineCreatorRLT "spline creator"
 	
 	checkbutton newCellCB "new cell"
 	
+	fn testPickPoint  =
+	(
+		local p = pickPoint () -- mouseMoveCallback:printPickPoint
+		format "p = %\n" p
+		box position: p
+	)
+		
 	tool splineTool
 	(
 		on start do
 		(
-			max modify mode
+-- 			max modify mode
 
-			newCell= SplineShape ()
-			updateShape newCell
-			newCell.vertexTicks = on
+-- 			newCell= SplineShape ()
+-- 			updateShape newCell
+-- 			newCell.vertexTicks = on
 
-			addmodifier newCell (edit_poly ())
+-- 			addmodifier newCell (edit_poly ())
 
-			select newCell
+-- 			select newCell
 			
-			modPanel.setCurrentObject newCell.baseobject 
+-- 			modPanel.setCurrentObject newCell.baseobject 
 -- 			splineOps.startCreateLine newCell
 		)
 		
@@ -27,8 +34,8 @@ rollout splineCreatorRLT "spline creator"
 		(
 			format "mousePoint: %\n" clickno
 -- 			max modify mode
-			format "pickPoint: %\n" (pickPoint())
-
+-- 			format "pickPoint: %\n" (pickPoint())
+			testPickPoint()
 -- 			newCell= SplineShape ()
 -- 			updateShape newCell
 -- 			newCell.vertexTicks = on
@@ -61,11 +68,11 @@ rollout splineCreatorRLT "spline creator"
 		on mouseAbort clickno do
 		(
 			format "mouseAbort: %\n" clickno
-			showEndResult = true
-			newCell.vertexTicks = off
-			newCell.pivot = newCell.center
-			newCell.xray = on
-			newCell.wirecolor = color 135 6 6
+-- 			showEndResult = true
+-- 			newCell.vertexTicks = off
+-- 			newCell.pivot = newCell.center
+-- 			newCell.xray = on
+-- 			newCell.wirecolor = color 135 6 6
 		)			
 		
 		on stop do

@@ -509,71 +509,103 @@ fn convertToVrMatDef mat =
 			if hasProperty mat "Plastic_Color_Map" do vrMat.texmap_diffuse = mat.Plastic_Color_Map
 			converted = true
 		)
-		else if matchpattern (getPropNames mat)[1] pattern: "Glazing_Custom*" then
-		(
-			vrMat.diffuse = mat.Glazing_Custom_Color
-			vrMat.texmap_diffuse = mat.Glazing_Custom_Color_Map
-			converted = true
-		)
+
 		else if matchpattern (getPropNames mat)[1] pattern: "Metal*" then
 		(
 			if matchpattern (getPropNames mat)[1] pattern: "Metallic*" then
 			(
-				vrMat.diffuse = mat.Metallic_Paint_Color
-				vrMat.texmap_diffuse = mat.Metallic_Paint_Color_Map
+				if hasProperty mat "Metallic_Paint_Color" do vrMat.diffuse = mat.Metallic_Paint_Color
+				if hasProperty mat "Metallic_Paint_Color_Map" do vrMat.texmap_diffuse = mat.Metallic_Paint_Color_Map
+				converted = true
+-- 				vrMat.diffuse = mat.Metallic_Paint_Color
+-- 				vrMat.texmap_diffuse = mat.Metallic_Paint_Color_Map
 			)
 			else
 			(
-				vrMat.diffuse = mat.Metal_Color
+				if hasProperty mat "Metal_Color" do vrMat.diffuse = mat.Metal_Color
+				converted = true
+-- 				vrMat.diffuse = mat.Metal_Color
 			)
 -- 			converted = true
 		)
 		else if matchpattern (getPropNames mat)[1] pattern: "Concrete*" then
 		(
-			vrMat.diffuse = mat.Concrete_Color
+			if hasProperty mat "Concrete_Color" do vrMat.diffuse = mat.Concrete_Color
+			if hasProperty mat "Concrete_Color_Map" do vrMat.texmap_diffuse = mat.Concrete_Color_Map
+			converted = true
+-- 			vrMat.diffuse = mat.Concrete_Color
 		)
 		else if matchpattern (getPropNames mat)[1] pattern: "Wood*" then
 		(
-			vrMat.diffuse = mat.Wood_Stain_Color
-			vrMat.texmap_diffuse = mat.Wood_Image
+			if  matchpattern (getPropNames mat)[1] pattern: "Wood_Image" then
+			(
+				if hasProperty mat "Wood_Stain_Color" do vrMat.diffuse = mat.Wood_Stain_Color
+				if hasProperty mat "Wood_Image" do vrMat.texmap_diffuse = mat.Wood_Image
+				converted = true
+			)
+			else
+			(
+				vrMat.diffuse = mat.Wood_Stain_Color
+				vrMat.texmap_diffuse = mat.Wood_Image
+			)
 		)
 		else if  matchpattern (getPropNames mat)[1] pattern: "Ceramic*" then
 		(
-			vrMat.diffuse = mat.Ceramic_Color
-			vrMat.texmap_diffuse = mat.Ceramic_Color_Map
+			if hasProperty mat "Ceramic_Color"  do vrMat.diffuse = mat.Ceramic_Color
+			if hasProperty mat "Ceramic_Color_Map" do vrMat.texmap_diffuse = mat.Ceramic_Color_Map
+			converted = true
 		)
-		else if  matchpattern (getPropNames mat)[1] pattern: "Glazing_Type"  then
+		else if matchpattern (getPropNames mat)[1] pattern: "Glazing*"  then
 		(
-			if hasProperty mat "Glazing_Color" do vrMat.diffuse = mat.Glazing_Color
-			
--- 			vrMat.texmap_diffuse = mat.Ceramic_Color_Map
-		)
-		else if matchpattern (getPropNames mat)[1] pattern: "Glazing_Color" then
-		(
-			if hasProperty mat "Glazing_Custom_Color" do vrMat.diffuse = mat.Glazing_Custom_Color
-		)
-		else if  matchpattern (getPropNames mat)[1] pattern: "Masonry_Type" then
-		(
-			vrMat.diffuse = mat.Masonry_Color
--- 			vrMat.texmap_diffuse = mat.Ceramic_Color_Map
+			if matchpattern (getPropNames mat)[1] pattern: "Glazing_Color"  then
+			(
+				if hasProperty mat "Glazing_Custom_Color" do vrMat.diffuse = mat.Glazing_Custom_Color
+				if hasProperty mat "Glazing_Custom_Color_Map" do vrMat.texmap_diffuse = mat.Glazing_Custom_Color_Map
+				converted = true
+			)
+			else if matchpattern (getPropNames mat)[1] pattern: "Glazing_Type" then
+			(
+				if hasProperty mat "Glazing_Color" do vrMat.diffuse = mat.Glazing_Color
+			)
+			else if matchpattern (getPropNames mat)[1] pattern: "Glazing_Custom*" then
+			(
+				if hasProperty mat "Glazing_Custom_Color" do vrMat.diffuse = mat.Glazing_Custom_Color
+				if hasProperty mat "Glazing_Custom_Color_Map" do vrMat.texmap_diffuse = mat.Glazing_Custom_Color_Map
+				converted = true
+			)
+			else()
 		)
 		
-		else if  matchpattern (getPropNames mat)[1] pattern: "Wood_Image" then
+		else if  matchpattern (getPropNames mat)[1] pattern: "Masonry_Type" then
 		(
-			vrMat.diffuse = mat.Wood_Stain_Color
-			vrMat.texmap_diffuse = mat.Wood_Image
+			if hasProperty mat "Masonry_Color" do vrMat.diffuse = mat.Masonry_Color
+			if hasProperty mat "Masonry_Color_Map" do vrMat.texmap_diffuse = mat.Masonry_Color_Map
+			converted = true
+		)
+		else if  matchpattern (getPropNames mat)[1] pattern: "Solid_Glass_Color" then
+		(
+			if hasProperty mat "Solid_Glass_Custom_Color" do vrMat.diffuse = mat.Solid_Glass_Custom_Color
+			if hasProperty mat "Solid_Glass_Custom_Color_Map" do vrMat.texmap_diffuse = mat.Solid_Glass_Custom_Color_Map
+			converted = true
+		)
+		else if  matchpattern (getPropNames mat)[1] pattern: "Stone_Image" then
+		(
+			if hasProperty mat "Stone_Image" do vrMat.texmap_diffuse = mat.Stone_Image
+-- 			converted = true
 		)
 		
 		else
 		(
-		format "UNKNOW:%\n" (getPropNames mat)[1]
-		showproperties 	mat
+			format "UNKNOW:%\n" (getPropNames mat)[1]
+			showproperties 	mat
+-- 			continue
 		)
 		
 		if not converted then 
 		(
-			format "UNKNOW:%\n" (getPropNames mat)[1]
+			format "NOT CONVERTED:%\n" (getPropNames mat)[1]
 			showproperties 	mat
+-- 			continue
 		)
 -- 		replaceinstances mat vrMat
 -- 		meditMaterials[1] = vrMat
@@ -585,11 +617,15 @@ fn convertToVrMatDef mat =
 	)
 	else (format "UNKNOW mat: % class: % \n" mat.name (classof mat) )
 	
-	if converted then replaceinstances mat vrMat 
+	if converted then 
+	(
+		replaceinstances mat vrMat 
+		format "CONVERTED: %\n" vrMat
+	)
 	else if not converted and vrmat!= undefined then 
 	(
 		meditMaterials[1] = vrMat
-		format "confirm mat: %\n" vrMat
+		format "CONFIRM CONVERSION: %\n" vrMat
 	)
 	else()
 )
@@ -1132,7 +1168,7 @@ rollout deMultiMatRLT "Materials Tools"
 -- 		format "count: % matAr: %\n" matAr.count matAr
 		for m in matAr do
 		(
-			format "convert: %\n" m
+			format "start convert: %\n" m
 			convertToVrMatDef m
 		)
 	)

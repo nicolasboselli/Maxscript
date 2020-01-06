@@ -1,14 +1,18 @@
 fn printPickPoint val =
 (
-	format "val: %\n" val
+-- 	format "val: %\n" val
 )
 
 
 fn testPickPoint  =
 (
-	local p = pickPoint mouseMoveCallback:printPickPoint
+	local p = pickPoint () -- mouseMoveCallback:printPickPoint
 	format "p = %\n" p
+	box position: p
 )
 
 testPickPoint()
+
+box pos:(gw.getPointOnCP [500,500])
+getViewSize() 
 

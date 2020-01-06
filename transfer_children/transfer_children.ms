@@ -112,7 +112,7 @@ rollout transferChildrenRLT "transfer Children"
 			for i = 2 to sel.count do
 			(
 -- 				format "oneMaster: % onetarget: %\n" oneMaster.name sel[i].name
-				transferChildren oneMaster sel[i] checkSource: true presName: presNameCB.state presMat:  presMatCB.state presLayer: presLayerCB.state
+				transferChildren oneMaster sel[i] checkSource: true presName: presNameCB.state presMat:  presMatCB.state presTrans: presTransCB.state presLayer: presLayerCB.state
 			)
 		)
 		else
@@ -130,7 +130,7 @@ rollout transferChildrenRLT "transfer Children"
 			local targetsAr = getTargets sel[1]
 			for t in targetsAr do
 			(
-				transferChildren sel[1] t checkSource: true presName:  presNameCB.state presMat:  presMatCB.state
+				transferChildren sel[1] t checkSource: true presName:  presNameCB.state presMat:  presMatCB.state presTrans: presTransCB.state presLayer:  presLayerCB.state
 			)
 		)
 	)
@@ -144,7 +144,7 @@ rollout transferChildrenRLT "transfer Children"
 			if getUserProp s "isSource" then setUserProp s "isSource" false
 			local src = findRealSource s
 			format "s: %, src: %\n" s.name src.name
-			transferChildren src s checkSource: true presName:  presNameCB.state presMat:  presMatCB.state
+			transferChildren src s checkSource: true presName:  presNameCB.state presMat:  presMatCB.state presTrans: presTransCB.state presLayer:  presLayerCB.state
 		)
 	)
 	
