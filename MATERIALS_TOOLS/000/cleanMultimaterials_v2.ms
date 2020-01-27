@@ -58,6 +58,8 @@ fn collectObjByMat matRef objSet =
 	sameMultiMatObjList
 )
 
+
+-- $.numFaces
 fn clusterAttach objArr =
 (
 	j = 1
@@ -68,6 +70,7 @@ fn clusterAttach objArr =
 		while objArr.count > 1 do
 		(
 			
+-- 			format "numFaces %: %  numFaces %: %\n" j objArr[j].numFaces (j+1) objArr[j+1].numFaces
 			
 			if classof objArr[j].baseobject != editable_Mesh then converttoMesh objArr[j]
 				
@@ -91,8 +94,21 @@ fn clusterAttach objArr =
 			deleteItem objArr (j+1)
 
 			j += 1
-
-			if (j + 1) > objArr.count then j = 1
+			
+			if j == 500 then 
+			(
+				windows.ProcessPostedMessages()
+				gc()
+			)
+			
+			if (j + 1) > objArr.count then
+			(
+				j = 1
+-- 				format "numFaces %: %  numFaces %: %\n" j objArr[j].numFaces (j+1) objArr[j+1].numFaces
+				windows.ProcessPostedMessages()
+				gc()
+			)
+-- 			format "numFaces: %\n" objArr[j].numFaces
 		)
 	)
 	objArr[1]
@@ -275,6 +291,7 @@ fn attachVisiblesObjectsByMonoMat maxSel: 50 =
 	-- 		combineMesh sel
 		)
 		windows.ProcessPostedMessages()
+		gc()
 	)
 	
 )

@@ -16,3 +16,4 @@ testPickPoint()
 box pos:(gw.getPointOnCP [500,500])
 getViewSize() 
 
+$t1.transform = $b1.transform -- * $b2.transform 

@@ -103,5 +103,24 @@
 -- 		filein cellsCreatorPath
 		filein ((getroot()) +  cellsCreatorPath)
 	)
+	
+	macroscript verticalCam
+	category: "VisioLab"
+	buttonText: "vertical Cam"
+	toolTip:""
+	(
+-- 		filein cellsCreatorPath
+		local cam = getActiveCamera()
+		if cam != undefined then
+		(
+			if classof cam == physical then
+			(
+				cam.auto_vertical_tilt_correction = on
+				cam.auto_vertical_tilt_correction = off
+			)
+			else()
+		)
+		else()
+	)
 
 )

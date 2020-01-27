@@ -1,3 +1,5 @@
+-- activeGrid.transform
+
 try(destroydialog splineCreatorRLT)catch()
 rollout splineCreatorRLT "spline creator"
 (
@@ -11,46 +13,76 @@ rollout splineCreatorRLT "spline creator"
 		format "p = %\n" p
 		box position: p
 	)
-		
+
 	tool splineTool
 	(
+		local newCell
+		
 		on start do
 		(
--- 			max modify mode
-
--- 			newCell= SplineShape ()
--- 			updateShape newCell
--- 			newCell.vertexTicks = on
-
--- 			addmodifier newCell (edit_poly ())
-
--- 			select newCell
+			local activegridTM
 			
--- 			modPanel.setCurrentObject newCell.baseobject 
--- 			splineOps.startCreateLine newCell
+			if activeGrid == undefined then activegridTM = matrix3 1
+			else activegridTM = activeGrid.transform
+			format "activegridTM: %\n" activegridTM
+-- 			max modify mode
+			max modify mode
+
+			newCell= SplineShape transform: activegridTM
+			updateShape newCell
+
+			newCell.vertexTicks = on
+
+			addmodifier newCell (sweep ())
+
+			select newCell
+			
+			modPanel.setCurrentObject newCell.baseobject 
+				
+			addNewSpline newCell
+			addKnot newCell 1 #corner #curve [0,0,0]
+			addKnot newCell 1 #corner #curve [10,0,0]
+			updateshape newCell
 		)
 		
 		on mousePoint clickno do
 		(
 			format "mousePoint: %\n" clickno
--- 			max modify mode
--- 			format "pickPoint: %\n" (pickPoint())
-			testPickPoint()
--- 			newCell= SplineShape ()
--- 			updateShape newCell
--- 			newCell.vertexTicks = on
-
--- 			addmodifier newCell (edit_poly ())
-
--- 			select newCell
--- 			
--- 			modPanel.setCurrentObject newCell.baseobject 
+-- 			format "mousePoint: %\n" viewPoint
 -- 			splineOps.startCreateLine newCell
+			if clickno == 1 then ()
+			else
+			(
+				local activegridTM
+				local creationTM
+				
+				if activeGrid == undefined then activegridTM = matrix3 1
+				else activegridTM = activeGrid.transform
+				
+				creationTM = matrix3 1
+				creationTM.translation = (gw.getPointOnCP viewPoint)
+				
+				newTm = creationTM * activegridTM
+				
+				addKnot newCell 1 #corner #curve newTm.translation
+			)
+			updateshape newCell
 		)
 		
 		on mouseMove clickno do
 		(
-			format "mouseMove: %\n" clickno
+			local knotCount = numKnots newCell 1
+			if activeGrid == undefined then activegridTM = matrix3 1
+			else activegridTM = activeGrid.transform
+			
+			creationTM = matrix3 1
+			creationTM.translation = (gw.getPointOnCP viewPoint)
+				
+			newTm = creationTM * activegridTM
+			
+			setKnotPoint newCell 1 knotCount newTm.translation
+			updateshape newCell
+-- 			format "mouseMove: %\n" clickno
 -- 			max modify mode
 
 -- 			newCell= SplineShape ()
@@ -68,9 +100,10 @@ rollout splineCreatorRLT "spline creator"
 		on mouseAbort clickno do
 		(
 			format "mouseAbort: %\n" clickno
--- 			showEndResult = true
--- 			newCell.vertexTicks = off
--- 			newCell.pivot = newCell.center
+			updateshape newCell
+			showEndResult = true
+			newCell.vertexTicks = off
+			newCell.pivot = newCell.center
 -- 			newCell.xray = on
 -- 			newCell.wirecolor = color 135 6 6
 		)			
@@ -78,6 +111,7 @@ rollout splineCreatorRLT "spline creator"
 		on stop do
 		(
 			format "stop\n" 
+			updateshape newCell
 		)
 	)
 	
