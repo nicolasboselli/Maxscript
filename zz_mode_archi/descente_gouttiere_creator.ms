@@ -89,6 +89,7 @@ fn createGouttiere l masse =
 	redrawViews()
 	s.sweep[#Bar_Section].length = 10
 	s.sweep[#Bar_Section].width = 10
+	s.sweep.PivotAlignment = 4
 )
 
 try(destroydialog gouttiereRLT)catch()

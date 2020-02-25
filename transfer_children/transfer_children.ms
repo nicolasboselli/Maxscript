@@ -34,6 +34,7 @@ rollout transferChildrenRLT "transfer Children"
 	group "Tools"
 	(
 		button makeMaster "make Master"
+		button swapMasterBT "swap Master"
 	)
 	
 	group "options"
@@ -90,6 +91,40 @@ rollout transferChildrenRLT "transfer Children"
 	(
 		sel = selection as array
 		for s in sel do tagSourceProperties s
+	)
+	
+	on swapMasterBT pressed do
+	(
+		
+		local sel = selection as array
+		
+		local newMaster = sel[1]
+		
+		-- trouver le maitre de la selection
+		local src = findRealSource sel[1]
+-- 		format "src: %\n" src
+		local newTgts = #(src)
+		-- trouver les target du maitres
+		local tgts = getTargets src
+-- 		format "tgts: %\n" tgts
+		
+		-- transfer du nouveau maitre sur le reste de la selection
+		for t in tgts do
+		if  t == newMaster then()
+		else
+		(
+			append newTgts t
+		)
+-- 		local res = finditem sel[1] tgts
+-- 		format "res: %\n" res
+		format "newMaster: %\n" newMaster
+		format "newTgts: %\n" newTgts
+		
+		for nt in newTgts do
+		(		
+			format "nt: %\n" nt.name
+			transferChildren newMaster nt checkSource: false presName: presNameCB.state presMat:  presMatCB.state presTrans: presTransCB.state presLayer: presLayerCB.state
+		)
 	)
 	
 	on transferOnSelBT pressed do

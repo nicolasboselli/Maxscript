@@ -7,14 +7,30 @@ x- ajouter une fonction de snap (contrainte en x ou y)quand on appui sur shift
 	x- travailler dans l'orientation de la grille active
 
 */
-
-
-try(destroydialog splineCreatorRLT)catch()
-rollout splineCreatorRLT "spline creator"
+rollout renameCellRLT "rename"
 (
-	local newCell
+	editText cellNameET "cell name:"
+	button closeBT "ok"
 	
-	checkbutton newCellCB "new cell"
+	on closeBT pressed do destroydialog renameCellRLT
+		
+	on cellNameET entered val do
+	(
+		format "newName: %\n" val
+		newCell.name = val
+		destroydialog renameCellRLT
+	)
+)
+
+try(destroydialog newCellCreatorRLT)catch()
+rollout newCellCreatorRLT "new Cell Creator"
+(
+	global newCell
+	local newWallState = true
+	local newOne = false
+	
+	checkbutton newCellCB "new wall"
+-- 	checkbox continueCB "continue"
 	
 	fn testPickPoint  =
 	(
@@ -25,38 +41,47 @@ rollout splineCreatorRLT "spline creator"
 
 	tool splineTool
 	(
-		local newOne = false
-		local newCell
+-- 		local newOne = false
+-- 		local newCell
 		local lastPos
 		local lastgridpoint
 		local firstGridPoint
+		local restart = false
 		
 		on start do
 		(
+			format "start splineTool\n"
 		)
 		
+		on freeMove do
+		(
+-- 			print "Free Moving"
+			restart = false
+		)
+			
 		on mousePoint clickno do
 		(
--- 			format "new click\n"
-			format "newOne: %\n" newOne
-			if newOne or clickno == 1 then
+			restart = true
+			local closed = false
+			
+			format "restart: %\n" restart
+			
+			if clickno == 1 then
 			(
 -- 				format "mousePoint init: %\n" clickno
-				local activegridTM
+-- 				local activegridTM
 				
-				if activeGrid == undefined then activegridTM = matrix3 1
-				else activegridTM = activeGrid.transform
--- 				format "activegridTM: %\n" activegridTM
-	-- 			max modify mode
+-- 				if activeGrid == undefined then activegridTM = matrix3 1
+-- 				else activegridTM = activeGrid.transform
+-- 				format "activegridTM: % NodeTM: %\n" activegridTM nodeTM 
 				max modify mode
-
-				newCell= SplineShape name: (uniquename "cell_") transform: activegridTM
--- 				updateShape newCell
+								
+				newCell= SplineShape name: (uniquename "cell_") transform: (getCPTM())
 
 				newCell.vertexTicks = on
 
 -- 				addmodifier newCell (sweep ())
-				addmodifier newCell (edit_poly ())
+-- 				addmodifier newCell (edit_poly ())
 				
 -- 				format "mousePoint delete: %\n" clickno
 				addNewSpline newCell
@@ -85,17 +110,15 @@ rollout splineCreatorRLT "spline creator"
 			else
 			(
 				lastgridpoint = gridPoint
--- 				format "distance:%\n" (distance firstGridPoint lastGridPoint)
--- 				format "gridDist: %\n" (gridDist)
-				
+
 				if (distance firstGridPoint lastGridPoint) < 10.0 then 
 				(
 					format "close spline\n"
 					close  newCell 1
 					knotToDel = numKnots newCell 1
 					deleteknot newCell 1 knotToDel
-					newOne = true
--- 					stoptool splineTool
+					closed = true
+					
 				)
 				else
 				(
@@ -103,49 +126,35 @@ rollout splineCreatorRLT "spline creator"
 					addKnot newCell 1 #corner #curve lastPos
 				)
 
--- 				addKnot newCell 1 #corner #curve (gw.mapCPToWorld gridPoint)
 				format "mousePoint: %\n" clickno
 			)
-			
 			updateshape newCell
+			
+			if closed then #stop
 		)
 		
 		on mouseMove clickno do
 		(
-			if newOne then
+			local knotCount = numKnots newCell 1
+			local newGridPoint = gridPoint
+			
+			-- contrainte en x ou y
+			if shiftKey then  
 			(
-				if isvalidnode newCell then 
-				(
-					updateshape newCell
-					showEndResult = true
-					newCell.vertexTicks = off
-					newCell.pivot = newCell.center
-					newCell.xray = on
-					newCell.wirecolor = color 135 6 6
-				)
+				local testVec =  normalize(newGridPoint - lastGridPoint)
+				if testVec.x^2 > testVec.y^2 then newGridPoint.y = lastGridPoint.y		
+				else	newGridPoint.x = lastGridPoint.x	
 			)
-			else
-			(
-				local knotCount = numKnots newCell 1
-				local newGridPoint = gridPoint
 				
-				-- contrainte en x ou y
-				if shiftKey then  
-				(
-					local testVec =  normalize(newGridPoint - lastGridPoint)
-					if testVec.x^2 > testVec.y^2 then newGridPoint.y = lastGridPoint.y		
-					else	newGridPoint.x = lastGridPoint.x	
-				)
-					
-				local curPos = gw.mapCPToWorld newGridPoint
-				
-				setKnotPoint newCell 1 knotCount curPos
-				updateshape newCell	
-			)			
+			local curPos = gw.mapCPToWorld newGridPoint
+			
+			setKnotPoint newCell 1 knotCount curPos
+			updateshape newCell	
 		)
 		
 		on mouseAbort clickno do
 		(
+			format "rbutton: %\n" rbutton 
 			format "mouseAbort: %\n" clickno
 		)			
 		
@@ -155,15 +164,33 @@ rollout splineCreatorRLT "spline creator"
 -- 			if isvalidnode newCell then updateshape newCell
 				
 			if isvalidnode newCell then 
-			(
+			(					
 				updateshape newCell
 				showEndResult = true
 				newCell.vertexTicks = off
 				newCell.pivot = newCell.center
 				newCell.xray = on
 				newCell.wirecolor = color 135 6 6
+				
+				if isClosed newcell 1 then 
+				(
+					addmodifier newCell (edit_poly ())
+					createdialog renameCellRLT modal: true
+					newCell = undefined
+				)
+			)
+			
+			if restart then 
+			(
+				print "restart\n"
+				starttool splineTool
 			)
 		)
+	)
+	
+	on newOneBT pressed do
+	(
+		 newOne = true
 	)
 	
 	on newCellCB changed state do
@@ -181,6 +208,8 @@ rollout splineCreatorRLT "spline creator"
 		(
 			stoptool splineTool
 		)
+		
 	)
 )
-createdialog splineCreatorRLT
+createdialog newCellCreatorRLT
+

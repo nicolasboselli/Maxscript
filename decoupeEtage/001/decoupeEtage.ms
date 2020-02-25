@@ -8,6 +8,14 @@ debug:
 	-- de instancier
 
 maj:
+
+	Display:
+		x- associer des calques de cellules avec chaque reperes (à affciher et à activer)
+		- centrer la vue sur la totalité des objets visibles ou memoriser le viewport ou resizer la grille par rapport à la selection en cours
+		x-- taguer les plans avec plusieurs nom de grilles
+		x-- refresh de la partie wall assistant au changement de set
+	
+	
 	A - decoupe
 		1 -  de objets avec modifier edit_poly
 			x-  collapser tout ce qui est en dessous et conserver les modifiers au dessus 
@@ -42,6 +50,8 @@ maj:
 	
 	-- determinier automatiquement s il faut faire une decoupe ou un auto load
 		-- tester si un objet intersecte avec une grille
+	
+
 	
 rebuild
 	x- dupliquer l'objet à découper avant de le decouper puis supprimer le treitement
@@ -224,26 +234,88 @@ fn autoAddObjToLayer rep sel =
 	)
 )
 
+-- fn checkPlan refName =
+-- (
+-- 	local planesAr = #()
+-- 	for s in $plane_* do
+-- 	(
+-- 		local repName = getuserprop s "rep" 
+-- 		
+-- 		format "%\n" (execute repName)
+-- 		
+-- 		if repName != undefined then
+-- 		(
+-- 			if  repName == refName then 
+-- 			(
+-- 				format "s: % repName: %\n" s.name repName
+-- 				append planesAr s
+-- 			)
+-- 		)
+-- 	)
+-- 	format "planesAr: %\n" planesAr 
+-- 	planesAr
+-- )
+
 fn checkPlan refName =
 (
 	local planesAr = #()
 	for s in $plane_* do
 	(
 		local repName = getuserprop s "rep" 
-
+		
 		if repName != undefined then
 		(
-		
-			if  repName == refName then 
+			-- tester si le nom est un array
+			format "repName: %\n" (execute repName)
+			local testArray = execute repName
+			-- si le nom est un nom seul le conditionner en array
+			if  testArray == undefined and repName == refName then testArray = #(repName)
+			
+			-- traiter l'array
+			if iskindof testArray array then
 			(
-				format "s: % repName: %\n" s.name repName
-				append planesAr s
+				format "testArray: % \n" testArray
+				for o in testArray where o == refname do append planesAr s
 			)
+			else()
 		)
 	)
+	format "planesAr: %\n" planesAr 
 	planesAr
 )
 
+-- checkPlan "batA_r00"
+fn tagPlan p newName =
+(
+	format "newName:%\n" newName
+	local repName = getuserprop p "rep" 
+	format "repName:%\n" repName
+	
+	if repName == undefined or (execute repName) == undefined then
+	(
+		print "check 1"
+		-- initialiser l'array
+		setuserprop p "rep" #(newName)
+	)
+	else
+	(
+		print "check 2"
+		-- tester si on a un nom seul ou un array
+		local testArray = execute repName
+		format "testArray: %\n" testArray
+		
+		-- si le nom est un nom seul le conditionner en array
+		if  testArray == undefined and repName == refName then testArray = #(repName)
+		
+		-- ajouter un nom à l'array
+		if iskindof testArray array then append testArray newName
+			
+		-- ecrire l'array
+		setuserprop p "rep" testArray			
+	)
+	
+	format "wrote: %\n" (getuserprop p "rep")
+)
 
 
 try(destroydialog decoupEtageRLT)catch()
@@ -262,6 +334,7 @@ rollout decoupEtageRLT "découpe etage"
 	local oneLayer
 -- 	local oneGrid
 	local newCell
+	local cellLayer
 	
 	group "plans de découpe:"
 	(
@@ -273,24 +346,24 @@ rollout decoupEtageRLT "découpe etage"
 		
 		multilistbox CutPlaneMLB "liste de plans:"  tooltip: "Les plans de découpe les plus hauts dans la scene sont les plus bas dans la liste.\n\nUn plan de découpe doit toujours être au dessus de l'étage découpé."
 		edittext planeNameET "name:" readonly: true
-		button addBT "add" across: 3
+		button addBT "add" across: 6
 		button clearBT "clear"
 		button oneMoreBT "+"
-		button upBT "^" across: 2 
+		button upBT "^" -- across: 2
 		button dwBT "v"
 		button sortBT "sort"
 	)
 	
 	group "display"
 	(
-		checkbox autoSelLayCB  "autoSel Layer"
+		checkbox autoSelLayCB  "autoSel Layer" across: 3
 		checkbox autoSelREpCB  "autoSel Rep"
 		button showHideBT "show/hide"
 	)
 	
 	group "decoupe"
 	(
-		checkbox freezeOldCB "freeze old"
+		checkbox freezeOldCB "freeze old" across: 4
 		checkbox boxOldCB "box old"
 		checkbox collapseCB "collapse slice" -- enabled: false
 		checkbox addPolyModCB "add edit poly" -- enabled: false
@@ -299,7 +372,7 @@ rollout decoupEtageRLT "découpe etage"
 	
 	group "layer"
 	(
-		button autoAddBT "auto add to layer" enbled: false
+		button autoAddBT "auto add to layer" enbled: false across:2
 		button addToLayBT "add to layer"
 	)
 	
@@ -307,12 +380,15 @@ rollout decoupEtageRLT "découpe etage"
 	(
 		checkbox wallAssistOnCB "on/off" visible: false
 		
-		edittext gridET "grille:"
+		button createCellLayerBT "create cells layer"
+		
+		edittext gridET "grille:" 
 		edittext layerET "calque:"
-		edittext planeET "plan:"
+		edittext cellET "cells:" 
+		edittext planeET "plan:" across: 2
 		button tagBT "tag"
 		
-		button checkBT "check" visible: false
+		button checkBT "check" visible: false across: 3
 		button displayBT "display"
 		
 		checkbutton newCellCB "new cell"
@@ -365,6 +441,15 @@ rollout decoupEtageRLT "découpe etage"
 		(
 			layerET.text = "NONE"
 		)
+		
+		if cellLayer != undefined then
+		(
+			cellET.text = cellLayer.name
+		)
+		else
+		(
+			cellET.text = "NONE"
+		)
 	)
 	
 	on decoupEtageRLT open do
@@ -395,6 +480,7 @@ rollout decoupEtageRLT "découpe etage"
 		format "set: %\n" (setRepDL.selection as integer)
 		rep = repAr[setRepDL.selection as integer]
 		refreshUI()
+		CutPlaneMLB.selectionend()
 	)
 	
 	on delSetBT pressed do
@@ -586,7 +672,8 @@ rollout decoupEtageRLT "découpe etage"
 					else if iskindof copyS.modifiers[i] sweep then collapseMode = true
 					-- traitement des clones
 					else if iskindof copyS.modifiers[i] clone then collapseMode = true
-					
+					else if iskindof copyS.modifiers[i] extrude then collapseMode = true
+						
 					if collapseMode then 
 					(
 						format "m: %, i: %\n" copyS.modifiers[i] i
@@ -642,6 +729,16 @@ rollout decoupEtageRLT "découpe etage"
 		)
 	)
 	
+	on createCellLayerBT pressed do
+	(
+		for r in rep do 
+		(
+			local testLayer =  LayerManager.getLayerFromName ("cell_"+ r.name)
+			format "r:% testLayer:%\n" r testLayer
+			if testLayer == undefined then  layermanager.newLayerFromName ("cell_"+ r.name)
+		)
+	)
+	
 	on checkBT pressed do
 	(
 		if isvalidnode validRep then 
@@ -655,6 +752,8 @@ rollout decoupEtageRLT "découpe etage"
 			-- trouver le calque correspondant
 			oneLayer = LayerManager.getLayerFromName validRep.name
 			
+			-- trouver le calque de cell correspondant
+			cellLayer =  LayerManager.getLayerFromName ("cell_"+ validRep.name)
 -- 			format "onePlane: % oneLayer: %\n" onePlane.name  oneLayer.name
 		)		
 		else
@@ -669,7 +768,11 @@ rollout decoupEtageRLT "découpe etage"
 	on tagBT pressed do
 	(
 		local sel = selection as array
-		for s in sel do setuserprop s "rep" validRep.name
+		for s in sel do 
+		(
+			tagPlan s validRep.name
+-- 			setuserprop s "rep" validRep.name
+		)
 	)
 	
 	on displayBT pressed do
@@ -682,12 +785,21 @@ rollout decoupEtageRLT "découpe etage"
 		-- unhider le layer
 		for r in rep do
 		(
+			-- cacher le calque batiments
 			local l = layermanager.getLayerFromName r.name
-			l.ishidden = true
+			if l != undefined then l.ishidden = true
+			
+			-- cacher le calque cellules
+			local cl = layermanager.getLayerFromName ("cell_" + r.name)
+			if cl != undefined then cl.ishidden = true
 		)	
 		
 		if oneLayer != undefined then oneLayer.ishidden = false
-		
+		if cellLayer != undefined then 
+		(
+			cellLayer.ishidden = false
+			cellLayer.current = true
+		)
 		-- unhider les plans
 -- 		if isvalidnode onePlane then onePlane.ishidden = false
 		for p in $plane_* do p.ishidden = true
@@ -697,34 +809,34 @@ rollout decoupEtageRLT "découpe etage"
 	on newCellCB changed arg do
 	(
 		
-		if arg then
-		(
-			max modify mode
+-- 		if arg then
+-- 		(
+-- 			max modify mode
 
-			newCell= SplineShape ()
-			updateShape newCell
-			newCell.vertexTicks = on
+-- 			newCell= SplineShape ()
+-- 			updateShape newCell
+-- 			newCell.vertexTicks = on
 
-			addmodifier newCell (edit_poly ())
+-- 			addmodifier newCell (edit_poly ())
 
-			select newCell
-			
-			modPanel.setCurrentObject newCell.baseobject 
-			splineOps.startCreateLine newCell
-		)
-		else
-		(
-			showEndResult = true
-			newCell.vertexTicks = off
-			newCell.pivot = newCell.center
-			newCell.xray = on
-			newCell.wirecolor = color 135 6 6
-		)
+-- 			select newCell
+-- 			
+-- 			modPanel.setCurrentObject newCell.baseobject 
+-- 			splineOps.startCreateLine newCell
+-- 		)
+-- 		else
+-- 		(
+-- 			showEndResult = true
+-- 			newCell.vertexTicks = off
+-- 			newCell.pivot = newCell.center
+-- 			newCell.xray = on
+-- 			newCell.wirecolor = color 135 6 6
+-- 		)
 		
 		-- mettre en place un trigger qui reagit au clic droit douris pour comprendre que la creation est terminée
 	)
 	
 	
 )
-createdialog decoupEtageRLT
+createdialog decoupEtageRLT width: 400
 

@@ -204,7 +204,8 @@ rollout edgeToShapeOnModRLT "edge to shape"
 	(
 		sel = selection as array
 		s = sel[1]
-		local bakSel = 
+		local bakSel
+		local bakSelId
 		
 		undo on
 		(
@@ -220,12 +221,15 @@ rollout edgeToShapeOnModRLT "edge to shape"
 			else if classof (modPanel.getCurrentObject()) == Edit_Poly and ((s.edit_poly.GetSelection  #face) as array).count > 0 then
 			(
 				format "faces selection on edit_poly modifier: %\n" s.name
+				
 				bakSel = modPanel.getCurrentObject()
+-- 				bakSelId = modPanel.getModifierIndex s bakSel
 			)
 			else if classof (modPanel.getCurrentObject()) == Edit_Poly and ((s.edit_poly.GetSelection  #edge) as array).count > 0 then
 			(
 				format "edges selection on edit_poly modifier: %\n" s.name
 				bakSel = modPanel.getCurrentObject()
+-- 				bakSelId = modPanel.getModifierIndex s bakSel
 			)
 			else
 			(
@@ -352,43 +356,30 @@ rollout edgeToShapeOnModRLT "edge to shape"
 				)
 			)
 			
-
-			
 			-- option keep selection
--- 			format "current: %\n"  (modPanel.getCurrentObject())
-			if classof bakSel == Editable_Poly then
+			if classof bakSel == Editable_Poly and keepSelCB.state then
 			(
-				format "sel: %\n" sel
-				if keepSelCB.state then
-				(
--- 					select sel
-					if sel.count == 1 then
-					(
-						format "Keep Editable poly\n"
-						modPanel.setCurrentObject s
-						subobjectLevel = selLev
-					)
-				)
-				else
-				(
-					subobjectLevel = 0		
-					select newShapes
-				)
+				-- bug sur les instances: ça recupére l'original de l'instance et ça plante
+				format "bakSel:%\n" bakSel
+				modPanel.setCurrentObject sel[1].baseobject node: sel[1] ui: on
+				subobjectLevel = selLev
 			)
-			else if classof bakSel == Edit_Poly then
+			else if classof bakSel == Edit_Poly and sel.count == 1 and keepSelCB.state then
 			(
-				if keepSelCB.state then
-				(
--- 					select sel
-					subobjectLevel = selLev
-				)
-				else
-				(
-					subobjectLevel = 0		
-					select newShapes
-				)
+				modPanel.setCurrentObject bakSel node: sel[1]
+				subobjectLevel = selLev			
 			)
-			else()
+			else if classof bakSel == Edit_Poly and sel.count > 1 then
+			(
+				-- si plusieurs objets avec un modifier en instance
+				select sel
+				subobjectLevel = selLev
+			)
+			else
+			(
+				subobjectLevel = 0		
+				select newShapes
+			)
 		)
 	)
 	

@@ -166,10 +166,10 @@ fn exploseMeshBymat s =
 )
 
 -- ################################	-- collapse des multimariaux des objets visibles
-fn collapseMultiMatonVisibleObjects =
+fn collapseMultiMatonVisibleObjects visSel=
 (
 
-	visSel = for o in  $* where o.ishidden == false collect o
+-- 	visSel = for o in  $* where o.ishidden == false collect o
 	visSelMultiMat = #()
 	for o in visSel where classof o.material == multimaterial do
 	(
@@ -205,15 +205,15 @@ fn collapseMultiMatonVisibleObjects =
 )
 
 -- ################################Attach/ EXPLODE MESH avec meme MULTIMAT 
-fn explodeVisibleObjectsByMultiMat =
+fn explodeVisibleObjectsByMultiMat visSel =
 (
 	local i = 0
 	-- collecte des objets visibles
-	visSel = for o in  $* where o.ishidden == false collect o
+-- 	visSel = for o in  $* where o.ishidden == false collect o
 	format "visSel count before: %\n" visSel.count
 
 	-- collecte des multimateriaux de la scene
-	multiMatList = getclassinstances multimaterial target: scenematerials
+	local multiMatList = getclassinstances multimaterial target: scenematerials
 	format "multiMatList count: %\n" multiMatList.count
 
 	for m in multiMatList do
@@ -227,39 +227,31 @@ fn explodeVisibleObjectsByMultiMat =
 -- 		format "i: % mat: % sel: %\n" i m.name sel 
 		
 		if sel.count == 0 then continue
-		else if sel.count == 1 then
-		(
-			oneObj = sel[1]
-			format "i: % mulitmat: % sel.count: % obj: %\n" i m.name sel.count oneObj
-			if not isvalidnode oneObj then continue
-			else
-			(	
-				if not iskindof oneObj editable_mesh then  converttomesh oneObj
-				splitObj = exploseMeshBymat oneObj
-			)
-		)
 		else
 		(
-			oneObj = clusterAttach sel
-			format "i: % mulitmat: % sel.count: % obj: %\n" i m.name sel.count oneObj
-			
-			if not isvalidnode oneObj then continue
-			else
-			(		
-				splitObj = exploseMeshBymat oneObj
+-- 			oneObj = clusterAttach sel
+			format "i: % mulitmat: % sel.count: % sel: %\n" i m.name sel.count sel
+			for oneObj in sel do
+			(
+				if not isvalidnode oneObj then continue
+				else
+				(	
+					if not iskindof oneObj editable_mesh then  converttomesh oneObj					
+					splitObj = exploseMeshBymat oneObj
+				)
 			)
 		)
 	)
-	visSel = for o in  $* where o.ishidden == false collect o
-	format "visSel count after: %\n" visSel.count
+	newVisSel = for o in  $* where o.ishidden == false collect o
+	format "visSel count after: %\n" newVisSel.count
 )
 
 -- ############################################## ATTACH MESH AVEC MEME MONOMAT
 -- sur la selection d'objet mono mat
 -- fusion des objets visibles par mateiraux
-fn attachVisiblesObjectsByMonoMat maxSel: 50 =
+fn attachVisiblesObjectsByMonoMat visSel maxSel: 50 =
 (
-	visSel = for o in  $* where o.ishidden == false collect o
+-- 	visSel = for o in  $* where o.ishidden == false collect o
 	format "visSel count: %\n" visSel.count
 
 	meditMonoMatList = #()
@@ -296,7 +288,17 @@ fn attachVisiblesObjectsByMonoMat maxSel: 50 =
 	
 )
 
-
+fn removeVerts sel =
+(
+	for s in sel do
+	(
+		if classof s.baseobject == Editable_mesh then
+		(
+			meshop.deleteIsoVerts s
+			s.pivot = s.center
+		)
+	)
+)
 -- collapseMultiMatonVisibleObjects()
 -- explodeVisibleObjectsByMultiMat()
 -- attachVisiblesObjectsByMonoMat maxSel: 5000
@@ -305,8 +307,8 @@ try(destroydialog cleanMultiMatRLT)catch()
 rollout cleanMultiMatRLT "Clean Multimaterial"
 (
 -- 	radiobuttons workOnRB "work on:" labels: #("visible", "selection", "scene")
-	checkbox respectLayerCB "respect layer" 
-	button
+	checkbox respectLayerCB "respect layer" checked: true 
+-- 	button
 	button cleanBT "clean"
 	
 	group "number of objects to attach:"
@@ -315,22 +317,74 @@ rollout cleanMultiMatRLT "Clean Multimaterial"
 		button attachBT "manual"
 	)
 	
+	button removeVertBT "remove isolated vertices"
+	
 	on cleanBT pressed do
 	(
+		
+		local oneVisSel
+		
 		format "###############collapse start\n"
-		collapseMultiMatonVisibleObjects()
+		oneVisSel = for o in  $* where o.ishidden == false collect o
+		collapseMultiMatonVisibleObjects oneVisSel
 		format "###############collapse done\n\n"
+		
 		format "############### explose by material start\n"
-		explodeVisibleObjectsByMultiMat()
+		oneVisSel = for o in  $* where o.ishidden == false collect o
+		explodeVisibleObjectsByMultiMat oneVisSel
 		format "############### explose by material done\n\n"
-		format "############### attach start\n"
-		attachVisiblesObjectsByMonoMat maxSel: maxSP.value
-		format "############### attach done\n\n"
+			
+		if not respectLayerCB.checked then
+		(
+			
+			format "############### attach start\n"
+			oneVisSel = for o in  $* where o.ishidden == false collect o
+			attachVisiblesObjectsByMonoMat oneVisSel maxSel: maxSP.value
+			format "############### attach done\n\n"
+		)
+		else
+		(
+
+						
+			local lCount = LayerManager.count
+			for i = 0 to (lCount - 1)  do
+			(
+				local l = LayerManager.getLayer i
+				if not l.ishidden then
+				(
+					local oneLayerSel
+					
+					format "%: % is hidden: %\n" i l.name l.ishidden
+					l.current = true
+												
+					format "############### attach start\n"
+					l.nodes &oneLayerSel
+					if oneVisSel.count > 0 then	attachVisiblesObjectsByMonoMat oneLayerSel maxSel: 5000
+					format "############### attach done\n\n"
+					
+				)
+				else
+				(
+					format "ignore %: % is hidden: %\n" i l.name l.ishidden
+				)
+			)
+		)
+		
+		format "############### remove isolated vertices start\n"
+		oneVisSel = for o in  $* where o.ishidden == false collect o
+		removeVerts oneVisSel
+		format "############### remove isolated vertices done\n"
 	)		
 	
 	on attachBT pressed do
 	(
 		clusterAttach (selection as array)
+	)
+	
+	on removeVertBT pressed do
+	(
+		local sel = selection as array
+		removeVerts sel
 	)
 )
 

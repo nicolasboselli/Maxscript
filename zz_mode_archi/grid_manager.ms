@@ -2,86 +2,34 @@
 maj:
 	-- callback pour la selection des grilles dans la scene
 	-- picker pour faire un placement auto des grilles
-	
-
-
 */
 
 
-
-
--- structure to collect and keep grid object
-struct gridST
+fn collectGrid =
 (
-	obj,
-	name = obj.name
-)
-
--- fonction to collect grids in the scene
---return array of the grid with home grid first
-fn collectGridFN =
-(
-	local gridAr = #(gridST undefined "home")
-	
-	for obj in $* do
-	(
-		if (classof obj) == grid do
-		(
-			print obj
-			gridObj = gridST obj
-			append gridAr gridObj
-		)
-	)
-	return gridAr
+	local gridAr = for o in $* where  iskindof o grid collect o
+	gridAr
 )
 
 try(destroydialog gridRLT)catch()
 rollout gridRLT "Grids Manager"
 (
-	-- 	vars
-	local maxIni = getMAXIniFile()
-	local armadasScriptsIni = (getFilenamePath maxIni) + "armadasScriptsIni.ini"
--- 	local root = getINISetting armadasScriptsIni "armadasScripts" "armadasScriptsRoot"
-	
 	--vars
+	local params = #("pos")
 	local gridList = #()
 	local gridListToDisp = #()
-	
-	-- functions
 		
-	fn writePosition rlt =
-	(
-		posBak = GetDialogPos rlt
-		res = setINISetting armadasScriptsIni rlt.name "pos" (posBak as string)
-		res
-		format  "position saved: %\n" res
-	)
-	
-	fn loadPosition rlt =
-	(
-		posBak = [800,250]
-
-		if (hasINISetting armadasScriptsIni rlt.name "pos") then
-		(
-			posBakStr = getINISetting armadasScriptsIni  rlt.name "pos"
-			posBak = execute posBakStr
-		)
-		
-		SetDialogPos rlt posBak
-	)
-	
 	-- ui
 	listbox gridsLB "Grids List :" height: 20
+	button sortBT "sort"
 	button refrListBT "refresh list"
 	button gridViewBT "grid view"
 	
--- 	fn
-
-	
-	fn refreshUIFN =
+-- 	fn	
+	fn refreshUI =
 	(
-		gridList = collectGridFN()
-		gridListToDisp = gridList
+-- 		gridList = collectGridFN()
+-- 		gridListToDisp = gridList
 		gridsLB.items = for oneGrid in gridListToDisp collect oneGrid.name
 	)
 	
@@ -89,23 +37,30 @@ rollout gridRLT "Grids Manager"
 	
 	on gridRLT open do
 	(
-		refreshUIFN()
-		-- load ini file
-		try loadPosition gridRLT
-		catch format "*** % ***\n" (getCurrentException())
-
+		loadRolloutParams gridRLT params
+		
+		gridList = collectGrid()
+		gridListToDisp = gridList
+		
+		refreshUI()
 	)
 	
 	on gridRLT close do
 	(
-		writePosition gridRLT
+		writeRolloutParams gridRLT params
+	)
+	
+	on sortBT pressed do
+	(
+		qsort gridListToDisp sortbyname
+		refreshUI()
 	)
 	
 	on gridViewBT pressed do
 	(
 		num = gridsLB.selection		
 		
-		activeGrid = gridList[num].obj
+		activeGrid = gridListToDisp[num]
 
 		viewport.setType #view_grid
 		viewport.setType #view_iso_user
@@ -113,13 +68,19 @@ rollout gridRLT "Grids Manager"
 	
 	on gridsLB doubleclicked arg do
 	(
-		activeGrid = gridList[arg].obj
+		activeGrid = gridListToDisp[arg]
 
 		viewport.setType #view_grid
 		viewport.setType #view_iso_user
 	)		
 	
-	on refrListBT pressed do refreshUIFN()
+	on refrListBT pressed do 
+	(
+		gridList = collectGrid()
+		gridListToDisp = gridList
+		
+		refreshUI()
+	)
 	
 	
 )
