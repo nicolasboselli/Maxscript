@@ -385,7 +385,7 @@ rollout decoupEtageRLT "découpe etage"
 		edittext gridET "grille:" 
 		edittext layerET "calque:"
 		edittext cellET "cells:" 
-		edittext planeET "plan:" across: 2
+		edittext planeET "plan:" --across: 2
 		button tagBT "tag"
 		
 		button checkBT "check" visible: false across: 3
@@ -773,6 +773,8 @@ rollout decoupEtageRLT "découpe etage"
 			tagPlan s validRep.name
 -- 			setuserprop s "rep" validRep.name
 		)
+		checkBT.pressed()
+		refreshUI()
 	)
 	
 	on displayBT pressed do

@@ -1,11 +1,15 @@
 -- activeGrid.transform
 
 /*
-- relancer automatiquement l outil quand un cellule est fini
-x- ajouter une fonction d'auto close
-x- ajouter une fonction de snap (contrainte en x ou y)quand on appui sur shift
-	x- travailler dans l'orientation de la grille active
-
+maj: 
+	- rajouter des spline sur une spline deja commencer
+	- activer l'option start new spline à la volée
+	- créer une fonction pour attacher les spline ensembles en ignorant le sweep
+	- editer les options de sweep
+	- faire la fonction d'impact des splines
+	
+rebuild:
+	- supprimer la var backCell en ajoutant une condition if newSpline then newcell = undefined
 */
 rollout renameCellRLT "rename"
 (
@@ -24,14 +28,17 @@ rollout renameCellRLT "rename"
 )
 
 try(destroydialog newCellCreatorRLT)catch()
-rollout newCellCreatorRLT "new Cell Creator"
+rollout newCellCreatorRLT "new wall Creator"
 (
 	global newCell
+	global backCell
 	local newWallState = true
-	local newOne = false
+	local newSpline
+	local spNum = 1
 	
-	checkbutton newCellCB "new cell"
--- 	checkbox continueCB "continue"
+	checkbox newSplineCB "start new spline" checked: false
+	checkbutton newCellCB "new wall"
+
 	
 	fn testPickPoint  =
 	(
@@ -42,12 +49,11 @@ rollout newCellCreatorRLT "new Cell Creator"
 
 	tool splineTool
 	(
--- 		local newOne = false
--- 		local newCell
 		local lastPos
 		local lastgridpoint
 		local firstGridPoint
 		local restart = false
+-- 		local spNum = 1
 		
 		on start do
 		(
@@ -71,19 +77,31 @@ rollout newCellCreatorRLT "new Cell Creator"
 			(
 -- 				format "mousePoint init: %\n" clickno
 				max modify mode
-								
-				newCell= SplineShape name: (uniquename "cell_") transform: (getCPTM())
-
+				
+				format "backCell: % newCell: %  newSpline: %\n" backCell newCell newSpline
+				if not isvalidnode backCell or newSpline then 
+				(
+					
+					newCell= SplineShape name: (uniquename "cell_") transform: (getCPTM())
+					spNum = 1
+					format "create new spline:%\n" newCell
+				)
+				else 
+				(
+					newCell = backCell
+					spNum += 1
+				)
+					
 				newCell.vertexTicks = on
 
 -- 				format "mousePoint delete: %\n" clickno
 				addNewSpline newCell
 				firstGridPoint = gridPoint
-				addKnot newCell 1 #corner #curve (gw.mapCPToWorld firstGridPoint)
+				addKnot newCell spNum #corner #curve (gw.mapCPToWorld firstGridPoint)
 				
 				lastgridpoint = gridPoint
 				lastPos = gw.mapCPToWorld lastgridpoint
-				addKnot newCell 1 #corner #curve lastPos
+				addKnot newCell spNum #corner #curve lastPos
 				
 				updateshape newCell	
 					
@@ -95,7 +113,6 @@ rollout newCellCreatorRLT "new Cell Creator"
 				format "start new spline: %\n" newCell.name
 				format "mousePoint init: %\n" clickno
 					
-				newOne = false
 			)
 			else if clickno == 2 then
 			(	
@@ -104,19 +121,19 @@ rollout newCellCreatorRLT "new Cell Creator"
 			(
 				lastgridpoint = gridPoint
 
-				if (distance firstGridPoint lastGridPoint) < 10.0 then 
+				if (distance firstGridPoint lastGridPoint) < 10 then 
 				(
 					format "close spline\n"
 					close  newCell 1
 					knotToDel = numKnots newCell 1
-					deleteknot newCell 1 knotToDel
+					deleteknot newCell spNum knotToDel
 					closed = true
 					
 				)
 				else
 				(
 					lastPos = gw.mapCPToWorld lastgridpoint
-					addKnot newCell 1 #corner #curve lastPos
+					addKnot newCell spNum #corner #curve lastPos
 				)
 
 				format "mousePoint: %\n" clickno
@@ -128,7 +145,7 @@ rollout newCellCreatorRLT "new Cell Creator"
 		
 		on mouseMove clickno do
 		(
-			local knotCount = numKnots newCell 1
+			local knotCount = numKnots newCell spNum
 			local newGridPoint = gridPoint
 			
 			-- contrainte en x ou y
@@ -141,7 +158,7 @@ rollout newCellCreatorRLT "new Cell Creator"
 				
 			local curPos = gw.mapCPToWorld newGridPoint
 			
-			setKnotPoint newCell 1 knotCount curPos
+			setKnotPoint newCell spNum knotCount curPos
 			updateshape newCell	
 		)
 		
@@ -149,13 +166,24 @@ rollout newCellCreatorRLT "new Cell Creator"
 		(
 			format "rbutton: %\n" rbutton 
 			format "mouseAbort: %\n" clickno
+			
+			if isvalidnode newCell then 
+			(
+				knotToDel = numKnots newCell spNum
+				if KnotToDel > 2 then
+				(
+					deleteknot newCell spNum knotToDel
+					updateshape newCell
+				)
+			)				
+			
 		)			
 		
 		on stop do
 		(
-			format "stop\n" 
+			format "stop tool\n" 
 -- 			if isvalidnode newCell then updateshape newCell
-				
+			format "newCell:%\n" newcell
 			if isvalidnode newCell then 
 			(					
 				updateshape newCell
@@ -165,17 +193,30 @@ rollout newCellCreatorRLT "new Cell Creator"
 				newCell.xray = on
 				newCell.wirecolor = color 135 6 6
 				
-				if isClosed newcell 1 then 
+				try
 				(
-					addmodifier newCell (edit_poly ())
-					createdialog renameCellRLT modal: true
-					newCell = undefined
-				)
+					addmodifier newCell (Sweep CurrentBuiltInShape: 2 PivotAlignment:3 SmoothPath: false)
+					newCell.sweep[#Bar_Section].length = 250 
+					newCell.sweep[#Bar_Section].width = 20
+				)catch(format "déja sweeper\n")
+				
+-- 				addmodifier newCell (sweep ())
+					
+-- 				if isClosed newcell spNum then 
+-- 				(
+-- 					addmodifier newCell (edit_poly ())
+-- 					createdialog renameCellRLT modal: true
+-- 				)
 			)
+			
+-- 			$.sweep
+			backCell = newCell
+			newCell = undefined
+			format "restart: % backCell: % newCell: %  newSpline: %\n" restart backCell newCell newSpline
 			
 			if restart then 
 			(
-				print "restart\n"
+				format "restart tool\n"
 				starttool splineTool
 			)
 		)
@@ -183,16 +224,18 @@ rollout newCellCreatorRLT "new Cell Creator"
 	
 	on newOneBT pressed do
 	(
-		 newOne = true
+		 newSpline = true
 	)
 	
 	on newCellCB changed state do
 	(
+		
 		if state then
 		(
 			local continueTool = true
 			while continueTool == true do
 			(
+				newSpline = newSplineCB.state
 				continueTool = starttool splineTool
 			)
 			newCellCB.state = false
