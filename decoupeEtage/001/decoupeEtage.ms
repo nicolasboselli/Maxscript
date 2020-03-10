@@ -652,6 +652,8 @@ rollout decoupEtageRLT "découpe etage"
 					format "ignore % is group member\n" s.name
 					continue
 				)
+				
+				if iskindof s dummy or iskindof s VRayLight then continue
 					
 				-- creation de la copy de securité pour traiter les instances
 				local copySel

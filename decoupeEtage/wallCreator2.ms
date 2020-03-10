@@ -5,12 +5,18 @@ maj:
 	- rajouter des spline sur une spline deja commencer
 	- activer l'option start new spline à la volée
 	- créer une fonction pour attacher les spline ensembles en ignorant le sweep
+		s1 = $s1
+		s2 = $s2
+		addAndWeld s1 s2 0
+		updateshape s1
+		
 	- editer les options de sweep
 	- faire la fonction d'impact des splines
 	
 rebuild:
 	- supprimer la var backCell en ajoutant une condition if newSpline then newcell = undefined
 */
+
 rollout renameCellRLT "rename"
 (
 	global newCell
@@ -27,8 +33,8 @@ rollout renameCellRLT "rename"
 	)
 )
 
-try(destroydialog newCellCreatorRLT)catch()
-rollout newCellCreatorRLT "new wall Creator"
+try(destroydialog newWallCreatorRLT)catch()
+rollout newWallCreatorRLT "new wall Creator"
 (
 	global newCell
 	global backCell
@@ -38,15 +44,18 @@ rollout newCellCreatorRLT "new wall Creator"
 	
 	checkbox newSplineCB "start new spline" checked: false
 	checkbutton newCellCB "new wall"
-
 	
+	button attachSplineBT "attach spline"
+
+	/*
 	fn testPickPoint  =
 	(
 		local p = pickPoint () -- mouseMoveCallback:printPickPoint
 		format "p = %\n" p
 		box position: p
 	)
-
+	*/
+	
 	tool splineTool
 	(
 		local lastPos
@@ -175,6 +184,10 @@ rollout newCellCreatorRLT "new wall Creator"
 					deleteknot newCell spNum knotToDel
 					updateshape newCell
 				)
+				else
+				(
+-- 					delete newCell
+				)
 			)				
 			
 		)			
@@ -199,17 +212,8 @@ rollout newCellCreatorRLT "new wall Creator"
 					newCell.sweep[#Bar_Section].length = 250 
 					newCell.sweep[#Bar_Section].width = 20
 				)catch(format "déja sweeper\n")
-				
--- 				addmodifier newCell (sweep ())
-					
--- 				if isClosed newcell spNum then 
--- 				(
--- 					addmodifier newCell (edit_poly ())
--- 					createdialog renameCellRLT modal: true
--- 				)
 			)
 			
--- 			$.sweep
 			backCell = newCell
 			newCell = undefined
 			format "restart: % backCell: % newCell: %  newSpline: %\n" restart backCell newCell newSpline
@@ -244,8 +248,20 @@ rollout newCellCreatorRLT "new wall Creator"
 		(
 			stoptool splineTool
 		)
-		
+	)
+-- 	classof $.baseobject
+	on attachSplineBT pressed do
+	(
+		local sel = selection as array
+		for i = 2 to (sel.count) do
+		(
+			if iskindof sel[i].baseobject line or iskindof sel[i].baseobject SplineShape then
+			(
+				addAndWeld sel[1] sel[i]  0
+				updateshape sel[1]
+			)
+		)
 	)
 )
-createdialog newCellCreatorRLT
+createdialog newWallCreatorRLT
 

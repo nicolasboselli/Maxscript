@@ -7,6 +7,7 @@ maj:
 
 fn collectGrid =
 (
+	
 	local gridAr = for o in $* where  iskindof o grid collect o
 	gridAr
 )
@@ -20,17 +21,17 @@ rollout gridRLT "Grids Manager"
 	local gridListToDisp = #()
 		
 	-- ui
+	button homeGridBT "HOME GRID"
 	listbox gridsLB "Grids List :" height: 20
+	
 	button sortBT "sort"
 	button refrListBT "refresh list"
 	button gridViewBT "grid view"
 	
 -- 	fn	
 	fn refreshUI =
-	(
--- 		gridList = collectGridFN()
--- 		gridListToDisp = gridList
-		gridsLB.items = for oneGrid in gridListToDisp collect oneGrid.name
+	(		
+		gridsLB.items =  for oneGrid in gridListToDisp collect oneGrid.name
 	)
 	
 	-- actions
@@ -48,6 +49,14 @@ rollout gridRLT "Grids Manager"
 	on gridRLT close do
 	(
 		writeRolloutParams gridRLT params
+	)
+	
+	on homeGridBT pressed do
+	(
+		activeGrid = undefined
+
+		viewport.setType #view_grid
+		viewport.setType #view_iso_user
 	)
 	
 	on sortBT pressed do
@@ -81,8 +90,6 @@ rollout gridRLT "Grids Manager"
 		
 		refreshUI()
 	)
-	
-	
 )
 
 createdialog gridRLT
