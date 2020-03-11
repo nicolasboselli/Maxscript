@@ -1,30 +1,50 @@
 /*
  faire travailler au choix sur la scene, les objets visibles ou la selection d'objet
+ 
+ travailler avec les vray effect id sur les vray mat (pour le moment, ignorer les material id, les sur materiaux vray ou les mat standard)
+ 
+ une interface pour appliquer des effect id aux materiaux
+ 
+ une interface pour manager les ids(retrouver les objets par ids, publier les materiaux avec le même ids)
+ 
+ un tool pour publier les multi mat
+ 
+ assign id en random sur un set de vray mat en respectant les ids deja affectes
+ 
+ une interface pour parametrer la passe material id et les passes vrayobjectselect et les multimatteelement
+ 
 */
-
 
 -- appliquer une id de materiau aux materiaux des object selectionnés
 
--- collecter les materiaux des objets selectionnés
+-- travailler sur les materiaux des objets selectionnés
 sel = selection as array
+
+-- travailler sur les materiaux des objets visiblesés
+sel = for o in  $* where o.ishidden == false collect o
+
+-- collecte des materiaux du set d objet
 matSel = for s in sel where s.material != undefined collect s.material
-	
+
+-- collecte des vray mat du set
 matAr = #()
 for m in matSel do
 (
 	tmpMatAr = getclassinstances vrayMtl target: m
 	for tmpM in tmpMatAr do appendifunique matAr tmpM
 )
-matAr
+matAr.count
 
 
--- collecter les ids de materiau dans la scene
+
+-- collecter les vray mat de la scenes
 sceneMat = getclassinstances vrayMtl target: scenematerials
+
+-- collecter les ids de materiaux deja affecter dans la scene
 -- sceneMat.count
 usedIds = #()
 for m in sceneMat do
 (
-	
 	format "channel id: % mat name: %\n" m.effect_id m.name
 	appendifunique usedIds m.effect_id
 )
@@ -35,10 +55,12 @@ usedIds
 forceID = false
 for i = 1 to matAr.count do
 (
+	-- récupérer l'id du materiaux testé
+	
 	-- verifier l'id déja affecté 
 	local res = finditem usedIds i
 	
-	-- si l'idée est deja affecter passer
+	-- si l'id est deja affecter passer
 	if res > 0 and not forceID then continue
 	
 	-- si une id est déja affecter au materiaux
