@@ -223,15 +223,15 @@ rollout matIdExplorerRLT "materials id explorer"
 		button refreshIdsBT "refresh"
 		multilistbox matMLB "scene materials:"
 		spinner reassignSP "reassign id:" type: #integer
-		button editMatBT "edit material"
-		button selObjBT "select object" 
+		button editMatBT "edit material" enabled: false
+		button selObjBT "select object"  enabled: false
 	)
 	
 	group "render elements:"
 	(
 		button matIdEltBT "material id element"
 		button objSelEltBT "object select element"
-		button multiEltBT "multimatte element"
+		button multiEltBT "multimatte element" enabled: false
 	)
 	
 	-- functions UI dependant

@@ -4,6 +4,7 @@
 	global objReplacerPath = "objReplacer/002/obj_replacer.ms"
 -- 	global cellsCreatorPath = @"M:\Interieur\Cellules\Modelisation\cellsCreator.ms"
 	global cellsCreatorPath = "cellsCreator/004/cellsCreator.ms"
+	global matIdManagerPath = "MatIDManager/000/matIdManager.ms"
 	
 	macroScript PickAndMerge
 	category: "VisioLab"
@@ -121,6 +122,15 @@
 			else()
 		)
 		else()
+	)
+	
+	macroscript matIdManager
+	category: "VisioLab"
+	buttonText: "matIdManager"
+	toolTip:""
+	(
+-- 		filein cellsCreatorPath
+		filein ((getroot()) +  matIdManagerPath)
 	)
 
 )
