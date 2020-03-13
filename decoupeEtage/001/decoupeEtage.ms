@@ -388,10 +388,12 @@ rollout decoupEtageRLT "découpe etage"
 		edittext planeET "plan:" --across: 2
 		button tagBT "tag"
 		
+		radiobuttons layerRB "layers:" labels:#("murs", "cellules")
+		
 		button checkBT "check" visible: false across: 3
 		button displayBT "display"
 		
-		checkbutton newCellCB "new cell"
+-- 		checkbutton newCellCB "new cell"
 	)
 	
 	
@@ -799,11 +801,13 @@ rollout decoupEtageRLT "découpe etage"
 		)	
 		
 		if oneLayer != undefined then oneLayer.ishidden = false
-		if cellLayer != undefined then 
-		(
-			cellLayer.ishidden = false
-			cellLayer.current = true
-		)
+		if cellLayer != undefined then cellLayer.ishidden = false
+		
+-- 		format "layerRB: %\n" layerRB.state
+		if  oneLayer != undefined and layerRB.state == 1 then oneLayer.current = true
+		else if cellLayer != undefined and layerRB.state == 2 then cellLayer.current = true
+		else()
+		
 		-- unhider les plans
 -- 		if isvalidnode onePlane then onePlane.ishidden = false
 		for p in $plane_* do p.ishidden = true

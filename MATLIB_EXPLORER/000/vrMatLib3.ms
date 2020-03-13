@@ -56,7 +56,6 @@ fn collectDir dir subfolder: true =
 -- oneDir = @"M:\Textures"
 -- dirArr = collectDir oneDir
 
-
 fn searchBitmap dir pattern =
 (
 	local altFilename
