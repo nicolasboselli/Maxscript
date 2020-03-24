@@ -294,7 +294,7 @@ rollout matIdManagerRLT "material ids manager" width: 200
 	(
 		-- assign de maniere incrementale des id au materiaux en evitant d'appliquer plusieurs fois des id et en evitant de changer les id deja affecter
 		-- collecter les ids de materiaux deja affecter dans la scene
-
+		local forceID = true
 		for i = 1 to matArToDisp.count do
 		(
 			-- si une id est deja affecté passer
