@@ -2,20 +2,21 @@
  faire travailler au choix sur la scene, les objets visibles ou la selection d'objet ou les multimaterial
  
  travailler avec les vray effect id sur les vray mat (pour le moment, ignorer les material id, les sur materiaux vray ou les mat standard)
+	- lister material id pour nettoyage
+	
+ x une interface pour appliquer des effect id aux materiaux
+	 x un tool pour publier les multi mat
+		rammasser tous les materiaux composé et pas seulement les multimat
+	 x assign id en random sur un set de vray mat 
+		en respectant les ids deja affectes
+		faire fonctionner sur la selection
+	x assigner un id non utilisé sur une selection de materiaux
  
- une interface pour appliquer des effect id aux materiaux
- 
- une interface pour manager les ids(retrouver les objets par ids, publier les materiaux avec le même ids)
- 
- un tool pour publier les multi mat
- 
- assign id en random sur un set de vray mat en respectant les ids deja affectes
- 
- une interface pour parametrer la passe material id et les passes vrayobjectselect et les multimatteelement
- 
- trier par ordre alphabetique
- 
- rammasser tous les materiaux composé et pas seulement les multimat
+ x--une interface pour manager les ids(retrouver les objets par ids, publier les materiaux avec le même ids)
+	 /une interface pour parametrer la passe material id et les passes vrayobjectselect et les multimatteelement
+	  passer la liste d'id en multilist
+	  créer les passes des id selectionnées
+
 */
 
 -- appliquer une id de materiau aux materiaux des object selectionnés
@@ -319,7 +320,9 @@ fn collectMatByIds id =
 )
 -- collectMatIDs()
 
-try(destroydialog matIdExplorerRLT)catch()
+matIdExplorerRF = newRolloutFloater "Materials id explorer" 250 500
+try(destroydialog matIdExplorerRF)catch()
+-- try(destroydialog matIdExplorerRLT)catch()
 rollout matIdExplorerRLT "materials id explorer"
 (
 	local idSel = 0
@@ -348,7 +351,7 @@ rollout matIdExplorerRLT "materials id explorer"
 	(
 		button matIdEltBT "material id element"
 		button objSelEltBT "object select element"
-		button multiEltBT "multimatte element" enabled: false
+		button multiEltBT "multimatte element" -- enabled: false
 	)
 	
 	-- functions UI dependant
@@ -370,8 +373,9 @@ rollout matIdExplorerRLT "materials id explorer"
 	
 	on matManagerBT pressed do
 	(
-		try(destroydialog matIdManagerRLT)catch()
-		createdialog matIdManagerRLT
+		matIdManagerRF = newRolloutFloater "Materials id manager" 250 500
+		try(destroydialog matIdManagerRF)catch()
+		addrollout matIdManagerRLT matIdManagerRF
 	)
 	
 	on refreshIdsBT pressed do
@@ -489,7 +493,7 @@ rollout matIdExplorerRLT "materials id explorer"
 			if iskindof elt VRayObjectSelect then rem.RemoveRenderElement elt
 		)
 		
-		-- selection des nom de materiaux
+		-- collecte des vray mat
 		sceneMat = getclassinstances vrayMtl target: scenematerials
 			
 		-- creation des passes
@@ -511,10 +515,61 @@ rollout matIdExplorerRLT "materials id explorer"
 				rem.AddRenderElement vrObjSelElt
 			)
 		)
-
 	)
 	
+	on multiEltBT pressed do
+	(
+		rem =MaxOps.GetCurRenderElementMgr ()
+		
+		-- suppression des passes multimat
+		eltsNum = rem.NumRenderElements()
+		for i = (eltsNum - 1) to 0 by -1 do
+		(
+			elt = rem.GetRenderElement i
+			if iskindof elt multimatteElement then rem.RemoveRenderElement elt
+		)
+		
+		-- collecte des vray mat
+		sceneMat = getclassinstances vrayMtl target: scenematerials
+			
+		-- creation des passes
+		for i=1 to  idsAr.count by 3 do
+		(
+			-- creation du nom
+			sameIdMatAr = #()
+			for m in sceneMat do
+			(
+				if m.effect_id == idsAr[i] then append sameIdMatAr m
+				if m.effect_id == idsAr[i+1] then append sameIdMatAr m
+				if m.effect_id == idsAr[i+2] then append sameIdMatAr m
+			)
+			
+			-- 
+			superName = ""
+			for m in sameIdMatAr do 
+			(
+				format "%\n" (superName += ("[" +(m.effect_id as string)+"]" + m.name + " "))
+-- 				superName = substring superName 1 60
+			)
+			
+			-- 
+			local R_gbufID, G_gbufID, B_gbufID
+			
+			-- 
+			if idsAr[i] != undefined then R_gbufID = idsAr[i] else R_gbufID = 0
+			if idsAr[i+1] != undefined then G_gbufID = idsAr[i+1] else G_gbufID = 0
+			if idsAr[i+2] != undefined then B_gbufID = idsAr[i+2] else B_gbufID = 0
+			
+			if idsAr[i] > 0 then
+			(
+-- 				format "channel id: % mat name: %\n" m.effect_id m.name
+				local matSel = multimatteElement elementName: (superName) R_gbufID: R_gbufID G_gbufID: G_gbufID B_gbufID: B_gbufID MatID: true
+				rem.AddRenderElement matSel
+			)
+		)
+	)
 )
-createdialog matIdExplorerRLT
+-- createdialog matIdExplorerRLT
 
+addrollout  matIdExplorerRLT matIdExplorerRF
 
