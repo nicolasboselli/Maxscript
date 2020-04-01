@@ -535,10 +535,12 @@ rollout matIdExplorerRLT "materials id explorer"
 		-- creation des passes
 		for i=1 to  idsAr.count by 3 do
 		(
+			format "idsAr[i]: %\n" idsAr[i]
 			-- creation du nom
 			sameIdMatAr = #()
 			for m in sceneMat do
 			(
+				if m.effect_id == 0 then continue
 				if m.effect_id == idsAr[i] then append sameIdMatAr m
 				if m.effect_id == idsAr[i+1] then append sameIdMatAr m
 				if m.effect_id == idsAr[i+2] then append sameIdMatAr m
@@ -548,7 +550,8 @@ rollout matIdExplorerRLT "materials id explorer"
 			superName = ""
 			for m in sameIdMatAr do 
 			(
-				format "%\n" (superName += ("[" +(m.effect_id as string)+"]" + m.name + " "))
+				superName += ("[" +(m.effect_id as string)+"]" + m.name + " ")
+				format "%\n" superName
 -- 				superName = substring superName 1 60
 			)
 			
@@ -560,9 +563,9 @@ rollout matIdExplorerRLT "materials id explorer"
 			if idsAr[i+1] != undefined then G_gbufID = idsAr[i+1] else G_gbufID = 0
 			if idsAr[i+2] != undefined then B_gbufID = idsAr[i+2] else B_gbufID = 0
 			
-			if idsAr[i] > 0 then
+-- 			if idsAr[i] > 0 then
 			(
--- 				format "channel id: % mat name: %\n" m.effect_id m.name
+				format "%\n" superName
 				local matSel = multimatteElement elementName: (superName) R_gbufID: R_gbufID G_gbufID: G_gbufID B_gbufID: B_gbufID MatID: true
 				rem.AddRenderElement matSel
 			)
