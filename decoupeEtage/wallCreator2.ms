@@ -20,8 +20,10 @@ rebuild:
 rollout renameCellRLT "rename"
 (
 	global newCell
+	
 	editText cellNameET "cell name:"
 	button closeBT "ok"
+	
 	
 	on closeBT pressed do destroydialog renameCellRLT
 		
@@ -41,11 +43,16 @@ rollout newWallCreatorRLT "new wall Creator"
 	local newWallState = true
 	local newSpline
 	local spNum = 1
+	local wallmat
 	
 	checkbox newSplineCB "start new spline" checked: false
 	checkbutton newCellCB "new wall"
 	
 	button attachSplineBT "attach spline"
+	
+	materialbutton wallMattMT "wall material"
+	edittext matNamET "material:"
+-- 	button testBT "test mat"
 
 	/*
 	fn testPickPoint  =
@@ -216,12 +223,20 @@ rollout newWallCreatorRLT "new wall Creator"
 			
 			backCell = newCell
 			newCell = undefined
-			format "restart: % backCell: % newCell: %  newSpline: %\n" restart backCell newCell newSpline
+			format "restart: % backCell: % newCell: %  newSpline: % wallmat:%\n" restart backCell newCell newSpline wallmat
+			
+			-- application du material
+			if isvalidnode backCell then 
+			(
+				format "bakCell:%\n" bakCell
+				backCell.material = wallmat
+			)
 			
 			if restart then 
 			(
 				format "restart tool\n"
 				starttool splineTool
+
 			)
 		)
 	)
@@ -262,6 +277,18 @@ rollout newWallCreatorRLT "new wall Creator"
 			)
 		)
 	)
+	
+	on wallMattMT picked mat do
+	(
+		wallmat = mat
+		format "mat:%\n" wallmat.name
+		if wallmat != undefined then matNamET.text = wallmat.name
+	)
+	
+-- 	on testBT pressed do
+-- 	(
+-- 		format "mat:%\n" wallMattMT.material
+-- 	)
 )
 createdialog newWallCreatorRLT
 

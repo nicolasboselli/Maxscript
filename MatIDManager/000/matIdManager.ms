@@ -136,7 +136,7 @@ fn returnCleanId =
 -- returnCleanId()
 
 
-try(destroydialog matIdManagerRLT)catch()
+-- try(destroydialog matIdManagerRLT)catch()
 rollout matIdManagerRLT "material ids manager" width: 200
 (
 	local matAr
@@ -153,7 +153,7 @@ rollout matIdManagerRLT "material ids manager" width: 200
 	
 	group "multimaterials:"
 	(
-		listbox multiMatLB "multi material list" height: 15
+		listbox multiMatLB "multi material list" height: 15 --enabled: true
 		button editMultiMatBT "edit multi mat" enabled: false
 		button selectMultiMatObjBT "select object" enabled: false
 	)
@@ -167,7 +167,7 @@ rollout matIdManagerRLT "material ids manager" width: 200
 		
 		spinner matIdSP "material id" type: #integer
 		button addFreeIdBT "add free id to sel" 
-		button randomIdBT "random all ids" --enabled: false
+		button randomIdBT "random ids on sel" --enabled: false
 	)
 	
 	fn refreshUI =
@@ -296,16 +296,15 @@ rollout matIdManagerRLT "material ids manager" width: 200
 		-- assign de maniere incrementale des id au materiaux en evitant d'appliquer plusieurs fois des id et en evitant de changer les id deja affecter
 		-- collecter les ids de materiaux deja affecter dans la scene
 		local forceID = true
-		for i = 1 to matArToDisp.count do
+		
+		for m in matListSel do
 		(
 			-- si une id est deja affecté passer
-			if matArToDisp[i].effect_id != 0 and not forceID then continue
-			-- générer une id
-			returnCleanId()
+			if m.effect_id != 0 and not forceID then continue
 
-			matArToDisp[i].override_effect_id = on
-			matArToDisp[i].effect_id = (returnCleanId())
-			format "id: % assign: %\n" i matAr[i].name
+			m.override_effect_id = on
+			m.effect_id = (returnCleanId())
+			format "id: % assign: %\n" i m.name
 		)
 		refreshUI()
 	)
@@ -320,12 +319,12 @@ fn collectMatByIds id =
 )
 -- collectMatIDs()
 
+try(closeRolloutFloater matIdExplorerRF)catch()
 matIdExplorerRF = newRolloutFloater "Materials id explorer" 250 500
-try(destroydialog matIdExplorerRF)catch()
 -- try(destroydialog matIdExplorerRLT)catch()
 rollout matIdExplorerRLT "materials id explorer"
 (
-	local idSel = 0
+	local idSel = #()
 	local idsAr = #()
 	local sameIdMatAr = #()
 	local matListSel = #()
@@ -339,7 +338,7 @@ rollout matIdExplorerRLT "materials id explorer"
 	-- UI
 	group "material ids:"
 	(
-		listbox matIdLB "materials ids:"
+		multilistbox matIdLB "materials ids:"
 		button refreshIdsBT "refresh"
 		multilistbox matMLB "scene materials:"
 		spinner reassignSP "reassign id:" type: #integer
@@ -359,9 +358,23 @@ rollout matIdExplorerRLT "materials id explorer"
 	(
 		matIdLB.items = for id in idsAr collect (id as string)
 		
-		if sameIdMatAr.count > 0  then matMLB.items = for m in sameIdMatAr collect m.name
+-- 		if sameIdMatAr.count > 0  then matMLB.items = for m in sameIdMatAr collect m.name
 			
-		reassignSP.value = idSel
+		matNameArToDisp = #()
+		for m in sameIdMatAr do
+		(
+			if m.effect_id == 0 then
+			(
+				append matNameArToDisp (m.name)
+			)
+			else
+			(
+				append matNameArToDisp (m.name + "  [" +  (m.effect_id as string) + "]")
+			)
+		)			
+		matMLB.items =matNameArToDisp
+			
+		if idSel.count > 0 then  reassignSP.value = idSel[1] else  reassignSP.value = 0
 	)
 	
 	-- Actions
@@ -373,8 +386,9 @@ rollout matIdExplorerRLT "materials id explorer"
 	
 	on matManagerBT pressed do
 	(
+		global matIdManagerRF
+		try(closeRolloutFloater matIdManagerRF)catch()
 		matIdManagerRF = newRolloutFloater "Materials id manager" 250 500
-		try(destroydialog matIdManagerRF)catch()
 		addrollout matIdManagerRLT matIdManagerRF
 	)
 	
@@ -384,15 +398,25 @@ rollout matIdExplorerRLT "materials id explorer"
 		refreshUI()
 	)
 		
-	on matIdLB selected val do
+	on matIdLB selectionEnd do
 	(
--- 		sameIdMatAr = collectMatByIds val
-		idSel = matIdLB.selected as integer
--- 		format "idSel: %\n" idSel
+
+		local idSelAr = matIdLB.selection as array
+		format "idSel: %\n" idSelAr
+		idSel = for id in idSelAr collect (matIdLB.items[id] as integer)
+		
+		format "idSel: %\n" idSel
 		sceneMat = getclassinstances vrayMtl target: scenematerials
-		sameIdMatAr = for m in sceneMat where m.effect_id == idSel collect m
+		sameIdMatAr = #()
+		
+		for m in sceneMat do
+		(
+			local res = finditem idSel m.effect_id
+			if res > 0 then append sameIdMatAr m
+-- 			where m.effect_id == idSel collect m
+		)
 		qsort sameIdMatAr sortByName
--- 		format "sameIdMatAr: %\n" sameIdMatAr
+		format "sameIdMatAr: %\n" sameIdMatAr
 		refreshUI()
 	)
 	
@@ -452,7 +476,7 @@ rollout matIdExplorerRLT "materials id explorer"
 		idsAr = collectMatIDs()
 		format "idsAr:%\n" idsAr
 
-		idSel = reassignSP.value
+		idSel = #(reassignSP.value)
 -- 		idSel = matIdLB.selected as integer
 		format "idSel: % %\n" idSel (classof idSel)
 -- 		local sceneMat = getclassinstances vrayMtl target: scenematerials
@@ -463,7 +487,7 @@ rollout matIdExplorerRLT "materials id explorer"
 -- 		format "idSel: % %\n" idSel (classof idSel)
 -- 		print "ça passe par là?"
 		matIdLB.selection= idSel
--- 		refreshUI()
+		refreshUI()
 	)
 	
 	on matIdEltBT pressed do
