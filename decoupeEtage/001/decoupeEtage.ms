@@ -848,3 +848,4 @@ rollout decoupEtageRLT "découpe etage"
 )
 createdialog decoupEtageRLT width: 400
 
+-- setdialogpos decoupEtageRLT [0,0]
