@@ -306,7 +306,7 @@ rollout cleanMultiMatRLT "Clean Multimaterial"
 (
 -- 	radiobuttons workOnRB "work on:" labels: #("visible", "selection", "scene")
 	checkbox respectLayerCB "respect layer" 
-	button
+-- 	button
 	button cleanBT "clean"
 	
 	group "number of objects to attach:"

@@ -330,4 +330,4 @@ rollout mxsLaunchRLT "maxscript launcher"
 createdialog mxsLaunchRLT width:300 style: #(#style_titlebar, #style_border, #style_sysmenu,#style_minimizebox, #style_maximizebox )
 
 
-
+-- setdialogpos mxsLaunchRLT [0,0]

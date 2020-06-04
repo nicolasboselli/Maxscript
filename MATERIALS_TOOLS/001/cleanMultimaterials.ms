@@ -307,17 +307,41 @@ try(destroydialog cleanMultiMatRLT)catch()
 rollout cleanMultiMatRLT "Clean Multimaterial"
 (
 -- 	radiobuttons workOnRB "work on:" labels: #("visible", "selection", "scene")
-	checkbox respectLayerCB "respect layer" checked: true 
--- 	button
-	button cleanBT "clean"
-	
-	group "number of objects to attach:"
+	group "actions:"
 	(
-		spinner maxSP "max:" range:[0,10000,5000] type:#integer
-		button attachBT "manual"
+		button cleanMultiBT "clean all multiMaterials visible"
+		button attachMonoMatBT "attach mono mat"
+		button removeVertBT "remove isolated vertices"
 	)
 	
-	button removeVertBT "remove isolated vertices"
+	checkbox respectLayerCB "respect layer" checked: true 
+-- 	button
+	button cleanBT "clean" tooltip:"1 - clean les multi materials\n2 - explose les objets avec Multi mat\n 3 - attach les objets avec le même material"
+
+	
+	group "attach options:"
+	(
+		spinner maxSP "objects number max:" range:[0,10000,5000] type:#integer
+		button attachBT "manual attach"
+	)
+	
+	
+	
+	on cleanMultiBT pressed do
+	(
+		format "###############collapse start\n"
+		oneVisSel = for o in  $* where o.ishidden == false collect o
+		collapseMultiMatonVisibleObjects oneVisSel
+		format "###############collapse done\n\n"
+	)
+	
+	on attachMonoMatBT pressed do
+	(
+		format "###############attach mono mat start\n"
+		oneVisSel = for o in  $* where o.ishidden == false collect o
+		attachVisiblesObjectsByMonoMat oneVisSel maxSel: maxSP.value
+		format "###############attach mono mat done\n\n"
+	)
 	
 	on cleanBT pressed do
 	(

@@ -15,47 +15,13 @@ maj:
 		x-- taguer les plans avec plusieurs nom de grilles
 		x-- refresh de la partie wall assistant au changement de set
 	
-	
-	A - decoupe
-		1 -  de objets avec modifier edit_poly
-			x-  collapser tout ce qui est en dessous et conserver les modifiers au dessus 
-		
-		2-  des spline avec modifier (sweep, shell, extrude)
-			x- converttopoly  et decouper
-			ou
-			- decouper des splines en conservant les modificateurs dessus
-			
-		3-  les groupe
-			x- ignorer les groupe
-			x- ignorer les objets d'un groupe
-			
-			-- dupliquer les groupe et les slicer
-			ou
-			-- duppliquer le groupe fusionner tous les objets et slicer
+	-- intégrer les outils de creation des cellules et de murs
+	-- redeployer l'UI
 
-		4 --  des raiclone
-			x-- converttopoly et decoupe
-			ou
-			-- decouper la spline et dupliquer le railclone
-	
-		5 - modifier clone
-			x-- converttopoly et decoupe
-	
-	B- auto add to layer
-		4 -- raiclone 
-			/- deplacer les spline des railclone dans le même calque que les railclone à l'autoadd to layer
-			
-	-- collapser les splines(?)
-
-	
-	-- determinier automatiquement s il faut faire une decoupe ou un auto load
-		-- tester si un objet intersecte avec une grille
+rebuild:
+	- convertir le checkbutton en fonction
 	
 
-	
-rebuild
-	x- dupliquer l'objet à découper avant de le decouper puis supprimer le treitement
-	X- sortir les operation de freeze de la fonction de decoupe
 */
 
 -- classof $
@@ -234,28 +200,6 @@ fn autoAddObjToLayer rep sel =
 	)
 )
 
--- fn checkPlan refName =
--- (
--- 	local planesAr = #()
--- 	for s in $plane_* do
--- 	(
--- 		local repName = getuserprop s "rep" 
--- 		
--- 		format "%\n" (execute repName)
--- 		
--- 		if repName != undefined then
--- 		(
--- 			if  repName == refName then 
--- 			(
--- 				format "s: % repName: %\n" s.name repName
--- 				append planesAr s
--- 			)
--- 		)
--- 	)
--- 	format "planesAr: %\n" planesAr 
--- 	planesAr
--- )
-
 fn checkPlan refName =
 (
 	local planesAr = #()
@@ -266,7 +210,7 @@ fn checkPlan refName =
 		if repName != undefined then
 		(
 			-- tester si le nom est un array
-			format "repName: %\n" (execute repName)
+-- 			format "repName: %\n" (execute repName)
 			local testArray = execute repName
 			-- si le nom est un nom seul le conditionner en array
 			if  testArray == undefined and repName == refName then testArray = #(repName)
@@ -274,7 +218,7 @@ fn checkPlan refName =
 			-- traiter l'array
 			if iskindof testArray array then
 			(
-				format "testArray: % \n" testArray
+-- 				format "testArray: % \n" testArray
 				for o in testArray where o == refname do append planesAr s
 			)
 			else()
@@ -287,9 +231,9 @@ fn checkPlan refName =
 -- checkPlan "batA_r00"
 fn tagPlan p newName =
 (
-	format "newName:%\n" newName
+-- 	format "newName:%\n" newName
 	local repName = getuserprop p "rep" 
-	format "repName:%\n" repName
+-- 	format "repName:%\n" repName
 	
 	if repName == undefined or (execute repName) == undefined then
 	(
@@ -302,7 +246,7 @@ fn tagPlan p newName =
 -- 		print "check 2"
 		-- tester si on a un nom seul ou un array
 		local testArray = execute repName
-		format "testArray: %\n" testArray
+-- 		format "testArray: %\n" testArray
 		
 		-- si le nom est un nom seul le conditionner en array
 		if  testArray == undefined and repName == refName then testArray = #(repName)
@@ -328,15 +272,15 @@ fn cleanTagPlan p =
 )
 
 
-try(destroydialog decoupEtageRLT)catch()
-rollout decoupEtageRLT "découpe etage"
+try(destroydialog cellAssitantRLT)catch()
+rollout cellAssitantRLT "cell assistant"
 (
-	local params = #("pos", "autoSelLayCB", "autoSelREpCB", "collapseCB", "addPolyModCB", "freezeOldCB", "boxOldCB")
-	
+	local params = #("pos")
+
 	global repAr
 	global rep -- = #()
 	
-	local validRep = undefined
+	global validRep = undefined
 	
 -- 	local oneStage
 	local planesAr
@@ -346,6 +290,8 @@ rollout decoupEtageRLT "découpe etage"
 	local newCell
 	local cellLayer
 	
+	
+	/*
 	group "plans de découpe:"
 	(
 -- 		dropdownlist  setRepDL "sets:"
@@ -363,7 +309,8 @@ rollout decoupEtageRLT "découpe etage"
 		button dwBT "v"
 		button sortBT "sort"
 	)
-	
+	*/
+	/*
 	group "display"
 	(
 		checkbox autoSelLayCB  "autoSel Layer" across: 3
@@ -385,7 +332,7 @@ rollout decoupEtageRLT "découpe etage"
 		button autoAddBT "auto add to layer" enbled: false across:2
 		button addToLayBT "add to layer"
 	)
-	
+	*/
 	group "cells assitant"
 	(
 		checkbox wallAssistOnCB "on/off" visible: false
@@ -410,23 +357,23 @@ rollout decoupEtageRLT "découpe etage"
 	
 	fn refreshUI =
 	(
-		setRepDL.items = for i = 1 to repAr.count collect (i as string)
+-- 		setRepDL.items = for i = 1 to repAr.count collect (i as string)
 
-		rep = for r in rep where isvalidnode r collect r
-		CutPlaneMLB.items = for c in rep collect c.name
-		
+-- 		rep = for r in rep where isvalidnode r collect r
+-- 		CutPlaneMLB.items = for c in rep collect c.name
+-- 		format "rep:%\n" rep
 		
 		if isvalidnode validRep then
 		(
-			planeNameET.text = validRep.name 
-			planeNameET.readonly = false
+-- 			planeNameET.text = validRep.name 
+-- 			planeNameET.readonly = false
 			gridET.text = validRep.name 
 			gridET.readonly = false
 		)
 		else 
 		(
-			planeNameET.text = "NONE"
-			planeNameET.readonly = true
+-- 			planeNameET.text = "NONE"
+-- 			planeNameET.readonly = true
 			gridET.text =  "NONE"
 			gridET.readonly = false
 		)
@@ -465,9 +412,9 @@ rollout decoupEtageRLT "découpe etage"
 		)
 	)
 	
-	on decoupEtageRLT open do
+	on cellAssitantRLT open do
 	(
-		loadRolloutParams decoupEtageRLT params
+		loadRolloutParams cellAssitantRLT params
 		
 		if planesAr == undefined then planesAr = #()
 		if repAr == undefined then repAr = #()
@@ -475,9 +422,9 @@ rollout decoupEtageRLT "découpe etage"
 		refreshUI ()
 	)
 	
-	on decoupEtageRLT close do
+	on cellAssitantRLT close do
 	(
-		writeRolloutParams decoupEtageRLT params
+		writeRolloutParams cellAssitantRLT params
 	)
 	
 -- 	layermanager.current.name
@@ -878,5 +825,5 @@ rollout decoupEtageRLT "découpe etage"
 	
 	
 )
-createdialog decoupEtageRLT width: 400
+createdialog cellAssitantRLT width: 400
 

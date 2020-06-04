@@ -59,6 +59,8 @@ try(destroydialog incNameRLT )catch()
 
 rollout incNameRLT "Duplicate Etages"
 (
+	local params = #("pos", "workOnTypeRB", "sourceLayerCB", "targetLayerCB", "idSP", "jumpSP")
+	
 	local layerList = #()
 	local layerListDisplay = #()
 	local layerListName = #()
@@ -71,15 +73,12 @@ rollout incNameRLT "Duplicate Etages"
 	
 	local gridLayer
 	
+	edittext gridLayerET "active grid:" readonly: true
 	
-	group "work on"
-	(
-		radiobuttons workOnTypeRB "type:" labels: #("selection", "layers")
-		dropdownlist  sourceLayerCB "layer source:" height: 120 across: 2
-		dropdownlist  targetLayerCB "layer target:"  height: 80
-		edittext gridLayerET "layer grid:" readonly: true
-	)
-
+	radiobuttons workOnTypeRB "work on:" labels: #("selection", "layers")
+	dropdownlist  sourceLayerCB "layer source:" height: 120 -- across: 2
+	dropdownlist  targetLayerCB "layer target:"  height: 80
+	
 	group "renaming"
 	(
 		spinner idSP "character index:" type: #integer range:  [1,1000,1] across: 2
@@ -87,30 +86,40 @@ rollout incNameRLT "Duplicate Etages"
 		edittext cellBaseNameET "cell base name:"  readonly: true across: 2
 		edittext cellNewNameET "cell new name:"  readonly: true
 	)
-	
+	/*
 	group "moving"
 	(
 		spinner xSP "x:" type: #worldunits  range: [-1000,1000,0] across: 3
 		spinner ySP "y:" type: #worldunits range: [-1000,1000,0]
 		spinner zSP "z:" type: #worldunits range: [-1000,1000,300]
 	)
-	
+	*/
 	button cloneBT "duplicate"
+	
+	fn init =
+	(
+		-- collecte de la grille active
+		if activeGrid != undefined then gridLayer = activeGrid
+		
+		-- collecte des layers
+		layerList = for i = 0 to (LayerManager.count - 1) collect (LayerManager.getLayer i)
+		layerListDisplay = for l in layerList where matchpattern l.name pattern: "cell*" collect l
+		layerListName = for l in layerListDisplay collect l.name
+	)
 	
 	fn refreshUI =
 	(
 		-- collecte des layers
-		layerListDisplay = layerList
-		layerListName = for l in layerListDisplay collect l.name
 		sourceLayerCB.items = layerListName
 		targetLayerCB.items = layerListName
--- 		format "layerList count: %\n" layerListName.count
+		
+		if sourceLayerCB.selection > 0 then sourceLayer = layerListDisplay[sourceLayerCB.selection]
+		if targetLayerCB.selection > 0 then targetLayer = layerListDisplay[targetLayerCB.selection]
+-- 		format "sourceLayer: %\n" sourceLayer
 		
 		-- recuperation de la grille
-		local baseName = layerListDisplay[targetLayerCB.selection].name
-		local gridName = substitutestring baseName "cell_" ""
-		gridLayer =  getNodebyname gridName
-		if isvalidnode gridLayer then 	gridLayerET.text = gridLayer.name else gridLayerET.text = "NONE"
+		if not isvalidnode gridLayer then gridLayerET.text = "NONE"
+		else gridLayerET.text = activeGrid.name
 		
 		-- test du rename
 		if testBaseName != undefined then cellBaseNameET.text = testBaseName else cellBaseNameET.text = "NONE"
@@ -119,22 +128,36 @@ rollout incNameRLT "Duplicate Etages"
 	
 	on incNameRLT open do
 	(
-		layerList = for i = 0 to (LayerManager.count - 1) collect (LayerManager.getLayer i)
+		loadRolloutParams incNameRLT params
+-- 		format "1 sourceLayerCB.selection: % \n" sourceLayerCB.selection 
+		
+-- 		format "2.4 sourceLayerCB.selection: % \n" sourceLayerCB.selection 
+		init()
+-- 		format "2.5 sourceLayerCB.selection: % \n" sourceLayerCB.selection 
 		refreshUI()
+-- 		format "3 sourceLayerCB.selection: % \n" sourceLayerCB.selection 
+	)
+	
+	on incNameRLT close do 
+	(
+		writeRolloutParams incNameRLT params
 	)
 	
 	on sourceLayerCB selected val do
 	(
-		format "source id:%\n" val
-		sourceLayer =  (LayerManager.getLayer (val - 1))
-		format "sourceLayer: %\n" sourceLayer.name
--- 		format "%\n" val
+		init()
+-- 		format "source id:%\n" val
+-- 		sourceLayer = layerListDisplay[val]
+-- 		sourceLayer =  (LayerManager.getLayer (val - 1))
+		format "sourceLayer: %\n" sourceLayer
 		refreshUI()
 	)
 	
 	on targetLayerCB selected val do
 	(
-		targetLayer = (LayerManager.getLayer (val - 1))
+		init()
+-- 		targetLayer = layerListDisplay[val]
+-- 		targetLayer = (LayerManager.getLayer (val - 1))
 		format "targetLayer: %\n" targetLayer.name
 		refreshUI()
 	)
@@ -142,14 +165,14 @@ rollout incNameRLT "Duplicate Etages"
 	on idSP changed val do
 	(
 		local sel
-
-		if workOnTypeRB.state == 1 then sel = selection as array
-		else if workOnTypeRB.state == 2 then
-		(
-			sourceLayer.nodes &sel
-		)
-		else(sel = #())
 		
+-- 		init()
+		
+		if workOnTypeRB.state == 1 then sel = selection as array
+		else if workOnTypeRB.state == 2 then sourceLayer.nodes &sel
+		else(sel = #())
+		format "sel:%\n" sel
+			
 		if sel.count > 0 then
 		(
 			testBaseName = sel[1].name
@@ -164,12 +187,12 @@ rollout incNameRLT "Duplicate Etages"
 	(
 		local sel
 
+-- 		init()
+		
 		if workOnTypeRB.state == 1 then sel = selection as array
-		else if workOnTypeRB.state == 2 then
-		(
-			sourceLayer.nodes &sel
-		)
-		else()
+		else if workOnTypeRB.state == 2 then sourceLayer.nodes &sel
+		else(sel = #())
+		format "sel:%\n" sel
 		
 		if sel.count > 0 then
 		(
@@ -187,39 +210,36 @@ rollout incNameRLT "Duplicate Etages"
 		local copyS
 		local sel	
 		
+		init()
+		
+		-- selection des objets
 		if workOnTypeRB.state == 1 then
 		(
 			sel = selection as array
-			if sel.count > 0 then
-			(
-				for s in sel do
-				(
-					copyS = copyIncNameNMove s id:idSP.value jump:jumpSP.value moving: true decay: [xSp.value, ySP.value, zSp.value]
-					if not copyS == undefined then append newSel copyS
-				)
-				select newSel
-			)
 		)
 		else if workOnTypeRB.state == 2 then
 		(
 			sourceLayer.nodes &sel
-			if sel.count > 0 then
-			(
-				for s in sel do
-				(
-					copyS = copy s
-					copyS.wirecolor = s.wirecolor
-					copyS.position.z = gridLayer.position.z
-					copyS.name = incrementName s.name charId: idSP.value inc: jumpSP.value
-					copyS.xray = true
-					targetLayer.addnode copyS
-				)
-			)
 		)
 		else(sel = #())
 		
+		-- copie des objets
+		if sel.count > 0 and  isvalidnode gridLayer then
+		(
+			for s in sel do
+			(
+				copyS = copy s
+				copyS.wirecolor = s.wirecolor
+				copyS.position.z = gridLayer.position.z
+				copyS.name = incrementName s.name charId: idSP.value inc: jumpSP.value
+				copyS.xray = true
+				targetLayer.addnode copyS
+			)
+		)
 	)
 )
 createdialog incNameRLT width: 400
 
+-- incNameRLT.sourceLayerCB.selection
+format "sourceLayerCB.selection: % \n" incNameRLT.sourceLayerCB.selection 
 

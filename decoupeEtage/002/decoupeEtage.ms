@@ -8,7 +8,11 @@ debug:
 	-- de instancier
 
 maj:
-
+	-- collecter les set de grilles automatiquement à partir du layer rep
+	-- tagger les grilles pour les collecter automatiquement
+	-- donner des noms string au set de selection
+	
+	
 	Display:
 		x- associer des calques de cellules avec chaque reperes (à affciher et à activer)
 		- centrer la vue sur la totalité des objets visibles ou memoriser le viewport ou resizer la grille par rapport à la selection en cours
@@ -50,12 +54,6 @@ maj:
 	
 	-- determinier automatiquement s il faut faire une decoupe ou un auto load
 		-- tester si un objet intersecte avec une grille
-	
-
-	
-rebuild
-	x- dupliquer l'objet à découper avant de le decouper puis supprimer le treitement
-	X- sortir les operation de freeze de la fonction de decoupe
 */
 
 -- classof $
@@ -266,7 +264,7 @@ fn checkPlan refName =
 		if repName != undefined then
 		(
 			-- tester si le nom est un array
-			format "repName: %\n" (execute repName)
+-- 			format "repName: %\n" (execute repName)
 			local testArray = execute repName
 			-- si le nom est un nom seul le conditionner en array
 			if  testArray == undefined and repName == refName then testArray = #(repName)
@@ -274,7 +272,7 @@ fn checkPlan refName =
 			-- traiter l'array
 			if iskindof testArray array then
 			(
-				format "testArray: % \n" testArray
+-- 				format "testArray: % \n" testArray
 				for o in testArray where o == refname do append planesAr s
 			)
 			else()
@@ -289,7 +287,7 @@ fn tagPlan p newName =
 (
 	format "newName:%\n" newName
 	local repName = getuserprop p "rep" 
-	format "repName:%\n" repName
+-- 	format "repName:%\n" repName
 	
 	if repName == undefined or (execute repName) == undefined then
 	(
@@ -302,7 +300,7 @@ fn tagPlan p newName =
 -- 		print "check 2"
 		-- tester si on a un nom seul ou un array
 		local testArray = execute repName
-		format "testArray: %\n" testArray
+-- 		format "testArray: %\n" testArray
 		
 		-- si le nom est un nom seul le conditionner en array
 		if  testArray == undefined and repName == refName then testArray = #(repName)
@@ -336,7 +334,7 @@ rollout decoupEtageRLT "découpe etage"
 	global repAr
 	global rep -- = #()
 	
-	local validRep = undefined
+	global validRep = undefined
 	
 -- 	local oneStage
 	local planesAr
@@ -350,11 +348,13 @@ rollout decoupEtageRLT "découpe etage"
 	(
 -- 		dropdownlist  setRepDL "sets:"
 		listbox  setRepDL "sets:" height: 5
-		button newSetBT "new" across: 3
+		
+		button autoLoadBT "autoLoad" across: 4
+		button newSetBT "new" -- across: 3
 		button loadSetBT "load" -- across: 2
 		button delSetBT "del"
 		
-		multilistbox CutPlaneMLB "liste de plans:"  tooltip: "Les plans de découpe les plus hauts dans la scene sont les plus bas dans la liste.\n\nUn plan de découpe doit toujours être au dessus de l'étage découpé."
+		multilistbox CutPlaneMLB "grilles:"  tooltip: "Les plans de découpe les plus hauts dans la scene sont les plus bas dans la liste.\n\nUn plan de découpe doit toujours être au dessus de l'étage découpé."
 		edittext planeNameET "name:" readonly: true
 		button addBT "add" across: 6
 		button clearBT "clear"
@@ -463,6 +463,8 @@ rollout decoupEtageRLT "découpe etage"
 		(
 			cellET.text = "NONE"
 		)
+		
+		
 	)
 	
 	on decoupEtageRLT open do
@@ -481,6 +483,21 @@ rollout decoupEtageRLT "découpe etage"
 	)
 	
 -- 	layermanager.current.name
+	on autoLoadBT pressed do
+	(
+-- 		LayerManager.count
+		repLayer = LayerManager.getLayerFromName "rep"
+		childNum = repLayer.getNumChildren()
+		for i = 1 to childNum do
+		(
+		-- 	format "%\n" (repLayer.getChild i).name
+			Ltmp = repLayer.getChild i
+			Ltmp.nodes &repsTmp
+			format "%\n" repsTmp
+			append repAr repsTmp
+		)
+		refreshUI()
+	)
 	
 	on newSetBT pressed do
 	(
@@ -512,7 +529,7 @@ rollout decoupEtageRLT "découpe etage"
 	(
 		local l
 		
-		-- retoune le repere selectionne
+		-- retoune le repere selectionne et le calque de travail
 		selAr = CutPlaneMLB.selection as array
 		if selAr.count == 1  then
 		(
@@ -541,11 +558,24 @@ rollout decoupEtageRLT "découpe etage"
 			)
 		)
 		
+		-- auto selection de repère
 		if autoSelRepCB.state and isvalidnode validRep then select validRep
 		
+		format "check 1\n"
 		checkBT.pressed()
 		
 		refreshUI ()
+		
+		-- transmet les données au cell assistant
+		if cellAssitantRLT == undefined then()
+		else
+		(
+			if cellAssitantRLT.open then
+			(
+				cellAssitantRLT.checkBT.pressed()
+				cellAssitantRLT.refreshUI()
+			)
+		)
 	)
 	
 	on CutPlaneMLB doubleClicked arg do
@@ -758,10 +788,14 @@ rollout decoupEtageRLT "découpe etage"
 	(
 		if isvalidnode validRep then 
 		(
-			-- trouver le plan correpondant
+			-- trouver les plans correpondants
+			-- par le nom du repère
 			onePlane = getnodebyname ("plane_" + validRep.name)
+			-- par les tags
 			planesAr = checkPlan validRep.name
-			appendifunique planesAr onePlane
+			-- ajout du premier plan si valide
+			if isvalidnode onePlane then appendifunique planesAr onePlane
+			
 			format "planesAr: %\n" planesAr
 			
 			-- trouver le calque correspondant
@@ -843,6 +877,20 @@ rollout decoupEtageRLT "découpe etage"
 			p.ishidden = false
 			-- move plans
 			p.position.z = validRep.position.z - 50
+		)
+		
+		-- active cell creator rollout
+		if newCellCreatorRLT == undefined then()
+		else if newCellCreatorRLT.open then 
+		(
+			if newCellCreatorRLT.open then newCellCreatorRLT.init()
+		)
+		
+		if incNameRLT == undefined then()
+		else if incNameRLT.open then 
+		(
+			if incNameRLT.open then incNameRLT.init()
+			if incNameRLT.open then incNameRLT.refreshUI()
 		)
 	)
 	

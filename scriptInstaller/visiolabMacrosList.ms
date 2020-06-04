@@ -119,10 +119,17 @@
 				cam.auto_vertical_tilt_correction = on
 				cam.auto_vertical_tilt_correction = off
 			)
+			else if iskindof cam VRayPhysicalCamera then
+			(
+				cam.lens_tilt_auto = on
+				redrawviews()
+				cam.lens_tilt_auto = off
+			)
 			else()
 		)
 		else()
 	)
+	
 	
 	macroscript matIdManager
 	category: "VisioLab"

@@ -153,7 +153,7 @@ rollout matIdManagerRLT "material ids manager" width: 200
 	
 	group "multimaterials:"
 	(
-		listbox multiMatLB "multi material list" height: 15 --enabled: true
+		listbox multiMatLB "multi material list" height: 5 --enabled: true
 		button editMultiMatBT "edit multi mat" enabled: false
 		button selectMultiMatObjBT "select object" enabled: false
 	)
@@ -235,7 +235,7 @@ rollout matIdManagerRLT "material ids manager" width: 200
 	
 	on editMatBT pressed do
 	(
-		print "youhou2"
+-- 		print "youhou2"
 		for i = 1 to matListSel.count do
 		(
 			meditMaterials[i] = matListSel[i]
@@ -332,7 +332,7 @@ rollout matIdExplorerRLT "materials id explorer"
 	
 	group "tools"
 	(
-		button matManagerBT "manager visible materials"
+		button matManagerBT "materials id manager"
 	)
 	
 	-- UI
@@ -342,15 +342,15 @@ rollout matIdExplorerRLT "materials id explorer"
 		button refreshIdsBT "refresh"
 		multilistbox matMLB "scene materials:"
 		spinner reassignSP "reassign id:" type: #integer
-		button editMatBT "edit material" --enabled: false
+		button editMatBT "edit material" across: 2 --enabled: false
 		button selObjBT "select object"  -- enabled: false
 	)
 	
-	group "render elements:"
+	group "create render elements:"
 	(
-		button matIdEltBT "material id element"
-		button objSelEltBT "object select element"
-		button multiEltBT "multimatte element" -- enabled: false
+		button matIdEltBT "VRayMtlID" --across: 3
+		button objSelEltBT "VRayObjectSelect selected" tooltip: "Création d'une passe 'vrayObjectSelect' pour chaque id de material selectionné."
+		button multiEltBT "all MultiMatteElement"  tooltip: "création de toutes les passes MultiElement"
 	)
 	
 	-- functions UI dependant
@@ -521,7 +521,11 @@ rollout matIdExplorerRLT "materials id explorer"
 		sceneMat = getclassinstances vrayMtl target: scenematerials
 			
 		-- creation des passes
-		for id in idsAr do
+		format "idsAr: %\n" idsAr
+		format "idSel: %\n" idSel
+		
+-- 		for id in idsAr do
+		for id in idSel do
 		(
 			-- creation du nom
 			sameIdMatAr = for m in sceneMat where m.effect_id == id collect m
