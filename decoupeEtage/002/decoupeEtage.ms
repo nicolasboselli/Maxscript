@@ -8,19 +8,31 @@ debug:
 	-- de instancier
 
 maj:
-	-- collecter les set de grilles automatiquement à partir du layer rep
-	-- tagger les grilles pour les collecter automatiquement
-	-- donner des noms string au set de selection
+	Autoload 
+		/- collecter les set de grilles automatiquement à partir du layer rep
+			-- tagger les grilles pour les collecter automatiquement
+			-- donner des noms string au set de selection
 	
+	cell
+		-- générer toute l'aboresence des cell
+		-- réfléchir à 
+		
+	plans
+		-- associer les plans avec les grilles à partir d'une selection
 	
 	Display:
-		x- associer des calques de cellules avec chaque reperes (à affciher et à activer)
+		x- associer des calques de cellules avec chaque reperes (à afficher et à activer)
 		- centrer la vue sur la totalité des objets visibles ou memoriser le viewport ou resizer la grille par rapport à la selection en cours
+		- afficher les etages en dessous de le l'étage selectionné
+			-- mettre le plan en option
+			-- mettre les cellules en options
 		x-- taguer les plans avec plusieurs nom de grilles
 		x-- refresh de la partie wall assistant au changement de set
 	
 	
-	A - decoupe
+	decoupe
+		-- conserver les objets decoupés sur un calque "sliced"
+		
 		1 -  de objets avec modifier edit_poly
 			x-  collapser tout ce qui est en dessous et conserver les modifiers au dessus 
 		
@@ -45,7 +57,7 @@ maj:
 		5 - modifier clone
 			x-- converttopoly et decoupe
 	
-	B- auto add to layer
+	auto add to layer
 		4 -- raiclone 
 			/- deplacer les spline des railclone dans le même calque que les railclone à l'autoadd to layer
 			
@@ -232,28 +244,6 @@ fn autoAddObjToLayer rep sel =
 	)
 )
 
--- fn checkPlan refName =
--- (
--- 	local planesAr = #()
--- 	for s in $plane_* do
--- 	(
--- 		local repName = getuserprop s "rep" 
--- 		
--- 		format "%\n" (execute repName)
--- 		
--- 		if repName != undefined then
--- 		(
--- 			if  repName == refName then 
--- 			(
--- 				format "s: % repName: %\n" s.name repName
--- 				append planesAr s
--- 			)
--- 		)
--- 	)
--- 	format "planesAr: %\n" planesAr 
--- 	planesAr
--- )
-
 fn checkPlan refName =
 (
 	local planesAr = #()
@@ -368,7 +358,12 @@ rollout decoupEtageRLT "découpe etage"
 	(
 		checkbox autoSelLayCB  "autoSel Layer" across: 3
 		checkbox autoSelREpCB  "autoSel Rep"
-		button showHideBT "show/hide"
+		button showHideBT "show/hide selected"
+		checkbox displayPlanCB "with plans" across: 4 checked: true enabled: false
+		checkbox displayCellsCB "with cell" checked: true enabled: false
+		checkbox alignGridCB "align on grid" checked: true -- enabled: false
+		checkbox incrementCB "incremental" checked: false enabled: false
+		button displayBT "show selected only"
 	)
 	
 	group "decoupe"
@@ -377,34 +372,37 @@ rollout decoupEtageRLT "découpe etage"
 		checkbox boxOldCB "box old"
 		checkbox collapseCB "collapse slice" -- enabled: false
 		checkbox addPolyModCB "add edit poly" -- enabled: false
-		button decoupeBT "decoupe"
+		button autoAddBT "auto add to layer" across:3 --enabled: false 
+		button addToLayBT "add to layer"
+		button decoupeBT "slice" 
 	)
 	
-	group "layer"
+	group "infos"
 	(
-		button autoAddBT "auto add to layer" enbled: false across:2
-		button addToLayBT "add to layer"
+		button checkBT "check" enabled: false
+		edittext gridET "grille:" 
+		edittext layerET "layer:"
+	)
+	
+	group "plans assistant"
+	(
+		edittext planeET "plan:" --across: 2
+		button tagBT "add tag" across: 2
+		button clearTagBT "clear tag"
 	)
 	
 	group "cells assitant"
 	(
-		checkbox wallAssistOnCB "on/off" visible: false
-		
-		button createCellLayerBT "create cells layer"
-		
-		edittext gridET "grille:" 
-		edittext layerET "calque:"
-		edittext cellET "cells:" 
-		edittext planeET "plan:" --across: 2
-		button tagBT "add tag" across: 2
-		button clearTagBT "clear tag"
-		
+		button createCellLayerBT "create all cells layer"
+		edittext cellET "cells layer:" 
 		radiobuttons layerRB "active layer:" labels:#("murs", "cellules")
-		
-		button checkBT "check" visible: false across: 3
-		button displayBT "display"
-		
--- 		checkbutton newCellCB "new cell"
+	)
+	
+	group "tools:"
+	(
+		button cellCreatorBT "cell creator" enabled: false across: 3
+		button wallCreatorBT "wall creator" enabled: false
+		button duplicateFloorBT "duplicate floor" enabled: false
 	)
 	
 	
@@ -485,6 +483,7 @@ rollout decoupEtageRLT "découpe etage"
 -- 	layermanager.current.name
 	on autoLoadBT pressed do
 	(
+		repAr = #()
 -- 		LayerManager.count
 		repLayer = LayerManager.getLayerFromName "rep"
 		childNum = repLayer.getNumChildren()
@@ -565,23 +564,13 @@ rollout decoupEtageRLT "découpe etage"
 		checkBT.pressed()
 		
 		refreshUI ()
-		
-		-- transmet les données au cell assistant
-		if cellAssitantRLT == undefined then()
-		else
-		(
-			if cellAssitantRLT.open then
-			(
-				cellAssitantRLT.checkBT.pressed()
-				cellAssitantRLT.refreshUI()
-			)
-		)
 	)
 	
 	on CutPlaneMLB doubleClicked arg do
 	(
-		local l = layermanager.getLayerFromName rep[arg].name
-		if l != undefined then l.on = not l.on
+-- 		local l = layermanager.getLayerFromName rep[arg].name
+-- 		if l != undefined then l.on = not l.on
+		displayBT.pressed()
 	)
 	
 	on planeNameET entered val do
@@ -843,8 +832,12 @@ rollout decoupEtageRLT "découpe etage"
 	(
 		-- activer la grille selectionnée se caler dessus
 		activeGrid = validRep
-		viewport.setType #view_grid
-		viewport.setType #view_iso_user
+		if alignGridCB.checked then
+		(
+			
+			viewport.setType #view_grid
+			viewport.setType #view_iso_user
+		)
 		
 		-- unhider le layer
 		for r in rep do
@@ -880,50 +873,20 @@ rollout decoupEtageRLT "découpe etage"
 		)
 		
 		-- active cell creator rollout
-		if newCellCreatorRLT == undefined then()
+		if newCellCreatorRLT == undefined then(format "newCellCreatorRLT undefined")
 		else if newCellCreatorRLT.open then 
 		(
 			if newCellCreatorRLT.open then newCellCreatorRLT.init()
 		)
 		
-		if incNameRLT == undefined then()
+		if incNameRLT == undefined then(format "incNameRLT undefined")
 		else if incNameRLT.open then 
 		(
 			if incNameRLT.open then incNameRLT.init()
 			if incNameRLT.open then incNameRLT.refreshUI()
 		)
 	)
-	
-	on newCellCB changed arg do
-	(
-		
--- 		if arg then
--- 		(
--- 			max modify mode
 
--- 			newCell= SplineShape ()
--- 			updateShape newCell
--- 			newCell.vertexTicks = on
-
--- 			addmodifier newCell (edit_poly ())
-
--- 			select newCell
--- 			
--- 			modPanel.setCurrentObject newCell.baseobject 
--- 			splineOps.startCreateLine newCell
--- 		)
--- 		else
--- 		(
--- 			showEndResult = true
--- 			newCell.vertexTicks = off
--- 			newCell.pivot = newCell.center
--- 			newCell.xray = on
--- 			newCell.wirecolor = color 135 6 6
--- 		)
-		
-		-- mettre en place un trigger qui reagit au clic droit douris pour comprendre que la creation est terminée
-	)
-	
 	
 )
 createdialog decoupEtageRLT width: 400

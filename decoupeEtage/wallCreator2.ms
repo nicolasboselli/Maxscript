@@ -98,7 +98,7 @@ rollout newWallCreatorRLT "new wall Creator"
 				if not isvalidnode backCell or newSpline then 
 				(
 					
-					newCell= SplineShape name: (uniquename "cell_") transform: (getCPTM())
+					newCell= SplineShape name: (uniquename "wall_") transform: (getCPTM())
 					spNum = 1
 					format "create new spline:%\n" newCell
 				)

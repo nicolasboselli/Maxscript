@@ -1,16 +1,14 @@
--- activeGrid.transform
 
 /*
-- relancer automatiquement l outil quand un cellule est fini
-x- ajouter une fonction d'auto close
-x- ajouter une fonction de snap (contrainte en x ou y)quand on appui sur shift
-	x- travailler dans l'orientation de la grille active
+maj:
 
 */
--- newCellCreatorRLT.baseNameET.text = "toto"
+
+
 
 rollout renameCellRLT "rename"
 (
+	global newCellCreatorRLT
 	global basename
 	global newCell
 	
@@ -50,17 +48,29 @@ rollout renameCellRLT "rename"
 try(destroydialog newCellCreatorRLT)catch()
 rollout newCellCreatorRLT "new Cell Creator"
 (
+	global decoupEtageRLT
 	global newCell
 	local newWallState = true
 	local newOne = false
 	local cellLayer
 	
-	editText activeGridET "active grid:" readonly: true--visible: false
-	editText cellLayerET "cell layer:" readonly: true -- visible: false
-	editText currentLayerET "current layer:" readonly: true
+	group "infos:"
+	(
+		editText activeGridET "active grid:" readonly: true--visible: false
+		editText cellLayerET "cell layer:" readonly: true -- visible: false
+		editText currentLayerET "current layer:" readonly: true
+	)
 
-	editText baseNameET "basename"
-	checkbutton newCellCB "new cell"
+	group "options:"
+	(
+		checkbox autoLayerCB "auto active layer:" checked: true
+	)
+	
+	group "create cell"
+	(
+		editText baseNameET "basename"
+		checkbutton newCellCB "new cell"
+	)
 -- 	checkbox continueCB "continue"
 	
 	fn testPickPoint  =
@@ -73,21 +83,14 @@ rollout newCellCreatorRLT "new Cell Creator"
 	fn init =
 	(
 		format "init\n"
-		if activeGrid != undefined then 
-		(
--- 			gridLayer = activeGrid
-			activeGridET.text = activeGrid.name
-			cellLayer =  LayerManager.getLayerFromName ("cell_"+ activeGrid.name)
-			cellLayerET.text = cellLayer.name
-		)
-		else
-		(
-			activeGridET.text = "NONE"
-			cellLayerET.text = "NONE"
-		)
+		if activeGrid != undefined then cellLayer =  LayerManager.getLayerFromName ("cell_"+ activeGrid.name)		
+		
+		-- refreshUI
+		if activeGrid == undefined then (activeGridET.text = "NONE") else activeGridET.text = activeGrid.name
+		if cellLayer == undefined then(cellLayerET.text = "NONE") else cellLayerET.text = cellLayer.name
 		
 		if basename != undefined then baseNameET.text = basename
-		format "basename: %\n" basename
+-- 		format "basename: %\n" basename
 		
 		currentLayerET.text = LayerManager.current.name
 	)
@@ -257,7 +260,7 @@ rollout newCellCreatorRLT "new Cell Creator"
 	on newCellCB changed state do
 	(
 		-- activer le calque
-		if cellLayer != undefined then cellLayer.current = true
+		if cellLayer != undefined and autoLayerCB.state then cellLayer.current = true
 		currentLayerET.text = LayerManager.current.name
 			 
 		if state then
