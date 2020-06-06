@@ -53,6 +53,15 @@ rollout newWallCreatorRLT "new wall Creator"
 	materialbutton wallMattMT "wall material"
 	edittext matNamET "material:"
 -- 	button testBT "test mat"
+
+	/*
+	fn testPickPoint  =
+	(
+		local p = pickPoint () -- mouseMoveCallback:printPickPoint
+		format "p = %\n" p
+		box position: p
+	)
+	*/
 	
 	tool splineTool
 	(
@@ -275,7 +284,11 @@ rollout newWallCreatorRLT "new wall Creator"
 		format "mat:%\n" wallmat.name
 		if wallmat != undefined then matNamET.text = wallmat.name
 	)
-
+	
+-- 	on testBT pressed do
+-- 	(
+-- 		format "mat:%\n" wallMattMT.material
+-- 	)
 )
 createdialog newWallCreatorRLT
 
