@@ -11,21 +11,24 @@ maj:
 	Autoload 
 		/- collecter les set de grilles automatiquement à partir du layer rep
 			-- tagger les grilles pour les collecter automatiquement
-			-- donner des noms string au set de selection
+			-- donner des noms string au set de selection(nom des batiments)
 	
 	cell
-		-- générer toute l'aboresence des cell
-		-- réfléchir à 
+		-- générer toute l'aboresence des cell (placer dans un calque call batiment et dans le calque cell)
 		
 	plans
+		-- tagguer les grille avec les noms des plans plutot que les plans avec les noms des grilles
 		-- associer les plans avec les grilles à partir d'une selection
 	
 	Display:
+		- decacher les calque parent général du batiment ou des cellules
+		- incrementer l'apparition des plans et des cellules
+		x- toggle sur le display des batiments
 		x- associer des calques de cellules avec chaque reperes (à afficher et à activer)
 		- centrer la vue sur la totalité des objets visibles ou memoriser le viewport ou resizer la grille par rapport à la selection en cours
-		- afficher les etages en dessous de le l'étage selectionné
-			-- mettre le plan en option
-			-- mettre les cellules en options
+		x- afficher les etages en dessous de le l'étage selectionné
+			x-- mettre le plan en option
+			x-- mettre les cellules en options
 		x-- taguer les plans avec plusieurs nom de grilles
 		x-- refresh de la partie wall assistant au changement de set
 	
@@ -285,10 +288,15 @@ fn tagPlan p newName =
 -- 		format "testArray: %\n" testArray
 		
 		-- si le nom est un nom seul le conditionner en array
-		if  testArray == undefined and repName == refName then testArray = #(repName)
+-- 		if  testArray == undefined and repName == undefined then testArray = #(repName)
 		
 		-- ajouter un nom à l'array
-		if iskindof testArray array then append testArray newName
+		
+		if iskindof testArray array then
+		(
+			testArray = makeuniquearray testArray
+			appendifunique testArray newName
+		)
 			
 		-- ecrire l'array
 		setuserprop p "rep" testArray			
@@ -307,8 +315,61 @@ fn cleanTagPlan p =
 	else()
 )
 
+fn tagGrid g planeName =
+(
+	local planesAr = getuserprop g "planesAr" 
+	if planesAr == undefined or (execute planesAr) == undefined then
+	(
+		setuserprop g "planesAr" #(planeName)
+	)
+	else
+	(
+		local testArray = execute planesAr
+		
+		-- ajouter un nom à l'array
+		if iskindof testArray array then
+		(
+			testArray = makeuniquearray testArray
+			appendifunique testArray planeName
+		)
+			
+		-- ecrire l'array
+		setuserprop g "planesAr" testArray			
+	)
+	
+	format "wrote: %\n" (getuserprop g "planesAr")
+)
+
+fn unHideLayerHierarchy oneLayer =
+(
+	local lar = #(oneLayer)
+
+	for l in lar do
+	(
+		dad = l.getparent()
+		if iskindof dad MixinInterface then append lar dad
+	)
+
+	for l in lar do l.on = true
+)
 
 
+rollout renameSetRLT "new Set Name"
+(
+	global newSetName
+	edittext newSetET "set name:"
+	button okBT "ok"
+	
+	on newSetET entered oneString do
+	(		
+		newSetName = oneString 
+	)
+	
+	on okBT pressed do
+	(
+		destroydialog renameSetRLT
+	)
+)
 
 try(closeRolloutFloater  sliceFloater)catch()
 sliceFloater = newRolloutFloater "decoupe de batiments" 350 650 80 200
@@ -331,6 +392,7 @@ rollout decoupEtageRLT "découpe etage"
 	local planesAr
 	local onePlane
 	local oneLayer
+		
 -- 	local oneGrid
 	local newCell
 	local cellLayer
@@ -347,8 +409,9 @@ rollout decoupEtageRLT "découpe etage"
 		
 		multilistbox CutPlaneMLB "grilles:"  tooltip: "Les plans de découpe les plus hauts dans la scene sont les plus bas dans la liste.\n\nUn plan de découpe doit toujours être au dessus de l'étage découpé."
 		edittext planeNameET "name:" readonly: true
-		button addBT "add" across: 6
+		button addBT "add" across: 7
 		button clearBT "clear"
+		button newGridBT "new"
 		button oneMoreBT "+"
 		button upBT "^" -- across: 2
 		button dwBT "v"
@@ -361,16 +424,16 @@ rollout decoupEtageRLT "découpe etage"
 		checkbox autoSelREpCB  "autoSel Grid"
 		checkbox autoLayerCB  "auto active layer" checked: true -- enabled: false 
 -- 		button showHideBT "show/hide selected"
-		checkbox displayPlanCB "show plan" across: 3 checked: true --enabled: false
+		checkbox displayPlanCB "show plan" across: 2 checked: true --enabled: false
 		checkbox displayCellsCB "show cell" checked: true --enabled: false
-		checkbox displayGridCB "show grid" checked: true --enabled: false
+		checkbox displayGridCB "show grid"  across: 2  checked: true --enabled: false
+		checkbox displayBatCB "show bat" checked: true --enabled: false
 		
 		checkbox alignGridCB "align view on grid"  across: 3 checked: true -- enabled: false
 		checkbox keepSelCB "keep selection" checked: false --enabled: false
 		checkbox incrementCB "incremental" checked: false --enabled: false
 
 		button displayBT "display selected"
-		
 	)
 	
 	group "slice:"
@@ -393,7 +456,8 @@ rollout decoupEtageRLT "découpe etage"
 	
 	group "plans assistant:"
 	(
-		edittext planeET "plan:" --across: 2
+		edittext planeET "planes list:" --across: 2
+		edittext gridTagET "grid tags:" --across: 2
 		button tagBT "add tag" across: 2
 		button clearTagBT "clear tag"
 	)
@@ -414,6 +478,8 @@ rollout decoupEtageRLT "découpe etage"
 			onePlane = getnodebyname ("plane_" + validRep.name)
 			-- par les tags
 			planesAr = checkPlan validRep.name
+			--par tags des grilles
+			
 			-- ajout du premier plan si valide
 			if isvalidnode onePlane then appendifunique planesAr onePlane
 			
@@ -658,6 +724,26 @@ rollout decoupEtageRLT "découpe etage"
 		refreshUI ()
 	)
 	
+	on newGridBT pressed do
+	(
+		sel = selection as array
+		createdialog renameSetRLT modal: true
+-- 		basename = "batD"
+		newGrid = grid name: (newSetName + "_r00") rotation: sel[1].rotation position: sel[1].position length: 500 width: 500
+
+		repBasename = "rep"
+
+		repLayer = layermanager.getLayerFromName repBasename
+		if repLayer == undefined then repLayer = layermanager.newLayerFromName  repBasename
+			
+		oneRepLayer = layermanager.getLayerFromName  (repBasename+ "_" +newSetName)
+		if oneRepLayer == undefined then oneRepLayer = layermanager.newLayerFromName (repBasename+ "_" +newSetName)
+
+		oneRepLayer.setParent repLayer
+
+		oneRepLayer.addnode newGrid
+	)
+	
 	on oneMoreBT pressed do
 	(
 		local curArray = CutPlaneMLB.selection as array
@@ -665,7 +751,10 @@ rollout decoupEtageRLT "découpe etage"
 		for id in curArray do
 		(
 			format "rep: %\n" rep[id].name
+			local l = rep[id].layer
 			newRep = copy rep[id]
+			l.addnode newRep
+			newRep.wirecolor = rep[id].wirecolor
 			move newRep [0,0,250]
 			append rep newRep
 		)
@@ -802,6 +891,7 @@ rollout decoupEtageRLT "découpe etage"
 		(
 			tagPlan s validRep.name
 -- 			setuserprop s "rep" validRep.name
+			tagGrid validRep s.name
 		)
 		check()
 		refreshUI()
@@ -854,7 +944,7 @@ rollout decoupEtageRLT "découpe etage"
 		)
 
 		-- decacher le calque etage
-		if oneLayer != undefined then oneLayer.ishidden = false
+		if displayBatCB.checked and oneLayer != undefined then oneLayer.ishidden = false
 			
 		-- activation du calque de travail du batiment
 		if 	autoLayerCB.state and oneLayer != undefined then oneLayer.current = true else()
