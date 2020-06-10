@@ -2,7 +2,7 @@
 try(destroydialog placeSun2RLT)catch()
 rollout placeSun2RLT "place sun 2"
 (
-	local cam = $PhysCamera001
+	local cam = $VRayCam002
 	local sun = $VRaySun001
 	
 	local x1
