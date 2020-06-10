@@ -2,6 +2,8 @@
 
 /*
 maj: 
+	- ajouter une fonction cap, dérivé du sel creator
+	- auto active du layer batiment
 	- rajouter des spline sur une spline deja commencer
 	- activer l'option start new spline à la volée
 	- créer une fonction pour attacher les spline ensembles en ignorant le sweep
@@ -16,24 +18,6 @@ maj:
 rebuild:
 	- supprimer la var backCell en ajoutant une condition if newSpline then newcell = undefined
 */
-
-rollout renameCellRLT "rename"
-(
-	global newCell
-	
-	editText cellNameET "cell name:"
-	button closeBT "ok"
-	
-	
-	on closeBT pressed do destroydialog renameCellRLT
-		
-	on cellNameET entered val do
-	(
-		format "newName: %\n" val
-		newCell.name = val
-		destroydialog renameCellRLT
-	)
-)
 
 try(destroydialog newWallCreatorRLT)catch()
 rollout newWallCreatorRLT "new wall Creator"
@@ -52,7 +36,6 @@ rollout newWallCreatorRLT "new wall Creator"
 	
 	materialbutton wallMattMT "wall material"
 	edittext matNamET "material:"
--- 	button testBT "test mat"
 	
 	tool splineTool
 	(
@@ -232,6 +215,12 @@ rollout newWallCreatorRLT "new wall Creator"
 		)
 	)
 	
+	on newWallCreatorRLT open do
+	(
+		wallmat = scenematerials["beton_blanc"]
+		if wallmat != undefined then matNamET.text = wallmat.name
+	)
+	
 	on newOneBT pressed do
 	(
 		 newSpline = true
@@ -275,7 +264,11 @@ rollout newWallCreatorRLT "new wall Creator"
 		format "mat:%\n" wallmat.name
 		if wallmat != undefined then matNamET.text = wallmat.name
 	)
-
+	
+-- 	on testBT pressed do
+-- 	(
+-- 		format "mat:%\n" wallMattMT.material
+-- 	)
 )
 createdialog newWallCreatorRLT
 

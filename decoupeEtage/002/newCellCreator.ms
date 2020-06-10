@@ -1,55 +1,21 @@
 
 /*
 maj:
+ajouter bouton uniquename
+
+debug:, 
+ à la première ouverture le bsaename ne suit pas dans rollout rename
 
 */
 
-
-
-rollout renameCellRLT "rename"
-(
-	global newCellCreatorRLT
-	global basename
-	global newCell
-	
-	
-	editText cellNameET "cell name:"
-	button closeBT "ok"
-	
-	on closeBT pressed do 
-	(
--- 		print "youpi"
-		basename = cellNameET.text
--- 		format "basename 2: %\n" basename
-		newCellCreatorRLT.baseNameET.text = basename
-		destroydialog renameCellRLT
-	)
-	
-	on renameCellRLT open do
-	(
-		if basename == undefined then()
-		else if basename.count > 0 then 
-		(
-			cellNameET.text = basename
-			format "basename 1: %\n" basename
-			newCell.name = basename
-		)
-		else()
-	)
-	
-	on cellNameET entered val do
-	(
--- 		format "newName: %\n" val
-		newCell.name = val
-		closeBT.pressed()
-	)
-)
 
 try(destroydialog newCellCreatorRLT)catch()
 rollout newCellCreatorRLT "new Cell Creator"
 (
 	global decoupEtageRLT
+	global renameCellRLT
 	global newCell
+	
 	local newWallState = true
 	local newOne = false
 	local cellLayer
@@ -69,16 +35,17 @@ rollout newCellCreatorRLT "new Cell Creator"
 	group "create cell"
 	(
 		editText baseNameET "basename"
+		button uniqueNameBT "unique name" across: 2
 		checkbutton newCellCB "new cell"
 	)
 -- 	checkbox continueCB "continue"
-	
-	fn testPickPoint  =
-	(
-		local p = pickPoint () -- mouseMoveCallback:printPickPoint
-		format "p = %\n" p
-		box position: p
-	)
+-- 	
+-- 	fn testPickPoint  =
+-- 	(
+-- 		local p = pickPoint () -- mouseMoveCallback:printPickPoint
+-- 		format "p = %\n" p
+-- 		box position: p
+-- 	)
 
 	fn init =
 	(
@@ -232,7 +199,7 @@ rollout newCellCreatorRLT "new Cell Creator"
 			if restart then 
 			(
 				print "restart\n"
-				format "basename 3: %\n" basename
+-- 				format "basename 3: %\n" basename
 				baseNameET.text = basename
 -- 				newCellCreatorRLT.baseNameET.text = basename
 				starttool splineTool
@@ -257,10 +224,24 @@ rollout newCellCreatorRLT "new Cell Creator"
 		 newOne = true
 	)
 	
+	on uniqueNameBT pressed do
+	(
+		if basename != undefined then
+		(
+			
+			basename = uniqueName basename
+			baseNameET.text = basename
+		)
+	)
+	
 	on newCellCB changed state do
 	(
 		-- activer le calque
-		if cellLayer != undefined and autoLayerCB.state then cellLayer.current = true
+		if cellLayer != undefined and autoLayerCB.state then 
+		(
+			cellLayer.current = true
+			unHideLayerHierarchy cellLayer
+		)
 		currentLayerET.text = LayerManager.current.name
 			 
 		if state then
@@ -279,5 +260,57 @@ rollout newCellCreatorRLT "new Cell Creator"
 		
 	)
 )
+
+
+rollout renameCellRLT "rename"
+(
+	global newCellCreatorRLT
+	global basename
+	global newCell
+		
+	editText cellNameET "cell name:"
+	button uniqueNameBT "unique name" across: 2
+	button closeBT "ok"
+	
+	on closeBT pressed do 
+	(
+-- 		print "youpi"
+		basename = cellNameET.text
+-- 		format "basename 2: %\n" basename
+		newCellCreatorRLT.baseNameET.text = basename
+		destroydialog renameCellRLT
+	)
+	
+	on renameCellRLT open do
+	(
+		if basename == undefined then()
+		else if basename.count > 0 then 
+		(
+			cellNameET.text = basename
+			format "basename 1: %\n" basename
+			newCell.name = basename
+		)
+		else()
+	)
+	
+	on uniqueNameBT pressed do
+	(
+		if basename != undefined then 
+		(
+			basename = uniqueName basename
+			cellNameET.text = basename
+		)
+		else(format "basename: %\n" basename)
+	)
+	
+	on cellNameET entered val do
+	(
+-- 		format "newName: %\n" val
+		newCell.name = val
+		closeBT.pressed()
+	)
+)
+
+
 createdialog newCellCreatorRLT width: 250
 

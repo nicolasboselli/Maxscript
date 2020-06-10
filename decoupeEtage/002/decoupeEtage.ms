@@ -8,15 +8,34 @@ debug:
 	-- de instancier
 
 maj:
-
+	Autoload 
+		/- collecter les set de grilles automatiquement à partir du layer rep
+			-- tagger les grilles pour les collecter automatiquement
+			-- donner des noms string au set de selection(nom des batiments)
+	
+	cell
+		-- générer toute l'aboresence des cell (placer dans un calque call batiment et dans le calque cell)
+		
+	plans
+		-- tagguer les grille avec les noms des plans plutot que les plans avec les noms des grilles
+		-- associer les plans avec les grilles à partir d'une selection
+	
 	Display:
-		x- associer des calques de cellules avec chaque reperes (à affciher et à activer)
+		- decacher les calque parent général du batiment ou des cellules
+		- incrementer l'apparition des plans et des cellules
+		x- toggle sur le display des batiments
+		x- associer des calques de cellules avec chaque reperes (à afficher et à activer)
 		- centrer la vue sur la totalité des objets visibles ou memoriser le viewport ou resizer la grille par rapport à la selection en cours
+		x- afficher les etages en dessous de le l'étage selectionné
+			x-- mettre le plan en option
+			x-- mettre les cellules en options
 		x-- taguer les plans avec plusieurs nom de grilles
 		x-- refresh de la partie wall assistant au changement de set
 	
 	
-	A - decoupe
+	decoupe
+		-- conserver les objets decoupés sur un calque "sliced"
+		
 		1 -  de objets avec modifier edit_poly
 			x-  collapser tout ce qui est en dessous et conserver les modifiers au dessus 
 		
@@ -41,7 +60,7 @@ maj:
 		5 - modifier clone
 			x-- converttopoly et decoupe
 	
-	B- auto add to layer
+	auto add to layer
 		4 -- raiclone 
 			/- deplacer les spline des railclone dans le même calque que les railclone à l'autoadd to layer
 			
@@ -50,12 +69,6 @@ maj:
 	
 	-- determinier automatiquement s il faut faire une decoupe ou un auto load
 		-- tester si un objet intersecte avec une grille
-	
-
-	
-rebuild
-	x- dupliquer l'objet à découper avant de le decouper puis supprimer le treitement
-	X- sortir les operation de freeze de la fonction de decoupe
 */
 
 -- classof $
@@ -77,9 +90,6 @@ fn sortbyname v1 v2 =
 	else 0
 )
 
-
--- arrayTest = for i = 1 to 10 collect i
--- arrayTest = arrayTest as bitarray
 fn moveItem oneAr idAr jump: 1 =
 (
 	sort idAr
@@ -90,10 +100,7 @@ fn moveItem oneAr idAr jump: 1 =
 		insertitem downed oneAr idAr[i]
 	)
 )
--- upItem arrayTest #(5,4,3,2,1) jump: 1
--- arrayTest
 
--- $.modifiers.count
 fn sliceObject b rep collapseSlice: false addEditPoly: false collapseRC: true =
 (
 	local tmpEP = EditPolyMod ()
@@ -186,7 +193,6 @@ fn sliceObject b rep collapseSlice: false addEditPoly: false collapseRC: true =
 	)
 )
 
--- rep
 fn sortbySize v1 v2 =
 (
 	-- qsort <array> sortbyname
@@ -234,28 +240,6 @@ fn autoAddObjToLayer rep sel =
 	)
 )
 
--- fn checkPlan refName =
--- (
--- 	local planesAr = #()
--- 	for s in $plane_* do
--- 	(
--- 		local repName = getuserprop s "rep" 
--- 		
--- 		format "%\n" (execute repName)
--- 		
--- 		if repName != undefined then
--- 		(
--- 			if  repName == refName then 
--- 			(
--- 				format "s: % repName: %\n" s.name repName
--- 				append planesAr s
--- 			)
--- 		)
--- 	)
--- 	format "planesAr: %\n" planesAr 
--- 	planesAr
--- )
-
 fn checkPlan refName =
 (
 	local planesAr = #()
@@ -266,7 +250,7 @@ fn checkPlan refName =
 		if repName != undefined then
 		(
 			-- tester si le nom est un array
-			format "repName: %\n" (execute repName)
+-- 			format "repName: %\n" (execute repName)
 			local testArray = execute repName
 			-- si le nom est un nom seul le conditionner en array
 			if  testArray == undefined and repName == refName then testArray = #(repName)
@@ -274,22 +258,21 @@ fn checkPlan refName =
 			-- traiter l'array
 			if iskindof testArray array then
 			(
-				format "testArray: % \n" testArray
+-- 				format "testArray: % \n" testArray
 				for o in testArray where o == refname do append planesAr s
 			)
 			else()
 		)
 	)
-	format "planesAr: %\n" planesAr 
+-- 	format "planesAr: %\n" planesAr 
 	planesAr
 )
 
--- checkPlan "batA_r00"
 fn tagPlan p newName =
 (
 	format "newName:%\n" newName
 	local repName = getuserprop p "rep" 
-	format "repName:%\n" repName
+-- 	format "repName:%\n" repName
 	
 	if repName == undefined or (execute repName) == undefined then
 	(
@@ -299,16 +282,18 @@ fn tagPlan p newName =
 	)
 	else
 	(
--- 		print "check 2"
 		-- tester si on a un nom seul ou un array
 		local testArray = execute repName
-		format "testArray: %\n" testArray
 		
 		-- si le nom est un nom seul le conditionner en array
-		if  testArray == undefined and repName == refName then testArray = #(repName)
+-- 		if  testArray == undefined and repName == undefined then testArray = #(repName)
 		
 		-- ajouter un nom à l'array
-		if iskindof testArray array then append testArray newName
+		if iskindof testArray array then
+		(
+			testArray = makeuniquearray testArray
+			appendifunique testArray newName
+		)
 			
 		-- ecrire l'array
 		setuserprop p "rep" testArray			
@@ -327,86 +312,188 @@ fn cleanTagPlan p =
 	else()
 )
 
+fn tagGrid g planeName =
+(
+	local planesAr = getuserprop g "planesAr" 
+	if planesAr == undefined or (execute planesAr) == undefined then
+	(
+		setuserprop g "planesAr" #(planeName)
+	)
+	else
+	(
+		local testArray = execute planesAr
+		
+		-- ajouter un nom à l'array
+		if iskindof testArray array then
+		(
+			testArray = makeuniquearray testArray
+			appendifunique testArray planeName
+		)
+			
+		-- ecrire l'array
+		setuserprop g "planesAr" testArray			
+	)
+	
+	format "wrote: %\n" (getuserprop g "planesAr")
+)
 
-try(destroydialog decoupEtageRLT)catch()
+fn unHideLayerHierarchy oneLayer =
+(
+	local lar = #(oneLayer)
+
+	for l in lar do
+	(
+		dad = l.getparent()
+		if iskindof dad MixinInterface then append lar dad
+	)
+
+	for l in lar do l.on = true
+)
+
+
+rollout renameSetRLT "new Set Name"
+(
+	global newSetName
+	edittext newSetET "set name:"
+	button okBT "ok"
+	
+	on newSetET entered oneString do
+	(		
+		newSetName = oneString 
+	)
+	
+	on okBT pressed do
+	(
+		destroydialog renameSetRLT
+	)
+)
+
+try(closeRolloutFloater  sliceFloater)catch()
+sliceFloater = newRolloutFloater "decoupe de batiments" 350 650 80 200
+
+-- try(destroydialog decoupEtageRLT)catch()
 rollout decoupEtageRLT "découpe etage"
 (
-	local params = #("pos", "autoSelLayCB", "autoSelREpCB", "collapseCB", "addPolyModCB", "freezeOldCB", "boxOldCB")
+	local RFPos = [0,0]
+	local RFSIze = [350,800]
 	
+	local params = #("RFPos","RFSIze", "pos", "autoSelLayCB", "autoSelREpCB", "collapseCB", "addPolyModCB", "freezeOldCB", "boxOldCB", \
+		"autoLayerCB","displayPlanCB","displayCellsCB","displayGridCB","alignGridCB","keepSelCB","incrementCB")
+
 	global repAr
 	global rep -- = #()
 	
-	local validRep = undefined
+	global validRep = undefined
 	
 -- 	local oneStage
 	local planesAr
 	local onePlane
 	local oneLayer
+		
 -- 	local oneGrid
 	local newCell
 	local cellLayer
 	
-	group "plans de découpe:"
+	group "slice grids:"
 	(
 -- 		dropdownlist  setRepDL "sets:"
 		listbox  setRepDL "sets:" height: 5
-		button newSetBT "new" across: 3
+		
+		button autoLoadBT "autoLoad" across: 4
+		button newSetBT "new" -- across: 3
 		button loadSetBT "load" -- across: 2
 		button delSetBT "del"
 		
-		multilistbox CutPlaneMLB "liste de plans:"  tooltip: "Les plans de découpe les plus hauts dans la scene sont les plus bas dans la liste.\n\nUn plan de découpe doit toujours être au dessus de l'étage découpé."
+		multilistbox CutPlaneMLB "grilles:"  tooltip: "Les plans de découpe les plus hauts dans la scene sont les plus bas dans la liste.\n\nUn plan de découpe doit toujours être au dessus de l'étage découpé."
 		edittext planeNameET "name:" readonly: true
-		button addBT "add" across: 6
+		button addBT "add" across: 7
 		button clearBT "clear"
+		button newGridBT "new"
 		button oneMoreBT "+"
 		button upBT "^" -- across: 2
 		button dwBT "v"
 		button sortBT "sort"
 	)
 	
-	group "display"
+	group "display settings:"
 	(
 		checkbox autoSelLayCB  "autoSel Layer" across: 3
-		checkbox autoSelREpCB  "autoSel Rep"
-		button showHideBT "show/hide"
+		checkbox autoSelREpCB  "autoSel Grid"
+		checkbox autoLayerCB  "auto active layer" checked: true -- enabled: false 
+-- 		button showHideBT "show/hide selected"
+		checkbox displayPlanCB "show plan" across: 2 checked: true --enabled: false
+		checkbox displayCellsCB "show cell" checked: true --enabled: false
+		checkbox displayGridCB "show grid"  across: 2  checked: true --enabled: false
+		checkbox displayBatCB "show bat" checked: true --enabled: false
+		
+		checkbox alignGridCB "align view on grid"  across: 3 checked: true -- enabled: false
+		checkbox keepSelCB "keep selection" checked: false --enabled: false
+		checkbox incrementCB "incremental" checked: false --enabled: false
+
+		button displayBT "display selected"
 	)
 	
-	group "decoupe"
+	group "slice:"
 	(
 		checkbox freezeOldCB "freeze old" across: 4
 		checkbox boxOldCB "box old"
 		checkbox collapseCB "collapse slice" -- enabled: false
 		checkbox addPolyModCB "add edit poly" -- enabled: false
-		button decoupeBT "decoupe"
-	)
-	
-	group "layer"
-	(
-		button autoAddBT "auto add to layer" enbled: false across:2
+		button autoAddBT "auto add to layer" across:3 --enabled: false 
 		button addToLayBT "add to layer"
+		button decoupeBT "slice" 
 	)
 	
-	group "cells assitant"
+	group "grid infos:"
 	(
-		checkbox wallAssistOnCB "on/off" visible: false
-		
-		button createCellLayerBT "create cells layer"
-		
+-- 		button checkBT "check" enabled: false
 		edittext gridET "grille:" 
-		edittext layerET "calque:"
-		edittext cellET "cells:" 
-		edittext planeET "plan:" --across: 2
+		edittext layerET "layer:"
+	)
+	
+	group "plans assistant:"
+	(
+		edittext planeET "planes list:" --across: 2
+		edittext gridTagET "grid tags:" --across: 2
 		button tagBT "add tag" across: 2
 		button clearTagBT "clear tag"
-		
-		radiobuttons layerRB "active layer:" labels:#("murs", "cellules")
-		
-		button checkBT "check" visible: false across: 3
-		button displayBT "display"
-		
--- 		checkbutton newCellCB "new cell"
 	)
 	
+	group "cells assitant:"
+	(
+		button createCellLayerBT "create all cells layer"
+		edittext cellET "cells layer:" 
+-- 		radiobuttons layerRB "active layer:" labels:#("murs", "cellules")
+	)
+		
+	fn check =
+	(
+		if isvalidnode validRep then 
+		(
+			-- trouver les plans correpondants
+			-- par le nom du repère
+			onePlane = getnodebyname ("plane_" + validRep.name)
+			-- par les tags
+			planesAr = checkPlan validRep.name
+			--par tags des grilles
+			
+			-- ajout du premier plan si valide
+			if isvalidnode onePlane then appendifunique planesAr onePlane
+			
+-- 			format "planesAr: %\n" planesAr
+			
+			-- trouver le calque correspondant à la grille selectionnée
+			oneLayer = LayerManager.getLayerFromName validRep.name
+			
+			-- trouver le calque de cell correspondant à la grille selectionnée
+			cellLayer =  LayerManager.getLayerFromName ("cell_"+ validRep.name)
+		)		
+		else
+		(
+			onePlane = undefined
+			oneLayer = undefined 
+		)
+	)
 	
 	fn refreshUI =
 	(
@@ -435,7 +522,7 @@ rollout decoupEtageRLT "découpe etage"
 		(
 			local str = stringstream ""
 			format "%" planesAr to: str
-			print str
+-- 			print str
 -- 			layerET.text = oneLayer.name
 			planeET.text = (str as string)
 			
@@ -463,11 +550,16 @@ rollout decoupEtageRLT "découpe etage"
 		(
 			cellET.text = "NONE"
 		)
+		
+		
 	)
 	
 	on decoupEtageRLT open do
 	(
 		loadRolloutParams decoupEtageRLT params
+		try(sliceFloater.pos =  RFPos)catch()
+		try(sliceFloater.size =  RFSIze)catch()
+		
 		
 		if planesAr == undefined then planesAr = #()
 		if repAr == undefined then repAr = #()
@@ -477,10 +569,29 @@ rollout decoupEtageRLT "découpe etage"
 	
 	on decoupEtageRLT close do
 	(
+		RFPos = sliceFloater.pos
+		RFSIze = sliceFloater.size
+		
 		writeRolloutParams decoupEtageRLT params
 	)
 	
 -- 	layermanager.current.name
+	on autoLoadBT pressed do
+	(
+		repAr = #()
+-- 		LayerManager.count
+		repLayer = LayerManager.getLayerFromName "rep"
+		childNum = repLayer.getNumChildren()
+		for i = 1 to childNum do
+		(
+		-- 	format "%\n" (repLayer.getChild i).name
+			Ltmp = repLayer.getChild i
+			Ltmp.nodes &repsTmp
+			format "%\n" repsTmp
+			append repAr repsTmp
+		)
+		refreshUI()
+	)
 	
 	on newSetBT pressed do
 	(
@@ -512,8 +623,9 @@ rollout decoupEtageRLT "découpe etage"
 	(
 		local l
 		
-		-- retoune le repere selectionne
-		selAr = CutPlaneMLB.selection as array
+		-- retoune le repere selectionne et le calque de travail
+		local selAr = CutPlaneMLB.selection as array
+		
 		if selAr.count == 1  then
 		(
 			validRep = rep[selAr[1]]
@@ -526,32 +638,37 @@ rollout decoupEtageRLT "découpe etage"
 		)
 
 		-- auto selection des objets d'un layer
+		if autoSelLayCB.state or  autoSelRepCB.state then clearselection()
+		
 		if autoSelLayCB.state then
 		(
-			if isvalidnode validRep then l = layermanager.getLayerFromName validRep.name
-				
-			if l != undefined then
+			for i in selAr do 
 			(
-				l.nodes &tmpSel
-				select tmpSel
-			)
-			else
-			(
-				clearselection()
+				local l = layermanager.getLayerFromName rep[i].name
+				if l == undefined then ()
+				else
+				(
+					l.nodes &tmpSel
+					selectmore tmpSel
+				)
 			)
 		)
 		
-		if autoSelRepCB.state and isvalidnode validRep then select validRep
+		-- auto selection de repère
+		if autoSelRepCB.state then
+		(
+			for i in selAr do selectmore rep[i]
+		)
 		
-		checkBT.pressed()
-		
+		check()
 		refreshUI ()
 	)
 	
 	on CutPlaneMLB doubleClicked arg do
 	(
-		local l = layermanager.getLayerFromName rep[arg].name
-		if l != undefined then l.on = not l.on
+-- 		local l = layermanager.getLayerFromName rep[arg].name
+-- 		if l != undefined then l.on = not l.on
+		displayBT.pressed()
 	)
 	
 	on planeNameET entered val do
@@ -604,6 +721,26 @@ rollout decoupEtageRLT "découpe etage"
 		refreshUI ()
 	)
 	
+	on newGridBT pressed do
+	(
+		sel = selection as array
+		createdialog renameSetRLT modal: true
+-- 		basename = "batD"
+		newGrid = grid name: (newSetName + "_r00") rotation: sel[1].rotation position: sel[1].position length: 500 width: 500
+
+		repBasename = "rep"
+
+		repLayer = layermanager.getLayerFromName repBasename
+		if repLayer == undefined then repLayer = layermanager.newLayerFromName  repBasename
+			
+		oneRepLayer = layermanager.getLayerFromName  (repBasename+ "_" +newSetName)
+		if oneRepLayer == undefined then oneRepLayer = layermanager.newLayerFromName (repBasename+ "_" +newSetName)
+
+		oneRepLayer.setParent repLayer
+
+		oneRepLayer.addnode newGrid
+	)
+	
 	on oneMoreBT pressed do
 	(
 		local curArray = CutPlaneMLB.selection as array
@@ -611,7 +748,10 @@ rollout decoupEtageRLT "découpe etage"
 		for id in curArray do
 		(
 			format "rep: %\n" rep[id].name
+			local l = rep[id].layer
 			newRep = copy rep[id]
+			l.addnode newRep
+			newRep.wirecolor = rep[id].wirecolor
 			move newRep [0,0,250]
 			append rep newRep
 		)
@@ -624,34 +764,7 @@ rollout decoupEtageRLT "découpe etage"
 		refreshUI ()		
 	)
 --  refLayer.on = not refLayer.on
-	
-	on showHideBT pressed do
-	(
-		local selAr = CutPlaneMLB.selection as array
-		format "selAr: %\n" selAr
-		local tmpState
 
-		-- toggle
-		for i in selAr do
-		(
-			local l = layermanager.getLayerFromName  rep[i].name
-			
-			if l == undefined then ()
-			else
-			(
-				if tmpState == undefined then 
-				(
-					tmpState = l.on
-					l.on = not tmpState
-				)
-				else
-				(
-					l.on = not tmpState
-				)
-			)
-		)
-	)
-	
 	on decoupeBT pressed do
 	(
 		local sel = selection as array
@@ -666,7 +779,7 @@ rollout decoupEtageRLT "découpe etage"
 					continue
 				)
 				
-				if iskindof s dummy or iskindof s VRayLight then continue
+				if iskindof s dummy or iskindof s VRayLight or iskindof s grid then continue
 					
 				-- creation de la copy de securité pour traiter les instances
 				local copySel
@@ -688,6 +801,7 @@ rollout decoupEtageRLT "découpe etage"
 					-- traitement des clones
 					else if iskindof copyS.modifiers[i] clone then collapseMode = true
 					else if iskindof copyS.modifiers[i] extrude then collapseMode = true
+					else if iskindof copyS.modifiers[i] poly_select then collapseMode = true
 						
 					if collapseMode then 
 					(
@@ -712,6 +826,19 @@ rollout decoupEtageRLT "découpe etage"
 					s.isfrozen = true
 					s.wirecolor = (color 125 125 125)
 				)
+				
+				-- backup de la source
+				local l = s.layer
+				local newLayerName =  l.name + "[sliced]"
+				local newL = LayerManager.getLayerFromName newLayerName
+				if newL == undefined then 
+				(
+					newL = LayerManager.newLayerFromName newLayerName
+					newL.setparent l
+				)
+				newL.addnode s
+				
+				
 			)
 		)
 	)
@@ -754,32 +881,6 @@ rollout decoupEtageRLT "découpe etage"
 		)
 	)
 	
-	on checkBT pressed do
-	(
-		if isvalidnode validRep then 
-		(
-			-- trouver le plan correpondant
-			onePlane = getnodebyname ("plane_" + validRep.name)
-			planesAr = checkPlan validRep.name
-			appendifunique planesAr onePlane
-			format "planesAr: %\n" planesAr
-			
-			-- trouver le calque correspondant
-			oneLayer = LayerManager.getLayerFromName validRep.name
-			
-			-- trouver le calque de cell correspondant
-			cellLayer =  LayerManager.getLayerFromName ("cell_"+ validRep.name)
--- 			format "onePlane: % oneLayer: %\n" onePlane.name  oneLayer.name
-		)		
-		else
-		(
-			onePlane = undefined
-			oneLayer = undefined 
-		)
-		
-		refreshUI()
-	)
-	
 	on tagBT pressed do
 	(
 		local sel = selection as array
@@ -787,8 +888,9 @@ rollout decoupEtageRLT "découpe etage"
 		(
 			tagPlan s validRep.name
 -- 			setuserprop s "rep" validRep.name
+			tagGrid validRep s.name
 		)
-		checkBT.pressed()
+		check()
 		refreshUI()
 	)
 	
@@ -800,84 +902,123 @@ rollout decoupEtageRLT "découpe etage"
 			cleantagPlan s
 -- 			setuserprop s "rep" validRep.name
 		)
-		checkBT.pressed()
+		check()
 		refreshUI()
 		
 	)
 	
 	on displayBT pressed do
 	(
+		local bakSel =selection as array
 		-- activer la grille selectionnée se caler dessus
 		activeGrid = validRep
-		viewport.setType #view_grid
-		viewport.setType #view_iso_user
+		if alignGridCB.checked then
+		(
+			viewport.setType #view_grid
+			viewport.setType #view_iso_user
+		)
 		
-		-- unhider le layer
-		for r in rep do
+		local idSel =  ((CutPlaneMLB.selection)as array)[1]
+-- 		format "CutPlaneMLB.selection: %\n" id
+
+		-- cacher les layers batiments
+		for i = 1 to rep.count do
 		(
 			-- cacher le calque batiments
-			local l = layermanager.getLayerFromName r.name
+			local l = layermanager.getLayerFromName rep[i].name
 			if l != undefined then l.ishidden = true
+		)
+
+		-- decacher les layers batiments si incremental selectionné
+		if incrementCB.checked then
+		(
+			for i = 1 to idSel do
+			(
+				-- cacher le calque batiments
+				local l = layermanager.getLayerFromName rep[i].name
+				if l != undefined then l.ishidden = false
+			)
+		)
+
+		-- decacher le calque etage
+		if displayBatCB.checked and oneLayer != undefined then oneLayer.ishidden = false
 			
+		-- activation du calque de travail du batiment
+		if 	autoLayerCB.state and oneLayer != undefined then oneLayer.current = true else()
+
+		-- cacher tous les layers cellules
+		for i = 1 to rep.count do
+		(
 			-- cacher le calque cellules
-			local cl = layermanager.getLayerFromName ("cell_" + r.name)
+			local cl = layermanager.getLayerFromName ("cell_" + rep[i].name)
 			if cl != undefined then cl.ishidden = true
-		)	
-		
-		-- decacher les calque etage et cell selectionner
-		if oneLayer != undefined then oneLayer.ishidden = false
-		if cellLayer != undefined then cellLayer.ishidden = false
-		
-		-- activation du calque de travail 
-		if  oneLayer != undefined and layerRB.state == 1 then oneLayer.current = true
-		else if cellLayer != undefined and layerRB.state == 2 then cellLayer.current = true
-		else()
-		
+		)		
+		-- décacher les calques cellules correspondants à la grille selectionnée
+		if displayCellsCB.checked and cellLayer != undefined then cellLayer.ishidden = false
+
 		-- cacher tous les plans
 		for p in $plane_* do p.ishidden = true
-			
-		-- decacher les plans selectionnés
-		for p in planesAr where isvalidnode p do
+		-- décacher les plans selectionnés
+		if displayPlanCB.checked then
 		(
-			-- decache
-			p.ishidden = false
-			-- move plans
-			p.position.z = validRep.position.z - 50
+			-- decacher les plans selectionnés
+			for p in planesAr where isvalidnode p do
+			(
+				-- decache
+				p.ishidden = false
+				-- move plans
+				p.position.z = validRep.position.z - 50
+			)
 		)
-	)
-	
-	on newCellCB changed arg do
-	(
 		
--- 		if arg then
--- 		(
--- 			max modify mode
-
--- 			newCell= SplineShape ()
--- 			updateShape newCell
--- 			newCell.vertexTicks = on
-
--- 			addmodifier newCell (edit_poly ())
-
--- 			select newCell
--- 			
--- 			modPanel.setCurrentObject newCell.baseobject 
--- 			splineOps.startCreateLine newCell
--- 		)
--- 		else
--- 		(
--- 			showEndResult = true
--- 			newCell.vertexTicks = off
--- 			newCell.pivot = newCell.center
--- 			newCell.xray = on
--- 			newCell.wirecolor = color 135 6 6
--- 		)
+		-- cacher les grilles
+		local gridLayer = layermanager.getLayerFromName "rep"
+		if not gridLayer == undefined then gridlayer.ishidden = not displayGridCB.checked
 		
-		-- mettre en place un trigger qui reagit au clic droit douris pour comprendre que la creation est terminée
+		-- maj du cell creator rollout
+		if newCellCreatorRLT == undefined then(/*format "newCellCreatorRLT undefined\n"*/)
+		else if newCellCreatorRLT.open then 
+		(
+			if newCellCreatorRLT.open then newCellCreatorRLT.init()
+		)
+		
+		-- maj du duplicate_floor rollout
+		if incNameRLT == undefined then(/*format "incNameRLT undefined\n"*/)
+		else if incNameRLT.open then 
+		(
+			if incNameRLT.open then incNameRLT.init()
+			if incNameRLT.open then incNameRLT.refreshUI()
+		)
+		
+		if keepSelCB.checked then select baksel
 	)
-	
-	
 )
-createdialog decoupEtageRLT width: 400
+-- createdialog decoupEtageRLT width: 400
 
--- setdialogpos decoupEtageRLT [0,0]
+rollout sliceToolsRLT "slice tools"
+(
+	button cellCreatorBT "cell creator" across: 3 --enabled: false 
+	button wallCreatorBT "wall creator" --enabled: false
+	button duplicateFloorBT "duplicate floor" --enabled: false
+	
+	on cellCreatorBT pressed do
+	(
+		filein "newCellCreator.ms"
+	)
+
+	on wallCreatorBT pressed do
+	(
+		filein "wallCreator2.ms"
+	)
+	
+	on duplicateFloorBT pressed do
+	(
+		filein "duplicate_etage.ms"
+	)
+)
+
+
+addRollout sliceToolsRLT sliceFloater --rolledUp:false
+addRollout decoupEtageRLT sliceFloater --rolledUp:false
+
+sliceFloater.title =  sliceFloater.title +" v." + ((getScriptVersion (getThisScriptFilename())) as string)
