@@ -7,13 +7,13 @@ debug:,
  à la première ouverture le bsaename ne suit pas dans rollout rename
 
 */
-basename
 
 
 try(destroydialog newCellCreatorRLT)catch()
 rollout newCellCreatorRLT "new Cell Creator"
 (
 	global decoupEtageRLT
+	global renameCellRLT
 	global newCell
 	
 	local newWallState = true

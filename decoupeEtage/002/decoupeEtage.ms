@@ -282,16 +282,13 @@ fn tagPlan p newName =
 	)
 	else
 	(
--- 		print "check 2"
 		-- tester si on a un nom seul ou un array
 		local testArray = execute repName
--- 		format "testArray: %\n" testArray
 		
 		-- si le nom est un nom seul le conditionner en array
 -- 		if  testArray == undefined and repName == undefined then testArray = #(repName)
 		
 		-- ajouter un nom à l'array
-		
 		if iskindof testArray array then
 		(
 			testArray = makeuniquearray testArray
