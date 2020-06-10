@@ -565,7 +565,7 @@ rollout matIdExplorerRLT "materials id explorer"
 			superName = ""
 			for m in sameIdMatAr do 
 			(
-				format "%\n" (superName += ("/" + m.name))
+				format "%\n" (superName += ("_" + m.name))
 				superName = substring superName 1 40
 			)
 			
