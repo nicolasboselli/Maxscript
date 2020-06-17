@@ -98,6 +98,7 @@ fn collectVisibleMultiMat =
 	for m in matSel where iskindof m multimaterial collect m
 )
 -- collectVisibleMultiMat()
+
 /*
 fn collectMatIDs =
 (
@@ -181,16 +182,6 @@ fn returnCleanId =
 	j
 )
 -- returnCleanId()
-
-/*
-fn collectMatByIds id =
-(
-	local sceneMat = getclassinstances vrayMtl target: scenematerials
-	local sameIdMatAr = for m in sceneMat where m.effect_id == id collect m
-	sameIdMatAr
-)
-*/
--- collectMatIDs()
 
 try(closeRolloutFloater matIdExplorerRF)catch()
 matIdExplorerRF = newRolloutFloater "Materials id explorer" 250 500
@@ -290,7 +281,7 @@ rollout matIdExplorerRLT "materials id explorer"
 		
 		-- changer la selection en fonction du changement de postion de la selection dans la liste
 		-- material count
-		matCountET.text = matAr.count as string
+		matCountET.text = matArToDisp.count as string
 	)
 	
 	fn refreshUI1 =
@@ -322,81 +313,33 @@ rollout matIdExplorerRLT "materials id explorer"
 			qsort  matArToDisp sortbyId
 		)
 	)
-	
-	fn collectAndSortMat sel =
-	(
-		matAr = collectSetMat sel
-		matArToDisp = #()
 		
-		-- collect des materiaux à visualiser
-		if not ignoreIDO.checked then
-		(
-			for mat in matAr do append matArToDisp mat
-		)
-		else
-		(
-			-- ignore id 0
-			for mat in matAr where mat.effect_id != 0 do append  matArToDisp mat
-		)
-	)
-
-	
-	fn returnAll =
-	(
-		local sel =  for o in  $* collect o
-		collectAndSortMat sel
-		
-		sortMatAr()
-		refreshUIList()
-		refreshUI1()
-	)
-		
-	fn returnVisSel =
-	(
-		local sel = for o in  $* where o.ishidden == false collect o
-		collectAndSortMat sel
-		
-		sortMatAr()
-		refreshUIList()
-		refreshUI1()
-	)
-	
-	fn returnSel =
-	(
-		local sel = selection as array
-		collectAndSortMat sel
-		
-		sortMatAr()
-		refreshUIList()
-		refreshUI1()
--- 		windows.ProcessPostedMessages()
-	)		
-
-	
 	fn init =
 	(
+		local sel = #()
 		if typeSelBT.state == 1 then
 		(
-			returnAll()
-			callbacks.removeScripts id:#printSelTest
-			callbacks.removeScripts id:#printSelVisTest
-			callbacks.removeScripts id:#printSelVisTest2
+			sel =  for o in  $* collect o
 		)
 		else if typeSelBT.state == 2 then
 		(
-			returnVisSel()
-			callbacks.removeScripts id:#printSelTest
-			callbacks.addScript #nodeHide "matIdExplorerRLT.returnVisSel()" id: #printSelVisTest
-			callbacks.addScript #nodeUnHide "matIdExplorerRLT.returnVisSel()" id: #printSelVisTest2
+			sel = for o in  $* where o.ishidden == false collect o
 		)
 		else if typeSelBT.state  == 3 then
 		(
-			returnSel()
-			callbacks.removeScripts id:#printSelVisTest
-			callbacks.removeScripts id:#printSelVisTest2
-			callbacks.addScript #selectionSetChanged "matIdExplorerRLT.returnSel()" id: #printSelTest
+			sel = selection as array
 		)
 		else()
+		
+		-- collecte des materiaux à partir de la selection d'objet
+		matArToDisp = collectSetMat sel
+		
+		-- ignore id 0
+		if ignoreIDO.checked then matArToDisp = for mat in matArToDisp where mat.effect_id != 0 collect mat
+		
+		sortMatAr()
+		refreshUIList()
+		refreshUI1()
 	)
 
 	-- Actions
@@ -407,6 +350,12 @@ rollout matIdExplorerRLT "materials id explorer"
 		try(matIdExplorerRF.size =  RFSIze)catch()
 		
 		init()
+		
+		callbacks.addScript #nodeHide "matIdExplorerRLT.init()" id: #printSelVisTest
+		callbacks.addScript #nodeUnHide "matIdExplorerRLT.init()" id: #printSelVisTest2
+		callbacks.addScript #selectionSetChanged "matIdExplorerRLT.init()" id: #printSelTest
+		
+-- 		init()
 	)
 	
 	on matIdExplorerRLT close do
