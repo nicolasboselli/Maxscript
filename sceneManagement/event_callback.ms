@@ -86,7 +86,7 @@ struct toto
 
 toto.sayHello "tata"
 */
-test  = $.children 
+-- test  = $.children 
 
 
 

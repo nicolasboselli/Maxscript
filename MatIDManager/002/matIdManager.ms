@@ -1,24 +1,21 @@
 /*
- faire travailler au choix sur la scene, les objets visibles ou la selection d'objet ou les multimaterial
+maj: 
+	-- faire un vrai nettoyage de tous les materiaux id, ne pas passer par un getclassinstance sur le scenematerials
+		-- ça veut dire prendre en compte les standard, bitmap et autre
+	-- prendre en charge les multi mat et les materiaux composite
+		-- une liste pour ces materiaux
+	-- fonctionner avec les material id de max plutôt qu'avec les effect_id de vray finalement?
+	
+debug:
+	-- lasso activer aprés des selections trop rapide
+
+rebuild:
+	-- trouver une façon plus élégante d'imbriquer les fonctions, les callback et l'UI
  
  travailler avec les vray effect id sur les vray mat (pour le moment, ignorer les material id, les sur materiaux vray ou les mat standard)
-	- lister material id pour nettoyage
-	
- x une interface pour appliquer des effect id aux materiaux
-	 x un tool pour publier les multi mat
-		rammasser tous les materiaux composé et pas seulement les multimat
-	 x assign id en random sur un set de vray mat 
-		en respectant les ids deja affectes
-		faire fonctionner sur la selection
-	x assigner un id non utilisé sur une selection de materiaux
- 
- x--une interface pour manager les ids(retrouver les objets par ids, publier les materiaux avec le même ids)
-	 /une interface pour parametrer la passe material id et les passes vrayobjectselect et les multimatteelement
-	  passer la liste d'id en multilist
-	  créer les passes des id selectionnées
+	/- lister material id pour nettoyage
 
 */
--- appliquer une id de materiau aux materiaux des object selectionnés
 
 fn sortbyname v1 v2 =
 (
@@ -39,18 +36,34 @@ fn sortbyname v1 v2 =
 	)
 )
 
-fn collectVisibleMat =
+fn sortbyId v1 v2 =
 (
-	-- travailler sur les materiaux des objets selectionnés
--- 		sel = selection as array
-	local oneMatAr
+		-- 	vars
+	local d
+	
+	if ( (v1.effect_id) < (v2.effect_id)) then
+		d=1
+	else
+		d=-1
+	
+	format "v1: % v2: % d:%\n" v1 v2 d
+	--compare les numeros entre eux et les classe	
+	case of
+	(
+		(d < 0.): 1
+		(d > 0.): -1
+		default: 0
+	)
+)
 
-	-- travailler sur les materiaux des objets visiblesés
-	local sel = for o in  $* where o.ishidden == false collect o
+
+fn collectSetMat oneSet =
+(
+	local oneMatAr
 
 	-- collecte des materiaux du set d objet
 	local matSel = #()
-	for s in sel where s.material != undefined  do
+	for s in oneSet where s.material != undefined  do
 	(
 		appendifunique matSel s.material
 	)
@@ -85,7 +98,7 @@ fn collectVisibleMultiMat =
 	for m in matSel where iskindof m multimaterial collect m
 )
 -- collectVisibleMultiMat()
-
+/*
 fn collectMatIDs =
 (
 	local idsAr = #()
@@ -97,12 +110,47 @@ fn collectMatIDs =
 	format "idsAr: %\n" idsAr
 	idsAr
 )
+*/
 
+-- clean materials id
+fn cleaneffectsChannel =
+(
+	for m in scenematerials do
+	(
+		if iskindof m VRaySky then(format "ignore:%\n" m)
+		else
+		(	
+			 m.effectsChannel = 0
+			format "m: % id: %\n" m m.effectsChannel
+		)
+	)
+)
+-- cleaneffectsChannel()
+
+fn cleanVrayEffectsChannel =
+(
+	for m in scenematerials do
+	(
+		if iskindof m VRayMtl then
+		(
+			m.effect_id = 0
+			format "ignore:%\n" m
+		)
+		else()
+	)
+)
 
 fn returnCleanId =
 (
 	-- collecter les ids de materiaux deja affecter dans la scene
-	local usedIds = collectMatIDs()
+	local usedIds = #()
+	local matArTmp = getclassinstances vrayMtl target: scenematerials
+	
+-- 	local idsAr
+	for m in matArTmp do appendifunique usedIds m.effect_id
+	sort usedIds
+	
+-- 	local usedIds = idsAr
 
 	-- appliquer les ids de materiaux en evitant les ids deja attribuées
 	local j = 0
@@ -134,39 +182,14 @@ fn returnCleanId =
 )
 -- returnCleanId()
 
-fn cleaneffectsChannel =
-(
-	for m in scenematerials do
-	(
-		if iskindof m VRaySky then(format "ignore:%\n" m)
-		else
-		(	
-			 m.effectsChannel = 0
-			format "m: % id: %\n" m m.effectsChannel
-		)
-	)
-)
--- cleaneffectsChannel()
-
-fn cleanVrayEffectsChannel =
-(
-	for m in scenematerials do
-	(
-		if iskindof m VRayMtl then
-		(
-			m.effect_id = 0
-			format "ignore:%\n" m
-		)
-		else()
-	)
-)
-
+/*
 fn collectMatByIds id =
 (
 	local sceneMat = getclassinstances vrayMtl target: scenematerials
 	local sameIdMatAr = for m in sceneMat where m.effect_id == id collect m
 	sameIdMatAr
 )
+*/
 -- collectMatIDs()
 
 try(closeRolloutFloater matIdExplorerRF)catch()
@@ -177,7 +200,7 @@ rollout matIdExplorerRLT "materials id explorer"
 	local RFPos = [0,0]
 	local RFSIze = [350,800]
 	
-	local params = #("RFPos","RFSIze")
+	local params = #("RFPos","RFSIze", "typeSelBT", "ignoreIDO", "sortSelBT")
 	
 	local idSel = #()
 -- 	local idsAr = #()
@@ -199,8 +222,8 @@ rollout matIdExplorerRLT "materials id explorer"
 	
 	group "selection:"
 	(
-		radiobuttons typeSelBT "selection: " labels:#("scene", "visible", "selection") default: 2 enabled: false
-		button refreshBT "refresh"
+		radiobuttons typeSelBT "selection: " labels:#("scene", "visible", "selection") default: 2 --enabled: false
+-- 		button refreshBT "refresh"
 	)
 	/*
 	group "multimaterials:"
@@ -212,13 +235,20 @@ rollout matIdExplorerRLT "materials id explorer"
 	*/
 	group "vray materials:"
 	(
+		radiobuttons sortSelBT "sort: " labels:#("by name", "by id") default: 1 -- enabled: false
+		checkbox ignoreIDO "ignore id 0" -- enabled: false
 		multilistbox materialListMLB "vray material list:" --height: 30
-		editText matCountET "material count" readonly: true
-		button editMatBT "edit mat" -- enabled: false
-		button selectMatObjBT "select object" -- enabled: false
 		
+		editText matCountET "material count" readonly: true
+		button selAllBT "select All" across:3
+		button editMatBT "edit material"  -- across:2-- enabled: false
+		button selectMatObjBT "select object" -- enabled: false
+	)
+	
+	group "vray effect channel:"
+	(
 		spinner matIdSP "material id" type: #integer
-		button addFreeIdBT "add free id to sel" 
+		button addFreeIdBT "add free id to sel" across:2
 		button randomIdBT "random ids on sel" --enabled: false
 	)
 		
@@ -226,12 +256,43 @@ rollout matIdExplorerRLT "materials id explorer"
 	group "create render elements:"
 	(
 		button matIdEltBT "VRayMtlID" --across: 3
-		button objSelEltBT "VRayObjectSelect selected" tooltip: "Création d'une passe 'vrayObjectSelect' pour chaque id de material selectionné."
+		button objSelEltBT "VRayObjectSelect" tooltip: "Création d'une passe 'vrayObjectSelect' pour chaque id de material selectionné."
 -- 		button multiEltBT "all MultiMatteElement"  tooltip: "création de toutes les passes MultiElement"
-		button multiElt2BT "all MultiMatteElement 2"  tooltip: "création de toutes les passes MultiElement"
+		button multiElt2BT "MultiMatteElement"  tooltip: "création de toutes les passes MultiElement"
 	)
 		
 -- functions UI dependant
+	fn refreshUIList =
+	(
+		-- collecte des noms
+		matNameArToDisp = #()
+		
+		for m in matArToDisp do
+		(
+-- 			format "% %\n" m.name m.effect_id
+			if m.effect_id == 0 then
+			(
+				append matNameArToDisp (m.name)
+			)
+			else if sortSelBT.state == 1 then
+			(
+-- 				format "youpi 1 \n"
+				append matNameArToDisp (m.name + "  [" +  (m.effect_id as string) + "]")
+			)
+			else if sortSelBT.state == 2 then
+			(
+-- 				format "youpi 2 \n"
+				append matNameArToDisp ( "[" +  (m.effect_id as string) + "]  " + m.name )
+			)
+		)	
+
+		materialListMLB.items = matNameArToDisp
+		
+		-- changer la selection en fonction du changement de postion de la selection dans la liste
+		-- material count
+		matCountET.text = matAr.count as string
+	)
+	
 	fn refreshUI1 =
 	(
 		-- collecte de de la liste de multimaterial
@@ -240,40 +301,104 @@ rollout matIdExplorerRLT "materials id explorer"
 		qsort  multiMatArToDisp sortbyname
 		multiMatLB.items = for m in multiMatArToDisp collect m.name
 		*/
-		
-		-- collecte de de la liste de material
--- 		matArToDisp = matAr
--- 		qsort  matAr sortbyname
-		
-		-- collecte des noms
-		matNameArToDisp = #()
-		
-		for m in matArToDisp do
-		(
-			format "% %\n" m.name m.effect_id
-			if m.effect_id == 0 then
-			(
-				append matNameArToDisp (m.name)
-			)
-			else
-			(
-				append matNameArToDisp (m.name + "  [" +  (m.effect_id as string) + "]")
-			)
-		)	
-
-		materialListMLB.items = matNameArToDisp
-		
-		-- material count
-		matCountET.text = matAr.count as string
--- 		
+			
+		-- spinner id 		
 		if matListSel.count > 0 then
 		(
 			local idAr = #()
 			for m in matListSel do appendifunique idAr m.effect_id
 			if idAr.count == 1 then matIdSP.value = idAr[1] else matIdSP.value = 0
 		)
-	)		
+	)	
 		
+	fn sortMatAr =
+	(
+		if sortSelBT.state == 1 then
+		(
+			qsort  matArToDisp sortbyname
+		)
+		else if sortSelBT.state == 2 then
+		(
+			qsort  matArToDisp sortbyId
+		)
+	)
+	
+	fn collectAndSortMat sel =
+	(
+		matAr = collectSetMat sel
+		matArToDisp = #()
+		
+		-- collect des materiaux à visualiser
+		if not ignoreIDO.checked then
+		(
+			for mat in matAr do append matArToDisp mat
+		)
+		else
+		(
+			-- ignore id 0
+			for mat in matAr where mat.effect_id != 0 do append  matArToDisp mat
+		)
+	)
+
+	
+	fn returnAll =
+	(
+		local sel =  for o in  $* collect o
+		collectAndSortMat sel
+		
+		sortMatAr()
+		refreshUIList()
+		refreshUI1()
+	)
+		
+	fn returnVisSel =
+	(
+		local sel = for o in  $* where o.ishidden == false collect o
+		collectAndSortMat sel
+		
+		sortMatAr()
+		refreshUIList()
+		refreshUI1()
+	)
+	
+	fn returnSel =
+	(
+		local sel = selection as array
+		collectAndSortMat sel
+		
+		sortMatAr()
+		refreshUIList()
+		refreshUI1()
+-- 		windows.ProcessPostedMessages()
+	)		
+
+	
+	fn init =
+	(
+		if typeSelBT.state == 1 then
+		(
+			returnAll()
+			callbacks.removeScripts id:#printSelTest
+			callbacks.removeScripts id:#printSelVisTest
+			callbacks.removeScripts id:#printSelVisTest2
+		)
+		else if typeSelBT.state == 2 then
+		(
+			returnVisSel()
+			callbacks.removeScripts id:#printSelTest
+			callbacks.addScript #nodeHide "matIdExplorerRLT.returnVisSel()" id: #printSelVisTest
+			callbacks.addScript #nodeUnHide "matIdExplorerRLT.returnVisSel()" id: #printSelVisTest2
+		)
+		else if typeSelBT.state  == 3 then
+		(
+			returnSel()
+			callbacks.removeScripts id:#printSelVisTest
+			callbacks.removeScripts id:#printSelVisTest2
+			callbacks.addScript #selectionSetChanged "matIdExplorerRLT.returnSel()" id: #printSelTest
+		)
+		else()
+	)
+
 	-- Actions
 	on matIdExplorerRLT open do
 	(
@@ -281,14 +406,7 @@ rollout matIdExplorerRLT "materials id explorer"
 		try(matIdExplorerRF.pos =  RFPos)catch()
 		try(matIdExplorerRF.size =  RFSIze)catch()
 		
--- 		idsAr = collectMatIDs()
-		
-		matAr = collectVisibleMat()
-		multiMatAr = collectVisibleMultiMat()
-		
-		refreshBT.pressed()
--- 		refreshUI()
-		refreshUI1()
+		init()
 	)
 	
 	on matIdExplorerRLT close do
@@ -297,49 +415,31 @@ rollout matIdExplorerRLT "materials id explorer"
 		RFSIze = matIdExplorerRF.size
 		
 		writeRolloutParams matIdExplorerRLT params
+		
+		callbacks.removeScripts id:#printSelTest
+		callbacks.removeScripts id:#printSelVisTest
+		callbacks.removeScripts id:#printSelVisTest2
 	)
 	
 	on cleanIdMatBT pressed do
 	(
 		cleaneffectsChannel()
 		cleanVrayEffectsChannel()
+		init()
 	)
 	
+	on typeSelBT changed state do init()
 	
-	on refreshBT pressed do
+	on sortSelBT changed val do
 	(
-		matAr = collectVisibleMat()
-		multiMatAr = collectVisibleMultiMat()
--- 		multiMatLB.selection = 0
-		
-		
--- 		qsort  matAr sortbyid
-		
-		matArToDisp = #()
-		
-		for mat in matAr do
-		(
-			append matArToDisp mat
-		)
-		
-		qsort  matArToDisp sortbyname
-		
+-- 		init()
+		sortMatAr()
+		refreshUIList()
 		refreshUI1()
 	)
 	
-	on matIdManagerRLT open do
-	(
-		matAr = collectVisibleMat()
-		multiMatAr = collectVisibleMultiMat()
-		refreshUI1()
-	)
-	/*
-	on multiMatLB selected arg do
-	(
-		matAr = getclassinstances vrayMtl target: multiMatAr[arg]
-		refreshUI1()
-	)
-	*/
+	on ignoreIDO changed val do init()
+	
 	on materialListMLB selectionEnd do
 	(
 -- 		format "selection:% \n" materialListMLB.selection
@@ -348,12 +448,23 @@ rollout matIdExplorerRLT "materials id explorer"
 		refreshUI1()
 	)
 	
+	on selAllBT pressed do
+	(
+-- 		format "%\n" materialListMLB.items.count
+		materialListMLB.selection = ((for i = 1 to materialListMLB.items.count collect i) as bitarray)
+-- 		format "selAr: %\n" selAr
+	)
+	
 	on editMatBT pressed do
 	(
 -- 		print "youhou2"
-		for i = 1 to matListSel.count do
+-- 		for i = 1 to matListSel.count do
+		local j = 0
+		for i in materialListMLB.selection do
 		(
-			meditMaterials[i] = matListSel[i]
+			j+=1
+			meditMaterials[j] = matArToDisp[i]
+			if j == 24 then exit
 		)
 	)	
 	
@@ -362,11 +473,13 @@ rollout matIdExplorerRLT "materials id explorer"
 		local setToSel = #()
 		
 -- 		format "youhou\n"
-		if matListSel.count > 0 then
-		(
-			for m in matListSel do
+-- 		if matListSel.count > 0 then
+-- 		(
+-- 			for m in matListSel do
+			for i in materialListMLB.selection do
 			(
-				format "mat:%\n" m.name
+				m =  matArToDisp[i]
+-- 				format "mat:%\n" m.name
 				local deps = refs.dependents m
 				for d in deps do
 				(
@@ -378,31 +491,45 @@ rollout matIdExplorerRLT "materials id explorer"
 					)
 				)
 			)
-		)
+-- 		)
 		select setToSel
 	)
 	
 	on matIdSP changed val do
 	(
-		if matListSel.count > 0 then
-		(
-			for m in matListSel do
+-- 		if matListSel.count > 0 then
+-- 		(
+			for i in materialListMLB.selection do
+-- 			for m in matListSel do
 			(
+				m =  matArToDisp[i]
 				m.override_effect_id = on
 				m.effect_id = val
 			)
-		)
+-- 		)
+		
+-- 		init()
+		
+		sortMatAr()
+		refreshUIList()
 		refreshUI1()
 	)
 	
 	on addFreeIdBT pressed do
 	(
 		local newId = returnCleanId()
-		for m in matListSel do
+		
+		for i in materialListMLB.selection do
+-- 		for m in matListSel do
 		(
+			m =  matArToDisp[i]
+			m.override_effect_id = on
 			m.effect_id = newId
 		)
 		
+-- 		init()
+		sortMatAr()
+		refreshUIList()
 		refreshUI1()
 	)
 	
@@ -411,9 +538,11 @@ rollout matIdExplorerRLT "materials id explorer"
 		-- assign de maniere incrementale des id au materiaux en evitant d'appliquer plusieurs fois des id et en evitant de changer les id deja affecter
 		-- collecter les ids de materiaux deja affecter dans la scene
 		local forceID = true
-		
-		for m in matListSel do
+				
+		for i in materialListMLB.selection do
+-- 		for m in matListSel do
 		(
+			m =  matArToDisp[i]
 			-- si une id est deja affecté passer
 			if m.effect_id != 0 and not forceID then continue
 
@@ -421,6 +550,10 @@ rollout matIdExplorerRLT "materials id explorer"
 			m.effect_id = (returnCleanId())
 			format "id: % assign: %\n" i m.name
 		)
+		
+-- 		init()
+		sortMatAr()
+		refreshUIList()
 		refreshUI1()
 	)
 	
@@ -453,32 +586,24 @@ rollout matIdExplorerRLT "materials id explorer"
 			if iskindof elt VRayObjectSelect then rem.RemoveRenderElement elt
 		)
 		
-		-- collecte des vray mat
-		sceneMat = getclassinstances vrayMtl target: scenematerials
-			
-		-- creation des passes
-		format "idsAr: %\n" idsAr
-		format "idSel: %\n" idSel
-		
--- 		for id in idsAr do
-		for id in idSel do
+		local usedIds = #()
+		for i in materialListMLB.selection do
 		(
-			-- creation du nom
-			sameIdMatAr = for m in sceneMat where m.effect_id == id collect m
-			superName = ""
-			for m in sameIdMatAr do 
+			 -- collecte des id deja publiées
+			local testId = finditem usedIds matArToDisp[i].effect_id
+			appendifunique usedIds matArToDisp[i].effect_id
+			 
+			 -- evite de faire deux fois la même couche
+			if testId > 0 then continue
+			else if matArToDisp[i].effect_id == 0 then continue
+			else
 			(
-				format "%\n" (superName += ("/" + m.name))
-				superName = substring superName 1 40
-			)
-			
-			if id > 0 then
-			(
--- 				format "channel id: % mat name: %\n" m.effect_id m.name
-				vrObjSelElt = VRayObjectSelect elementName: ("id_" + (id as string) + superName) mode: 1 object_id: id  use_material_id: true consider_for_antialiasing: true
+				local superName = "effectId_" + (matArToDisp[i].effect_id as string) +  "_" + matArToDisp[i].name
+				
+				local vrObjSelElt = VRayObjectSelect elementName: superName mode: 1 object_id: matArToDisp[i].effect_id   use_material_id: true consider_for_antialiasing: true
 				rem.AddRenderElement vrObjSelElt
 			)
-		)
+		)	
 	)
 	
 	on multiElt2BT pressed do
@@ -492,60 +617,24 @@ rollout matIdExplorerRLT "materials id explorer"
 			elt = rem.GetRenderElement i
 			if iskindof elt multimatteElement then rem.RemoveRenderElement elt
 		)
-		
-		-- collecte des vray mat
-		sceneMat = getclassinstances vrayMtl target: scenematerials
-		
-		format "idsAr: %\n" idsAr
-		-- creation des passes
-		for i=1 to  idsAr.count do
+
+		local usedIds = #()
+		for i in materialListMLB.selection do
 		(
-			format "idsAr[i]: %\n" idsAr[i]
-			-- creation du nom
-			sameIdMatAr = #()
-			for m in sceneMat do
-			(
-				if m.effect_id == 0 then continue
-				if m.effect_id == idsAr[i] then append sameIdMatAr m
--- 				if m.effect_id == idsAr[i+1] then append sameIdMatAr m
--- 				if m.effect_id == idsAr[i+2] then append sameIdMatAr m
-			)
-			
-			-- 
-			superName = ""
-			for m in sameIdMatAr do 
-			(
-				superName += ("[" +(m.effect_id as string)+"]" + m.name + " ")
-				format "%\n" superName
--- 				superName = substring superName 1 60
-			)
-			
-			-- 
-			local R_gbufID, G_gbufID, B_gbufID
-			
-			-- 
-			if idsAr[i] != undefined then 
-			(
-				R_gbufID = idsAr[i] -- else R_gbufID = 0
-				G_gbufID = idsAr[i] -- else G_gbufID = 0
-				B_gbufID = idsAr[i] -- else B_gbufID = 0
-			)
+			 -- collecte des id deja publiées
+			local testId = finditem usedIds matArToDisp[i].effect_id
+			appendifunique usedIds matArToDisp[i].effect_id
+			 
+			 -- evite de faire deux fois la même couche
+			if testId > 0 then continue
+			else if matArToDisp[i].effect_id == 0 then continue
 			else
 			(
-				R_gbufID = 0
-				G_gbufID = 0
-				B_gbufID = 0
-			)
--- 			if idsAr[i+1] != undefined then G_gbufID = idsAr[i+1] else G_gbufID = 0
--- 			if idsAr[i+2] != undefined then B_gbufID = idsAr[i+2] else B_gbufID = 0
-			
--- 			if idsAr[i] > 0 then
-			(
-				format "%\n" superName
-				local matSel = multimatteElement elementName: (superName) R_gbufID: R_gbufID G_gbufID: G_gbufID B_gbufID: B_gbufID MatID: true
+				local superName = "matId_" + (matArToDisp[i].effect_id as string) +  "_" + matArToDisp[i].name
+				local matSel = multimatteElement elementName: superName R_gbufID: matArToDisp[i].effect_id G_gbufID: matArToDisp[i].effect_id B_gbufID: matArToDisp[i].effect_id MatID: true
 				rem.AddRenderElement matSel
 			)
-		)
+		)			
 	)
 )
 -- createdialog matIdExplorerRLT
