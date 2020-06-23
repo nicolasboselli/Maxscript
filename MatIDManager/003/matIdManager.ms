@@ -46,7 +46,7 @@ fn sortbyId v1 v2 =
 	else
 		d=-1
 	
-	format "v1: % v2: % d:%\n" v1 v2 d
+-- 	format "v1: % v2: % d:%\n" v1 v2 d
 	--compare les numeros entre eux et les classe	
 	case of
 	(
@@ -193,23 +193,19 @@ rollout matIdExplorerRLT "materials id explorer"
 	
 	local params = #("RFPos","RFSIze", "typeSelBT", "ignoreIDO", "sortSelBT")
 	
-	local idSel = #()
--- 	local idsAr = #()
-	local sameIdMatAr = #()
-	local matListSel = #()
 	local sceneMat
 		
-	local matAr
+-- 	local matAr
 	local multiMatAr
 	local matArToDisp
 	local multiMatArToDisp
 	local matListSel = #()
 	
-	group "tools"
-	(
-		button cleanIdMatBT "clean all id mat"
+-- 	group "tools"
+-- 	(
+		
 -- 		button matManagerBT "materials id manager"
-	)
+-- 	)
 	
 	group "selection:"
 	(
@@ -238,6 +234,7 @@ rollout matIdExplorerRLT "materials id explorer"
 	
 	group "vray effect channel:"
 	(
+		button cleanIdMatBT "clean all id mat"
 		spinner matIdSP "material id" type: #integer
 		button addFreeIdBT "add free id to sel" across:2
 		button randomIdBT "random ids on sel" --enabled: false
@@ -293,7 +290,7 @@ rollout matIdExplorerRLT "materials id explorer"
 		multiMatLB.items = for m in multiMatArToDisp collect m.name
 		*/
 			
-		-- spinner id 		
+		-- refresh spinner id 		
 		if matListSel.count > 0 then
 		(
 			local idAr = #()
@@ -316,6 +313,7 @@ rollout matIdExplorerRLT "materials id explorer"
 		
 	fn init =
 	(
+		-- collecte du set d'objet
 		local sel = #()
 		if typeSelBT.state == 1 then
 		(
