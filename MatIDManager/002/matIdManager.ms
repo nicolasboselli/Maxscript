@@ -46,7 +46,7 @@ fn sortbyId v1 v2 =
 	else
 		d=-1
 	
-	format "v1: % v2: % d:%\n" v1 v2 d
+-- 	format "v1: % v2: % d:%\n" v1 v2 d
 	--compare les numeros entre eux et les classe	
 	case of
 	(

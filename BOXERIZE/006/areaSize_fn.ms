@@ -2,6 +2,11 @@
 maj:
 	-- calculer les couleur de manière à toujours retomber sur les memes
 		-- en fonction des taille de boite?
+		
+	-- affiner le classement des boites en fonction
+		x- de la diagonale
+		-- sur les groupes générés en fonction de la hauteur 
+		-- sur les groupes générés en fonction  de la largeur
 */
 
 struct boxStr (size, obj)
@@ -59,6 +64,7 @@ fn wirecolorByBoxSize sel tres:3 =
 				format "BREAK: %, size: %, %, %\n" res  boxesAr[i].size boxesAr[i].obj.name j
 				randomColor = color (random 0 255) (random 0 255) (random 0 255)
 			)
+			else(format "CONTINUE: %, size: %, %, %\n" res  boxesAr[i].size boxesAr[i].obj.name j)
 		)
 		else if i == boxesAr.count then
 		(
@@ -74,4 +80,4 @@ fn wirecolorByBoxSize sel tres:3 =
 -- wirecolorByBoxSize sel
 
 
-
+select $fenetre_detach_60
