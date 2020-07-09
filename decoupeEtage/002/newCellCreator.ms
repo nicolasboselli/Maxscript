@@ -8,7 +8,8 @@ debug:,
 
 */
 
-
+global basename
+	
 try(destroydialog newCellCreatorRLT)catch()
 rollout newCellCreatorRLT "new Cell Creator"
 (
@@ -19,6 +20,8 @@ rollout newCellCreatorRLT "new Cell Creator"
 	local newWallState = true
 	local newOne = false
 	local cellLayer
+	
+-- 	local basename
 	
 	group "infos:"
 	(
@@ -198,7 +201,7 @@ rollout newCellCreatorRLT "new Cell Creator"
 			
 			if restart then 
 			(
-				print "restart\n"
+-- 				print "restart\n"
 -- 				format "basename 3: %\n" basename
 				baseNameET.text = basename
 -- 				newCellCreatorRLT.baseNameET.text = basename
@@ -206,8 +209,6 @@ rollout newCellCreatorRLT "new Cell Creator"
 			)
 		)
 	)
-	
-
 	
 	on newCellCreatorRLT open do
 	(
@@ -228,7 +229,6 @@ rollout newCellCreatorRLT "new Cell Creator"
 	(
 		if basename != undefined then
 		(
-			
 			basename = uniqueName basename
 			baseNameET.text = basename
 		)
@@ -265,7 +265,7 @@ rollout newCellCreatorRLT "new Cell Creator"
 rollout renameCellRLT "rename"
 (
 	global newCellCreatorRLT
-	global basename
+
 	global newCell
 		
 	editText cellNameET "cell name:"

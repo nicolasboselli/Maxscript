@@ -4,12 +4,23 @@
 -- find vray version functions
 fn findVray  =
 (
+	local r
 	for r in rendererClass.classes do
 	(
-		if matchPattern  (r as string)  pattern: "V_Ray_Adv*" do return r
-		break
+-- 		format "r: %\n" r
+		if matchPattern  (r as string)  pattern: "V_Ray_Adv*" or  matchPattern  (r as string)  pattern: "V_Ray_Next_*" then
+		(
+			format "exit\n"
+			format "r: %\n" r
+			exit
+		)
+		else()
 	)
+	format "r: %\n" r
+	r
 )
+
+findVray()
 
 -- fonction pour activer ou desactiver l'exposition des cameras vray
 fn VrayCamExpStateFN TheState = 
@@ -67,7 +78,7 @@ rollout VrayAlphaMaskRLT "Vray passes render"
 	)
 	*/
 	
-	
+	/*
 -- functions vars dependant
 	-- backup des parametres de rendu
 	fn backupRenderDef =
@@ -98,8 +109,11 @@ rollout VrayAlphaMaskRLT "Vray passes render"
 		re.setElementsActive RenderEltsStateBak
 		VrayCamExpStateFN true
 	)
+	*/
 	
 -- UI
+
+	/*
 	group "preset"
 	(
 		checkbutton VRAlphaPresetCB "Vray Alpha Preset" 
@@ -113,7 +127,7 @@ rollout VrayAlphaMaskRLT "Vray passes render"
 		button MatSelRenderBT "Material Selected" -- across: 2
 -- 		button BatchAlphaSelRenderBT "On Selected BatchRender"
 	)
-	
+	*/
 	/*
 	group "render occlu:"
 	(
@@ -122,6 +136,7 @@ rollout VrayAlphaMaskRLT "Vray passes render"
 	)
 	*/
 	
+	/*
 	on VRAlphaPresetCB changed state do
 	(
 		if state == true do
@@ -227,7 +242,7 @@ rollout VrayAlphaMaskRLT "Vray passes render"
 			restoreRenderDef()
 		)
 	)
-	
+	*/
 )
 
 createdialog VrayAlphaMaskRLT

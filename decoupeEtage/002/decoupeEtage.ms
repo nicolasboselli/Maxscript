@@ -17,8 +17,8 @@ maj:
 		-- générer toute l'aboresence des cell (placer dans un calque call batiment et dans le calque cell)
 		
 	plans
-		-- tagguer les grille avec les noms des plans plutot que les plans avec les noms des grilles
-		-- associer les plans avec les grilles à partir d'une selection
+		x- tagguer les grille avec les noms des plans plutot que les plans avec les noms des grilles
+		?- associer les plans avec les grilles à partir d'une selection
 	
 	Display:
 		- decacher les calque parent général du batiment ou des cellules
@@ -240,6 +240,7 @@ fn autoAddObjToLayer rep sel =
 	)
 )
 
+/*
 fn checkPlan refName =
 (
 	local planesAr = #()
@@ -312,6 +313,38 @@ fn cleanTagPlan p =
 	else()
 )
 
+*/
+
+-- getuserprop $ "planesAr "
+fn checkTagGrid g =
+(
+	local plansAr = #()
+	local userProp  = getuserprop g "planesAr"
+	
+	format "userProp: %\n"  userProp
+	if userProp == undefined then()
+	else
+	(
+		-- tester si le nom est un array
+-- 			format "repName: %\n" (execute repName)
+		local testArray = execute userProp
+		-- traiter l'array
+-- 		format "testArray: %\n"  testArray
+		
+		if iskindof testArray array then 
+		(
+			for t in testArray do
+			(				
+				local oneplan = getnodebyname t
+				if isvalidnode oneplan do append plansAr oneplan
+			)
+		)
+		else #()
+	)
+	plansAr
+)
+-- checkTagGrid $
+
 fn tagGrid g planeName =
 (
 	local planesAr = getuserprop g "planesAr" 
@@ -337,6 +370,17 @@ fn tagGrid g planeName =
 	format "wrote: %\n" (getuserprop g "planesAr")
 )
 
+fn cleanTagGrid g =
+(
+	local repName = getuserprop g "planesAr" 
+	if repName != undefined then
+	(
+		setuserprop g "planesAr" #()
+	)
+	else()
+)
+
+
 fn unHideLayerHierarchy oneLayer =
 (
 	local lar = #(oneLayer)
@@ -350,6 +394,8 @@ fn unHideLayerHierarchy oneLayer =
 	for l in lar do l.on = true
 )
 
+global newCellCreatorRLT
+global newWallCreatorRLT
 
 rollout renameSetRLT "new Set Name"
 (
@@ -454,7 +500,7 @@ rollout decoupEtageRLT "découpe etage"
 	group "plans assistant:"
 	(
 		edittext planeET "planes list:" --across: 2
-		edittext gridTagET "grid tags:" --across: 2
+-- 		edittext gridTagET "grid tags:" --across: 2
 		button tagBT "add tag" across: 2
 		button clearTagBT "clear tag"
 	)
@@ -474,7 +520,8 @@ rollout decoupEtageRLT "découpe etage"
 			-- par le nom du repère
 			onePlane = getnodebyname ("plane_" + validRep.name)
 			-- par les tags
-			planesAr = checkPlan validRep.name
+-- 			planesAr = checkPlan validRep.name
+			planesAr = checkTagGrid validRep
 			--par tags des grilles
 			
 			-- ajout du premier plan si valide
@@ -517,6 +564,7 @@ rollout decoupEtageRLT "découpe etage"
 			gridET.text =  "NONE"
 			gridET.readonly = false
 		)
+		
 		
 		if planesAr.count > 0 then
 		(
@@ -886,7 +934,7 @@ rollout decoupEtageRLT "découpe etage"
 		local sel = selection as array
 		for s in sel do 
 		(
-			tagPlan s validRep.name
+-- 			tagPlan s validRep.name
 -- 			setuserprop s "rep" validRep.name
 			tagGrid validRep s.name
 		)
@@ -896,15 +944,18 @@ rollout decoupEtageRLT "découpe etage"
 	
 	on clearTagBT pressed do
 	(
+		/*
 		local sel = selection as array
 		for s in sel do 
 		(
 			cleantagPlan s
 -- 			setuserprop s "rep" validRep.name
 		)
+		*/
+		
+		cleanTagGrid validRep
 		check()
 		refreshUI()
-		
 	)
 	
 	on displayBT pressed do
@@ -941,7 +992,11 @@ rollout decoupEtageRLT "découpe etage"
 		)
 
 		-- decacher le calque etage
-		if displayBatCB.checked and oneLayer != undefined then oneLayer.ishidden = false
+		if displayBatCB.checked and oneLayer != undefined then 
+		(
+			unHideLayerHierarchy oneLayer
+			oneLayer.ishidden = false
+		)
 			
 		-- activation du calque de travail du batiment
 		if 	autoLayerCB.state and oneLayer != undefined then oneLayer.current = true else()

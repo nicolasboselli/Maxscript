@@ -468,7 +468,14 @@ rollout Pt2vue_renderer_UI "Batch Render Automator" width: 500
 					batch.outputFilename = filename
 				)
 			)
-		)	
+		)
+		
+		-- fermeture du batchrendder
+		t=windows.getChildHWND 0 "Batch Render"
+		try(windows.sendMessage t[1] 0x0112 0xF060 0)catch()
+		
+		-- ouverture du batch render
+		actionMan.executeAction -43434444 "4096" -- Render: Batch Render Dialog Toggle		
 	)
 	
 	on SelectPathFileMaqBT pressed do
@@ -508,7 +515,9 @@ rollout Pt2vue_renderer_UI "Batch Render Automator" width: 500
 				)
 				else()
 			)
-		)		
+		)	
+		
+
 	)
 )
 createdialog Pt2vue_renderer_UI
