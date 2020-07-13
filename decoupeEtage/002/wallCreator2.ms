@@ -19,6 +19,7 @@ rebuild:
 	- supprimer la var backCell en ajoutant une condition if newSpline then newcell = undefined
 */
 
+
 try(destroydialog newWallCreatorRLT)catch()
 rollout newWallCreatorRLT "new wall Creator"
 (
@@ -30,12 +31,18 @@ rollout newWallCreatorRLT "new wall Creator"
 	local wallmat
 	
 	checkbox newSplineCB "start new spline" checked: false
+	checkbox autoLayerCB "auto active layer" checked: false
+	edittext currentLayerET "active layer"
+	
+	
 	checkbutton newCellCB "new wall"
 	
 	button attachSplineBT "attach spline"
 	
 	materialbutton wallMattMT "wall material"
 	edittext matNamET "material:"
+	
+	
 	
 	tool splineTool
 	(
@@ -228,6 +235,16 @@ rollout newWallCreatorRLT "new wall Creator"
 	
 	on newCellCB changed state do
 	(
+		-- active le layer wall
+-- 		/*
+-- 		valirep
+		if isvalidnode valirep and autoLayerCB.state then 
+		(
+			valirep.layer.current = true
+			unHideLayerHierarchy  valirep.layer
+		)
+		currentLayerET.text = LayerManager.current.name
+-- 		*/
 		
 		if state then
 		(

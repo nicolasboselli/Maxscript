@@ -7,6 +7,8 @@ maj:
 	-- fonctionner avec les material id de max plutôt qu'avec les effect_id de vray finalement?
 	-- ignore les passes d'id deja créées
 	
+	-- ne pas effacer automatiquement les passes deja créées
+	
 debug:
 	x- lasso activer aprés des selections trop rapide
 
@@ -246,9 +248,11 @@ rollout matIdExplorerRLT "materials id explorer"
 	group "create render elements:"
 	(
 		button matIdEltBT "VRayMtlID" --across: 3
-		button objSelEltBT "VRayObjectSelect" tooltip: "Création d'une passe 'vrayObjectSelect' pour chaque id de material selectionné."
+		button objSelEltBT "add VRayObjectSelect" across: 2 tooltip: "Création d'une passe 'vrayObjectSelect' pour chaque id de material selectionné."
+		button delobjSelEltBT "del VRayObjectSelect" -- tooltip: "Création d'une passe 'vrayObjectSelect' pour chaque id de material selectionné."
 -- 		button multiEltBT "all MultiMatteElement"  tooltip: "création de toutes les passes MultiElement"
-		button multiElt2BT "MultiMatteElement"  tooltip: "création de toutes les passes MultiElement"
+		button multiElt2BT "add MultiMatteElt"  across: 2 tooltip: "création de toutes les passes MultiElement"
+		button delmultiElt2BT "delete MultiMatteElt"  -- tooltip: "création de toutes les passes MultiElement"
 	)
 		
 -- functions UI dependant
@@ -526,7 +530,7 @@ rollout matIdExplorerRLT "materials id explorer"
 	on objSelEltBT pressed do
 	(
 		rem =MaxOps.GetCurRenderElementMgr ()
-		
+		/*
 		-- suppression de la passe material id
 		eltsNum = rem.NumRenderElements()
 		for i = (eltsNum - 1) to 0 by -1 do
@@ -534,6 +538,7 @@ rollout matIdExplorerRLT "materials id explorer"
 			elt = rem.GetRenderElement i
 			if iskindof elt VRayObjectSelect then rem.RemoveRenderElement elt
 		)
+		*/
 		
 		local usedIds = #()
 		for i in materialListMLB.selection do
@@ -555,17 +560,22 @@ rollout matIdExplorerRLT "materials id explorer"
 		)	
 	)
 	
-	on multiElt2BT pressed do
+	on delobjSelEltBT pressed do
 	(
 		rem =MaxOps.GetCurRenderElementMgr ()
 		
-		-- suppression des passes multimat
+		-- suppression de la passe material id
 		eltsNum = rem.NumRenderElements()
 		for i = (eltsNum - 1) to 0 by -1 do
 		(
 			elt = rem.GetRenderElement i
-			if iskindof elt multimatteElement then rem.RemoveRenderElement elt
+			if iskindof elt VRayObjectSelect then rem.RemoveRenderElement elt
 		)
+	)
+	
+	on multiElt2BT pressed do
+	(
+		rem =MaxOps.GetCurRenderElementMgr ()
 
 		local usedIds = #()
 		for i in materialListMLB.selection do
@@ -584,6 +594,21 @@ rollout matIdExplorerRLT "materials id explorer"
 				rem.AddRenderElement matSel
 			)
 		)			
+	)
+	
+	on delmultiElt2BT pressed do
+	(
+		rem =MaxOps.GetCurRenderElementMgr ()
+		
+		
+		-- suppression des passes multimat
+		eltsNum = rem.NumRenderElements()
+		for i = (eltsNum - 1) to 0 by -1 do
+		(
+			elt = rem.GetRenderElement i
+			if iskindof elt multimatteElement then rem.RemoveRenderElement elt
+		)
+		
 	)
 )
 -- createdialog matIdExplorerRLT

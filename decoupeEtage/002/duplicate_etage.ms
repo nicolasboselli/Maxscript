@@ -149,8 +149,9 @@ rollout incNameRLT "Duplicate Etages"
 -- 		format "source id:%\n" val
 -- 		sourceLayer = layerListDisplay[val]
 -- 		sourceLayer =  (LayerManager.getLayer (val - 1))
-		format "sourceLayer: %\n" sourceLayer
 		refreshUI()
+		format "sourceLayer: %\n" sourceLayer
+		
 	)
 	
 	on targetLayerCB selected val do
@@ -158,8 +159,9 @@ rollout incNameRLT "Duplicate Etages"
 		init()
 -- 		targetLayer = layerListDisplay[val]
 -- 		targetLayer = (LayerManager.getLayer (val - 1))
-		format "targetLayer: %\n" targetLayer.name
 		refreshUI()
+		format "targetLayer: %\n" targetLayer.name
+		
 	)
 	
 	on idSP changed val do

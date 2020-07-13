@@ -80,4 +80,4 @@ fn wirecolorByBoxSize sel tres:3 =
 -- wirecolorByBoxSize sel
 
 
-select $fenetre_detach_60
+-- select $fenetre_detach_60
