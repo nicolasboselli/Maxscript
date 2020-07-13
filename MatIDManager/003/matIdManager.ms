@@ -5,12 +5,14 @@ maj:
 	-- prendre en charge les multi mat et les materiaux composite
 		-- une liste pour ces materiaux
 	-- fonctionner avec les material id de max plutôt qu'avec les effect_id de vray finalement?
+	-- ignore les passes d'id deja créées
 	
 debug:
-	-- lasso activer aprés des selections trop rapide
+	x- lasso activer aprés des selections trop rapide
 
 rebuild:
-	-- trouver une façon plus élégante d'imbriquer les fonctions, les callback et l'UI
+	-- tester de collecter tous les materiaux de la scene dans une library et d'interroger la libray, plutôt que 'utiliser le scene material ou un array de materiaux
+	x- trouver une façon plus élégante d'imbriquer les fonctions, les callback et l'UI
  
  travailler avec les vray effect id sur les vray mat (pour le moment, ignorer les material id, les sur materiaux vray ou les mat standard)
 	/- lister material id pour nettoyage
