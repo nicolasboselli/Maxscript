@@ -71,7 +71,7 @@ fn collectSetMat oneSet =
 	(
 		appendifunique matSel s.material
 	)
-	format "matSel.count: %\n" matSel.count
+-- 	format "matSel.count: %\n" matSel.count
 	
 	-- collecte des vray mat du set
 	oneMatAr = #()
@@ -82,7 +82,7 @@ fn collectSetMat oneSet =
 -- 			format "tmpMatAr: %\n" tmpMatAr
 -- 		windows.ProcessPostedMessages()
 	)
-	format "oneMatAr.count: %\n" oneMatAr.count
+-- 	format "oneMatAr.count: %\n" oneMatAr.count
 
 	oneMatAr
 )
@@ -350,14 +350,26 @@ rollout matIdExplorerRLT "materials id explorer"
 		
 		-- collecte des materiaux à partir de la selection d'objet
 		
+		local t0 = timestamp()
 		matArToDisp = collectSetMat sel
 		
 		-- ignore id 0
 		if ignoreIDO.checked then matArToDisp = for mat in matArToDisp where mat.effect_id != 0 collect mat
 		
+		local t1 = timestamp()
+		format "collectMat done: % s\n" (((t1 - t0)as float)/1000)
+		
 		sortMatAr()
+		local t2 = timestamp()
+		format "sortMatAr done: % ms\n" (t2 - t1)
+		
 		refreshUIList()
+		local t3 = timestamp()
+		format "refreshUIList done: % ms\n" (t3 - t2)
+		
 		refreshUI1()
+		local t4 = timestamp()
+		format "refreshUI1 done: % ms\n" (t4 - t3)
 	)
 
 	-- Actions
