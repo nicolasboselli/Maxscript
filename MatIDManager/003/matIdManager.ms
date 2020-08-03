@@ -71,7 +71,8 @@ fn collectSetMat oneSet =
 	(
 		appendifunique matSel s.material
 	)
-
+	format "matSel.count: %\n" matSel.count
+	
 	-- collecte des vray mat du set
 	oneMatAr = #()
 	for m in matSel do
@@ -81,6 +82,7 @@ fn collectSetMat oneSet =
 -- 			format "tmpMatAr: %\n" tmpMatAr
 -- 		windows.ProcessPostedMessages()
 	)
+	format "oneMatAr.count: %\n" oneMatAr.count
 
 	oneMatAr
 )
@@ -259,10 +261,20 @@ rollout matIdExplorerRLT "materials id explorer"
 	fn refreshUIList =
 	(
 		-- collecte des noms
+-- 		format "collect materials start\n"
+-- 		t1 = timestamp()
 		matNameArToDisp = #()
 		
-		for m in matArToDisp do
+-- 		local collectMax = 100
+		for i = 1 to matArToDisp.count do
 		(
+-- 			if i > collectMax then
+-- 			(
+-- 				format "end collect\n"
+-- 				exit
+-- 			)
+			
+			local m = matArToDisp[i]
 -- 			format "% %\n" m.name m.effect_id
 			if m.effect_id == 0 then
 			(
@@ -277,11 +289,12 @@ rollout matIdExplorerRLT "materials id explorer"
 			(
 -- 				format "youpi 2 \n"
 				append matNameArToDisp ( "[" +  (m.effect_id as string) + "]  " + m.name )
-			)
+			)			
 		)	
-
-		materialListMLB.items = matNameArToDisp
 		
+		
+		materialListMLB.items = matNameArToDisp
+-- 		format "collect materials done: % s\n" (((timestamp()) - t1)/1000)
 		-- changer la selection en fonction du changement de postion de la selection dans la liste
 		-- material count
 		matCountET.text = matArToDisp.count as string
@@ -336,6 +349,7 @@ rollout matIdExplorerRLT "materials id explorer"
 		else()
 		
 		-- collecte des materiaux à partir de la selection d'objet
+		
 		matArToDisp = collectSetMat sel
 		
 		-- ignore id 0
