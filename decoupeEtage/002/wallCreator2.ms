@@ -238,14 +238,22 @@ rollout newWallCreatorRLT "new wall Creator"
 		-- active le layer wall
 -- 		/*
 -- 		valirep
-		if isvalidnode valirep and autoLayerCB.state then 
+		format "validrep: % %\n" validrep (isvalidnode valirep)
+		
+		
+-- 		/*
+		if isvalidnode validrep and autoLayerCB.state then 
 		(
-			valirep.layer.current = true
-			unHideLayerHierarchy  valirep.layer
+			oneLayer = LayerManager.getLayerFromName validRep.name
+			if 	autoLayerCB.state and oneLayer != undefined then oneLayer.current = true else()
+-- 			format "change layer:%\n" validrep
+-- 			validrep.layer.current = true
+			unHideLayerHierarchy  oneLayer
 		)
+-- 		*/
 		currentLayerET.text = LayerManager.current.name
 -- 		*/
-		
+		format "check2\n"
 		if state then
 		(
 			local continueTool = true
