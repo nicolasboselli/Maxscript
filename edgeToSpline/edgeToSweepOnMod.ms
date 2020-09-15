@@ -2,11 +2,18 @@
 maj
 add param:  center pivot,  add uvwmap, add mat, setup sweep, 
 
-faire fonction sur modifier edit_poly
+-- faire des autoselection de faces par angles
+	-- prévoir dans le code de traider des liste de face
+	--  créer la fonction pour faire des sets de faces
+	
+-- setter un railclone sur la spline
+
+x- faire fonction sur modifier edit_poly
 
 
 debug:
-x-sur des murs orienter en z l estract de spline est décalé
+-sur des murs orienter en z l estract de spline est décalé
+	-- j'avais fait un arrondi sur le calcul du vecteur z, je pensais que ça avis réglé le problème mais finalement non, donc j'ai passer l'instruction en commentaire ( 15 / 09 /2020)
 */
 
 filein (getroot() + "MODELING_TOOLS\001\cleanspline.ms")
@@ -40,7 +47,7 @@ fn createBoxOrient2 s =
 	posObj = s.pos
 	posCenter = polyop.getFaceCenter s (faceSel as array)[1]
 	theZ = polyop.getFaceNormal s (faceSel as array)[1]
-	for i = 1 to 3 do theZ[i] = round_to theZ[i] 4
+-- 	for i = 1 to 3 do theZ[i] = round_to theZ[i] 4
 		
 	theY = normalize (cross [0,0,1] theZ )
 	theX = normalize (cross theY theZ)

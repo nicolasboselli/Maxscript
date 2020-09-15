@@ -31,7 +31,7 @@ rollout newWallCreatorRLT "new wall Creator"
 	local wallmat
 	
 	checkbox newSplineCB "start new spline" checked: false
-	checkbox autoLayerCB "auto active layer" checked: false
+	checkbox autoLayerCB "auto active layer" checked: true
 	edittext currentLayerET "active layer"
 	
 	
