@@ -2,9 +2,11 @@
 maj
 add param:  center pivot,  add uvwmap, add mat, setup sweep, 
 
+-- unifier le traitement de l'edit_poly et de l'editable_poly en collectant edit_poly dans une variable et en travaillant dessus sans utiliser les polyop
+
 -- faire des autoselection de faces par angles
 	-- prévoir dans le code de traider des liste de face
-	--  créer la fonction pour faire des sets de faces
+	/-  créer la fonction pour faire des sets de faces
 	
 -- setter un railclone sur la spline
 
@@ -148,28 +150,6 @@ rollout edgeToShapeOnModRLT "edge to shape"
 		"createBoxOrientCB", "xformOnBoxCB", 	"collapseXformCB2", \
 		"delBoxOrientCB", "keepSelCB", "cleanSplineCB", "centerPivotCB")
 -- function
-	
-	fn writePosition rlt =
-	(
-		posBak = GetDialogPos rlt
-		res = setINISetting armadasScriptsIni rlt.name "pos" (posBak as string)
-		res
-		format  "position saved: %\n" res
-	)
-	
-	fn loadPosition rlt =
-	(
-		posBak = [800,250]
-
-		if (hasINISetting armadasScriptsIni rlt.name "pos") then
-		(
-			posBakStr = getINISetting armadasScriptsIni  rlt.name "pos"
-			posBak = execute posBakStr
-		)
-		
-		SetDialogPos rlt posBak
-	)
-	
 -- 	ui
 	group "poly options"
 	(
@@ -213,6 +193,7 @@ rollout edgeToShapeOnModRLT "edge to shape"
 		s = sel[1]
 		local bakSel
 		local bakSelId
+		local ep
 		
 		undo on
 		(
@@ -224,19 +205,21 @@ rollout edgeToShapeOnModRLT "edge to shape"
 			(
 				format "faces selection on editable_poly: %\n" s.name
 				bakSel = modPanel.getCurrentObject()
+				ep = s
 			)
 			else if classof (modPanel.getCurrentObject()) == Edit_Poly and ((s.edit_poly.GetSelection  #face) as array).count > 0 then
 			(
 				format "faces selection on edit_poly modifier: %\n" s.name
-				
 				bakSel = modPanel.getCurrentObject()
 -- 				bakSelId = modPanel.getModifierIndex s bakSel
+				ep = s.edit_poly
 			)
 			else if classof (modPanel.getCurrentObject()) == Edit_Poly and ((s.edit_poly.GetSelection  #edge) as array).count > 0 then
 			(
 				format "edges selection on edit_poly modifier: %\n" s.name
 				bakSel = modPanel.getCurrentObject()
 -- 				bakSelId = modPanel.getModifierIndex s bakSel
+				ep = s.edit_poly
 			)
 			else
 			(
@@ -261,6 +244,7 @@ rollout edgeToShapeOnModRLT "edge to shape"
 			-- convert face selection en sdge selection si necessaire
 			if subObjectLevel == 4 then
 			(
+				/*
 				if classof (modPanel.getCurrentObject()) == Editable_Poly then
 				(
 					s.ConvertSelectionToBorder #Face #Edge
@@ -272,7 +256,11 @@ rollout edgeToShapeOnModRLT "edge to shape"
 					selLev = 4
 				)
 				else(boxorient = undefined)
-			)else (selLev = 2)
+				*/
+				
+				ep.ConvertSelectionToBorder #Face #Edge
+				selLev = 4
+			) else (selLev = 2)
 			
 			-- create shape
 			objSCount = objects.count
@@ -284,7 +272,7 @@ rollout edgeToShapeOnModRLT "edge to shape"
 			)
 			else if classof (modPanel.getCurrentObject()) == Edit_Poly then
 			(
-				s.Edit_Poly.CreateShape newName
+				s.Edit_Poly.CreateShape newName 
 			)
 			else(boxorient = undefined)
 			
