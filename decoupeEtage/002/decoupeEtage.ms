@@ -835,7 +835,12 @@ rollout decoupEtageRLT "découpe etage"
 				local copyS = copySel[1]
 			
 				-- collapse railclone
-				if iskindof copyS.baseobject railclone_pro then converttopoly copyS
+				if iskindof copyS.baseobject railclone_pro then
+				(
+					format "collapse railclone: %\n" copyS
+					copyS.vmesh = 0
+					converttopoly copyS
+				)
 							
 				-- ecrasement  d'un modifier edit poly, sweep ou clone
 				local epId = 0
@@ -873,20 +878,18 @@ rollout decoupEtageRLT "découpe etage"
 					s.showFrozenInGray = true
 					s.isfrozen = true
 					s.wirecolor = (color 125 125 125)
-				)
-				
-				-- backup de la source
-				local l = s.layer
-				local newLayerName =  l.name + "[sliced]"
-				local newL = LayerManager.getLayerFromName newLayerName
-				if newL == undefined then 
-				(
-					newL = LayerManager.newLayerFromName newLayerName
-					newL.setparent l
-				)
-				newL.addnode s
-				
-				
+					
+					-- backup de la source
+					local l = s.layer
+					local newLayerName =  l.name + "[sliced]"
+					local newL = LayerManager.getLayerFromName newLayerName
+					if newL == undefined then 
+					(
+						newL = LayerManager.newLayerFromName newLayerName
+						newL.setparent l
+					)
+					newL.addnode s
+				)				
 			)
 		)
 	)
