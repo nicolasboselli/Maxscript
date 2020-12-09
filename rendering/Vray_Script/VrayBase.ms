@@ -104,7 +104,7 @@ fn vrayBaseSetting =
 	-- reprendre les reglages vray quick settings
 	(findVray()) \
 	imageSampler_type: 1 \
-	filter_on: false \
+-- 	filter_on: false \
 	gi_on: true \
 	adaptiveSubdivision_minRate: 1 adaptiveSubdivision_maxRate: 8 adaptiveSubdivision_threshold: 0.005\
 	gi_primary_type: 0 gi_irradmap_showCalcPhase: true  gi_irradmap_showDirectLight: true  gi_irradmap_minRate: -4  gi_irradmap_maxRate: -3 gi_irradmap_subdivs: 37  gi_irradmap_preset: 2 \

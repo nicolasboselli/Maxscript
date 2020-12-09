@@ -150,7 +150,7 @@ fn transferChildren source target checkSource: false presName: true presMat: tru
 	)
 	
 	--creation de la copy
-	maxOps.cloneNodes childrenAr cloneType:#instance newNodes:&copyChilds
+	maxOps.cloneNodes childrenAr cloneType:#copy newNodes:&copyChilds
 	format "copyChilds.count: %\n" copyChilds.count
 	
 	-- prise en charge des instances de railclone: desinstancier les railclones
