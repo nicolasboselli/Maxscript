@@ -20,12 +20,17 @@ fn findVray  =
 			goodR = r
 			exit
 		)
+		else if matchPattern  (r as string)  pattern: "V_Ray_5" then 
+		(
+			goodR = r
+			exit
+		)
 		else()
 	)
 -- 	format "good r: %\n" goodR
 	 goodR
 )
-
+-- findVray ()
 
 -- 	functions
 fn createInfiniteGround =
@@ -102,16 +107,19 @@ fn vrayBaseSetting =
 	-- mettre le color mapping en reihnard à 0.35
 	-- activer l'ambiant occlusion
 	-- reprendre les reglages vray quick settings
-	(findVray()) \
+	(findVray()) ()\
+		/*
 	imageSampler_type: 1 \
--- 	filter_on: false \
+	filter_on: false \
 	gi_on: true \
 	adaptiveSubdivision_minRate: 1 adaptiveSubdivision_maxRate: 8 adaptiveSubdivision_threshold: 0.005\
 	gi_primary_type: 0 gi_irradmap_showCalcPhase: true  gi_irradmap_showDirectLight: true  gi_irradmap_minRate: -4  gi_irradmap_maxRate: -3 gi_irradmap_subdivs: 37  gi_irradmap_preset: 2 \
 	gi_secondary_type: 3  lightcache_subdivs: 875 lightcache_storeDirectLight: 0 lightcache_showCalcPhase: 1 \
 	gi_ao_on: on gi_ao_radius: 50 \
 	colorMapping_type: 6 colorMapping_darkMult: 1.0 colorMapping_brightMult: 0.65 colorMapping_gamma: 2.2 colorMapping_linearWorkflow: false colorMapping_adaptationOnly: 2
+		*/
 )
+-- vrayBaseSetting()
 
 -- renderers.current.colorMapping_adaptationOnly 
 -- showproperties renderers.current
