@@ -2,7 +2,11 @@
 --x - récupérer le nom de la version de vray présente
 --x rectifier les valeurs d IRmap en low, mettre 4000 en memoire
 -- proposer d'activer le gamma de max
-
+-- resize de l'image 1500*925
+-- maj vray 5
+	-- mettre en reihnard 0.6
+	-- mettre le sun en improved
+-- bouton pour creer des cameras bien settées
 
 fn findVray  =
 (
@@ -84,7 +88,7 @@ fn createVraySun =
 	-- vray sun
 -- 			dummy_target = dummy name: "vraysuntarget" 
 		dummy_target = Targetobject wirecolor: yellow
-		vraySunVar = VRaySun name:"VRaySun001" pos:[val, - val,val] isSelected:on size_multiplier: 4 enabled:on turbidity: 2.5 ozone: 0.35 sky_model: 0 target: dummy_target
+		vraySunVar = VRaySun name:"VRaySun001" pos:[val, - val,val] isSelected:on size_multiplier: 4 enabled:on turbidity: 2.5 ozone: 0.35 sky_model: 4 target: dummy_target
 		-- enviraonnement
 	)
 	
@@ -107,9 +111,7 @@ fn vrayBaseSetting =
 	-- mettre le color mapping en reihnard à 0.35
 	-- activer l'ambiant occlusion
 	-- reprendre les reglages vray quick settings
-	(findVray()) ()\
-		/*
-	imageSampler_type: 1 \
+ 	(findVray())	imageSampler_type: 1 \
 	filter_on: false \
 	gi_on: true \
 	adaptiveSubdivision_minRate: 1 adaptiveSubdivision_maxRate: 8 adaptiveSubdivision_threshold: 0.005\
@@ -117,7 +119,7 @@ fn vrayBaseSetting =
 	gi_secondary_type: 3  lightcache_subdivs: 875 lightcache_storeDirectLight: 0 lightcache_showCalcPhase: 1 \
 	gi_ao_on: on gi_ao_radius: 50 \
 	colorMapping_type: 6 colorMapping_darkMult: 1.0 colorMapping_brightMult: 0.65 colorMapping_gamma: 2.2 colorMapping_linearWorkflow: false colorMapping_adaptationOnly: 2
-		*/
+		--*/
 )
 -- vrayBaseSetting()
 
