@@ -2,9 +2,9 @@ try (destroydialog clientRenderOutputRLT)catch()
 rollout clientRenderOutputRLT "clients render output"
 (
 	local params = #("pos")
-	local clientImageSizeINI = @"J:\github_repo\00_wip\Maxscript\visiolab\clientsImageSize.ini"
+	local clientImageSizeINI = getroot() + @"visiolab\clientsImageSize.ini"
 	local clientLitsAr = #()
-	
+
 	-- UI
 	button editBT "edit settings"
 	
