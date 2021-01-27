@@ -1,10 +1,20 @@
 -- oneCat = "VisioLab"
 (
-	global pickAndMergePath = "PICKNMERGE/001/pickandmerge.ms"
-	global objReplacerPath = "objReplacer/002/obj_replacer.ms"
--- 	global cellsCreatorPath = @"M:\Interieur\Cellules\Modelisation\cellsCreator.ms"
-	global cellsCreatorPath = "cellsCreator/004/cellsCreator.ms"
-	global matIdManagerPath = "MatIDManager/004/matIdManager.ms"
+	global pickAndMergePath = @"PICKNMERGE/001/pickandmerge.ms"
+	global objReplacerPath = @"objReplacer/002/obj_replacer.ms"
+	global cellsCreatorPath = @"cellsCreator/004/cellsCreator.ms"
+	global matIdManagerPath = @"MatIDManager/004/matIdManager.ms"
+	global clientsImageSizePath =  @"visiolab\render_output_sb.ms"
+	
+	
+	macroScript clientsImageSize
+	category: "VisioLab"
+	buttonText: "clientsImageSize"
+	toolTip:""
+-- 	icon: #("pickandmergeicon",1)
+	(
+		filein ((getroot()) +  clientsImageSizePath)
+	)
 	
 	macroScript PickAndMerge
 	category: "VisioLab"
