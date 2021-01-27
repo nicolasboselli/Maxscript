@@ -397,12 +397,12 @@ fn createPlinte l =
 -- 		thePlinteLine.material = tempLib[2]
 	uvwMapMod = uvwmap maptype: 4 length: 200 width: 200 height: 200
 	plinteExtMod = extrude amount: 10 capstart: off capend: off
-	plinteShellMod = shell outerAmount: 0 innerAmount: 2 overrideInnerMatID: on matInnerID: 1 overrideOuterMatID: on \
+	plinteShellMod = shell outerAmount: 0 innerAmount: 1 overrideInnerMatID: on matInnerID: 1 overrideOuterMatID: on \
 	matOuterID: 1 overrideMatID: on matID: 1 autoSmoothAngle: 0 straightenCorners: on
-		
+	
 	addmodifier l plinteExtMod
 	addmodifier l plinteShellMod
-	addmodifier l  (smooth ())
+	addmodifier l (smooth ())
 	addmodifier l uvwMapMod
 	
 	l
@@ -808,7 +808,8 @@ rollout importAssetRLT "import assets"
 	
 	local assetsList = #((cellRoot + @"Modelisation\Library\Objects\portes.max"),
 	(cellRoot + @"Modelisation\Library\Objects\additive_lights.max"),
-	@"M:\Elements_batiments\Fenetres\exterieur\pack_fenetres_V3.max"
+	@"M:\Elements_batiments\Fenetres\exterieur\pack_fenetres_V3.max",
+	@"M:\TMA\Visite_360\TMA_Visite_360.max"
 	)
 	
 	group "asset list"

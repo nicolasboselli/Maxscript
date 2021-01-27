@@ -1,11 +1,11 @@
 -- amelioration: 
 --x - récupérer le nom de la version de vray présente
 --x rectifier les valeurs d IRmap en low, mettre 4000 en memoire
--- proposer d'activer le gamma de max
+-- x fileout gamma 2.2
 -- resize de l'image 1500*925
 -- maj vray 5
-	-- mettre en reihnard 0.6
-	-- mettre le sun en improved
+	--x mettre en reihnard 0.6
+	--x mettre le sun en improved
 -- bouton pour creer des cameras bien settées
 
 fn findVray  =
@@ -138,7 +138,9 @@ fn setVrayCamera =
 -- 	redrawviews ()
 -- 	newCam.targeted = true
 -- 	redrawviews ()
-	
+	newCam.f_number = 11
+	newCamshutter_speed = 150
+		
 	l = checkLetC()
 	l.addnode newCam
 	l.addnode newCam.target
@@ -186,8 +188,10 @@ rollout VrayRenderRLT "Vray Options"
 		button createVrayGroundBT "vray ground"
 		button createVrayCamBT "vray cam from view"
 		button gammaBT "fileoutgamma 2.2"
+		button renderSizeBT "render size"
 	)
 	
+	/*
 	group "render thumbnail"
 	(
 		button renderBT "render"
@@ -195,7 +199,7 @@ rollout VrayRenderRLT "Vray Options"
 	)
 	
 	button renderThumbBT "render thumbnail"
-
+*/
 -- 	Actions
 	on  VRScenebaseBT pressed do
 	(
@@ -232,6 +236,16 @@ rollout VrayRenderRLT "Vray Options"
 	on gammaBT pressed do
 	(
 		fileoutgamma = 2.2
+	)
+	
+	on renderSizeBT pressed do
+	(
+		renderSceneDialog.close()
+		
+		renderWidth = 1500
+		renderHeight = 925
+		
+		renderSceneDialog.open()
 	)
 	
 	on renderBT pressed do
