@@ -15,6 +15,8 @@ maj:
 	
 	cell
 		-- générer toute l'aboresence des cell (placer dans un calque call batiment et dans le calque cell)
+		-- reprendre le duplicate pour qu'il s'appuie sur le calque target selectionné pour le calque des copies et leur hauteur(cela implique de retrouver la grille associé au calque) et pas sur le calque actif
+		-- mettre en place un systeme de calque de travail temporaire et final pour respecter la nomenclature
 		
 	plans
 		x- tagguer les grille avec les noms des plans plutot que les plans avec les noms des grilles
@@ -34,7 +36,8 @@ maj:
 	
 	
 	decoupe
-		-- conserver les objets decoupés sur un calque "sliced"
+		x- conserver les objets decoupés sur un calque "sliced"
+		-- ajouter les spline des railclones dans les calques "sliced"
 		
 		1 -  de objets avec modifier edit_poly
 			x-  collapser tout ce qui est en dessous et conserver les modifiers au dessus 
@@ -321,7 +324,7 @@ fn checkTagGrid g =
 	local plansAr = #()
 	local userProp  = getuserprop g "planesAr"
 	
-	format "userProp: %\n"  userProp
+	format "userProp plan: %\n"  userProp
 	if userProp == undefined then()
 	else
 	(
@@ -379,6 +382,18 @@ fn cleanTagGrid g =
 	)
 	else()
 )
+
+
+fn checkCellsTagGrid g =
+(
+	local userProp  = getuserprop g "cellsLayer"
+-- 	format "userProp cells layer: %\n"  userProp
+	
+	local l = LayerManager.getLayerFromName userProp
+)
+-- checkCellsTagGrid $
+
+
 
 
 fn unHideLayerHierarchy oneLayer =
@@ -439,6 +454,7 @@ rollout decoupEtageRLT "découpe etage"
 -- 	local oneGrid
 	local newCell
 	local cellLayer
+	local layerListName = #()
 	
 	group "slice grids:"
 	(
@@ -507,11 +523,12 @@ rollout decoupEtageRLT "découpe etage"
 	
 	group "cells assitant:"
 	(
-		button createCellLayerBT "create all cells layer"
-		edittext cellET "cells layer:" 
+		button createCellLayerBT "auto cells layers creation"
+		dropdownlist  cellsLayersDDL "cells layers:" -- height: 20 -- across: 2
+		edittext cellET "auto cells layer selection:" 
 -- 		radiobuttons layerRB "active layer:" labels:#("murs", "cellules")
 	)
-		
+
 	fn check =
 	(
 		if isvalidnode validRep then 
@@ -529,11 +546,13 @@ rollout decoupEtageRLT "découpe etage"
 			
 -- 			format "planesAr: %\n" planesAr
 			
-			-- trouver le calque correspondant à la grille selectionnée
+			-- trouver le calque de modelisation correspondant à la grille selectionnée
 			oneLayer = LayerManager.getLayerFromName validRep.name
 			
 			-- trouver le calque de cell correspondant à la grille selectionnée
-			cellLayer =  LayerManager.getLayerFromName ("cell_"+ validRep.name)
+-- 			initCellsLayers()
+			cellLayer = checkCellsTagGrid validRep
+			if cellLayer == undefined then cellLayer =  LayerManager.getLayerFromName ("Cells_"+ validRep.name)
 		)		
 		else
 		(
@@ -548,6 +567,7 @@ rollout decoupEtageRLT "découpe etage"
 
 		rep = for r in rep where isvalidnode r collect r
 		CutPlaneMLB.items = for c in rep collect c.name
+		
 		
 		
 		if isvalidnode validRep then
@@ -590,16 +610,25 @@ rollout decoupEtageRLT "découpe etage"
 			layerET.text = "NONE"
 		)
 		
-		if cellLayer != undefined then
+		
+		-- refresh cell layer
+		cellsLayersDDL.items = for i = 0 to (LayerManager.count - 1) where  matchpattern (LayerManager.getLayer i).name pattern: "Cells*" collect (LayerManager.getLayer i).name
+-- 		format "cellsLayersDDL.items: %\n" cellsLayersDDL.items
+		
+
+		if cellLayer == undefined then
 		(
-			cellET.text = cellLayer.name
+			cellsLayersDDL.selection = 0
+			cellET.text = "NONE" 
 		)
 		else
 		(
-			cellET.text = "NONE"
-		)
-		
-		
+-- 			format "cellLayer.name: %\n" cellLayer.name
+			res = finditem cellsLayersDDL.items cellLayer.name
+			if res > 0 then cellsLayersDDL.selection = res
+-- 			cellsLayersDDL.selected = cellLayer.name
+			cellET.text = cellLayer.name
+		)		
 	)
 	
 	on decoupEtageRLT open do
@@ -926,9 +955,9 @@ rollout decoupEtageRLT "découpe etage"
 	(
 		for r in rep do 
 		(
-			local testLayer =  LayerManager.getLayerFromName ("cell_"+ r.name)
+			local testLayer =  LayerManager.getLayerFromName ("Cells_"+ r.name)
 			format "r:% testLayer:%\n" r testLayer
-			if testLayer == undefined then  layermanager.newLayerFromName ("cell_"+ r.name)
+			if testLayer == undefined then  layermanager.newLayerFromName ("Cells_"+ r.name)
 		)
 	)
 	
@@ -957,6 +986,17 @@ rollout decoupEtageRLT "découpe etage"
 		*/
 		
 		cleanTagGrid validRep
+		check()
+		refreshUI()
+	)
+	
+	on cellsLayersDDL selected val do
+	(
+		
+-- 		format "val:%\n" cellsLayersDDL.items[val]
+-- 		l = LayerManager.getLayerFromName cellsLayersDDL.items[val]
+		setuserprop validRep "cellsLayer" cellsLayersDDL.items[val]
+		
 		check()
 		refreshUI()
 	)
@@ -1008,7 +1048,7 @@ rollout decoupEtageRLT "découpe etage"
 		for i = 1 to rep.count do
 		(
 			-- cacher le calque cellules
-			local cl = layermanager.getLayerFromName ("cell_" + rep[i].name)
+			local cl = layermanager.getLayerFromName ("Cells_" + rep[i].name)
 			if cl != undefined then cl.ishidden = true
 		)		
 		-- décacher les calques cellules correspondants à la grille selectionnée

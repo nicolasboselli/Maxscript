@@ -53,7 +53,12 @@ rollout newCellCreatorRLT "new Cell Creator"
 	fn init =
 	(
 		format "init\n"
-		if activeGrid != undefined then cellLayer =  LayerManager.getLayerFromName ("cell_"+ activeGrid.name)		
+		if activeGrid != undefined then 
+		(
+-- 			cellLayer =  LayerManager.getLayerFromName ("cell_"+ activeGrid.name)
+
+			cellLayer = LayerManager.getLayerFromName (getuserprop activeGrid "cellsLayer")
+		)
 		
 		-- refreshUI
 		if activeGrid == undefined then (activeGridET.text = "NONE") else activeGridET.text = activeGrid.name

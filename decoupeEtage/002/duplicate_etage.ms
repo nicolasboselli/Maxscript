@@ -103,7 +103,7 @@ rollout incNameRLT "Duplicate Etages"
 		
 		-- collecte des layers
 		layerList = for i = 0 to (LayerManager.count - 1) collect (LayerManager.getLayer i)
-		layerListDisplay = for l in layerList where matchpattern l.name pattern: "cell*" collect l
+		layerListDisplay = for l in layerList where matchpattern l.name pattern: "Cells*" collect l
 		layerListName = for l in layerListDisplay collect l.name
 	)
 	
@@ -213,7 +213,7 @@ rollout incNameRLT "Duplicate Etages"
 		local sel	
 		
 		init()
-		
+		format "gridLayer: %\n" gridLayer
 		-- selection des objets
 		if workOnTypeRB.state == 1 then
 		(
