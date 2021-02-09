@@ -1,21 +1,26 @@
 /*
-sel = selection as array
--- s = $w
-id = 1
-jump = 1
-
-for s in sel do
-(
-	newS = copy s
-	var = s.name
-	var[id] = (((var[id] as integer) + jump) as string)
-	newS.name = var
-	
-	newS.wirecolor = s.wirecolor
-
-	move newS [0,0,300]
-)
+maj:
+	-- ajouter un choix de la grille manuel
 */
+
+
+
+
+fn sortbyName v1 v2 =
+(
+	-- qsort <array> sortbyname
+-- 	vars
+	local d
+	
+	if ( ( v1.name) < ( v2.name)) then 	d=-1
+	else 	d=1
+	
+--compare les numeros entre eux et les classe	
+	if (d < 0.) then -1
+	else if (d > 0.) then 1
+	else 0
+)
+
 
 fn incrementName n charId: 1 inc: 1 =
 (
@@ -71,13 +76,18 @@ rollout incNameRLT "Duplicate Etages"
 	local sourceLayer
 	local targetLayer
 	
+	local gridAr = #()
+	local grilSelId
+	local gridArDisp = #()
 	local gridLayer
+	local gridTarget
 	
 	edittext gridLayerET "active grid:" readonly: true
 	
 	radiobuttons workOnTypeRB "work on:" labels: #("selection", "layers")
 	dropdownlist  sourceLayerCB "layer source:" height: 120 -- across: 2
 	dropdownlist  targetLayerCB "layer target:"  height: 80
+	dropdownlist  gridsDDL "grid target:"  height: 80
 	
 	group "renaming"
 	(
@@ -86,20 +96,24 @@ rollout incNameRLT "Duplicate Etages"
 		edittext cellBaseNameET "cell base name:"  readonly: true across: 2
 		edittext cellNewNameET "cell new name:"  readonly: true
 	)
-	/*
-	group "moving"
-	(
-		spinner xSP "x:" type: #worldunits  range: [-1000,1000,0] across: 3
-		spinner ySP "y:" type: #worldunits range: [-1000,1000,0]
-		spinner zSP "z:" type: #worldunits range: [-1000,1000,300]
-	)
-	*/
+
 	button cloneBT "duplicate"
 	
 	fn init =
 	(
+
+		
+		-- collecte des grilles
+		gridAr = for h in helpers where iskindof h grid collect h
+		qsort gridAr sortbyName
+		
 		-- collecte de la grille active
 		if activeGrid != undefined then gridLayer = activeGrid
+		if isvalidnode gridLayer then grilSelId = finditem gridAr gridLayer
+		if grilSelId > 0 then gridTarget = gridAr[grilSelId]
+-- 		format "res:%\n" res
+		
+		
 		
 		-- collecte des layers
 		layerList = for i = 0 to (LayerManager.count - 1) collect (LayerManager.getLayer i)
@@ -112,13 +126,15 @@ rollout incNameRLT "Duplicate Etages"
 		-- collecte des layers
 		sourceLayerCB.items = layerListName
 		targetLayerCB.items = layerListName
+		gridsDDL.items = for g in gridAr collect g.name
+		if grilSelId > 0 then gridsDDL.selection = grilSelId
 		
 		if sourceLayerCB.selection > 0 then sourceLayer = layerListDisplay[sourceLayerCB.selection]
 		if targetLayerCB.selection > 0 then targetLayer = layerListDisplay[targetLayerCB.selection]
 -- 		format "sourceLayer: %\n" sourceLayer
 		
 		-- recuperation de la grille
-		if not isvalidnode gridLayer then gridLayerET.text = "NONE"
+		if not isvalidnode gridTarget then gridLayerET.text = "NONE"
 		else gridLayerET.text = activeGrid.name
 		
 		-- test du rename
@@ -129,13 +145,9 @@ rollout incNameRLT "Duplicate Etages"
 	on incNameRLT open do
 	(
 		loadRolloutParams incNameRLT params
--- 		format "1 sourceLayerCB.selection: % \n" sourceLayerCB.selection 
 		
--- 		format "2.4 sourceLayerCB.selection: % \n" sourceLayerCB.selection 
 		init()
--- 		format "2.5 sourceLayerCB.selection: % \n" sourceLayerCB.selection 
 		refreshUI()
--- 		format "3 sourceLayerCB.selection: % \n" sourceLayerCB.selection 
 	)
 	
 	on incNameRLT close do 
@@ -213,7 +225,7 @@ rollout incNameRLT "Duplicate Etages"
 		local sel	
 		
 		init()
-		format "gridLayer: %\n" gridLayer
+-- 		format "gridLayer: %\n" gridLayer
 		-- selection des objets
 		if workOnTypeRB.state == 1 then
 		(
@@ -226,13 +238,13 @@ rollout incNameRLT "Duplicate Etages"
 		else(sel = #())
 		
 		-- copie des objets
-		if sel.count > 0 and  isvalidnode gridLayer then
+		if sel.count > 0 and  isvalidnode gridTarget then
 		(
 			for s in sel do
 			(
 				copyS = copy s
 				copyS.wirecolor = s.wirecolor
-				copyS.position.z = gridLayer.position.z
+				copyS.position.z = gridTarget.position.z
 				copyS.name = incrementName s.name charId: idSP.value inc: jumpSP.value
 				copyS.xray = true
 				targetLayer.addnode copyS

@@ -524,7 +524,7 @@ rollout decoupEtageRLT "découpe etage"
 	group "cells assitant:"
 	(
 		button createCellLayerBT "auto cells layers creation"
-		dropdownlist  cellsLayersDDL "cells layers:" -- height: 20 -- across: 2
+		dropdownlist  cellsLayersDDL "cells layer selection:" -- height: 20 -- across: 2
 		edittext cellET "auto cells layer selection:" 
 -- 		radiobuttons layerRB "active layer:" labels:#("murs", "cellules")
 	)
@@ -538,6 +538,7 @@ rollout decoupEtageRLT "découpe etage"
 			onePlane = getnodebyname ("plane_" + validRep.name)
 			-- par les tags
 -- 			planesAr = checkPlan validRep.name
+			
 			planesAr = checkTagGrid validRep
 			--par tags des grilles
 			
@@ -553,6 +554,7 @@ rollout decoupEtageRLT "découpe etage"
 -- 			initCellsLayers()
 			cellLayer = checkCellsTagGrid validRep
 			if cellLayer == undefined then cellLayer =  LayerManager.getLayerFromName ("Cells_"+ validRep.name)
+-- 			format "cellLayer: %\n" cellLayer.name
 		)		
 		else
 		(
@@ -956,9 +958,12 @@ rollout decoupEtageRLT "découpe etage"
 		for r in rep do 
 		(
 			local testLayer =  LayerManager.getLayerFromName ("Cells_"+ r.name)
-			format "r:% testLayer:%\n" r testLayer
+-- 			format "r:% testLayer:%\n" r testLayer
 			if testLayer == undefined then  layermanager.newLayerFromName ("Cells_"+ r.name)
 		)
+		
+-- 		init()
+		refreshUI()
 	)
 	
 	on tagBT pressed do

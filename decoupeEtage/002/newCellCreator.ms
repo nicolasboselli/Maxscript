@@ -8,6 +8,8 @@ debug:,
 
 */
 
+decoupEtageRLT.cellLayer
+
 global basename
 	
 try(destroydialog newCellCreatorRLT)catch()
@@ -53,13 +55,10 @@ rollout newCellCreatorRLT "new Cell Creator"
 	fn init =
 	(
 		format "init\n"
-		if activeGrid != undefined then 
-		(
--- 			cellLayer =  LayerManager.getLayerFromName ("cell_"+ activeGrid.name)
-
-			cellLayer = LayerManager.getLayerFromName (getuserprop activeGrid "cellsLayer")
-		)
 		
+		
+		try(cellLayer = decoupEtageRLT.cellLayer)catch(cellLayer= undefined)
+				
 		-- refreshUI
 		if activeGrid == undefined then (activeGridET.text = "NONE") else activeGridET.text = activeGrid.name
 		if cellLayer == undefined then(cellLayerET.text = "NONE") else cellLayerET.text = cellLayer.name
@@ -168,7 +167,13 @@ rollout newCellCreatorRLT "new Cell Creator"
 				if testVec.x^2 > testVec.y^2 then newGridPoint.y = lastGridPoint.y		
 				else	newGridPoint.x = lastGridPoint.x	
 			)
-				
+			/*
+			if ctrlKey then
+			(
+				local tmpCount = numKnots newCell 1
+				deleteKnot newCell 1 (tmpCount - 1)
+			)
+				*/
 			local curPos = gw.mapCPToWorld newGridPoint
 			
 			setKnotPoint newCell 1 knotCount curPos
