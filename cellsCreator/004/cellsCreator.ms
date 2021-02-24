@@ -129,7 +129,6 @@ fn inverseKnotOrder l =
 
 filein "adjust_gabarit.ms" -- quiet: true
 
-
 -- find vray
 fn findVray  =
 (
@@ -143,6 +142,11 @@ fn findVray  =
 			exit
 		)
 		else if matchPattern  (r as string)  pattern: "V_Ray_Next*" then
+		(
+			goodR = r
+			exit
+		)
+		else if matchPattern  (r as string)  pattern: "V_Ray_5" then 
 		(
 			goodR = r
 			exit
