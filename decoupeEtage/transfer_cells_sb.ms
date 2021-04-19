@@ -1,3 +1,11 @@
+/*
+maj:
+	- ajouter un filtre sur les noms de calques
+	- faire fonctionner la creation des calques cells
+	- ajouter des removes dans les menus d'actions
+*/
+
+
 try(destroydialog cellsTransferRLT)catch()
 rollout cellsTransferRLT "Cells Transfer"
 (
@@ -13,10 +21,12 @@ rollout cellsTransferRLT "Cells Transfer"
 		button createCellsBT "create cells"
 	)
 	multilistbox cellsLayerMTL "Cells layers:" height:15
-	button addTargetBT "add target" across: 4
+	button addTargetBT "add target" across: 5
 	button clearTargetBT "clear target" 
 	button addSourceBT "add source"
+	button remSrcBT "remove source"
 	button clearSourceBT "source target" 
+	
 	
 	listbox targetLayersMTL "targets:" height:15 across: 2
 	multilistbox sourceLayersMTL "sources:" height:15 
@@ -28,11 +38,13 @@ rollout cellsTransferRLT "Cells Transfer"
 	(
 		cellsLayerMTL.items = cellsLayersAr
 		targetLayersMTL.items = targetLayerAr
-		try(sourceLayersMTL.items = sourceLayerAr[targetLayersMTL.selection])catch()
+		try(sourceLayersMTL.items = sourceLayerAr[targetLayersMTL.selection])catch(sourceLayersMTL.items= #())
 	)
 	
 	on cellsTransferRLT open do
 	(
+		if sourceLayerAr == undefined then sourceLayerAr = #()
+		if targetLayerAr == undefined then targetLayerAr = #()
 		cellsLayersAr = for i = 0 to (LayerManager.count - 1) where  matchpattern (LayerManager.getLayer i).name pattern: "Cells*" collect (LayerManager.getLayer i).name
 		refreshUI()
 	)
@@ -63,10 +75,25 @@ rollout cellsTransferRLT "Cells Transfer"
 		local tmpAr = for i in (cellsLayerMTL.selection as array) collect cellsLayersAr[i]
 		format "sel: %\n" targetLayersMTL.selection
 		
-		sourceLayerAr[targetLayersMTL.selection] = tmpAr
+		if sourceLayerAr[targetLayersMTL.selection] == undefined then sourceLayerAr[ targetLayersMTL.selection] = #()
+		for l in tmpAr do
+		(
+			appendifunique sourceLayerAr[targetLayersMTL.selection] l
+		)
 		format "sourceLayerAr: %\n" sourceLayerAr
 		
 		refreshUI()
+	)
+	
+	on remSrcBT pressed do
+	(		
+-- 		format "sourceLayersMTL.selection:%\n"  
+		idar = sourceLayersMTL.selection as array
+		format "idar:%\n"  idar
+		format "sourceLayerAr:%\n"  sourceLayerAr
+		for i = idar.count to 1 by -1 do deleteitem sourceLayerAr[targetLayersMTL.selection] idar[i]
+		format "sourceLayerAr:%\n"  sourceLayerAr
+		refreshui() 
 	)
 	
 	on targetLayersMTL selected val do

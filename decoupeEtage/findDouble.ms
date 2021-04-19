@@ -4,7 +4,7 @@ lCount = LayerManager.count
 for i = 0 to (lCount - 1)  do
 (
 	l = LayerManager.getLayer i
-	res = matchpattern l.name pattern: "cell_*"
+	res = matchpattern l.name pattern: "Cells_*"
 	if res then
 	(
 		format "%\n" l.name
