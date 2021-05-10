@@ -65,7 +65,7 @@ fn explodeObject s =
 	detached
 )
 -- explodeObject $
-
+/*
 fn pivotOnFAce s = 
 (
 	posCenter = s.center
@@ -85,7 +85,7 @@ fn pivotOnFAce s =
 	s.modifiers[#xform].gizmo.rotation = localTM.rotationpart - bakTM.rotationpart
 	s.modifiers[#xform].gizmo.position = (in coordsys local s.center)* -1
 )
-
+*/
 fn pivotOnFAce3  s normal: 1 flipNormal: true upnode: 3 flipUpnode: false = 
 (
 	local theX, theY, theZ

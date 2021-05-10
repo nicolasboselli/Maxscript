@@ -235,6 +235,7 @@ rollout VrayRenderRLT "Vray Options"
 	
 	on gammaBT pressed do
 	(
+		format "fileoutgamma: %\n" fileoutgamma
 		fileoutgamma = 2.2
 	)
 	
