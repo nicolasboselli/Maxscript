@@ -4,8 +4,7 @@
 	global objReplacerPath = @"objReplacer/002/obj_replacer.ms"
 	global cellsCreatorPath = @"cellsCreator/004/cellsCreator.ms"
 	global matIdManagerPath = @"MatIDManager/004/matIdManager.ms"
-	global clientsImageSizePath =  @"visiolab\render_output_sb.ms"
-	
+	global clientsImageSizePath =  @"visiolab/render_output/000/render_output.ms"
 	
 	macroScript clientsImageSize
 	category: "VisioLab"

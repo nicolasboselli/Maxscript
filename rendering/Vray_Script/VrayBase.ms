@@ -88,7 +88,7 @@ fn createVraySun =
 	-- vray sun
 -- 			dummy_target = dummy name: "vraysuntarget" 
 		dummy_target = Targetobject wirecolor: yellow
-		vraySunVar = VRaySun name:"VRaySun001" pos:[val, - val,val] isSelected:on size_multiplier: 4 enabled:on turbidity: 2.5 ozone: 0.35 sky_model: 4 target: dummy_target
+		vraySunVar = VRaySun name:"VRaySun001" pos:[val, - val,val] isSelected:on size_multiplier: 1 enabled:on turbidity: 2.5 ozone: 0.35 sky_model: 4 target: dummy_target
 		-- enviraonnement
 	)
 	
