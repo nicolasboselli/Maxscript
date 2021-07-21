@@ -229,7 +229,6 @@ rollout objReplacerRLT "objects replacer "
 	(
 		local refObjTmp =  checkReference2 (selection as array)
 		
-		 
 		if oneSelCB.checked do refAr = #()
 		
 		for r in refObjTmp do appendifunique refAr r
