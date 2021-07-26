@@ -42,6 +42,7 @@ fn memo=
 try(destroydialog adjustToGabaritRLT)catch()
 rollout adjustToGabaritRLT "adjust to gabarit"
 (
+	local ref
 	local sel = #()
 	local gabarit
 	local fenSelAr = #()
