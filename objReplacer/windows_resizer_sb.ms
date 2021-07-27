@@ -87,6 +87,7 @@ rollout adjustToGabaritRLT "adjust to gabarit"
 		-- relever la taille du gabarit
 		gabarits = selection as array
 		if gabarits.count != 1 then exit
+			
 		bb = nodeGetBoundingBox  gabarits[1] gabarits[1].transform
 		gabaritSize = point3 (distance (point3 bb[1].x 0 0) (point3 bb[2].x 0 0 )) (distance (point3 0 bb[1].y 0) (point3 0 bb[2].y 0 )) (distance (point3 0 0 bb[1].z) (point3 0 0 bb[2].z))
 		format "gabaritSize: %\n" gabaritSize
@@ -124,7 +125,6 @@ rollout adjustToGabaritRLT "adjust to gabarit"
 			
 		-- relever la taille de la fentres
 		fenetreSize = point3 (distance (point3 xmin 0 0) (point3 xmax 0 0 )) (distance (point3 0 ymin 0) (point3 0 ymax 0 )) (distance (point3 0 0 zmin) (point3 0 0 zmax))
-		format "fenetreSize: %\n" fenetreSize
 
 
 		-- calculer le decalage entre la fenetre et le gabarit
@@ -142,7 +142,7 @@ rollout adjustToGabaritRLT "adjust to gabarit"
 		yMaxRange = -15
 		yMinRange = 15
 
-		-- collecter les coordonnée de chaque vertex 
+		-- deplacement des vertex et des pivots
 		for s in fenSelAr do
 		(
 			format "========= %\n" s.name

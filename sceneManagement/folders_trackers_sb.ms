@@ -6,6 +6,8 @@ Maj:
 
 */
 
+
+
 -- dans une fenetre on stocke tous les derniers dossiers des scenes ouvertes
 try(destroydialog folderOpenRLT)catch()
 rollout folderOpenRLT "folders opened"
@@ -23,9 +25,9 @@ rollout folderOpenRLT "folders opened"
 	fn refreshUI =
 	(
 		tmpAr = #()
-		for f in folderAr do
+		for i = folderAr.count to 1 by -1 do
 		(
-			appendifunique folderLB.items  f
+			appendifunique tmpAr  folderAr[i]
 		)
 		folderLB.items = tmpAr
 	)
@@ -33,7 +35,7 @@ rollout folderOpenRLT "folders opened"
 	fn folderTrackerTest =
 	(
 		loadRolloutParams folderOpenRLT Params
-		append folderAr (substituteString maxFilePath "\\" "/")
+		appendifunique folderAr (substituteString maxFilePath "\\" "/")
 		format "opened folder: %\n" maxFilePath 
 		
 		-- ecrire les chemin dans un fichier ini

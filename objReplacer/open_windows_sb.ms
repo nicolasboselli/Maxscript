@@ -3,9 +3,9 @@ rollout openFenetresRLT "open Fenêtres"
 (
 	group "tags"
 	(
-		button clockwiseBT "rotation horaire" across: 3
-		button antiClockwiseBT "rotation anti-horaire"
-		button clearTagBT "clear tags"
+		button clockwiseBT "rotation anti-horaire" across: 2
+		button antiClockwiseBT "rotation horaire"
+		button clearTagBT "clear user properties"
 	)
 	
 	group "actions"
@@ -13,6 +13,21 @@ rollout openFenetresRLT "open Fenêtres"
 		button openWindowsBT "open windows" across: 3
 		button closewindowsBT "close windows"
 		button flipWindowsBT "flip windows"
+	)
+	
+	fn deleteUserProp node prop = 
+	(
+		if getUserProp node prop != undefined do
+		(
+			 buff = (getUserPropBuffer node) as stringStream 
+			 newb = stringStream ""
+			 while not eof buff do
+			 (
+				  str = readLine buff
+				  if str != "" and not matchpattern str pattern:("*" + prop + "*=*") do format "%\n" str to:newb
+			 )
+			 setUserPropBuffer node (replace_LF_with_CRLF (newb as string))
+		)
 	)
 	
 	on clockwiseBT pressed do
@@ -25,6 +40,12 @@ rollout openFenetresRLT "open Fenêtres"
 	(
 		sel = selection as array
 		for s in sel do setUserProp s "pivotFenetre" "false"
+	)
+	
+	on clearTagBT pressed do
+	(
+		sel = selection as array
+		for s in sel do deleteUserProp s "pivotFenetre"
 	)
 	
 	on openWindowsBT pressed do
