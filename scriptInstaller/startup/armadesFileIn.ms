@@ -61,5 +61,18 @@ format "########### load visiolab macros:\n"
 filein ((getRoot ()) + "scriptInstaller/visiolabMacrosList.ms")
 
 
+-- load du tracker de dossier
+(
+	format "########### load visiolab folders tracker:%\n" folderTracker
+	local folderTrackerStart = false
+	local armadasScriptsIni = (GetDir #maxData) + "armadasScriptsIni.ini"
+	local testBool = hasINISetting armadasScriptsIni "folderOpenRLT" "startCB"
+	if testBool then  folderTrackerStart = getINISetting  armadasScriptsIni "folderOpenRLT" "startCB"
+	try(folderTrackerStart = folderTrackerStart as booleanclass)catch() 
+	
+	if folderTrackerStart then filein ((getRoot ()) + "sceneManagement/folders_trackers_sb.ms")
+)
+
+
 
 
