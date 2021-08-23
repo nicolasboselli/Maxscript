@@ -106,7 +106,7 @@ fn findRealSource o =
 
 fn transferChildren source target checkSource: false presName: true presMat: true presTrans: true presLayer: true =
 (
-	format "########### transfer start: %\n" target.name
+	format "########### transfer from % to % started\n" source.name target.name
 	/*
 	todo: 
 		-- rendre le tag de properties optionnel
@@ -227,7 +227,7 @@ fn transferChildren source target checkSource: false presName: true presMat: tru
 	delete  copyChilds[1]
 	tagTargetProperties target source.name
 	
-	format "########### transfer done: %\n" target.name
+	format "########### transfer from % to % done\n\n" source.name target.name
 )
 
 
@@ -264,7 +264,7 @@ fn getTargets source =
 	local virtualSource = undefined
 	local targetAr = #()
 	
-	format "###### source: % \n" source
+	format "###### source: % \n" source.name
 	for h in helpers do
 	(
 		try(isChildrenTransferPoint = (getUserProp h "isChildrenTransferPoint"))catch(isChildrenTransferPoint = false)
@@ -287,7 +287,7 @@ fn getTargets source =
 							if virtualSource == source then
 							(
 								append targetAr h
-								format "target: %\n" h
+								format "##target: %\n" h.name
 							)
 						)
 					)
@@ -295,7 +295,7 @@ fn getTargets source =
 			)
 		)
 	)
-	format "###### targetCount: % targetAr: %\n" targetAr.count targetAr
+	format "###### targetCount: % targetAr: %\n\n" targetAr.count targetAr
 	targetAr
 )
 -- getTargets $
@@ -338,3 +338,22 @@ fn printMaster =
 	)
 )
 -- printMaster()
+
+/*
+i = 0
+for h in helpers do 
+(
+-- 	i += 1
+	testprop = getUserProp h "isChildrenTransferPoint"
+	if testprop != undefined then
+	(
+		if (getnodebyname (getUserProp h "sourceName")) == undefined then
+		(
+			i += 1
+			format "i: % h.name: % isSource: % sourceName: % doesSourceExist: %\n" i h.name (getUserProp h "isSource") (getUserProp h "sourceName") (getnodebyname (getUserProp h "sourceName"))
+		)
+	)
+)
+
+select $t4_80_v1a_ctrl_006
+*/

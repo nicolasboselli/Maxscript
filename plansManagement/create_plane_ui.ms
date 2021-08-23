@@ -196,6 +196,9 @@ rollout createPlaneRLT "create plane"
 -- 			root = rootIni
 			
 			jpgList = getFiles (root + "*.jpg")
+			jpgList2 = getFiles (root + "*.jpeg")
+			
+			jpgList = jpgList + jpgList2
 			
 -- 			planObjList = initPlanClass jpgList
 			planObjList = for oneJpg in jpgList collect (planClass oneJpg)

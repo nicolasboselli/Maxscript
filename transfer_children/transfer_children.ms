@@ -160,33 +160,50 @@ rollout transferChildrenRLT "transfer Children"
 	on updateTargetsBT pressed do
 	(
 		sel = selection as array
-		if classof sel[1] == point then
+		for s in sel where iskindof s point do
 		(
-			local targetsAr = getTargets sel[1]
-			for t in targetsAr do
+			local isMaster = (getUserProp s "isSource") 
+			if isMaster == undefined or not isMaster then
 			(
-				transferChildren sel[1] t checkSource: true presName:  presNameCB.state presMat:  presMatCB.state presTrans: presTransCB.state presLayer:  presLayerCB.state
+				format "NO UPDATE s.name: % isSource: % isSource.class: % \n" s.name isMaster (classof isMaster)
+				
+			)
+			else
+			(
+				format "UPDATE TARGETS OF % \n" s.name  
+				
+				local targetsAr = getTargets s
+				for t in targetsAr do
+				(
+					transferChildren s t checkSource: true presName:  presNameCB.state presMat:  presMatCB.state presTrans: presTransCB.state presLayer:  presLayerCB.state
+				)
 			)
 		)
+
 	)
 	
 	on updateSelBT pressed do
 	(
 		
 		sel = selection as array
-		for s in sel do
+		for s in sel where iskindof s point do
 		(
-			if getUserProp s "isSource" then setUserProp s "isSource" false
-			local src = findRealSource s
-			format "s: %, src: %\n" s.name src.name
-			transferChildren src s checkSource: true presName:  presNameCB.state presMat:  presMatCB.state presTrans: presTransCB.state presLayer:  presLayerCB.state
+-- 			if  getUserProp s "isSource" then setUserProp s "isSource" false
+			local isMaster = (getUserProp s "isSource") 
+			if isMaster == undefined or isMaster then (format "no update on %\n" s.name)
+			else
+			(
+				local src = findRealSource s
+				format "s: %, src: %\n" s.name src.name
+				transferChildren src s checkSource: true presName:  presNameCB.state presMat:  presMatCB.state presTrans: presTransCB.state presLayer:  presLayerCB.state
+			)
 		)
 	)
 	
 	on updateAllBT pressed do
 	(
 		selectAllMastersBT.pressed()
-		updateSelBT.pressed()
+		updateTargetsBT.pressed()
 		
 	)
 	
@@ -232,10 +249,13 @@ rollout transferChildrenRLT "transfer Children"
 					t.size = s.size*0.25
 					t.centermarker = off
 					t.box = off
+					t.name = (uniquename s.name)
 					
 					local tmpTgt = #(t) 
 					for tt in tmpTgt do for c in tt.children do append tmpTgt c
 					for tt in tmpTgt do tt.wirecolor = s.wirecolor
+						
+					
 				)
 					-- mettre une size à 70% du master
 
