@@ -209,8 +209,10 @@ rollout transferChildrenRLT "transfer Children"
 	
 	on changeWireColorBT pressed do
 	(
-		local randomColor = color (random 0 255) (random 0 255) (random 0 255)
-		for s in selection do s.wirecolor = randomColor
+-- 		local randomColor = color (random 0 255) (random 0 255) (random 0 255)
+		local minColVal = 0
+		local maxColVal = 255
+		for s in selection do s.wirecolor = random (color minColVal minColVal minColVal) (color maxColVal maxColVal maxColVal)
 	)	
 	
 	on conformBT pressed do

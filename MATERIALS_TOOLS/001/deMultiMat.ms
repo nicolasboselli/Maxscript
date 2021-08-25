@@ -65,8 +65,9 @@ fn tagMtlName tag=
 
 fn randomColorFN sel =
 (
-	randomColor = color (random 0 255) (random 0 255) (random 0 255)
-	sel.wirecolor =  randomColor
+-- 	randomColor = color (random 0 255) (random 0 255) (random 0 255)
+-- 	randomColor = random (color 50 50 50) (color 200 200 200) 
+	sel.wirecolor =  random (color 50 50 50) (color 200 200 200) 
 )
 
 fn randomWireFN useFirstId: true =

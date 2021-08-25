@@ -24,6 +24,9 @@ x- classer les plans par ordre alphbetique
 -- bmpAr = getClassInstances  Bitmaptexture target: scenematerials
 -- bmpAr[1].fileName
 
+
+-- $.material.diffuseMap.HDRIMapName
+
 sb = python.import "sandbox"
 -- python.reload t
 sb.hello()

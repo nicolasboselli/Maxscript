@@ -41,6 +41,7 @@ fn wirecolorByBoxSize sel tres:3 =
 	-- classer les structure par taille
 	qsort boxesAr compareFN
 	
+	
 	-- calcul de la couleur en random
 	randomColor = color (random 0 255) (random 0 255) (random 0 255)
 	
