@@ -236,7 +236,9 @@ fn explodeVisibleObjectsByMultiMat visSel =
 				if not isvalidnode oneObj then continue
 				else
 				(	
-					if not iskindof oneObj editable_mesh then  converttomesh oneObj					
+					
+					if not iskindof oneObj editable_mesh then  converttomesh oneObj
+					else(converttomesh oneObj)
 					splitObj = exploseMeshBymat oneObj
 				)
 			)
@@ -268,7 +270,8 @@ fn attachVisiblesObjectsByMonoMat visSel maxSel: 50 =
 		if sel.count > maxSel then
 		(
 			select sel
-			format "attachement manuel\n"
+			format "attachement manuel\n" 
+			messageBox "Attention!\n\nVeuillez attacher vos objets manuellement afin d'éviter tout désagrément.\n\nMerci pour votre attention.\n\nBonne journée.\n\nEt bon courage" title:"Attachement Manuel" beep:true
 			exit
 		)
 		else if sel.count == 1 then

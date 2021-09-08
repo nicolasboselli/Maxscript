@@ -289,6 +289,8 @@ rollout miscRLT "Modeling Tools"
 		
 		button converttopolyBT "convert to poly"		
 		button explodeEltsBT "Explode mesh"
+		
+		button selectOpenBorderBT "select opened borders"
 	)
 	
 	group "Extrusion:"
@@ -397,6 +399,15 @@ rollout miscRLT "Modeling Tools"
 		(
 			converttopoly s
 		)
+	)
+	
+	on selectOpenBorderBT pressed do
+	(
+		loopList = polyop.getEdgeSelection  $.baseobject
+		borderList = polyOp.getOpenEdges $.baseobject
+
+		-- loopList * borderList
+		polyop.setEdgeSelection  $.baseobject (loopList * borderList)
 	)
 	
 	on extruBT pressed do

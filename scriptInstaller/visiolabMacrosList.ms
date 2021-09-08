@@ -15,6 +15,15 @@
 		filein ((getroot()) +  clientsImageSizePath)
 	)
 	
+	macroScript openMaxFolder
+	category: "VisioLab"
+	buttonText: "openMaxFolder"
+	toolTip:""
+-- 	icon: #("pickandmergeicon",1)
+	(
+		doscommand ("explorer " + (substituteString maxFilePath "/" "\\"))
+	)
+	
 	macroScript PickAndMerge
 	category: "VisioLab"
 	buttonText: "PickAndMerge"
