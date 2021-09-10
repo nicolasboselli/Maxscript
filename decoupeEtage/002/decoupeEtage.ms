@@ -76,6 +76,7 @@ maj:
 
 -- classof $
 
+
 fn sortbyname v1 v2 =
 (
 	-- qsort <array> sortbyname
@@ -114,7 +115,8 @@ fn sliceObject b rep collapseSlice: false addEditPoly: false collapseRC: true =
 		-- creation de la copie
 		local modCount
 		local b2 = copy b
-				
+		
+		subobjectLevel = 0
 		-- suppression des modifiers
 		modCount = b2.modifiers.count
 		for i = 1 to modCount do deletemodifier b2 1
@@ -886,7 +888,8 @@ rollout decoupEtageRLT "découpe etage"
 					else if iskindof copyS.modifiers[i] clone then collapseMode = true
 					else if iskindof copyS.modifiers[i] extrude then collapseMode = true
 					else if iskindof copyS.modifiers[i] poly_select then collapseMode = true
-						
+					else if iskindof copyS.modifiers[i] xform then collapseMode = true
+-- 						
 					if collapseMode then 
 					(
 						format "m: %, i: %\n" copyS.modifiers[i] i

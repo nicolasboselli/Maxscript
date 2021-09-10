@@ -1,11 +1,4 @@
-sel = selection as array
-leader
-for s in sel where iskindof s dummy and isgrouphead s do leader = s
-leader.children.count
-for s in sel do 
-(
-	format "bb: %\n"(nodeGetBoundingBox s (matrix3 1))
-)
+
 
 -- récupérer les fenetres dans la scene
 sceneWindows = #()
@@ -22,21 +15,40 @@ sceneWindows
 for w in sceneWindows do
 (
 	-- recupérer les objets qui le compase
-	wNodeAr = for c in w.children collect w
-	for c in wNodeAr do 
+	wNodeAr = #(w)
+	for o in wNodeAr do 
 	(
-		for c in c.children do append wNodeAr c
+		for c in o.children do appendifunique wNodeAr c
 	)
-	wNodeAr
-		
-	-- collecter tous les bounding box des objets qui composent le groupe
-	wbbAr = for o in wNodeAr collect (nodeGetBoundingBox s w.transform)
-	
-	-- definir le boundingbox de la fenetre
-	xmin, xmax, ymin, ymax, zmin, zmax
-	
-	-- definir taille du bounding box
-	-- créer une plane à la taille de la fenetre 
-	
-)
+	wNodeAr.count	
 
+	-- definir taille du bounding box
+	wbbAr = for o in wNodeAr collect (nodeGetBoundingBox o w.transform)
+
+	xmin =  ymin = zmin = 10000
+	xmax = ymax = zmax = -10000
+
+	for bb in wbbAr do
+	(
+		if bb[1].x < xmin then xmin = bb[1].x
+		if bb[2].x > xmax then xmax = bb[2].x
+		
+		if bb[1].y < ymin then ymin = bb[1].y
+		if bb[2].y > ymax then ymax = bb[2].y
+			
+		if bb[1].z < zmin then zmin = bb[1].z
+		if bb[2].z > zmax then zmax = bb[2].z
+	)
+
+	-- créer une plane à la taille de la fenetre 
+	xSize = distance (point3 xmin 0 0) (point3  xmax 0 0)
+	ySize = distance (point3 0 ymin 0) (point3  0 ymax 0)
+	zSize = distance (point3 0 0 zmin) (point3  0 0 zmax)
+
+	shift = 50
+	oneplane = plane width: (ySize + shift) length: (zSize + shift) widtwhsegs: 1 lengthsegs:1 transform: w.transform name: (uniqueName "ParallaxPlane_")
+	oneplane.scale = [1,1,1]
+	addmodifier oneplane (uvwmap length: 300 width: 600)
+	in coordsys local oneplane.position += [25,0,0]
+	in coordsys local oneplane.rotation += ((eulerangles 0 90 90 ) as quat )
+)

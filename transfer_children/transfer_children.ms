@@ -275,17 +275,33 @@ rollout transferChildrenRLT "transfer Children"
 	on getTargetsBT pressed do
 	(
 		sel = selection as array
-		src = findRealSource sel[1]
-		getTargets src
+		if sel.count > 0 then
+		(
+			src = findRealSource sel[1]
+			getTargets src
+		)
 	)
 	
 	on selectTargetsBT pressed do
 	(
 		sel = selection as array
-		src = findRealSource sel[1]
-		select src
-		selectmore (getTargets src)
-		
+		if sel.count > 0 then
+		(
+			local tmpSel = #()
+			for s in sel do
+			(
+				src = findRealSource s
+				srcTargets = getTargets src
+				tmpSel = tmpSel + #(src) + srcTargets
+			)
+			select tmpSel
+			
+			/*
+			src = findRealSource sel[1]
+			select src
+			selectmore (getTargets src)
+			*/
+		)
 	)
 	
 	on selectMasterBT pressed do
