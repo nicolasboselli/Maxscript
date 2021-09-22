@@ -1,10 +1,55 @@
 -- oneCat = "VisioLab"
 (
+	global ArmadasScriptLauncherPath = @"\scriptsLauncher\001\launcher.ms"
+	global ArmadasScriptModelingUtilitiesPath = @"\MODELING_TOOLS\001\modeling_tools.ms"
+	global ArmadasScriptMaterialsUtilitiesPath = @"\MATERIALS_TOOLS\000\deMultiMat.ms"
+	
 	global pickAndMergePath = @"PICKNMERGE/001/pickandmerge.ms"
 	global objReplacerPath = @"objReplacer/002/obj_replacer.ms"
 	global cellsCreatorPath = @"cellsCreator/004/cellsCreator.ms"
 	global matIdManagerPath = @"MatIDManager/004/matIdManager.ms"
 	global clientsImageSizePath =  @"visiolab/render_output/000/render_output.ms"
+	global initLayersPath =  @"sceneManagement/init_layers_sb.ms"
+	
+	macroScript ScriptLauncher
+	category: "VisioLab"
+	buttonText: "MSXlauncher"
+	toolTip:""
+	icon: #("armadasScriptsFavorites",1)
+	(
+		filein ((getroot()) + ArmadasScriptLauncherPath)
+-- 		filein ((getroot()) +  "\scriptsLauncher\001\launcher.ms")
+	)
+	
+	macroScript initLayers
+	category: "VisioLab"
+	buttonText: "Init Layers"
+	toolTip:""
+	(
+		filein ((getroot()) + initLayersPath)
+-- 		filein ((getroot()) +  "\scriptsLauncher\001\launcher.ms")
+	)
+	
+	macroScript ModelingUtilities
+	category: "VisioLab"
+	buttonText: "modelingUtilities"
+	toolTip:""
+	icon: #("ArmadasScriptModelingUtilities",1)
+	(
+		filein ((getroot()) + ArmadasScriptModelingUtilitiesPath)
+	)
+
+
+	macroScript MaterialsUtilities
+	category: "VisioLab"
+	buttonText: "materialsUtilities"
+	toolTip:""
+	icon: #("ArmadasScriptMaterialsUtilities",1)
+	(
+		filein ((getroot()) + ArmadasScriptMaterialsUtilitiesPath )
+	)
+
+	
 	
 	macroScript clientsImageSize
 	category: "VisioLab"
@@ -19,7 +64,6 @@
 	category: "VisioLab"
 	buttonText: "openMaxFolder"
 	toolTip:""
--- 	icon: #("pickandmergeicon",1)
 	(
 		doscommand ("explorer " + (substituteString maxFilePath "/" "\\"))
 	)
@@ -30,9 +74,6 @@
 	toolTip:""
 	icon: #("pickandmergeicon",1)
 	(
-	-- 	local root = getroot()
-	-- 	filein (@"N:\Ressources_Nico\github\00_wip\Maxscript\objReplacer\pickandmerge.ms")
-	-- 	filein ((getroot()) +  "objReplacer\pickandmerge.ms")
 		filein ((getroot()) +  pickAndMergePath)
 	)
 
@@ -42,8 +83,6 @@
 	toolTip:""
 	-- 	icon: #("pickandmergeicon16",1)
 	(
-	-- 	local root = getroot()
-	-- 	filein (@"N:\Ressources_Nico\github\00_wip\Maxscript\objReplacer\pickandmerge.ms")
 		filein ((getroot()) +  objReplacerPath)
 	)
 

@@ -16,7 +16,7 @@ fn initLayers =
 		planL.setParent daddy		
 )
 
-
+/*
 try(destroydialog  initLayersRLT)catch()
 rollout initLayersRLT "init layers"
 (
@@ -41,3 +41,4 @@ rollout initLayersRLT "init layers"
 	)
 )
 createdialog initLayersRLT
+*/

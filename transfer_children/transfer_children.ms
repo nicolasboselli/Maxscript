@@ -7,7 +7,9 @@ maj:
 	x- un bouton pour updater toutes les target de la scene
 	
 	-- dupliquer et renommer les calques en fonction de la target
+		-- créer un calque qui regroupe tous les objets d'une target
 	-- proposer le choix entre copy ou instance(forcement la copy remplacerait tous les enfants)
+		-- se rappler pourquoi le passage aux copy
 	-- rescale en fonction d'un gabarit (object replacer)
 	
 	x- remonter à la source/master lorsqu'on transfere une instance/target sur un nouveau point
