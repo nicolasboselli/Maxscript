@@ -126,8 +126,8 @@ rollout transferChildrenRLT "transfer Children"
 		for nt in newTgts do
 		(		
 			format "nt: %\n" nt.name
-			if  cloneTypeRB.state == 1 then transferChildren s t checkSource: true presName:  presNameCB.state presMat:  presMatCB.state presTrans: presTransCB.state presLayer:  presLayerCB.state cloneTypeSel: #copy
-			if  cloneTypeRB.state == 2 then transferChildren s t checkSource: true presName:  presNameCB.state presMat:  presMatCB.state presTrans: presTransCB.state presLayer:  presLayerCB.state cloneTypeSel: #instance
+			if  cloneTypeRB.state == 1 then transferChildren newMaster nt checkSource: false presName:  presNameCB.state presMat:  presMatCB.state presTrans: presTransCB.state presLayer:  presLayerCB.state cloneTypeSel: #copy
+			if  cloneTypeRB.state == 2 then transferChildren newMaster nt checkSource: false presName:  presNameCB.state presMat:  presMatCB.state presTrans: presTransCB.state presLayer:  presLayerCB.state cloneTypeSel: #instance
 		)
 	)
 	
@@ -155,8 +155,8 @@ rollout transferChildrenRLT "transfer Children"
 -- 			format "sel.count: % \n"  sel.count
 			for i = 2 to sel.count do
 			(
-					if  cloneTypeRB.state == 1 then transferChildren s t checkSource: true presName:  presNameCB.state presMat:  presMatCB.state presTrans: presTransCB.state presLayer:  presLayerCB.state cloneTypeSel: #copy
-					if  cloneTypeRB.state == 2 then transferChildren s t checkSource: true presName:  presNameCB.state presMat:  presMatCB.state presTrans: presTransCB.state presLayer:  presLayerCB.state cloneTypeSel: #instance
+					if  cloneTypeRB.state == 1 then transferChildren oneMaster sel[i] checkSource: true presName:  presNameCB.state presMat:  presMatCB.state presTrans: presTransCB.state presLayer:  presLayerCB.state cloneTypeSel: #copy
+					if  cloneTypeRB.state == 2 then transferChildren oneMaster sel[i] checkSource: true presName:  presNameCB.state presMat:  presMatCB.state presTrans: presTransCB.state presLayer:  presLayerCB.state cloneTypeSel: #instance
 			)
 		)
 		else
@@ -205,8 +205,8 @@ rollout transferChildrenRLT "transfer Children"
 			(
 				local src = findRealSource s
 				format "s: %, src: %\n" s.name src.name
-				if  cloneTypeRB.state == 1 then transferChildren s t checkSource: true presName:  presNameCB.state presMat:  presMatCB.state presTrans: presTransCB.state presLayer:  presLayerCB.state cloneTypeSel: #copy
-				if  cloneTypeRB.state == 2 then transferChildren s t checkSource: true presName:  presNameCB.state presMat:  presMatCB.state presTrans: presTransCB.state presLayer:  presLayerCB.state cloneTypeSel: #instance
+				if  cloneTypeRB.state == 1 then transferChildren src s checkSource: true presName:  presNameCB.state presMat:  presMatCB.state presTrans: presTransCB.state presLayer:  presLayerCB.state cloneTypeSel: #copy
+				if  cloneTypeRB.state == 2 then transferChildren src s checkSource: true presName:  presNameCB.state presMat:  presMatCB.state presTrans: presTransCB.state presLayer:  presLayerCB.state cloneTypeSel: #instance
 			)
 		)
 	)
