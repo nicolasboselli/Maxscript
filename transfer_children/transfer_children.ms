@@ -8,8 +8,9 @@ maj:
 	
 	-- dupliquer et renommer les calques en fonction de la target
 		-- créer un calque qui regroupe tous les objets d'une target
-	-- proposer le choix entre copy ou instance(forcement la copy remplacerait tous les enfants)
-		-- se rappler pourquoi le passage aux copy
+	/- proposer le choix entre copy ou instance(forcement la copy remplacerait tous les enfants)
+		-- se rappler pourquoi le passage aux copy pose problème
+			-- peut etre parce que les railclone font n'importe quoi? ou alors c'est à cause des splines, il me semble que les spline pouvait faire n'eimporte quoi quand on les copier en instances
 	-- rescale en fonction d'un gabarit (object replacer)
 	
 	x- remonter à la source/master lorsqu'on transfere une instance/target sur un nouveau point
