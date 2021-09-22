@@ -104,7 +104,7 @@ fn findRealSource o =
 
 -- $.banode
 
-fn transferChildren source target checkSource: false presName: true presMat: true presTrans: true presLayer: true =
+fn transferChildren source target checkSource: false presName: true presMat: true presTrans: true presLayer: true cloneTypeSel: #copy =
 (
 	format "########### transfer from % to % started\n" source.name target.name
 	/*
@@ -150,7 +150,7 @@ fn transferChildren source target checkSource: false presName: true presMat: tru
 	)
 	
 	--creation de la copy
-	maxOps.cloneNodes childrenAr cloneType:#copy newNodes:&copyChilds
+	maxOps.cloneNodes childrenAr cloneType: cloneTypeSel newNodes:&copyChilds
 	format "copyChilds.count: %\n" copyChilds.count
 	
 	-- prise en charge des instances de railclone: desinstancier les railclones
