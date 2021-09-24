@@ -59,8 +59,8 @@ fn checkLetC =
 (
 	LM = layermanager	
 	local lcl
-	if (LM.getLayerFromName "LetC") == undefined then lcl = LM.newLayerFromName "LetC"
-	else lcl = LM.getLayerFromName "LetC"
+	if (LM.getLayerFromName "01_CAM_LIGHT") == undefined then lcl = LM.newLayerFromName "01_CAM_LIGHT"
+	else lcl = LM.getLayerFromName "01_CAM_LIGHT"
 	
 	lcl
 )
@@ -87,7 +87,7 @@ fn createVraySun =
 	(
 	-- vray sun
 -- 			dummy_target = dummy name: "vraysuntarget" 
-		dummy_target = Targetobject wirecolor: yellow
+		dummy_target = Targetobject wirecolor: yellow name:"VRaySun001.Target"
 		vraySunVar = VRaySun name:"VRaySun001" pos:[val, - val,val] isSelected:on size_multiplier: 1 enabled:on turbidity: 2.5 ozone: 0.35 sky_model: 4 target: dummy_target
 		-- enviraonnement
 	)
@@ -148,23 +148,7 @@ fn setVrayCamera =
 	viewport.setCamera newCam
 )
 
-fn initLayers =
-(
-		if not iskindof (layermanager.getlayerfromname "01_CAM_LIGHT") MixinInterface then layermanager.newlayerfromname "01_CAM_LIGHT"
-		if not iskindof (layermanager.getlayerfromname "02_BAT") MixinInterface then layermanager.newlayerfromname "02_BAT"
-		if not iskindof (layermanager.getlayerfromname "HAB") MixinInterface then layermanager.newlayerfromname "HAB"
-		
-		if not iskindof (layermanager.getlayerfromname "OFF") MixinInterface then layermanager.newlayerfromname "OFF"
-		daddy = layermanager.getlayerfromname "OFF"
-		
-		if not iskindof (layermanager.getlayerfromname "CORBEILLE") MixinInterface then layermanager.newlayerfromname "CORBEILLE"
-		corbeilleL = layermanager.getlayerfromname "CORBEILLE"
-		corbeilleL.setParent daddy
-		
-		if not iskindof (layermanager.getlayerfromname "PLAN") MixinInterface then layermanager.newlayerfromname "PLAN"
-		planL = layermanager.getlayerfromname "PLAN"
-		planL.setParent daddy		
-)
+
 
 -- rollout
 try(destroydialog VrayRenderRLT)catch()
@@ -197,7 +181,7 @@ rollout VrayRenderRLT "Init Scene"
 -- 	UI
 	button VRScenebaseBT "Init Scene" 
 	
-	group "Create:"
+	group "Details:"
 	(
 		button initLayersBT "Init Layers"
 		button vrayBaseSetBT "Vray base settings"
@@ -229,7 +213,8 @@ rollout VrayRenderRLT "Init Scene"
 	
 	on initLayersBT pressed do
 	(
-		initLayers()
+		filein "initScene_initLayers.ms"
+-- 		initLayers()
 	)
 	
 	on vrayBaseSetBT pressed do
@@ -271,50 +256,7 @@ rollout VrayRenderRLT "Init Scene"
 		renderHeight = 925
 		
 		renderSceneDialog.open()
-	)
-	
-	on renderBT pressed do
-	(
--- 		vrayBaseSetBT.pressed()
--- 		vraySunBT.pressed()
--- 		vrayExposureBT.pressed()
-		
-		renderSceneDialog.close()
-		
-		renderWidth = 1500
-		renderHeight = 1500
-		
--- 		max quick render -- netrender: false
-		
-		img = render netrender: false
-		
-		-- Get the last Rendered image
--- 		img = getlastrenderedimage()
-		
-		-- Assign a filename
-		img.filename = maxFilePath + (getFilenameFile maxfilename) + ".jpg"
-		
-		-- Save it
-		save img gamma: 2.2
-		
-	)
-	
-	on delSunBT pressed  do
-	(
-		sun  = getnodebyname "VRaySun001"
-		delete sun
-	)
-	
-	on renderThumbBT pressed do
-	(
-		vrayBaseSetBT.pressed()
-		vraySunBT.pressed()
-		vrayExposureBT.pressed()
-		renderBT.pressed()
-		delSunBT.pressed()
-		
-	)
-	
+	)	
 )
 createdialog VrayRenderRLT 
 

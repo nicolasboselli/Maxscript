@@ -8,6 +8,7 @@ numeric resize
 5. "resize" to resize map
 tz
 maj:
+-- récupérer les valeur en pixel des jpg et la resolution, calculer la taille de l'image et faire x100
 
 -- make distance interactive(event)
 -- make ui interactive to scaler deletion(event)

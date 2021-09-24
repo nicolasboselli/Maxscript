@@ -9,10 +9,12 @@
 	global cellsCreatorPath = @"cellsCreator/004/cellsCreator.ms"
 	global matIdManagerPath = @"MatIDManager/004/matIdManager.ms"
 	global clientsImageSizePath =  @"visiolab/render_output/000/render_output.ms"
-	global initLayersPath =  @"sceneManagement/init_layers_sb.ms"
+	global initScenePath =  @"visiolab/initScene.ms"
+	global initLayersPath =  @"visiolab/initScene_initLayers.ms"
+	
 	
 	macroScript ScriptLauncher
-	category: "VisioLab"
+	category: "Visiolab"
 	buttonText: "MSXlauncher"
 	toolTip:""
 	icon: #("armadasScriptsFavorites",1)
@@ -21,17 +23,26 @@
 -- 		filein ((getroot()) +  "\scriptsLauncher\001\launcher.ms")
 	)
 	
+	macroScript initScene
+	category: "Visiolab"
+	buttonText: "Init Scene"
+	toolTip:""
+	(
+		filein ((getroot()) + initScenePath)
+-- 		initLayers()
+	)
+	
 	macroScript initLayers
-	category: "VisioLab"
+	category: "Visiolab"
 	buttonText: "Init Layers"
 	toolTip:""
 	(
 		filein ((getroot()) + initLayersPath)
--- 		filein ((getroot()) +  "\scriptsLauncher\001\launcher.ms")
+-- 		initLayers()
 	)
 	
 	macroScript ModelingUtilities
-	category: "VisioLab"
+	category: "Visiolab"
 	buttonText: "modelingUtilities"
 	toolTip:""
 	icon: #("ArmadasScriptModelingUtilities",1)
@@ -41,7 +52,7 @@
 
 
 	macroScript MaterialsUtilities
-	category: "VisioLab"
+	category: "Visiolab"
 	buttonText: "materialsUtilities"
 	toolTip:""
 	icon: #("ArmadasScriptMaterialsUtilities",1)
@@ -52,7 +63,7 @@
 	
 	
 	macroScript clientsImageSize
-	category: "VisioLab"
+	category: "Visiolab"
 	buttonText: "clientsImageSize"
 	toolTip:""
 -- 	icon: #("pickandmergeicon",1)
@@ -61,7 +72,7 @@
 	)
 	
 	macroScript openMaxFolder
-	category: "VisioLab"
+	category: "Visiolab"
 	buttonText: "openMaxFolder"
 	toolTip:""
 	(
@@ -69,7 +80,7 @@
 	)
 	
 	macroScript PickAndMerge
-	category: "VisioLab"
+	category: "Visiolab"
 	buttonText: "PickAndMerge"
 	toolTip:""
 	icon: #("pickandmergeicon",1)
@@ -78,7 +89,7 @@
 	)
 
 	macroScript objectReplacer
-	category: "VisioLab"
+	category: "Visiolab"
 	buttonText: "Obj Replacer"
 	toolTip:""
 	-- 	icon: #("pickandmergeicon16",1)
@@ -87,7 +98,7 @@
 	)
 
 	macroScript collapseRailClone
-	category: "VisioLab"
+	category: "Visiolab"
 	buttonText: "Collapse RC"
 	toolTip:""
 	(
@@ -125,7 +136,7 @@
 	)
 	
 	macroScript VisiolabReload
-	category: "VisioLab"
+	category: "Visiolab"
 	buttonText: "Reload"
 	toolTip:"Reload Visiolab Script"
 	(
@@ -136,7 +147,7 @@
 
 
 	macroscript bridgeShortcut
-	category: "VisioLab"
+	category: "Visiolab"
 	buttonText: "Brigde"
 	toolTip:"bridge"
 	(
@@ -144,7 +155,7 @@
 	)
 	
 	macroscript CleanOutElts
-	category: "VisioLab"
+	category: "Visiolab"
 	buttonText: "CleanOutElts"
 	toolTip:"Clean Output Render Elements"
 	(
@@ -154,7 +165,7 @@
 	)
 	
 	macroscript cellsCreator
-	category: "VisioLab"
+	category: "Visiolab"
 	buttonText: "cellsCreator"
 	toolTip:""
 	(
@@ -163,7 +174,7 @@
 	)
 	
 	macroscript verticalCam
-	category: "VisioLab"
+	category: "Visiolab"
 	buttonText: "vertical Cam"
 	toolTip:""
 	(
@@ -189,7 +200,7 @@
 	
 	
 	macroscript matIdManager
-	category: "VisioLab"
+	category: "Visiolab"
 	buttonText: "matIdManager"
 	toolTip:""
 	(
