@@ -24,6 +24,20 @@ x- classer les plans par ordre alphbetique
 -- bmpAr = getClassInstances  Bitmaptexture target: scenematerials
 -- bmpAr[1].fileName
 
+/*
+-- fonction pour mettre le plan à la taille réelle
+test = $.material.diffusemap.bitmap.filename
+
+img = (dotNetClass "System.Drawing.Image").FromFile test
+imgSize = [img.Height / img.VerticalResolution, img.Width / img.HorizontalResolution]
+
+$.baseobject.length = (img.Height / img.VerticalResolution)*2.54
+$.baseobject.width = (img.Width / img.HorizontalResolution)*2.54
+*/
+
+
+
+
 
 -- $.material.diffuseMap.HDRIMapName
 
@@ -235,27 +249,7 @@ rollout createPlaneRLT "create plane"
 		tmpPlane.material = tmpMaterial
 		tmpPlane
 	)
-	
-	fn createA4 oneJpg =
-	(
-		-- 	createMap
-		jpgMap = Bitmaptexture fileName: oneJpg name: ("zz_map_" + (getFilenameFile oneJpg))
-			
-		-- 	create material
-		tmpMaterial = Standardmaterial name: ("zz_plan_" + (getFilenameFile oneJpg))
-		tmpMaterial.diffuseMap = jpgMap
-		tmpMaterial.showInViewport =on
 		
-		-- 	create plane
-		tmpPlane = Plane length:21 width: 29.7 pos:[0,0,0]  lengthsegs: 1 widthsegs: 1 name: ("plane_" + (getFilenameFile oneJpg)) \
-		backfacecull: on renderable: off
-		
-
-		-- 	assign material on plane
-		tmpPlane.material = tmpMaterial
-		tmpPlane
-	)
-	
 -- 	delete uvwmap
 	fn deleteUVWmap onePlane =
 	(
@@ -406,26 +400,6 @@ rollout createPlaneRLT "create plane"
 		select mapPlane
 	)
 	
-	on injectMapBT pressed do
-	(
-		sel = selection as array
-		if sel.count == 1 then
-		(
-			deleteUVWmap sel[1]
-			
-			intSel = jpgListBox.selection 
-			jpgSel = planObjList[intSel]
-
-			mapPlane = reMapPlane sel[1] jpgSel.path
-			ajustUVWmap mapPlane
-			
-			-- update listbox
-			collectPlansList() 
-			refreshUI()	
-
-		)
-	)
-	
 	on changeMapBT pressed do
 	(
 		sel = selection as array
@@ -467,6 +441,26 @@ rollout createPlaneRLT "create plane"
 			
 			sel[1].renderable = off
 			sel[1].backfacecull = on
+		)
+	)
+	
+	on injectMapBT pressed do
+	(
+		sel = selection as array
+		if sel.count == 1 then
+		(
+			deleteUVWmap sel[1]
+			
+			intSel = jpgListBox.selection 
+			jpgSel = planObjList[intSel]
+
+			mapPlane = reMapPlane sel[1] jpgSel.path
+			ajustUVWmap mapPlane
+			
+			-- update listbox
+			collectPlansList() 
+			refreshUI()	
+
 		)
 	)
 	
