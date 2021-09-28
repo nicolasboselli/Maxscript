@@ -212,20 +212,29 @@ rollout planResizerRLT "blueprint resizer" width: 250
 		edittext mapToResize_et "map to resize:" readOnly: true
 	)
 	
+	group "realSize:"
+	(
+		button realSizeBT "Real Size Map" across: 3
+		
+		button scale100BT "x100"
+		button scale200BT "x200"
+	)
+	
 	group "Distance in scene:"
 	(
-		edittext distResize_et "distance:" readOnly: true
+		edittext distResize_et "size in scene:" readOnly: true
 		button refreshDistResize_pb "refresh distance"
 	)
 	
 	group "Numeric:"
 	(
-		spinner size_sp "size:" range: [0,100000,0]  type: #worldunits 
+		spinner size_sp "real size:" range: [0,100000,0]  type: #worldunits 
 		-- display size reference	
 	)
 	
 	-- rescale points
-	button rescale_bt "resize map"
+	button rescale_bt "Resize Map"
+	
 	
 -- 	UI functions
 	fn refreshUI  =
@@ -324,6 +333,49 @@ rollout planResizerRLT "blueprint resizer" width: 250
 	(
 		reelDist = distance startPt endPt
 		distResize_et.text = (reelDist as string) + "cm"
+	)
+	
+	on realSizeBT pressed do
+	(
+		sel = selection as array
+		for s in sel where iskindof s.baseobject plane do
+		(
+			
+			local jpgPath = s.material.diffusemap.bitmap.filename
+
+			img = (dotNetClass "System.Drawing.Image").FromFile jpgPath
+
+			s.baseobject.length = (img.Height / img.VerticalResolution)*2.54
+			s.baseobject.width = (img.Width / img.HorizontalResolution)*2.54
+						
+			s.scale = [1,1,1]
+-- 			s.uvwmap
+			
+			s.uvwmap.gizmo.scale = [1,1,1]
+			s.uvwmap.length = s.baseobject.length
+			s.uvwmap.width = s.baseobject.width
+			
+		)
+	)
+	
+	on scale100BT pressed do
+	(
+		sel = selection as array
+		for s in sel do
+		(
+			s.scale = [1,1,1]
+			s.scale *= 100
+		)
+	)
+	
+	on scale200BT pressed do
+	(
+		sel = selection as array
+		for s in sel do
+		(
+			s.scale = [1,1,1]
+			s.scale *= 200
+		)
 	)
 	
 	on parentScaler_bt pressed do
@@ -483,67 +535,6 @@ rollout planResizerRLT "blueprint resizer" width: 250
 		scaler.size = scaler.size*0.1
 	)
 -- 	
--- 	-- resize with a dimension, resize with a size reference.
-
--- 	-- create visual resizer	
-	/*
-	on selSize_bt pressed do
-	(
-		select refArray
-	)
-	
-	on refreshDistRef_pb pressed do
-	(
-		refDist = distance startSize endSize
-		print refDist
-		distRef_et.text =  refDist as string
-	)
-
-	
-	on parentRef_bt pressed do
-	(
-		sel = selection as array
-		if sel.count == 1 then
-		(
-			
-			for s in sel do
-			(
-				if superclassof s == geometryclass then
-				(
-					refParent = s
-					startSize.parent = s
-					mapAsRef_et.text = s.name
-				)
-				else
-				(
-					print "fail"
-				)
-			)
-		)
-		else
-		(
-			print "bad selection"
-		)
-	)
-
-	
-	on centerRef_bt pressed do
-	(
--- 		print mapAsRef_et.text
-		mapRef = getnodebyname mapAsRef_et.text
--- 		print mapRef
-		if mapRef != undefined then
-		(	
-			startSize.rotation = mapRef.rotation
-			startSize.pos = mapRef.pivot
-		)
-		else
-		(
-			print "no map selected"
-		)
-		
-	)
-		*/
 -- 	-- resize!
 	on rescale_bt pressed do
 	(
@@ -573,6 +564,8 @@ rollout planResizerRLT "blueprint resizer" width: 250
 		)
 		
 	)
+	
+
 )
 
 
