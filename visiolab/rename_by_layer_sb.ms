@@ -1,4 +1,11 @@
-l = LayerManager.getLayerFromName  "02_BAT"
+-- l = LayerManager.getLayerFromName  "02_BAT"
+
+-- LayerManager.current.name
+
+tmp = SceneExplorerManager.GetActiveExplorer()
+sel = tmp.SelectedItems()
+-- for s in sel where iskindof s Base_LayerBase_Layer do 
+l = LayerManager.getLayerFromName sel[1].name
 
 -- collecte des calques enfants de 02_BAT
 j = 0
@@ -29,6 +36,10 @@ for l in lAr do
 			o.name = uniquename(l.name + "_Aviz_")
 			format "ignore: %\n" o.name
 		)
+		else if isKindof o point then
+		(
+			
+		)
 		else if isKindof o Forest_Pro then
 		(
 			o.name = uniquename(l.name + "_FP_")
@@ -44,9 +55,13 @@ for l in lAr do
 		else if iskindof o dummy and isgrouphead o then
 		(
 -- 			if (matchpattern o.name pattern: "Group*") then o.name = uniquename(l.name + "_GRP_")
-			o.name = uniquename(l.name + "_GRP_")
+-- 			o.name = uniquename(l.name + "_GRP_")
 			append grpAr o
 		)
+		else if isKindof o SplineShape then 
+		(
+			o.name = uniquename(l.name + "_SP_")
+		)		
 		else
 		(
 			o.name = uniquename(l.name + "_MDL_")
@@ -54,10 +69,13 @@ for l in lAr do
 	)
 )
 
+-- traitement des groupe
 for g in grpAr do
 (
-	-- collecter les enfants
-	--
+	-- renommage des groupes standard	
+	if (matchpattern g.name pattern: "Group*") then g.name = uniquename(l.name + "_GRP_")
+	
+	-- collecter les enfants du groupe
 	grpChildrenAr = for c in g.children collect c
 	for o in grpChildrenAr do
 	(
@@ -65,6 +83,7 @@ for g in grpAr do
 	)
 	for s in grpChildrenAr do s.name = uniquename (g.name + "_MDL_" )
 	
+	-- creation d'un calque pour le groupe
 	if not (matchpattern g.layer.name pattern:g.name) then
 	(
 		local daddy = g.layer
