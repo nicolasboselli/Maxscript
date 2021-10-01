@@ -215,9 +215,10 @@ rollout planResizerRLT "blueprint resizer" width: 250
 	group "realSize:"
 	(
 		button realSizeBT "Real Size Map" across: 3
-		
-		button scale100BT "x100"
-		button scale200BT "x200"
+		spinner scaleSP "X" type: #integer range: [0,1000,1]
+		button scaleBT "scale"
+-- 		button scale100BT "x100"
+-- 		button scale200BT "x200"
 	)
 	
 	group "Distance in scene:"
@@ -358,26 +359,17 @@ rollout planResizerRLT "blueprint resizer" width: 250
 		)
 	)
 	
-	on scale100BT pressed do
+	on scaleBT pressed do
 	(
+-- 		format "scale: %\n" scaleSP.value
 		sel = selection as array
 		for s in sel do
 		(
 			s.scale = [1,1,1]
-			s.scale *= 100
+			s.scale *= scaleSP.value
 		)
 	)
-	
-	on scale200BT pressed do
-	(
-		sel = selection as array
-		for s in sel do
-		(
-			s.scale = [1,1,1]
-			s.scale *= 200
-		)
-	)
-	
+		
 	on parentScaler_bt pressed do
 	(
 		sel = selection as array

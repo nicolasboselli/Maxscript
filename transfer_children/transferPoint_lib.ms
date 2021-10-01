@@ -190,39 +190,49 @@ fn transferChildren source target checkSource: false presName: true presMat: tru
 	 copyChilds[1].transform = target.transform
 	
 	-- transfert des attributs des enfants
+	
 	for i = 2 to copyChilds.count do
 	(
-		local instances
-		
-		-- transférer le parent
+			-- transférer le parent
 		if copyChilds[i].parent == copyChilds[1] then copyChilds[i].parent = target
-		
-		-- trouver la correpondance entre un enfant de la target et une copy d'un enfant de la source en recherchant les instance
-		InstanceMgr.GetInstances copyChilds[i] &instances
-		for ct in childTargetAr do
+			
+		if cloneTypeSel == #instance then
 		(
-			res = finditem instances ct
-			if res > 0 and isvalidnode ct then 
+			local instances
+			
+			-- trouver la correpondance entre un enfant de la target et une copy d'un enfant de la source en recherchant les instance
+			InstanceMgr.GetInstances copyChilds[i] &instances
+			for ct in childTargetAr do
 			(
-				format "% instance of %\n"  copyChilds[i].name ct.name
-				-- préserver le layer
-				-- préserver le materiau
-				if presMat then copyChilds[i].material = ct.material
-				
-				-- préserver le transform
-				if presTrans then copyChilds[i].transform = ct.transform
-				
-				-- préserver le nom
-				if presName then copyChilds[i].name = ct.name
+				res = finditem instances ct
+				if res > 0 and isvalidnode ct then 
+				(
+					format "% instance of %\n"  copyChilds[i].name ct.name
+					-- préserver le layer
+					-- préserver le materiau
+					if presMat then copyChilds[i].material = ct.material
 					
-				if presLayer then ct.layer.addnode copyChilds[i]
+					-- préserver le transform
+					if presTrans then copyChilds[i].transform = ct.transform
+					
+					-- préserver le nom
+					if presName then copyChilds[i].name = ct.name
+						
+					if presLayer then ct.layer.addnode copyChilds[i]
+				)
+	-- 			else(format "% instance of nothing\n"  copyChilds[i].name )
+				else()
 			)
--- 			else(format "% instance of nothing\n"  copyChilds[i].name )
-			else()
 		)
+		else if cloneTypeSel == #copy then
+		(
+			-- find similar
+		)
+		else()
 		
 		if isvalidnode childTargetAr[i] then delete childTargetAr[i]
 	)
+
 	-- nettoyage
 	delete  copyChilds[1]
 	tagTargetProperties target source.name

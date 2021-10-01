@@ -46,9 +46,13 @@ for w in sceneWindows do
 	zSize = distance (point3 0 0 zmin) (point3  0 0 zmax)
 
 	shift = 50
-	oneplane = plane width: (ySize + shift) length: (zSize + shift) widtwhsegs: 1 lengthsegs:1 transform: w.transform name: (uniqueName "ParallaxPlane_")
+	oneplane = plane width: (ySize + shift) length: (zSize + shift) widthsegs: 1 lengthsegs:1 transform: w.transform name: (uniqueName "ParallaxPlane_")
 	oneplane.scale = [1,1,1]
 	addmodifier oneplane (uvwmap length: 300 width: 600)
 	in coordsys local oneplane.position += [25,0,0]
 	in coordsys local oneplane.rotation += ((eulerangles 0 90 90 ) as quat )
+	
+	-- ajouter un random material
+	-- mettre tous les parallaxe dans un calque
+	-- appliquer le material parallax
 )
