@@ -30,8 +30,8 @@ fn initLayers =
 fn renameByLayers =
 (
 	tmp = SceneExplorerManager.GetActiveExplorer()
-	sel = tmp.SelectedItems()
-	-- for s in sel where iskindof s Base_LayerBase_Layer do 
+	tmpSel = tmp.SelectedItems()
+	sel = for s in tmpSel where iskindof s Base_LayerBase_Layer collect s 
 	l = LayerManager.getLayerFromName sel[1].name
 
 	-- collecte des calques enfants des calques selectionnés
@@ -75,8 +75,15 @@ fn renameByLayers =
 			)
 			else if isKindof o RailClone_Pro then 
 			(
-				o.name = uniquename(l.name + "_RC_")
--- 				format "ignore: %\n" o.name
+-- 				o.name = uniquename(l.name + "_RC_")
+				if not matchpattern o.name pattern: (l.name + "_RC_*") then o.name = uniquename(l.name + "_RC_")
+-- 				o.banode
+-- 				format "o.banode: %\n" o.banode
+				for g in o.banode do
+				(
+					g.name = uniquename(o.name + "_guide_")
+					o.layer.addnode g
+				)
 				-- trouver les guides
 			)
 			else if iskindof o dummy and isgrouphead o then
@@ -87,11 +94,12 @@ fn renameByLayers =
 			)
 			else if isKindof o SplineShape then 
 			(
-				o.name = uniquename(l.name + "_SP_")
+-- 				o.name = uniquename(l.name + "_SP_")
+				if not matchpattern o.name pattern: (l.name + "_SP_*") then o.name = uniquename(l.name + "_SP_")
 			)		
 			else
 			(
-				o.name = uniquename(l.name + "_MDL_")
+				if not matchpattern o.name pattern: (l.name + "_MDL_*") then o.name = uniquename(l.name + "_MDL_")
 			)
 		)
 	)
@@ -102,26 +110,32 @@ fn renameByLayers =
 		-- renommage des groupes standard	
 		if (matchpattern g.name pattern: "Group*") then g.name = uniquename(l.name + "_GRP_")
 		
-		format "group start:%\n" g.name
-		-- collecter les enfants du groupe
-		grpChildrenAr = for c in g.children collect c
-		for o in grpChildrenAr do
-		(
-			-- si un groupoe dans les enfants
-			for c in o.children do appendifunique grpChildrenAr c
-		)
-		for s in grpChildrenAr where not iskindof s dummy  and not isgrouphead s do  s.name = uniquename (g.name + "_MDL_" )
+-- 		format "group start:%\n" g.name
+		local windowsTemplate = false
+		try(windowsTemplate = (getUserProp h "windowsTemplate")as booleanClass)catch(res = false)
 		
-		-- creation d'un calque pour le groupe
-		if not (matchpattern g.layer.name pattern:g.name) then
+		if not windowsTemplate then
 		(
-			local daddy = g.layer
-			if not iskindof (layermanager.getlayerfromname g.name) MixinInterface then layermanager.newlayerfromname g.name
-			local tpL = layermanager.getlayerfromname g.name
-			tpL.setParent daddy
+			-- collecter les enfants du groupe si il s'agit d'une fenetre
+			grpChildrenAr = for c in g.children collect c
+			for o in grpChildrenAr do
+			(
+				-- si un groupoe dans les enfants
+				for c in o.children do appendifunique grpChildrenAr c
+			)
+			for s in grpChildrenAr where not iskindof s dummy  and not isgrouphead s do  s.name = uniquename (g.name + "_MDL_" )
 			
-			tpL.addnode g
-			for c in grpChildrenAr do tpL.addnode c
+			-- creation d'un calque pour le groupe
+			if not (matchpattern g.layer.name pattern:g.name) then
+			(
+				local daddy = g.layer
+				if not iskindof (layermanager.getlayerfromname g.name) MixinInterface then layermanager.newlayerfromname g.name
+				local tpL = layermanager.getlayerfromname g.name
+				tpL.setParent daddy
+				
+				tpL.addnode g
+				for c in grpChildrenAr do tpL.addnode c
+			)
 		)
 	)
 )
@@ -135,7 +149,8 @@ try(destroydialog layersToolsRLT)catch()
 rollout layersToolsRLT "Layers Tools"
 (
 	
-	local subLayersNames = #("dalles","fenetres","gc","murs","terrasses","toit","tuiles")
+	global subLayersNames 
+	
 	
 	group "base layers"
 	(
@@ -156,6 +171,7 @@ rollout layersToolsRLT "Layers Tools"
 	
 	fn refreshUI =
 	(
+		if subLayersNames == undefined then subLayersNames= #("dalles","fenetres","gc","murs","terrasses","toit","tuiles")
 		layersNamesMLB.items = subLayersNames
 	)
 	

@@ -1,4 +1,12 @@
+-- creation du layer
+pLname = "PARALLAX_planes"
+if not iskindof (layermanager.getlayerfromname pLname) MixinInterface then layermanager.newlayerfromname pLname
+pL = layermanager.getlayerfromname  pLname
 
+
+-- récupérer les materiaux
+tmp = loadTempMaterialLibrary @"M:\WParralax\HAB_INT_WPARRALAX.max"
+oneMat = tmp["wP_Rooms"]
 
 -- récupérer les fenetres dans la scene
 sceneWindows = #()
@@ -48,11 +56,16 @@ for w in sceneWindows do
 	shift = 50
 	oneplane = plane width: (ySize + shift) length: (zSize + shift) widthsegs: 1 lengthsegs:1 transform: w.transform name: (uniqueName "ParallaxPlane_")
 	oneplane.scale = [1,1,1]
+		-- ajouter un random material
+	addmodifier oneplane (Materialmodifier materialID:(random 1 15))
 	addmodifier oneplane (uvwmap length: 300 width: 600)
 	in coordsys local oneplane.position += [25,0,0]
 	in coordsys local oneplane.rotation += ((eulerangles 0 90 90 ) as quat )
 	
-	-- ajouter un random material
+
 	-- mettre tous les parallaxe dans un calque
+	pL.addnode oneplane
 	-- appliquer le material parallax
+	oneplane.material = oneMat
 )
+

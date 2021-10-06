@@ -184,7 +184,7 @@ fn transferChildren source target checkSource: false presName: true presMat: tru
 
 	-- mettre les copies sur les bons calques
 	local refLay = target.layer
-	for c in copyChilds do refLay.addnode c
+	if presLayer then for c in copyChilds do refLay.addnode c
 			
 	-- transfer du transform sur le parent de la copie
 	 copyChilds[1].transform = target.transform
