@@ -1,4 +1,7 @@
 
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 #~ importer le module sys
 import sys
 
@@ -14,7 +17,7 @@ sys.path.append (onePath)
 for o in sys.path: print(o)
 #~ sys.path.remove(onePath)
 #~ sys.path.remove("N:\Ressources_Nico\github\\00_wip\Maxscript\python_test\sandbox")
-#~ importer le module depuis le dossier chargé dans les sys path
+#~ importer le module depuis le dossier charge dans les sys path
 #~ from sandbox import sandbox
 #~ import sandbox
 

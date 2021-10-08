@@ -24,7 +24,7 @@ fn findVray  =
 			goodR = r
 			exit
 		)
-		else if matchPattern  (r as string)  pattern: "V_Ray_5" then 
+		else if matchPattern  (r as string)  pattern: "V_Ray_5*" then 
 		(
 			goodR = r
 			exit
@@ -145,8 +145,11 @@ fn setVrayCamera =
 	l.addnode newCam
 	l.addnode newCam.target
 	
-	viewport.setCamera newCam
+-- 	viewport.setCamera newCam
 )
+-- viewport.SetFOV 50
+-- redrawViews()
+
 
 fn initLayers =
 (

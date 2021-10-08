@@ -1,6 +1,6 @@
 from pprint import pprint
 import pymxs as pm
-import MaxPlus
+#~ import MaxPlus
 
 import pymxs
 
@@ -21,7 +21,7 @@ def sortbyname(v1,v2):
 	
 
 def hello():
-	print "hello super super python!"
+	print ("hello super super python!")
 	
 
 
