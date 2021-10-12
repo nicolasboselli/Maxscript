@@ -146,7 +146,7 @@ fn findVray  =
 			goodR = r
 			exit
 		)
-		else if matchPattern  (r as string)  pattern: "V_Ray_5" then 
+		else if matchPattern  (r as string)  pattern: "V_Ray_5*" then 
 		(
 			goodR = r
 			exit
@@ -293,8 +293,9 @@ rollout addPlan "Preparation du plan" width:350 height:230
 		local myBitmap
 		if isKindOf onePlane.material PhysicalMaterial  then
 		(
-			myBitmap = onePlane.material.base_weight_map.bitmap
-			onePlane.name = ("plane_" + (getFilenameFile (onePlane.material.base_weight_map.filename))) 
+			myBitmap = onePlane.material.base_color_map.bitmap
+			format "myBitmap:%\n" myBitmap
+			onePlane.name = ("plane_" + (getFilenameFile (onePlane.material.base_color_map.filename))) 
 		)
 		else if isKindOf  onePlane.material standard then
 		(

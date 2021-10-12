@@ -6,7 +6,7 @@
 	
 	global pickAndMergePath = @"PICKNMERGE/001/pickandmerge.ms"
 	global objReplacerPath = @"objReplacer/002/obj_replacer.ms"
-	global cellsCreatorPath = @"cellsCreator/004/cellsCreator.ms"
+	global cellsCreatorPath = @"cellsCreator/005/cellsCreator.ms"
 	global matIdManagerPath = @"MatIDManager/004/matIdManager.ms"
 	global clientsImageSizePath =  @"visiolab/render_output/000/render_output.ms"
 	global initScenePath =  @"visiolab/initScene.ms"

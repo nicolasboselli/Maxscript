@@ -27,13 +27,15 @@ fn initLayers =
 -- l = LayerManager.getLayerFromName  "02_BAT"
 
 -- LayerManager.current.name
-fn renameByLayers =
+fn renameByLayers l =
 (
+	/*
 	tmp = SceneExplorerManager.GetActiveExplorer()
 	tmpSel = tmp.SelectedItems()
 	sel = for s in tmpSel where iskindof s Base_LayerBase_Layer collect s 
 	l = LayerManager.getLayerFromName sel[1].name
-
+	*/
+	
 	-- collecte des calques enfants des calques selectionnés
 	j = 0
 	lAr = #(l)
@@ -88,9 +90,12 @@ fn renameByLayers =
 			)
 			else if iskindof o dummy and isgrouphead o then
 			(
-				format "g.name: %\n" o.name
-				append grpAr o
+				format "o.name: %\n" o.name
 				
+				local res
+				try(res = (getUserProp o "windowsTemplate")as booleanClass)catch(res = false)
+				if res then append grpAr o
+								
 			)
 			else if isKindof o SplineShape then 
 			(
@@ -229,7 +234,18 @@ rollout layersToolsRLT "Layers Tools"
 	
 	on renameByLayersBT pressed do
 	(
-		renameByLayers ()
+		local tmp
+		local l
+		
+		tmp = SceneExplorerManager.GetActiveExplorer()
+		tmpSel = tmp.SelectedItems()
+		sel = for s in tmpSel where iskindof s Base_LayerBase_Layer collect s 
+		if sel.count > 0 then for s in sel do
+		(
+			l = LayerManager.getLayerFromName s.name
+			renameByLayers l
+		)
+		else(format "renaming aborted\n")
 	)
 )
 createdialog layersToolsRLT

@@ -23,6 +23,11 @@ fn setVrayCamera =
 -- viewport.SetFOV 50
 -- redrawViews()
 
+rollout camNameRLT "camera name"
+(
+	
+)
+
 try(destroydialog pdv_cam_RLT )catch()
 rollout pdv_cam_RLT "point de vue companion"
 (

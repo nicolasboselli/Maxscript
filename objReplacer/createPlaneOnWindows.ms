@@ -10,8 +10,10 @@ oneMat = tmp["wP_Rooms"]
 
 -- récupérer les fenetres dans la scene
 sceneWindows = #()
+
 -- 		clearselection()
-for h in helpers where iskindof h dummy and isgrouphead h do 
+sel = selection as array
+for h in sel where iskindof h dummy and isgrouphead h do 
 (
 	local res
 	try(res = (getUserProp h "windowsTemplate")as booleanClass)catch(res = false)

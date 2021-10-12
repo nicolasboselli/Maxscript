@@ -58,9 +58,10 @@ fn createInfiniteGround =
 fn checkLetC =
 (
 	LM = layermanager	
+	local lcName = "01_CAM_LIGHT"
 	local lcl
-	if (LM.getLayerFromName "LetC") == undefined then lcl = LM.newLayerFromName "LetC"
-	else lcl = LM.getLayerFromName "LetC"
+	if (LM.getLayerFromName lcName) == undefined then lcl = LM.newLayerFromName lcName
+	else lcl = LM.getLayerFromName lcName
 	
 	lcl
 )
@@ -78,20 +79,20 @@ fn createVraySun =
 		(
 			vraySunExist = true
 			vraySunVar = o
-			print "vray sun still exists"
-			break
+			format "vray sun still exists\n"
+			exit
 		)
 	)
 	
 	if vraySunExist == false do
 	(
 	-- vray sun
--- 			dummy_target = dummy name: "vraysuntarget" 
-		dummy_target = Targetobject wirecolor: yellow
+		dummy_target = Targetobject wirecolor: yellow name:"VRaySun001.target"
 		vraySunVar = VRaySun name:"VRaySun001" pos:[val, - val,val] isSelected:on size_multiplier: 1 enabled:on turbidity: 2.5 ozone: 0.35 sky_model: 4 target: dummy_target
-		-- enviraonnement
+		
 	)
 	
+	-- enviraonnement
 	if (classof environmentMap) != vraysky do
 	(
 		environmentMap = vraysky ()
