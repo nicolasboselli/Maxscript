@@ -1,4 +1,4 @@
-/*
+d/*
 maj:
 
 x- enregistrer le chemin d'accés au plan dans les file property
@@ -418,8 +418,16 @@ rollout createPlaneRLT "create plane"
 		sel = selection as array
 		if sel.count == 1 then
 		(
-			format "%\n" (getFilenamePath (sel[1].material.diffuseMap.filename))
-			rootPlans = (getFilenamePath (sel[1].material.diffuseMap.filename))
+			if isKindOf sel[1].material PhysicalMaterial then
+			(
+				rootPlans = (getFilenamePath (sel[1].material.base_color_map.bitmap.filename))
+			)
+			else if isKindOf sel[1].material Standard then
+			(
+				rootPlans = (getFilenamePath (sel[1].material.diffuseMap.filename))
+			)
+			
+-- 			rootPlans = (getFilenamePath (sel[1].material.diffuseMap.filename))
 			root = rootPlans
 			collectPlansList()
 			refreshUI()

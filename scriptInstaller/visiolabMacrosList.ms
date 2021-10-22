@@ -2,16 +2,15 @@
 (
 	global ArmadasScriptLauncherPath = @"\scriptsLauncher\001\launcher.ms"
 	global ArmadasScriptModelingUtilitiesPath = @"\MODELING_TOOLS\001\modeling_tools.ms"
-	global ArmadasScriptMaterialsUtilitiesPath = @"\MATERIALS_TOOLS\000\deMultiMat.ms"
+	global ArmadasScriptMaterialsUtilitiesPath = @"\MATERIALS_TOOLS\001\deMultiMat.ms"
 	
 	global pickAndMergePath = @"PICKNMERGE/001/pickandmerge.ms"
 	global objReplacerPath = @"objReplacer/002/obj_replacer.ms"
 	global cellsCreatorPath = @"cellsCreator/005/cellsCreator.ms"
 	global matIdManagerPath = @"MatIDManager/004/matIdManager.ms"
 	global clientsImageSizePath =  @"visiolab/render_output/000/render_output.ms"
-	global initScenePath =  @"visiolab/initScene.ms"
-	global initLayersPath =  @"visiolab/initScene_initLayers.ms"
-	
+	global layersToolsPath =  @"LAYERS_TOOLS/000/layers_tools.ms"
+	global pdvToolsPath =  @"PDV_TOOLS/000/pdv_tools.ms"
 	
 	macroScript ScriptLauncher
 	category: "Visiolab"
@@ -22,25 +21,7 @@
 		filein ((getroot()) + ArmadasScriptLauncherPath)
 -- 		filein ((getroot()) +  "\scriptsLauncher\001\launcher.ms")
 	)
-	
-	macroScript initScene
-	category: "Visiolab"
-	buttonText: "Init Scene"
-	toolTip:""
-	(
-		filein ((getroot()) + initScenePath)
--- 		initLayers()
-	)
-	
-	macroScript initLayers
-	category: "Visiolab"
-	buttonText: "Init Layers"
-	toolTip:""
-	(
-		filein ((getroot()) + initLayersPath)
--- 		initLayers()
-	)
-	
+		
 	macroScript ModelingUtilities
 	category: "Visiolab"
 	buttonText: "modelingUtilities"
@@ -59,7 +40,23 @@
 	(
 		filein ((getroot()) + ArmadasScriptMaterialsUtilitiesPath )
 	)
-
+	
+	macroScript LayersTools
+	category: "Visiolab"
+	buttonText: "layersTools"
+	toolTip:""
+	icon: #("layersTools",1)
+	(
+		filein ((getroot()) + layersToolsPath )
+	)
+	
+	macroScript PDVTools
+	category: "Visiolab"
+	buttonText: "pdvTools"
+	toolTip:""
+	(
+		filein ((getroot()) + pdvToolsPath )
+	)
 	
 	
 	macroScript clientsImageSize

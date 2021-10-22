@@ -45,22 +45,47 @@ fn getRoot =
 	local armadasScriptsIni = (GetDir #maxData) + "armadasScriptsIni.ini"
 	local root = getINISetting armadasScriptsIni "armadasScripts" "armadasScriptsRoot"
 )
+
+-- clean des macros_script
+format "########### visiolab macros cleaning:\n"
+allMacrosAr = getFiles ((GetDir #maxData) + "usermacros\\*")
+for m in allMacrosAr do
+(
+	if MatchPattern (filenameFromPath m) pattern: "*Visiolab*" ignoreCase: false then
+	(
+		if (deleteFile m) then 	format "deleted: %\n" m
+	)
 	
+	else if MatchPattern (filenameFromPath m) pattern: "*ArmadasScripts*" ignoreCase: false then
+	(
+		if (deleteFile m) then 	format "deleted: %\n" m
+	)
+)
+format "########### visiolab macros cleaning done!:\n\n"
+
 -- pre Load des fonctions
-format "########### armadasScripts preload:\n"
+format "########### armadasScripts preload started:\n"
 filein ((getRoot ()) + "scriptInstaller/armadasScriptsPreLoad.ms")
+format "########### armadasScripts preload done!\n\n"
 
 -- load des modules pythons
-format "########### load python modules:\n"
+format "########### load python modules started:\n"
 python.ExecuteFile ((getRoot ()) + "scriptInstaller/load_py_module.py")
+format "########### load python modules done!\n\n"
 
 -- load du fichier de macros armadas
-format "########### load armadas macros:\n"
+format "########### load armadas macros started:\n"
 filein ((getRoot ()) + "scriptInstaller/armadasMacrosList.ms")
+allMacrosAr = getFiles ((GetDir #maxData) + "usermacros\\*")
+for m in allMacrosAr where MatchPattern (filenameFromPath m) pattern: "*ArmadasScripts*" ignoreCase: false do format "installed: %\n" m
+format "########### load armadas macros done!\n\n"
 
 -- load du fichier de macros visiolab
-format "########### load visiolab macros:\n"
+format "########### load visiolab macros started:\n"
 filein ((getRoot ()) + "scriptInstaller/visiolabMacrosList.ms")
+allMacrosAr = getFiles ((GetDir #maxData) + "usermacros\\*")
+for m in allMacrosAr where MatchPattern (filenameFromPath m) pattern: "*Visiolab*" ignoreCase: false do format "installed: %\n" m
+format "########### load visiolab macros!\n\n"
 
 
 -- load du tracker de dossier

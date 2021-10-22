@@ -458,6 +458,16 @@ fn publishSceneMatDef vrOnly: true  maxMatNum: 0 sortByName: false =
 )
 
 
+fn convertToGGX =
+(
+	for i = 1 to sceneMaterials.count do
+	(
+		allVr = getClassInstances vraymtl
+		for m in allVr do m.brdf_type = 4
+	)
+)
+-- convertToGGX()
+
 fn collectMatFromSel sel maxMatNum: 0 =
 (
 	local matAr = #()
@@ -811,6 +821,7 @@ rollout deMultiMatRLT "Materials Tools"
 		
 		button convertAllMatToVrBT "convert All standards to vray mat" -- across:2
 		button convertAutodeskToVrBT "convert Autodesk Materials to vray mat" -- across:2
+		button convertAllMatToGGXBT "convert All Vray mat to GGX" -- across:2
 -- 		button showBT "show properties"
 
 -- 		button collectVrMtlBT "collect material"
@@ -1172,6 +1183,11 @@ rollout deMultiMatRLT "Materials Tools"
 			format "start convert: %\n" m
 			convertToVrMatDef m
 		)
+	)
+	
+	on convertAllMatToGGXBT pressed do
+	(
+		convertToGGX()
 	)
 	
 	on okConvertBT pressed do

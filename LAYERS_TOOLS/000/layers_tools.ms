@@ -159,63 +159,107 @@ try(destroydialog layersToolsRLT)catch()
 rollout layersToolsRLT "Layers Tools"
 (
 	
-	global subLayersNames 
-	
+	local subLayersNames = #()
+	local params = #( "subLayersNames", "pos")
 	
 	group "base layers"
 	(
-		button initLayersBT "init layers"
+		button initLayersBT "init layers" height: 50
 	)
 	
 	group "sub layers"
 	(
 		multilistbox layersNamesMLB "layers names"
-		edittext newNameET 
-		button addnameBT "add name"
-		button createSubLayerBT "create sub layers"
+		label oneLB "layer name:"
+		edittext newNameET
+		button addnameBT "add" across: 2
+		button delNameBT "del"
+		button selAllBT "select All"
+		button createSubLayerBT "create sub layers\nselected" height: 50
 	)
 	
-	button createOneSbBT "create one sub"
+-- 	button createOneSbBT "create one sub"
 		
-	button renameByLayersBT "rename by layers"
+	button renameByLayersBT "rename by layers" height: 50
 	
 	fn refreshUI =
 	(
-		if subLayersNames == undefined then subLayersNames= #("dalles","fenetres","gc","murs","terrasses","toit","tuiles")
+		sort subLayersNames
 		layersNamesMLB.items = subLayersNames
 	)
 	
 	on layersToolsRLT open do
 	(
+		if subLayersNames.count == 0 then subLayersNames= #("dalles","fenetres","gc","murs","terrasses","toit","tuiles")
+		loadRolloutParams layersToolsRLT params
 		refreshUI()
+	)
+	
+	on layersToolsRLT close do
+	(
+		writeRolloutParams layersToolsRLT params
 	)
 	
 	on initLayersBT pressed do
 	(
+		
 		initLayers()
+	)
+		
+	on layersNamesMLB selectionend do
+	(
+		local idsSel = (layersNamesMLB.selection as array)
+		if idsSel.count == 1 then newNameET.text = subLayersNames[idsSel[1]]
+		else newNameET.text = ""
+	)
+	
+	on newNameET entered oneName do
+	(
+		if oneName.count > 0 then append subLayersNames oneName
+		newNameET.text = ""
+		refreshUI()
 	)
 	
 	on addnameBT pressed do
 	(
-		append subLayersNames newNameET.text
+		if newNameET.text.count > 0 then append subLayersNames newNameET.text
+		newNameET.text = ""
 		refreshUI()
+	)
+	
+	on delnameBT pressed do
+	(
+		idsSel = layersNamesMLB.selection as array
+		for id in idsSel do deleteItem subLayersNames id
+		refreshUI()
+	)
+	
+	on selAllBT pressed do
+	(
+		layersNamesMLB.selection = for i = 1 to subLayersNames.count collect i
 	)
 	
 	on createSubLayerBT pressed do
 	(
-		tmp = SceneExplorerManager.GetActiveExplorer()
+		idsSel = layersNamesMLB.selection as array
+-- 		for id in idssel do format "%\n" subLayersNames[id]
+		
+		
+ 		tmp = SceneExplorerManager.GetActiveExplorer()
 		sel = tmp.SelectedItems()
 		for s in sel where iskindof s Base_LayerBase_Layer do
 		(
 			l = LayerManager.getLayerFromName s.name
 
 			for n in subLayersNames do
+			for  id in idssel do
 			(
+				local n = subLayersNames[id]
 				if not iskindof (layermanager.getlayerfromname (l.name + "_" + n)) MixinInterface then layermanager.newlayerfromname (l.name + "_" + n)
 				local tpL = layermanager.getlayerfromname (l.name + "_" + n)
 				tpL.setParent l
 			)
-		)
+		) 
 	)
 	
 	on createOneSbBT pressed do

@@ -1,3 +1,32 @@
+
+
+fn convertSceneStateToCameras =
+(
+	num = sceneStateMgr.GetCount()   
+
+	statesAr = for i = 1 to num collect sceneStateMgr.GetSceneState i
+
+	for st in statesAr do
+	(
+		local cam = getActiveCamera()
+		if isvalidnode cam then
+		(
+			sceneStateMgr.RestoreAllParts st
+			maxOps.cloneNodes #(cam) cloneType: #copy newNodes:&copyCam
+			copyCam[1].name = st
+		-- 	format "cam: % st: %\n" cam st
+		)
+	)
+)
+
+fn sortbyname a b =
+(
+	if a.name > b.name then 1
+	else if a.name < b.name then -1
+	else 0
+)
+
+
 fn checkLetC =
 (
 	LM = layermanager	
@@ -34,6 +63,8 @@ fn setVrayCamera =
 -- viewport.SetFOV 50
 -- redrawViews()
 -- pdv_cam_RLT = undefined
+pdv_cam_RLT
+camNameRLT
 
 rollout camNameRLT "camera name"
 (
@@ -62,21 +93,10 @@ rollout pdv_cam_RLT "point de vue companion"
 	local newCamName
 	local oneCamSel
 	
-	group "New Cams:"
+	group "Active view:"
 	(
 		button newcamBT "create new Cam"
 		button duplicateBT "duplicate camera" --enabled:false
-	)
-	
-	group "Cams:"
-	(
-		checkbox selCamCB "sel cam"
-		multilistbox camsMLB "cams list:"
-		edittext camNameET "name:"
-	)
-	
-	group "Actions:"
-	(
 		button lockBT "lock/unlock"
 		label fovET "fov:" 
 		button fov24BT "24" across: 3
@@ -85,14 +105,24 @@ rollout pdv_cam_RLT "point de vue companion"
 		button vertCamBT "vertical cam"
 	)
 	
+	group "Cams List:"
+	(
+		checkbox selCamCB "auto sel cam"
+		multilistbox camsMLB "cams list:"
+		edittext camNameET "name:"
+	)
+		
+	button convertBT "scene states to vray cams"
+	
 	fn initCams =
 	(
 		camsAr = for c in cameras where isKindOf c VRayPhysicalCamera collect c
+		qsort camsAr sortbyname
 	)
 	
 	fn refreshUI =
 	(
-		camsMLB.items = for c in camsAr collect c.name
+		camsMLB.items = for c in camsAr where isvalidnode c collect c.name
 -- 		format "camsMLB.selection:%\n"camsMLB.selection
 		if isvalidnode oneCamSel then camNameET.text = oneCamSel.name else camNameET.text = "NONE"
 	)
@@ -155,6 +185,7 @@ rollout pdv_cam_RLT "point de vue companion"
 		(
 			oneCamSel = undefined
 		)
+		initCams()
 		refreshUI()
 	)
 	
@@ -231,6 +262,12 @@ rollout pdv_cam_RLT "point de vue companion"
 			else()
 		)
 		else()
+	)
+	
+	
+	on convertBT pressed do
+	(
+		convertSceneStateToCameras()
 	)
 )
 CreateDialog pdv_cam_RLT

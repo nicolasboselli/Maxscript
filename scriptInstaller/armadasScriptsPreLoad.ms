@@ -43,6 +43,7 @@ fn getRoot =
 	local armadasScriptsIni =  (GetDir #maxData) + "armadasScriptsIni.ini"
 	local root = getINISetting armadasScriptsIni "armadasScripts" "armadasScriptsRoot"
 )
+format "loaded getroot() function: %\n" getroot
 
 
 fn getScriptVersion oneScript =
@@ -61,6 +62,8 @@ fn getScriptVersion oneScript =
 		undefined
 	)
 )
+format "loaded getScriptVersion() function: %\n" getScriptVersion
+
 /*
 getScriptVersion (getThisScriptFilename())
 */
@@ -70,19 +73,20 @@ getScriptVersion (getThisScriptFilename())
 
 -- load function pour parenter comme dans maya
 filein ((getRoot ()) + "Rig/lastParent_def.ms")
+format "loaded lastParent() function:\n"
 
 -- load function pour enregistrer et loader les préferences
 filein ((getRoot ()) + "rollout_pref/rollout_pref.ms")
+format "loaded: rollout_pref() function\n"
 
 -- load de la fonction pour isoler la selection sans faire de focus dessus
 filein ((getRoot ()) + "sceneManagement/isolateSlectionCustom.ms")
-
-
-
+format "loaded: isolateSlectionCustom() function\n"
 
 -- ########## UPDATE DES MACROS
 -- copy les icones des macros dans le dossier user
 -- maj: tester si la copie est nécessaire avant de le faire
+
 fn copyBmpIcons =
 (
 	local iconsArray = getfiles ((getRoot()) + "icons\*.bmp")
@@ -96,30 +100,25 @@ fn copyBmpIcons =
 	
 	-- make copy
 	for ic in iconsArray do
-	(		
-		local res = copyFile  ic (iconsRoot + "\\"+ (filenameFromPath ic))	
-		if res == true then format "copy in \"\UI\Icons\" done : %\n" ic
-		else format "copy in \"\UI\Icons\" fail: %\n" ic
+	(	
+		local copyIC = iconsRoot + "\\"+ (filenameFromPath ic)
+		if (deleteFile copyIC) then () -- format "deleted icon: %\n" copyIC 
+		if (copyFile  ic copyIC) then format "copied icon: %\n" copyIC else format "copy fail: %\n" ic
+
 		
-		local res2 = copyFile  ic (iconsRoot2 + "\\"+ (filenameFromPath ic))
-		if res2 == true then format "copy in \"usericons\" done : %\n" ic
-		else format "copy in \"usericons\" fail: %\n" ic
+		local copyIC2 = iconsRoot2 + "\\"+ (filenameFromPath ic)
+		if (deleteFile copyIC2) then () -- format "deleted icon 2: %\n" copyIC2
+		if (copyFile  ic copyIC2) then format "copied icon 2: %\n" copyIC2 else format "copy fail: %\n" ic
 		
 	-- 	copyFile  icon iconsRoot 
 	)
 )
+
+format "### copy icons started\n"
 copyBmpIcons()
+format "### copy icons done!\n"
 
--- wip: nettoyage des macroscripts existant
-useMacrosPath =  (getdir #maxdata) + "\usermacros"
-armadasMacroAr = #()
 
-if doesfileexist useMacrosPath then
-(
-	armadasMacroAr = getfiles ((getdir #maxdata) + "\usermacros\ArmadasScripts*")
-)
-for macro in armadasMacroAr do format "%\n" macro
-	
 
 
 

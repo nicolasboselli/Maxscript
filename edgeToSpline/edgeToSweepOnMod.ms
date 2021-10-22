@@ -303,6 +303,7 @@ rollout edgeToShapeOnModRLT "edge to shape"
 				for ns in newShapes do
 				(
 					resetxform ns 
+					ns.xform.PreserveNormals = false
 					if collapseXformCB.state  do
 					(
 						converttosplineshape ns
