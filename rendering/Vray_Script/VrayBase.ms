@@ -45,7 +45,7 @@ fn createInfiniteGround =
 	if test == undefined then
 	(
 		solMat = vraymtl name: "sol_mat"
-		vrGround = vrayplane name: "vr_ground" pos: [0,0,-50]
+		vrGround = vrayplane name: "vr_ground" pos: [0,0,0]
 		vrGround.material = solMat
 	)
 	else 

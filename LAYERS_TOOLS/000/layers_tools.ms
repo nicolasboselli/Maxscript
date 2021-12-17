@@ -3,6 +3,8 @@ maj:
 	-- recréer un hierachie de calque en fonction d'une hierarchie de parents
 	-- conserver un hierrarchie de calque exitants dans une reorganisation de calques par rapport aux parenté
 
+$.distpathnodes
+
 */
 
 
@@ -19,8 +21,8 @@ fn initLayers =
 	corbeilleL = layermanager.getlayerfromname "CORBEILLE"
 	corbeilleL.setParent daddy
 	
-	if not iskindof (layermanager.getlayerfromname "plans") MixinInterface then layermanager.newlayerfromname "PLAN"
-	planL = layermanager.getlayerfromname "plans"
+	if not iskindof (layermanager.getlayerfromname "PLANS") MixinInterface then layermanager.newlayerfromname "PLANS"
+	planL = layermanager.getlayerfromname "PLANS"
 	planL.setParent daddy		
 )
 
@@ -148,6 +150,17 @@ fn renameByLayers l =
 			rc.layer.addnode g
 		)
 	)
+	
+	-- traitement des forest pack
+	for fp in fpAr do
+	(
+		for g in fp.distpathnodes do
+		(
+			if isKindOf g.baseobject editable_poly then continue
+			g.name = uniquename(fp.name + "_guide_")
+			fp.layer.addnode g
+		)
+	)
 )
 -- renommages des groups et de leurs enfant
 -- distinguer les aviz tiles, les forest, les atiles, les fenetres
@@ -190,8 +203,8 @@ rollout layersToolsRLT "Layers Tools"
 	
 	on layersToolsRLT open do
 	(
-		if subLayersNames.count == 0 then subLayersNames= #("dalles","fenetres","gc","murs","terrasses","toit","tuiles")
 		loadRolloutParams layersToolsRLT params
+		if subLayersNames.count == 0 then subLayersNames= #("dalles","fenetres","gc","murs","terrasses","toit","tuiles")
 		refreshUI()
 	)
 	

@@ -335,28 +335,39 @@ rollout planResizerRLT "blueprint resizer" width: 250
 		reelDist = distance startPt endPt
 		distResize_et.text = (reelDist as string) + "cm"
 	)
-	
-
-	
-	
+		
 	on realSizeBT pressed do
 	(
 		sel = selection as array
 		for s in sel where iskindof s.baseobject plane do
 		(
-			
+			local oneDifMap
 			local jpgPath --= s.material.diffusemap.bitmap.filename
 			
 			if isKindOf s.material PhysicalMaterial  then
 			(
-				jpgPath = s.material.base_color_map.bitmap.filename
+-- 				jpgPath = s.material.base_color_map.bitmap.filename
+				oneDifMap = s.material.base_color_map
 			)
 			else if isKindOf  s.material standard then
 			(
-				jpgPath = s.material.diffusemap.bitmap.filename
+				format "check1\n" 
+-- 				jpgPath = s.material.diffusemap.bitmap.filename
+				oneDifMap = s.material.diffusemap
+				format "check2\n" 
 			)
 			else()
-				
+			
+			if iskindof oneDifMap bitmaptexture then
+			(
+				jpgPath = oneDifMap.filename
+			)
+			else if iskindof oneDifMap vraybitmap then
+			(
+				format "oneDIfMap: %\n" oneDifMap
+				jpgPath = oneDifMap.HDRIMapName
+			)
+			else()
 
 			img = (dotNetClass "System.Drawing.Image").FromFile jpgPath
 

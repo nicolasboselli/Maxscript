@@ -92,12 +92,18 @@ rollout clientRenderOutputRLT "clients render output"
 	
 	on applyBT pressed do
 	(
-		renderSceneDialog.close()
+		local reopen = false
+		if renderSceneDialog.isOpen() then 
+		(
+			renderSceneDialog.close()
+			reopen = true
+		)
 		
 		renderWidth = renderOutSize[1]
 		renderHeight =  renderOutSize[2]
 		
-		renderSceneDialog.open()
+		if reopen then renderSceneDialog.open()
+-- 		renderSceneDialog.open()
 	)
 	
 	on editBT pressed do

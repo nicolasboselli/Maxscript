@@ -7,11 +7,12 @@
 	global pickAndMergePath = @"PICKNMERGE/001/pickandmerge.ms"
 	global objReplacerPath = @"objReplacer/002/obj_replacer.ms"
 	global cellsCreatorPath = @"cellsCreator/005/cellsCreator.ms"
-	global matIdManagerPath = @"MatIDManager/004/matIdManager.ms"
+	global matIdManagerPath = @"MatIDManager/006/matIdManager.ms"
 	global clientsImageSizePath =  @"visiolab/render_output/000/render_output.ms"
 	global layersToolsPath =  @"LAYERS_TOOLS/000/layers_tools.ms"
-	global pdvToolsPath =  @"PDV_TOOLS/000/pdv_tools.ms"
-	
+-- 	global pdvToolsPath =  @"PDV_TOOLS/000/pdv_tools.ms"
+	global pdvToolsPath =  @"PDV_TOOLS/001/pdv_tools_float.ms"
+
 	macroScript ScriptLauncher
 	category: "Visiolab"
 	buttonText: "MSXlauncher"

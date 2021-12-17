@@ -4,7 +4,8 @@
 	global ArmadasScriptModelingUtilitiesPath = "\MODELING_TOOLS\001\modeling_tools.ms"
 	global ArmadasScriptMaterialsUtilitiesPath = "\MATERIALS_TOOLS\000\deMultiMat.ms"
 	global ArmadasMatLibExplorerPath = "\MATLIB_EXPLORER\000\vrMatLib3.ms"
-	global mxsHelpPath = #(@"C:\Users\Visiolab\Desktop\maxscript-2019-enu-help.chm", \
+	global mxsHelpPath = #( @"C:\Users\Visiolab\Desktop\mxs_help_2022_enu.chm", \
+		@"C:\Users\Visiolab\Desktop\maxscript-2019-enu-help.chm", \
 		@"C:\Users\nicolas\Desktop\maxscript-2017-help.chm", \
 		@"C:\Users\Visiolab\Desktop\maxscript-2017-help.chm", \
 		@"N:\Ressources Soft tutoriaux plugins\3D\maxscript_help\maxscript-2017-help.chm")

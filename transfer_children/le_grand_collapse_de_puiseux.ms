@@ -39,9 +39,9 @@ for tp in allTransferPoints do
 		tpL.setParent daddy
 		tpL.addnode tp
 		for c in tpChildrenAr do tpL.addnode c
-		format "tpL: %\n" tpL
+		format "tpL: %\n" tpL.name
 	)
-	format "tpL: %\n" tpL
+	format "tpL: %\n" tpL.name
 	
 	-- ungrouping
 	for o in tpChildrenAr where iskindof o dummy and isgrouphead o do

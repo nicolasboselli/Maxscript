@@ -32,48 +32,48 @@ filein (scriptRoot + "\zz_mode_archi\\bardageCreator\\zinc_creator_bounding_box_
 
 rollout zincCreatorRLT "Zinc creator"
 (
--- 	UI
-group "Réglages"
-(
-	radiobuttons dirRB "direction:" labels: #("x", "y", "z") across: 3
--- 	checkbutton placePivotCB "Placer le Pivot"
-	spinner ecartSP "ecart :" range: [0,1000,50] type: #integer scale: 1
-	button createBBoxBT "Create Reperes" 
--- 	button createRepBT "Create Reperes"
-)
+	-- 	UI
+	group "Réglages"
+	(
+		radiobuttons dirRB "direction:" labels: #("x", "y", "z") across: 3
+	-- 	checkbutton placePivotCB "Placer le Pivot"
+		spinner ecartSP "ecart :" range: [0,1000,50] type: #integer scale: 1
+		button createBBoxBT "Create Reperes" 
+	-- 	button createRepBT "Create Reperes"
+	)
 
 
 
-group "Decoupe et Consequence"
-(
-button decoupBT "Go! Go! Decoupe" across: 2
-button decoupBT2 "Go! Go! Decoupe v2" 
-button recupSelBT "Recup Selection" across: 2
-button createShapeBT "Creation des Shapes"
--- button cleanFaceBT "Remove Edges"
-)
-	
+	group "Decoupe et Consequence"
+	(
+	button decoupBT "Go! Go! Decoupe" across: 2
+	button decoupBT2 "Go! Go! Decoupe v2" 
+	button recupSelBT "Recup Selection" across: 2
+	button createShapeBT "Creation des Shapes"
+	-- button cleanFaceBT "Remove Edges"
+	)
+		
 
--- 	vars
+	-- 	vars
 
--- améliorations:
--- placer le pivot ou on veut pour qu'il tombe sur un tracé du zinc
+	-- améliorations:
+	-- placer le pivot ou on veut pour qu'il tombe sur un tracé du zinc
 
--- faire en sorte que la découpe suive l'orientation du pivot selon x, y ou z au choix. (par défaut le plan de découpe est par rapport au monde)
-local dir = undefined
+	-- faire en sorte que la découpe suive l'orientation du pivot selon x, y ou z au choix. (par défaut le plan de découpe est par rapport au monde)
+	local dir = undefined
 
--- définir l'intervalle entre deux découpes: 
--- putiliser deux helper pour définir le repère de débutr et de fin de la découpe et de distance entre deux découpe
-local repereBox = undefined
-local depart = undefined
-local fin = undefined
+	-- définir l'intervalle entre deux découpes: 
+	-- putiliser deux helper pour définir le repère de débutr et de fin de la découpe et de distance entre deux découpe
+	local repereBox = undefined
+	local depart = undefined
+	local fin = undefined
 
--- calculer le départ la fin de la découpe en fonction de la taille de la selection(-- s'applique sur le bounding box)
-local start = -1000
-local start3 = undefined
-local pas = undefined
+	-- calculer le départ la fin de la découpe en fonction de la taille de la selection(-- s'applique sur le bounding box)
+	local start = -1000
+	local start3 = undefined
+	local pas = undefined
 
-local edgesToShape = undefined
+	local edgesToShape = undefined
 
 	on zincCreatorRLT open do
 	(
