@@ -51,8 +51,9 @@ fn createPlansLayer =
 	LM = layermanager
 	planLayer
 	
-	if (LM.getLayerFromName "plans") == undefined then planLayer = LM.newLayerFromName "plans"
-	else planLayer = LM.getLayerFromName "plans"
+	
+	if (LM.getLayerFromName "PLANS") == undefined then planLayer = LM.newLayerFromName "PLANS"
+	else planLayer = LM.getLayerFromName "PLANS"
 
 	planLayer
 )	

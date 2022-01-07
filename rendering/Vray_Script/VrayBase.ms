@@ -165,8 +165,8 @@ fn initLayers =
 		corbeilleL = layermanager.getlayerfromname "CORBEILLE"
 		corbeilleL.setParent daddy
 		
-		if not iskindof (layermanager.getlayerfromname "PLAN") MixinInterface then layermanager.newlayerfromname "PLAN"
-		planL = layermanager.getlayerfromname "PLAN"
+		if not iskindof (layermanager.getlayerfromname "PLANS") MixinInterface then layermanager.newlayerfromname "PLANS"
+		planL = layermanager.getlayerfromname "PLANS"
 		planL.setParent daddy		
 )
 

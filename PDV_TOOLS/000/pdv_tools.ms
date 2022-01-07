@@ -107,9 +107,10 @@ rollout pdv_cam_RLT "point de vue companion"
 		checkbutton lockCB "locked"
 -- 		label fovET "focal:" 
 		spinner fovSP "fov:" 
-		button fov24BT "24" across: 3
+		button fov24BT "24" across: 4
 		button fov30BT "30"
 		button fov35BT "35"
+		button fov50BT "50"
 		button vertCamBT "vertical cam"
 		button selTargetBT "sel target" enabled: true
 	)
@@ -145,7 +146,11 @@ rollout pdv_cam_RLT "point de vue companion"
 		if isvalidnode oneCamSel then camNameET.text = oneCamSel.name else camNameET.text = "NONE"
 			
 		local cam = getActiveCamera()
-		if isValidNode cam then lockCB.state = (getTransformLockFlags cam)[1]
+		if isValidNode cam then 
+		(
+			lockCB.state = (getTransformLockFlags cam)[1]
+			fovSP.value = cam.focal_length
+		)
 	)
 	
 	on pdv_cam_RLT open do
@@ -219,6 +224,16 @@ rollout pdv_cam_RLT "point de vue companion"
 		local cam = getActiveCamera()
 		
 		format "%\n" val
+		if iskindof cam VRayPhysicalCamera then
+		(
+			cam.specify_fov = off
+			cam.focal_length = val
+		)
+		else
+		(
+			viewport.SetFOV (2*atan((36.0/2)/(val)))
+		)
+		redrawViews()
 	)
 	
 	on fov24BT pressed do
@@ -231,6 +246,8 @@ rollout pdv_cam_RLT "point de vue companion"
 		)
 		else viewport.SetFOV (2*atan((36.0/2)/(24.0)))
 		redrawViews()
+			
+		fovSP.value = 24.
 	)
 
 	on fov30BT pressed do
@@ -244,6 +261,9 @@ rollout pdv_cam_RLT "point de vue companion"
 		)
 		else viewport.SetFOV (2*atan((36.0/2)/(30.0)))
 		redrawViews()
+			
+			
+		fovSP.value = 30.
 	)
 
 	on fov35BT pressed do
@@ -256,6 +276,22 @@ rollout pdv_cam_RLT "point de vue companion"
 		)
 		else viewport.SetFOV (2*atan((36.0/2)/(35.0)))
 		redrawViews()
+			
+		fovSP.value = 35.
+	)
+	
+	on fov50BT pressed do
+	(
+		local cam = getActiveCamera()
+		if iskindof cam VRayPhysicalCamera then
+		(
+			cam.specify_fov = off
+			cam.focal_length = 35.
+		)
+		else viewport.SetFOV (2*atan((36.0/2)/(50.0)))
+		redrawViews()
+			
+		fovSP.value = 50.
 	)
 	
 	on selTargetBT pressed do
