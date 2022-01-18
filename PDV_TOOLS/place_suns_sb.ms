@@ -4,6 +4,7 @@ faire fonctionner le place sun même quand la target n'est pas à zero
 
 */
 
+getNodeByName "vraysun001"
 
 try(destroydialog placeSun2RLT)catch()
 rollout placeSun2RLT "place sun 2"
@@ -17,18 +18,28 @@ rollout placeSun2RLT "place sun 2"
 		
 	group "sun"
 	(
+		edittext sunNameET readonly: true 
 		
 -- 		button placeSunBT "place sun"
 		slider sunSL "sun orientation" range: [-90,90,0] ticks: 4
 -- 		button transposeBT "transpose sun"
 		button copySunBT "copy sun"
+		button testBT "test sun"
 	)
 	
 	fn initSunNCam =
 	(
+		-- init cam
 		if isValidNode (getActiveCamera()) then cam = getActiveCamera()
+		
+		-- init sun
 		sunAr = for l in lights where iskindof l vraySun collect l
-		sun = sunAr[1]
+-- 		if isvalidnode (getNodeByName "vraysun001") then sun = getNodeByName "vraysun001"
+		if isvalidnode (getNodeByName ( "VraySun_" + cam.name) ) then sun = getNodeByName ( "VraySun_" + cam.name)
+		else if isvalidnode (getNodeByName "vraysun001") then sun = getNodeByName "vraysun001"
+		else sun = undefined
+		
+		if isvalidnode sun then sunNameET.text = sun.name else sunNameET.text = "NONE"
 	)
 	
 	-- functions ui dependents
@@ -99,22 +110,20 @@ rollout placeSun2RLT "place sun 2"
 	(
 		initSunNCam()
 		
-		maxOps.cloneNodes #(sun) cloneType: #copy newNodes:&copySun
-		for s in copysun do
+		if not isvalidnode (getNodeByName ( "VraySun_" + cam.name) ) then 
 		(
-			if iskindof s Targetobject then 
-			(
-				format "s.name before: %\n" (s.name)
--- 				s.name = substituteString s.name s.name (s.name + "_" + cam.name)
-				format "s.name after: %\n" (s.name)
-			)
-
-
-			else
-			(
-				s.name = ( "VraySun_" + cam.name)
-			)
+			maxOps.cloneNodes #(sun) cloneType: #copy newNodes:&copySun
+			for s in copysun where not iskindof s Targetobject do s.name = ( "VraySun_" + cam.name)
 		)
+		else
+		(
+			format "% exists. No copy\n" sun.name
+		)
+	)
+	
+	on testBT pressed do
+	(
+		initSunNCam()
 	)
 )
 createdialog placeSun2RLT

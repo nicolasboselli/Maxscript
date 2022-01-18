@@ -71,6 +71,7 @@ fn setVrayCamera =
 -- pdv_cam_RLT = undefined
 pdv_cam_RLT
 camNameRLT
+placeSun2RLT
 
 rollout camNameRLT "camera name"
 (
@@ -151,6 +152,11 @@ rollout pdv_cam_RLT "point de vue companion"
 			lockCB.state = (getTransformLockFlags cam)[1]
 			fovSP.value = cam.focal_length
 		)
+	)
+	
+	fn RefreshOtherUI =
+	(
+		placeSun2RLT.initSunNCam()
 	)
 	
 	on pdv_cam_RLT open do
@@ -335,9 +341,9 @@ rollout pdv_cam_RLT "point de vue companion"
 		(
 			oneCamSel = undefined
 		)
-		
 		initCams()
 		refreshUI()
+		
 	)
 	
 	on camsMLB doubleClicked val do 
@@ -345,6 +351,7 @@ rollout pdv_cam_RLT "point de vue companion"
 		viewport.setCamera camsAr[val]
 		initCams()
 		refreshUI()
+		placeSun2RLT.initSunNCam()
 
 	)
 	

@@ -97,7 +97,11 @@ fn renameByLayers l =
 			(
 -- 				o.name = uniquename(l.name + "_SP_")
 				if not matchpattern o.name pattern: (l.name + "_SP_*") then o.name = uniquename(l.name + "_SP_")
-			)		
+			)
+			else if isKindOf o VrayProxy then
+			(
+				if not matchpattern o.name pattern: (l.name + "_VRM_*") then o.name = uniquename(l.name + "_VRM_")
+			)
 			else
 			(
 				if not matchpattern o.name pattern: (l.name + "_MDL_*") then o.name = uniquename(l.name + "_MDL_")

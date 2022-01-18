@@ -2,19 +2,17 @@
 -- vray
 for l in lights where iskindof l vraysun do delete l
 environmentMap = undefined
+backgroundColor = color 0 0 0
 fileOutGamma = 2.2
 IDisplayGamma.colorCorrectionMode = #gamma
-
-
 
 -- units
 units.DisplayType = #metric
 units.MetricType  = #Centimeters 
 units.SystemType =  #Centimeters 
-
+units.SystemScale = 1.0
 
 -- supprimer les xrefs
-
 
 -- clean du medit material
 for i = 1 to  24 do meditMaterials[i] = VRayMtl ()
@@ -29,14 +27,12 @@ for i = batchCount to 1 by - 1 do batchRenderMgr.DeleteView i
 re = maxOps.GetCurRenderElementMgr ()
 re.RemoveAllRenderElements()
 
-
 setRenderType #view
 -- setRenderType #region
 
 getRenderType ()
 -- clean render path
 rendOutputFilename = ""
-
 
 -- #### materiaux
 -- refs.dependents sceneMaterials["BOITES_AUX_LETTRES_002_VRMLT_3"]
@@ -110,11 +106,17 @@ daddyName = "02_BAT"
 if not iskindof (layermanager.getlayerfromname daddyName) MixinInterface then layermanager.newlayerfromname daddyName
 daddyL = layermanager.getlayerfromname daddyName
 
+-- daddy cool
+dassyCoolName = "00_ELTS_BAT"
+if not iskindof (layermanager.getlayerfromname dassyCoolName) MixinInterface then layermanager.newlayerfromname dassyCoolName
+daddyCool = layermanager.getlayerfromname dassyCoolName
+
 -- creation du calque au nom de l'asset
 if not iskindof (layermanager.getlayerfromname assetName) MixinInterface then layermanager.newlayerfromname assetName
 assetLayer = layermanager.getlayerfromname assetName
 
-assetLayer.setParent daddyL
+assetLayer.setParent daddyCool
+daddyCool.setParent daddyL
 
 for o in objects do assetLayer.addnode o
 -- renommage des objets
