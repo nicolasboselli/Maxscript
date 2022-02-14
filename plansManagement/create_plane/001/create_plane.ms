@@ -460,7 +460,7 @@ rollout createPlaneRLT "create plane"
 					
 				if iskindof sel[1].material.diffusemap bitmaptexture then
 				(
-					rootPlans = getFilenamePath sel[1].material.diffusemap.bitmap
+					rootPlans = getFilenamePath sel[1].material.diffusemap.bitmap.filename
 
 				
 				)

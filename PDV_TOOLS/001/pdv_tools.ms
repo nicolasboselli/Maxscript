@@ -106,7 +106,7 @@ rollout pdv_cam_RLT "point de vue companion"
 -- 		button lockBT "lock/unlock"
 		checkbutton lockCB "locked"
 -- 		label fovET "focal:" 
-		spinner fovSP "fov:" 
+		spinner fovSP "focal length (mm):" 
 		button fov24BT "24" across: 4
 		button fov30BT "30"
 		button fov35BT "35"

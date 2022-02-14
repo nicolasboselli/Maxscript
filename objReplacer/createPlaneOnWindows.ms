@@ -59,7 +59,7 @@ for w in sceneWindows do
 	oneplane = plane width: (ySize + shift) length: (zSize + shift) widthsegs: 1 lengthsegs:1 transform: w.transform name: (uniqueName "ParallaxPlane_")
 	oneplane.scale = [1,1,1]
 		-- ajouter un random material
-	addmodifier oneplane (Materialmodifier materialID:(random 1 15))
+	addmodifier oneplane (Materialmodifier materialID:(random 1 15)) -- exclure 7 et 9
 	addmodifier oneplane (uvwmap length: 300 width: 600)
 	in coordsys local oneplane.position += [25,0,0]
 	in coordsys local oneplane.rotation += ((eulerangles 0 90 90 ) as quat )

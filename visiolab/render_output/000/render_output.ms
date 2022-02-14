@@ -1,5 +1,5 @@
 try (destroydialog clientRenderOutputRLT)catch()
-rollout clientRenderOutputRLT "clients render output"
+rollout clientRenderOutputRLT "clients render size"
 (
 	local params = #("pos")
 	local clientImageSizeINI = getroot() + @"visiolab\clientsImageSize.ini"

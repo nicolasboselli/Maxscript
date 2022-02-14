@@ -14,8 +14,8 @@ fn initLayers =
 	if not iskindof (layermanager.getlayerfromname "02_BAT") MixinInterface then layermanager.newlayerfromname "02_BAT"
 	if not iskindof (layermanager.getlayerfromname "HAB") MixinInterface then layermanager.newlayerfromname "HAB"
 	
-	if not iskindof (layermanager.getlayerfromname "OFF") MixinInterface then layermanager.newlayerfromname "OFF"
-	daddy = layermanager.getlayerfromname "OFF"
+	if not iskindof (layermanager.getlayerfromname "Z_OFF") MixinInterface then layermanager.newlayerfromname "Z_OFF"
+	daddy = layermanager.getlayerfromname "Z_OFF"
 	
 	if not iskindof (layermanager.getlayerfromname "CORBEILLE") MixinInterface then layermanager.newlayerfromname "CORBEILLE"
 	corbeilleL = layermanager.getlayerfromname "CORBEILLE"
@@ -29,6 +29,7 @@ fn initLayers =
 -- l = LayerManager.getLayerFromName  "02_BAT"
 
 -- LayerManager.current.name
+
 fn renameByLayers l =
 (
 	/*

@@ -18,4 +18,4 @@ setDialogPos transferChildrenRLT [0,0]
 setDialogPos edgeToShapeOnModRLT [0,0]
 setDialogPos layersToolsRLT [0,0]
 setDialogPos opaRLT [0,0]
-
+setDialogPos gouttiereRLT [0,0]

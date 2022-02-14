@@ -1,8 +1,7 @@
 /*
 maj:
 enregistrer format
-
-
+enregistrer calque visible
 */
 
 fn convertSceneStateToCameras =
@@ -65,9 +64,7 @@ fn setVrayCamera =
 	newCam
 
 )
--- viewport.SetFOV 50
--- redrawViews()
--- pdv_cam_RLT = undefined
+
 pdv_cam_RLT
 camNameRLT
 placeSun2RLT
@@ -112,7 +109,11 @@ rollout pdv_cam_RLT "point de vue companion"
 		button fov35BT "35"
 		button fov50BT "50"
 		button vertCamBT "vertical cam"
-		button selTargetBT "sel target" enabled: true
+		button selTargetBT "select target" enabled: true
+		
+		label imageSizeLB "image size:"
+		spinner widthSP "width:" type: #integer range: [0, 10000, 0] across: 2
+		spinner heightSP "height:" type: #integer range: [0, 10000, 0]
 	)
 	
 	group "Cams List:"
@@ -158,10 +159,36 @@ rollout pdv_cam_RLT "point de vue companion"
 		placeSun2RLT.initSunNCam()
 	)
 	
+	fn loadRenderSize =
+	(
+		local cam = getActiveCamera()
+		try
+		(	renderWidth = getUserProp cam "renderWidth"	)catch()
+		try
+		(	renderHeight = getUserProp cam "renderHeight")catch()
+		
+		widthSP.value = renderWidth
+		heightSP.value = renderHeight
+	)
+	
+	fn writeRenderSize =
+	(
+		local cam = getActiveCamera()
+		try
+		(
+			setUserProp cam "renderWidth" renderWidth
+			setUserProp cam "renderHeight" renderHeight
+		)catch()
+-- 		setUserProp cam "renderWidth" renderWidth
+-- 		setUserProp cam "renderHeight" renderHeight
+	)
+	
 	on pdv_cam_RLT open do
 	(
 		initCams()
 		refreshUI()
+		
+		loadRenderSize()
 	)
 		
 	on newcamBT pressed do
@@ -203,6 +230,7 @@ rollout pdv_cam_RLT "point de vue companion"
 -- 			format "%\n" copyCam
 			initCams()
 			refreshUI()
+			writeRenderSize()
 		)
 	)
 	
@@ -326,6 +354,17 @@ rollout pdv_cam_RLT "point de vue companion"
 		else()
 	)
 	
+	on widthSP changed val do
+	(
+		renderWidth = val
+		writeRenderSize()
+	)
+	
+	on heightSP changed val do
+	(
+		renderHeight = val
+		writeRenderSize()
+	)
 	
 	on camsMLB selectionend do
 	(
@@ -342,15 +381,18 @@ rollout pdv_cam_RLT "point de vue companion"
 		)
 		initCams()
 		refreshUI()
-		
 	)
 	
 	on camsMLB doubleClicked val do 
 	(
+		writeRenderSize()
+		
 		viewport.setCamera camsAr[val]
 		initCams()
 		refreshUI()
 		placeSun2RLT.initSunNCam()
+		
+		loadRenderSize()
 
 	)
 	
