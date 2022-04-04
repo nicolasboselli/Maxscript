@@ -4,11 +4,13 @@ if not iskindof (layermanager.getlayerfromname pLname) MixinInterface then layer
 pL = layermanager.getlayerfromname  pLname
 
 
+-- tmpLib = undefined
+
 -- récupérer les materiaux
 -- tmp = loadTempMaterialLibrary @"M:\WParralax\HAB_INT_WPARRALAX.max"
-tmp = loadTempMaterialLibrary @"M:\Biblio\VISIOLAB\2-Assets3D\Elements_batiments\Parralax\HAB_INT_WPARRALAX.max"
-
-oneMat = tmp["wP_Rooms"]
+-- if tmpLib["wP_Rooms"] == undefined then tmpLib = loadTempMaterialLibrary @"M:\Biblio\VISIOLAB\2-Assets3D\Elements_batiments\Parralax\HAB_INT_WPARRALAX.max"
+if not iskindof tmpLib MaterialLibrary then tmpLib = loadTempMaterialLibrary @"M:\Biblio\VISIOLAB\2-Assets3D\Elements_batiments\Parralax\HAB_INT_WPARRALAX.max"
+oneMat = tmpLib["wP_Rooms"]
 
 -- récupérer les fenetres dans la scene
 sceneWindows = #()
@@ -23,6 +25,7 @@ for h in sel where iskindof h dummy and isgrouphead h do
 )
 sceneWindows
 
+-- creation de la plane
 -- pour chaque fenetre 
 for w in sceneWindows do
 (
@@ -59,11 +62,17 @@ for w in sceneWindows do
 
 	shift = 50
 	oneplane = plane width: (ySize + shift) length: (zSize + shift) widthsegs: 1 lengthsegs:1 transform: w.transform name: (uniqueName "ParallaxPlane_")
+	oneplane.position = w.center
 	oneplane.scale = [1,1,1]
-		-- ajouter un random material
-	addmodifier oneplane (Materialmodifier materialID:(random 1 15)) -- exclure 7 et 9
+	
+	-- ajouter un random material
+	randID = random 1 15
+	if randID == 7 or randID == 9 then randID = random 1 15
+	matId = random 1 15
+	
+	addmodifier oneplane (Materialmodifier materialID: randID) -- exclure 7 et 9
 	addmodifier oneplane (uvwmap length: 300 width: 600)
-	in coordsys local oneplane.position += [25,0,0]
+	in coordsys local oneplane.position += [50,0,0]
 	in coordsys local oneplane.rotation += ((eulerangles 0 90 90 ) as quat )
 	
 

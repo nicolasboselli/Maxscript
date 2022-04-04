@@ -8,6 +8,7 @@ $.distpathnodes
 */
 
 
+
 fn initLayers =
 (
 	if not iskindof (layermanager.getlayerfromname "01_CAM_LIGHT") MixinInterface then layermanager.newlayerfromname "01_CAM_LIGHT"
@@ -80,7 +81,7 @@ fn renameByLayers l =
 				if not matchpattern o.name pattern: (l.name + "_FP_*") then o.name = uniquename(l.name + "_FP_")
 				append fpAr o
 			)
-			else if isKindof o RailClone_Pro then 
+			else if isKindof o.baseobject RailClone_Pro then 
 			(
 				if not matchpattern o.name pattern: (l.name + "_RC_*") then o.name = uniquename(l.name + "_RC_")
 				append rcAr o

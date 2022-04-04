@@ -40,7 +40,10 @@ fn rafle layerList: #() =
 -- rafle layerList: lAr
 
 -- test d'impact des murs
-s = $
+sel = selection as array
+s = sel[1]
+t = sel[2]
+
 spCount = numsplines s
 numKnots s 
 for sp = 1 to ( numsplines s)do
@@ -58,8 +61,8 @@ for sp = 1 to ( numsplines s)do
 	r2 = ray p2 v1
 	r1 = ray p3 v2
 
-	impact1 = intersectRayScene r1
-	impact2 = intersectRayScene r2
+	impact1 = intersectRay t r1
+	impact2 = intersectRay t r2
 	-- determiner si l'impact ce fait sur un mur
 	-- determiner la distance de l'impact
 	

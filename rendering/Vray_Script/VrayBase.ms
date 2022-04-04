@@ -151,7 +151,12 @@ fn setVrayCamera =
 -- viewport.SetFOV 50
 -- redrawViews()
 
+-- load layers_tools.ms
+onePath = getroot() + @"LAYERS_TOOLS/000/layers_tools.ms"
+filein onepath
+DestroyDialog layersToolsRLT
 
+/*
 fn initLayers =
 (
 		if not iskindof (layermanager.getlayerfromname "01_CAM_LIGHT") MixinInterface then layermanager.newlayerfromname "01_CAM_LIGHT"
@@ -169,6 +174,7 @@ fn initLayers =
 		planL = layermanager.getlayerfromname "PLANS"
 		planL.setParent daddy		
 )
+*/
 
 -- rollout
 try(destroydialog VrayRenderRLT)catch()
