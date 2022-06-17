@@ -123,6 +123,7 @@ rollout pdv_cam_RLT "point de vue companion"
 		edittext camNameET "name:"
 		button lockCamBT "lock cam" across: 2
 		button delCamBT "del cam" --enabled: false
+		button interCamBT "inbetween cam"
 	)
 		
 	button convertBT "scene states to vray cams" height: 50
@@ -442,6 +443,30 @@ rollout pdv_cam_RLT "point de vue companion"
 		)	
 		initCams()
 		refreshUI forceUI: true
+	)
+	
+	on interCamBT pressed do
+	(
+		camsSel = camsMLB.selection as array
+		
+		local count = camsSel.count
+		local posAr = [0,0,0]
+		local posTargetAr = [0,0,0]
+		
+		for id in camsSel do
+		(
+			posAr += camsAr[id].position
+			posTargetAr += camsAr[id].target.position
+		)
+		
+		tmpCam = VRayPhysicalCamera pos: (posAr/count)
+		tmpCam.targeted = true
+		tmpCam.target.position = (posTargetAr/count)
+		
+-- 		format "count: % posAr: % posTargetAr: %\n" count posAr posTargetAr
+		initCams()
+		refreshUI forceUI: true
+		
 	)
 	
 	on convertBT pressed do

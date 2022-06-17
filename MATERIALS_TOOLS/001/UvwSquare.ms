@@ -7,7 +7,7 @@ rollout UVSquareRLT "UVWmap Square"
 (
 -- 	edittext sizeET "Taille du cube :" text: "100"
 	button bt100 "100" across: 3
-	button bt200 "250"
+	button bt200 "200"
 	button bt500 "500"
 	
 	spinner sizeSp "taille du cube: " range: [0,10000,100] type:  #worldunits 
@@ -27,7 +27,7 @@ rollout UVSquareRLT "UVWmap Square"
 	
 	on bt200 pressed do 
 	(
-		sizeSp.value = 250
+		sizeSp.value = 200
 		gogoUVWMapBT.pressed()
 	)
 		

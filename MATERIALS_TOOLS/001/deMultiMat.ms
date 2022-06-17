@@ -9,6 +9,8 @@ for s in $* where s.material == undefined do selectmore s
 */
 
 filein "uvwsquare.ms"
+filein "replace_inst_mat_in_slate.ms"
+try(destroydialog repInstRLT)catch()
 
 fn sortMatbyname v1 v2 =
 (
@@ -789,7 +791,7 @@ rollout deMultiMatRLT "Materials Tools"
 		button publishSceneMatBT "publish scene materials" across:2
 		button listSceneMatBT "list scene materials"
 	)
-	
+		
 	group "missing :"
 	(
 		button editMissBmpBT "edit bitmap" across: 2
@@ -1129,7 +1131,6 @@ rollout deMultiMatRLT "Materials Tools"
 		collectEmptyFilenameBitmap()
 	)
 	
-	
 	on publishStandMatBT pressed do
 	(
 		local compare = collectstandardMat maxMatNum: lastManNum
@@ -1258,6 +1259,6 @@ rollout deMultiMatRLT "Materials Tools"
 
 
 addRollout deMultiMatRLT theNewMaterialToolFloater
-
+addRollout repInstRLT theNewMaterialToolFloater
 addRollout UVSquareRLT theNewMaterialToolFloater
 

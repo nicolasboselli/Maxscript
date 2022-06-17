@@ -17,7 +17,7 @@ rollout cellsTransferRLT "Cells Transfer"
 	group "cells creation"
 	(
 		spinner startSP "start:" type: #integer across: 3
-		spinner endSP "end:" type: #integer
+		spinner endSP "end:" type: #integer range: [0,100,5]
 		button createCellsBT "create cells"
 	)
 	multilistbox cellsLayerMTL "Cells layers:" height:15
@@ -47,6 +47,26 @@ rollout cellsTransferRLT "Cells Transfer"
 		if targetLayerAr == undefined then targetLayerAr = #()
 		cellsLayersAr = for i = 0 to (LayerManager.count - 1) where  matchpattern (LayerManager.getLayer i).name pattern: "Cells*" collect (LayerManager.getLayer i).name
 		refreshUI()
+	)
+	
+	
+	on createCellsBT pressed do
+	(
+		local daddyL, rName, rLayer
+		
+		daddyL = layermanager.getLayerFromName "Cells"
+		if daddyL == undefined then daddyL = layermanager.newLayerFromName  "Cells"
+		format "daddyL: %\n" daddyL
+		
+		for i = startSP.value to endSP.value do
+		(
+			rName = ( "Cells_R" + ( i as string ) )
+			rLayer = layermanager.getLayerFromName rName
+			if rLayer == undefined then rLayer = layermanager.newLayerFromName  rName
+			format "rLayer: %\n" rLayer 
+			
+			rLayer.setParent daddyL
+		)
 	)
 	
 	on addTargetBT pressed do

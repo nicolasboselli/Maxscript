@@ -11,25 +11,20 @@ maj:
 fn deleteEmptyLayer = 
 (
 	
-(
-	_defaultlayer = layerManager.getLayer 0
-	_defaultlayer.current = true
 
-	try
-	(	
-		_total_layers = layerManager.count - 1
-		_layercount = #()
-		_layercount = for i = 1 to _total_layers collect i
-		_revlayers = #()
-		for i in _layercount.count to 1 by -1 do append _revlayers _layercount[i]
+	_total_layers = layerManager.count - 1
 
-		for j in _revlayers do
+	for i = _total_layers  to 0 by -1 do
+	(
+		l = layerManager.getLayer i
+		l.nodes &test
+	-- 	format "objects: %\n" test
+-- 		format "i: % l: % getNumNodes: % getNumChildren: %\n" i l.name (l.getNumNodes()) (l.getNumChildren())
+		if l.getNumNodes() == 0 and l.getNumChildren() == 0 then 
 		(
-			_getlayer = layerManager.getlayer j
-			LayerManager.deleteLayerByName _getlayer.name
-		)		
-	)
-	catch()
+-- 			format "delete: %\n" l.name
+			LayerManager.deleteLayerByName l.name
+		)
 	)
 )	
 -- deleteEmptyLayer()
@@ -72,7 +67,7 @@ fn renameAssetByLayer l =
 		l.nodes &tmpNodes
 		for o in tmpNodes do
 		(
-			if isKindof o AvizstudioToolsATiles then 
+			if isKindof o.baseobject AvizstudioToolsATiles then 
 			(
 				o.name = uniquename(l.name + "_Aviz_")
 -- 				format "ignore: %\n" o.name
@@ -81,12 +76,12 @@ fn renameAssetByLayer l =
 			(
 				if (matchpattern o.name pattern: "Point*") then o.name = uniquename(l.name + "_PT_")
 			)
-			else if isKindof o Forest_Pro then
+			else if isKindof o.baseobject Forest_Pro then
 			(
 				if not matchpattern o.name pattern: (l.name + "_FP_*") then o.name = uniquename(l.name + "_FP_")
 				append fpAr o
 			)
-			else if isKindof o RailClone_Pro then 
+			else if isKindof o.baseobject RailClone_Pro then 
 			(
 				if not matchpattern o.name pattern: (l.name + "_RC_*") then o.name = uniquename(l.name + "_RC_")
 				append rcAr o
@@ -320,6 +315,7 @@ rollout assetToolsRLT "asset tools"
 	on cleanFileBT pressed do
 	(
 		cleanFile()
+		deleteEmptyLayer()
 	)
 	
 	on convertToVrBmpBT pressed do
@@ -340,6 +336,7 @@ rollout assetToolsRLT "asset tools"
 	on renameAssetBT pressed do
 	(
 		renameAsset ()
+		deleteEmptyLayer()
 		try(destroy layersToolsRLT)catch()
 	)
 	

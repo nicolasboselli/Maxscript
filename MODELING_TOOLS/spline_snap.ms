@@ -27,13 +27,19 @@ for sp = 1 to ( numsplines s) do
 	
 	-- determiner la distance de l'impact
 	
-	format "sp: % impact1: %\n" sp impact1
-	format "sp: % impact2: %\n" sp impact2
+	if not impact1 == undefined then
+	(
+		format "sp: % impact1: %\n" sp impact1
+		setKnotPoint s sp (numKnots s sp) impact1.pos
+	)
 	
--- 	point pos: impact1.pos
--- 	point pos: impact2.pos
-	setKnotPoint s sp 1 impact2.pos
-	setKnotPoint s sp (numKnots s sp) impact1.pos
+	if not impact2 == undefined then
+	(
+		format "sp: % impact2: %\n" sp impact2
+		setKnotPoint s sp 1 impact2.pos
+	)
+
+
 )
 
 updateShape s

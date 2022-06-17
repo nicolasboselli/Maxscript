@@ -366,13 +366,18 @@ rollout objReplacerRLT "objects replacer "
 								zMaxMove = theShift.z * 0.5
 								zMinMove = theShift.z * -0.5
 								yMaxMove = theShift.y  * 0.5
-								yMinMove = theShift.y * -0.5		
+								yMinMove = theShift.y * -0.5
+								xMaxMove = theShift.x  * 0.5
+								xMinMove = theShift.x * -0.5
+									
 
 								-- plage de selection des vertex
 								zMaxRange = -15
-								zMinRange = 15
+								zMinRange = 18
 								yMaxRange = -15
 								yMinRange = 15
+								xMaxRange = -15
+								xMinRange = 5
 									
 														
 								-- deplacement des vertex et des pivots
@@ -391,6 +396,20 @@ rollout objReplacerRLT "objects replacer "
 									pvtPosZShift = 0
 									movePivot = false
 										
+									if pvtPos.x >= xmax + xMaxRange then
+									(
+										format "yMaxMove: %\n" pvtPos
+										movePivot = true
+										pvtPosXShift = xMaxMove
+									)
+									else if pvtPos.x <= xmin + xMinRange then
+									(
+										format "yMinMove: %\n" pvtPos
+										movePivot = true
+										pvtPosXShift = xMinMove
+									)
+									else() 
+									
 									if pvtPos.y >= ymax + yMaxRange then
 									(
 										format "yMaxMove: %\n" pvtPos
@@ -450,6 +469,19 @@ rollout objReplacerRLT "objects replacer "
 										(
 											moveVertex = true
 											vPosYShift = yMinMove
+										)
+										else()
+										
+										-- determiner s'il doit y avoir un saut du vertex sur l'axe x
+										if vPos.x >= xmax + xMaxRange then
+										(
+											moveVertex = true
+											vPosXShift = xMaxMove
+										)
+										else if  vPos.x <= xmin + xMinRange then
+										(
+											moveVertex = true
+											vPosXShift = xMinMove
 										)
 										else()
 										

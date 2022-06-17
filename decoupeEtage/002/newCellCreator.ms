@@ -6,6 +6,14 @@ ajouter bouton uniquename
 debug:, 
  à la première ouverture le bsaename ne suit pas dans rollout rename
 
+memo:
+
+showProperties con
+showProperties con.modifierKeys 
+con=dotNetClass "system.windows.forms.control"
+if con.modifierKeys==con.modifierKeys.alt do 
+
+
 */
 
 decoupEtageRLT.cellLayer
@@ -61,7 +69,16 @@ rollout newCellCreatorRLT "new Cell Creator"
 				
 		-- refreshUI
 		if activeGrid == undefined then (activeGridET.text = "NONE") else activeGridET.text = activeGrid.name
-		if cellLayer == undefined then(cellLayerET.text = "NONE") else cellLayerET.text = cellLayer.name
+		if cellLayer == undefined then
+		(
+			cellLayerET.text = "NONE"
+			newCellCB.enabled = false
+		) 
+		else 
+		(
+			cellLayerET.text = cellLayer.name
+			newCellCB.enabled = true
+		)
 		
 		if basename != undefined then baseNameET.text = basename
 -- 		format "basename: %\n" basename
@@ -74,9 +91,12 @@ rollout newCellCreatorRLT "new Cell Creator"
 -- 		local newOne = false
 -- 		local newCell
 		local lastPos
-		local lastgridpoint
+-- 		local lastgridpoint
 		local firstGridPoint
 		local restart = false
+		local lastCount
+		
+		local i = 1
 		
 		on start do
 		(
@@ -94,7 +114,7 @@ rollout newCellCreatorRLT "new Cell Creator"
 			restart = true
 			local closed = false
 			
-			format "restart: %\n" restart
+			format "\n######### restart: %\n" restart
 			
 			if clickno == 1 then
 			(
@@ -110,8 +130,9 @@ rollout newCellCreatorRLT "new Cell Creator"
 				firstGridPoint = gridPoint
 				addKnot newCell 1 #corner #curve (gw.mapCPToWorld firstGridPoint)
 				
-				lastgridpoint = gridPoint
-				lastPos = gw.mapCPToWorld lastgridpoint
+-- 				lastgridpoint = gridPoint
+-- 				lastPos = gw.mapCPToWorld lastgridpoint
+				lastPos = gw.mapCPToWorld gridPoint
 				addKnot newCell 1 #corner #curve lastPos
 				
 				updateshape newCell	
@@ -131,49 +152,56 @@ rollout newCellCreatorRLT "new Cell Creator"
 			)
 			else
 			(
-				lastgridpoint = gridPoint
-
-				if (distance firstGridPoint lastGridPoint) < 10.0 then 
+-- 				lastgridpoint = gridPoint
+				
+-- 				if (distance firstGridPoint lastGridPoint) < 10.0 then 
+				if (distance firstGridPoint gridPoint) < 10.0 then 
 				(
 					format "close spline\n"
 					close  newCell 1
 					knotToDel = numKnots newCell 1
 					deleteknot newCell 1 knotToDel
 					closed = true
-					
 				)
 				else
 				(
-					lastPos = gw.mapCPToWorld lastgridpoint
-					addKnot newCell 1 #corner #curve lastPos
+					if altKey then
+					(
+						-- suppression de l'avant dernier point
+						knotCount = numKnots newCell 1
+						deleteKnot newCell 1 (knotCount - 1)
+					)
+					else
+					(
+-- 						lastPos = gw.mapCPToWorld lastgridpoint
+						lastPos = gw.mapCPToWorld gridPoint
+						addKnot newCell 1 #corner #curve lastPos
+					)
 				)
 
-				format "mousePoint: %\n" clickno
 			)
 			updateshape newCell
 			
+			lastCount = numKnots newCell 1
 			if closed then #stop
 		)
 		
 		on mouseMove clickno do
 		(
 			local knotCount = numKnots newCell 1
+			local lastCellpoint = in coordsys activegrid getKnotPoint newCell 1 (knotCount - 1)
+			
 			local newGridPoint = gridPoint
+			local deleteLast = false
 			
 			-- contrainte en x ou y
 			if shiftKey then  
 			(
-				local testVec =  normalize(newGridPoint - lastGridPoint)
-				if testVec.x^2 > testVec.y^2 then newGridPoint.y = lastGridPoint.y		
-				else	newGridPoint.x = lastGridPoint.x	
+				local testVec =  normalize(newGridPoint - lastCellpoint)
+				if abs(testVec.x) > abs(testVec.y) then newGridPoint.y = lastCellpoint.y
+				else	newGridPoint.x = lastCellpoint.x	
 			)
-			/*
-			if ctrlKey then
-			(
-				local tmpCount = numKnots newCell 1
-				deleteKnot newCell 1 (tmpCount - 1)
-			)
-				*/
+			
 			local curPos = gw.mapCPToWorld newGridPoint
 			
 			setKnotPoint newCell 1 knotCount curPos

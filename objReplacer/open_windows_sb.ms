@@ -1,6 +1,7 @@
-try(destroydialog openFenetresRLT)catch()
-rollout openFenetresRLT "open Fenêtres"
+try(destroydialog windowsSettingsRLT)catch()
+rollout windowsSettingsRLT "Windows Settings"
 (
+	
 	group "settings:"
 	(
 		button tagAsWindowsBT "tag as Windows" across: 3
@@ -13,26 +14,7 @@ rollout openFenetresRLT "open Fenêtres"
 		button cleanWindowsTemplateBT "delete windows properties"
 		button clearTagBT "delete opening properties"
 	)
-	
-	group "actions:"
-	(
 		
-		button openWindowsBT "open windows" across: 3
-		button openRightBT "open right"
-		button openLeftBT "open left"
-		
-		
-		button closewindowsBT "close windows" across: 2
-		button flipWindowsBT "flip windows" enabled: false
-	)
-	
-	group "random:"
-	(
-		button selectAllWIndowsBT "select All"
-		spinner randomOpenSP "percent opening" range: [0,100,100] enabled: false
-		button randomOpenWindowsBT "random open windows" enabled: false
-	)
-	
 	fn deleteUserProp node prop = 
 	(
 		if getUserProp node prop != undefined do
@@ -82,6 +64,59 @@ rollout openFenetresRLT "open Fenêtres"
 	(
 		sel = selection as array
 		for s in sel do deleteUserProp s "windowsTemplate"
+	)
+	
+)
+-- createdialog windowsSettingsRLT width: 300
+
+try(destroydialog openFenetresRLT)catch()
+rollout openFenetresRLT "Windows Tools"
+(
+	local windowsSet
+	
+	group "scenes infos:"
+	(
+		edittext windowsCountET "windows ready:" readonly: true across: 2
+		button selectAllWIndowsBT "select All"
+	)
+	
+	group "actions on selection:"
+	(
+		button openWindowsBT "open windows" across: 3 
+		button openRightBT "open right"
+		button openLeftBT "open left"
+
+		button closewindowsBT "close windows" across: 2
+		button flipWindowsBT "flip windows" enabled: false
+		
+		spinner randomOpenSP "percent:" range: [0,100,100] enabled: true across: 2
+		button randomOpenWindowsBT "random open" enabled: true
+	)
+		
+	fn findWindows oneArray = 
+	(
+		windowsSet = #()
+		for h in oneArray where iskindof h dummy and isgrouphead h do 
+		(
+			local res
+			try(res = (getUserProp h "windowsTemplate")as booleanClass)catch(res = false)
+			if res then append windowsSet h
+		)
+		windowsSet
+	)
+	
+	on openFenetresRLT open do
+	(
+-- 		findWindows (selection as array)
+		findWindows (helpers as array)
+		format "windows count: %\n" windowsSet.count
+		windowsCountET.text = windowsSet.count as string
+	)
+	
+	on selectAllWIndowsBT pressed do
+	(
+		findWindows helpers 
+		select windowsSet
 	)
 	
 	on openWindowsBT pressed do
@@ -167,18 +202,7 @@ rollout openFenetresRLT "open Fenêtres"
 		)
 	)
 	
-	on selectAllWIndowsBT pressed do
-	(
-		local sel = #()
--- 		clearselection()
-		for h in helpers where iskindof h dummy and isgrouphead h do 
-		(
-			local res
-			try(res = (getUserProp h "windowsTemplate")as booleanClass)catch(res = false)
-			if res then append sel h
-		)
-		select sel
-	)
+
 )
 createdialog openFenetresRLT width: 300
 

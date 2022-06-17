@@ -7,11 +7,13 @@
 	global pickAndMergePath = @"PICKNMERGE/001/pickandmerge.ms"
 	global objReplacerPath = @"objReplacer/002/obj_replacer.ms"
 	global cellsCreatorPath = @"cellsCreator/005/cellsCreator.ms"
-	global matIdManagerPath = @"MatIDManager/006/matIdManager.ms"
+	global matIdManagerPath = @"MatIDManager/007/matIdManager.ms"
 	global clientsImageSizePath =  @"visiolab/render_output/000/render_output.ms"
 	global layersToolsPath =  @"LAYERS_TOOLS/000/layers_tools.ms"
 	global pdvToolsPath =  @"PDV_TOOLS/003/pdv_tools_float.ms"
-
+	global windowsToolsPath = @"WINDOWS_TOOL/000/windows_tools_float.ms"
+	
+	
 	macroScript ScriptLauncher
 	category: "Visiolab"
 	buttonText: "MSXlauncher"
@@ -109,8 +111,8 @@
 		(
 			format "railclone:%\n" o.name
 			o.rendermode = off
-			o.weld = off
-			o.weldth = 0
+-- 			o.weld = off
+-- 			o.weldth = 0
 
 			o.vmesh = 0
 -- 			o.faceType = 1
@@ -203,6 +205,16 @@
 	(
 -- 		filein cellsCreatorPath
 		filein ((getroot()) +  matIdManagerPath)
+	)
+	
+	macroscript windowsTools
+	category: "Visiolab"
+	buttonText: "WindowsTools"
+	toolTip:""
+	icon: #("windowsTools",1)
+	(
+-- 		filein cellsCreatorPath
+		filein ((getroot()) +  windowsToolsPath)
 	)
 
 )

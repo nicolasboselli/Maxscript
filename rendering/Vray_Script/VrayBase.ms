@@ -8,6 +8,7 @@
 	--x mettre le sun en improved
 -- bouton pour creer des cameras bien settées
 
+
 fn findVray  =
 (
 	local goodR
@@ -34,7 +35,7 @@ fn findVray  =
 -- 	format "good r: %\n" goodR
 	 goodR
 )
--- findVray ()
+
 
 -- 	functions
 fn createInfiniteGround =
@@ -112,10 +113,11 @@ fn vrayBaseSetting =
 	-- mettre le color mapping en reihnard à 0.35
 	-- activer l'ambiant occlusion
 	-- reprendre les reglages vray quick settings
+	
  	(findVray())	imageSampler_type: 1 \
 	filter_on: false \
 	gi_on: true \
-	adaptiveSubdivision_minRate: 1 adaptiveSubdivision_maxRate: 8 adaptiveSubdivision_threshold: 0.005\
+	twoLevel_baseSubdivs: 1 twoLevel_fineSubdivs: 8 \
 	gi_primary_type: 0 gi_irradmap_showCalcPhase: true  gi_irradmap_showDirectLight: true  gi_irradmap_minRate: -4  gi_irradmap_maxRate: -3 gi_irradmap_subdivs: 37  gi_irradmap_preset: 2 \
 	gi_secondary_type: 3  lightcache_subdivs: 875 lightcache_storeDirectLight: 0 lightcache_showCalcPhase: 1 \
 	gi_ao_on: on gi_ao_radius: 50 \
@@ -235,6 +237,7 @@ rollout VrayRenderRLT "Init Scene"
 		vraySunBT.pressed()
 		vrayExposureBT.pressed()
 		initLayersBT.pressed()
+		renderSizeBT.pressed()
 	)
 	
 	on initLayersBT pressed do

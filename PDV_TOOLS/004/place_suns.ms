@@ -24,7 +24,7 @@ rollout placeSun2RLT "place sun 2"
 -- 		button transposeBT "transpose sun"
 		button copySunBT "copy sun"
 -- 		button testBT "test sun"
--- 		button autoSunsBT "AUto Suns"
+		button autoSunsBT "AUto Suns"
 	)
 	
 	fn initSunNCam =
@@ -135,10 +135,36 @@ rollout placeSun2RLT "place sun 2"
 	on autoSunsBT pressed do
 	(
 		camsAr = for c in cameras where isKindOf c VRayPhysicalCamera collect c
--- 		qsort camsAr sortbyname
+			
 		for c in camsAr do
 		(
-			format "c:%\n" c.name
+			
+			placeSun()
+			
+			if isvalidnode (getNodeByName ( "VraySun_" + c.name) ) then sun = getNodeByName ( "VraySun_" + c.name)
+			else if isvalidnode (getNodeByName "vraysun001") then sun = getNodeByName "vraysun001"
+			else sun = undefined
+			
+			format "c:% sun: %\n" c.name sun.name
+			
+			x1 = sun.pos.x - sun.target.pos.x
+			y1 = sun.pos.y - sun.target.pos.y
+			
+			sun.pos.x = x1*(cos 30) - y1*(sin 30) + sun.target.pos.x
+			sun.pos.y = x1*(sin 30) + y1*(cos 30) + sun.target.pos.y
+			
+			transposeSun()
+			
+			if not isvalidnode (getNodeByName ( "VraySun_" + c.name) ) then 
+			(
+				maxOps.cloneNodes #(sun) cloneType: #copy newNodes:&copySun
+				for s in copysun where not iskindof s Targetobject do s.name = ( "VraySun_" + c.name)
+			)
+			else
+			(
+				format "% exists. No copy\n" sun.name
+			)
+			
 		)			
 		
 	)

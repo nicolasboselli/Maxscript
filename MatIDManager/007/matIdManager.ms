@@ -1,5 +1,9 @@
 /*
 maj: 
+	-- AVEC LE PICKER SELECTIONner plusieurs materiaux avec Ctrl
+	-- collapser les materiaux avec la même id dans la liste
+	-- editer les materiaux dans le slate
+	
 	-- faire un vrai nettoyage de tous les materiaux id, ne pas passer par un getclassinstance sur le scenematerials
 		-- ça veut dire prendre en compte les standard, bitmap et autre
 	-- prendre en charge les multi mat et les materiaux composite
@@ -155,7 +159,7 @@ fn returnCleanId =
 	-- collecter les ids de materiaux deja affecter dans la scene
 	local usedIds = #()
 	local matArTmp = getclassinstances vrayMtl target: scenematerials
-	
+
 -- 	local idsAr
 	for m in matArTmp do appendifunique usedIds m.effect_id
 	sort usedIds
@@ -185,15 +189,15 @@ fn returnCleanId =
 		
 		-- sécurité anti boucle
 		turn +=1 
-		if turn > 150 then exit
+		if turn > 100 then exit
 	)
 	format "clean id:%\n" j
 	j
 )
--- returnCleanId()
+returnCleanId()
 
 try(closeRolloutFloater matIdExplorerRF)catch()
-matIdExplorerRF = newRolloutFloater "Materials id explorer" 500 500
+matIdExplorerRF = newRolloutFloater "Materials id explorer" 500 700
 matIdExplorerRF.lockWidth = false
 matIdExplorerRF.autoLayoutOnResize = true
 -- try(destroydialog matIdExplorerRLT)catch()
@@ -212,12 +216,12 @@ rollout matIdExplorerRLT "materials id explorer"
 	local multiMatArToDisp
 	local matListSel = #()
 	
--- 	group "tools"
--- 	(
-		
--- 		button matManagerBT "materials id manager"
--- 	)
+	local pickedMat
 	
+	
+	
+	
+-- 	UI
 	group "working on:"
 	(
 		radiobuttons typeSelBT  labels:#("scene ( all objects )", "selection") default: 1 --enabled: false
@@ -238,9 +242,10 @@ rollout matIdExplorerRLT "materials id explorer"
 		multilistbox materialListMLB "vray material list:" --height: 30
 		
 		editText matCountET "material count" readonly: true
-		button selAllBT "select All" across:3
+		button selAllBT "select All" across:4
 		button editMatBT "edit material"  -- across:2-- enabled: false
 		button selectMatObjBT "select object" -- enabled: false
+		checkbutton pickMatCB "pick material" -- enabled: false
 	)
 	
 	group "vray effect channel:"
@@ -262,12 +267,15 @@ rollout matIdExplorerRLT "materials id explorer"
 		button delmultiElt2BT "delete MultiMatteElt"  -- tooltip: "création de toutes les passes MultiElement"
 	)
 	
-	group "alpha render v.0"
+	group "alpha render v.0 (à utiliser avec précaution)"
 	(
-		button AlphaSelRenderBT "selection"
+		button AlphaSelRenderBT "selection" across: 2
 		button MatSelRenderBT "material"
 	)
+	
 		
+	
+	
 -- functions UI dependant
 	fn refreshUIList =
 	(
@@ -405,6 +413,73 @@ rollout matIdExplorerRLT "materials id explorer"
 -- 		format "refreshUI1 done: % ms\n" (((t4 - t3)as float)/1000)
 	)
 
+	
+	
+-- TOOLS	
+	tool pickMaterialTool
+	(
+		
+		local snapNode
+		
+		on mousePoint clickno do
+		(
+			if clickno > 1 then
+			(
+-- 				format "clickno: %\n"clickno
+				local theNearestObj
+				local theShortestDist = 10000000
+				
+				local viewTM = (inverse(getViewTM())).translationpart
+				local myRay = mapScreenToWorldRay viewPoint
+				local res = intersectRayScene myRay
+					
+				for o in res where not o[1].ishidden do
+				(
+	-- 				format "ishidden: %\n" o[1].ishidden
+					if (distance o[2].pos viewTM) < theShortestDist do
+					(
+						theNearestObj = o[1]
+						theShortestDist = distance o[2].pos viewTM
+					)
+				)
+				
+				if isvalidnode theNearestObj then
+				(
+					meshModForMatID = edit_mesh name: "meshModForMatID "
+					addmodifier theNearestObj meshModForMatID
+					
+					local impact = intersectRayEx theNearestObj myRay
+					
+-- 					format "theNearestObj: % impact: %\n" theNearestObj.name impact
+					
+					local pickedId = (getFaceMatID theNearestObj impact[2])
+-- 					format "matID: %\n" pickedId
+	-- 				select theNearestObj
+					
+					if iskindof  theNearestObj.material MultiMaterial then
+					(
+						format "mat: %\n" theNearestObj.material[pickedId]
+						pickedMat = theNearestObj.material[pickedId]
+						format "%\n" (finditem matArToDisp pickedMat)
+						materialListMLB.selection = (finditem matArToDisp pickedMat)
+					)
+					else
+					(
+						format "mat: %\n" theNearestObj.material
+						pickedMat = theNearestObj.material
+						format "%\n" (finditem matArToDisp pickedMat)
+						materialListMLB.selection = (finditem matArToDisp pickedMat)
+					)
+					
+					deleteModifier theNearestObj meshModForMatID
+				)
+				
+	-- 			format "res:%\n" res
+			)
+
+		)
+	)
+	
 	-- Actions
 	on matIdExplorerRLT open do
 	(
@@ -510,6 +585,19 @@ rollout matIdExplorerRLT "materials id explorer"
 			)
 -- 		)
 		select setToSel
+	)
+	
+	on pickMatCB changed state do
+	(
+		if state == true do
+		(
+			continueTool = true
+			while continueTool == true do
+			(
+				continueTool = starttool pickMaterialTool
+			)
+			pickMatCB.state = false
+		)
 	)
 	
 	on matIdSP changed val do

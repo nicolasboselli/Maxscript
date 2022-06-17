@@ -4,7 +4,7 @@
 
 -- collecter les objets dans les calques murs
 -- quand un objet impacté est sur un calque mur, en partant du dernier impact, faire l'ajustement
-
+/* 
 -- collecte des preparations de murs
 fn collectLayer pattern: "*" =
 (
@@ -34,7 +34,7 @@ fn rafle layerList: #() =
 		for o in tmp do append all o
 	)
 	all
-)
+) */
 
 -- lAr = collectLayer pattern: "_Splines Murs *"
 -- rafle layerList: lAr
@@ -65,10 +65,19 @@ for sp = 1 to ( numsplines s)do
 	impact2 = intersectRay t r2
 	-- determiner si l'impact ce fait sur un mur
 	-- determiner la distance de l'impact
-	
-	format "impact start sp:  % node: % pos: %\n"  sp impact1[impact1.count][1] (impact1[impact1.count][2].pos + [2,2,2] * v1)
-	format "impact end sp: % node: % pos: %\n" sp impact2[impact2.count][1] (impact2[impact2.count][2].pos + [2,2,2] * v2)
-	
-	point pos: (impact1[impact1.count][2].pos) name: "impact start"
-	point pos:  (impact2[impact2.count][2].pos) name: "impact end"
+	if not impact1 == undefined then
+	(	
+-- 		format "impact1.pos:%\n" = impact1.count
+-- 		format "impact start sp:  % node: % pos: %\n"  sp impact1.pos (impact1[impact1.count][2].pos + [2,2,2] * v1)
+		point pos: (impact1.pos) name: "impact start"
+	)
+	else(format "% no impact1\n" sp)
+-- 	
+	if not impact2 == undefined then
+	(
+-- 		format "impact2.count:%\n" = impact2.count
+-- 		format "impact end sp: % node: % pos: %\n" sp impact2[impact2.count][1] (impact2[impact2.count][2].pos + [2,2,2] * v2)
+		point pos:  (impact2.pos) name: "impact end"
+	)
+	else(format "% no impact2\n" sp)
 )

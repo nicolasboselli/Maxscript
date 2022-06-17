@@ -965,7 +965,7 @@ rollout decoupEtageRLT "découpe etage"
 			if testLayer == undefined then  layermanager.newLayerFromName ("Cells_"+ r.name)
 		)
 		
--- 		init()
+-- 		check()
 		refreshUI()
 	)
 	
@@ -1064,6 +1064,7 @@ rollout decoupEtageRLT "découpe etage"
 
 		-- cacher tous les plans
 		for p in $plane_* do p.ishidden = true
+			
 		-- décacher les plans selectionnés
 		if displayPlanCB.checked then
 		(
@@ -1103,9 +1104,11 @@ rollout decoupEtageRLT "découpe etage"
 
 rollout sliceToolsRLT "slice tools"
 (
-	button cellCreatorBT "cell creator" across: 3 --enabled: false 
+	button cellCreatorBT "cell creator" across: 2 --enabled: false 
 	button wallCreatorBT "wall creator" --enabled: false
-	button duplicateFloorBT "duplicate floor" --enabled: false
+	button duplicateFloorBT "duplicate cells" across: 3 --enabled: false
+	button rLayersCreatorBT "R layers creator"
+	button findDoublesBT "find double Cells"
 	
 	on cellCreatorBT pressed do
 	(
@@ -1120,6 +1123,46 @@ rollout sliceToolsRLT "slice tools"
 	on duplicateFloorBT pressed do
 	(
 		filein "duplicate_etage.ms"
+	)
+	
+	on rLayersCreatorBT pressed do
+	(
+		filein "create_R_layers.ms"
+	)
+	
+	
+	on findDoublesBT pressed do
+	(
+		allCellNames = #()
+
+		lCount = LayerManager.count
+		for i = 0 to (lCount - 1)  do
+		(
+			l = LayerManager.getLayer i
+			res = matchpattern l.name pattern: "Cells_*"
+			if res then
+			(
+				format "%\n" l.name
+				 l.nodes &nodes
+				format "nodes: %\n" nodes
+				for n in nodes do append allCellNames n
+			)
+		)
+
+		qsort allCellNames sortbyname
+
+		-- for c in allCellNames do print c.name
+		doubleAr = #()
+		for i = 1 to (allCellNames.count - 1) do
+		(
+			if allCellNames[i].name == allCellNames[i+1].name then
+			(
+				format "i: % i+1: %\n" allCellNames[i].name allCellNames[i+1].name
+				append doubleAr allCellNames[i]
+				append doubleAr allCellNames[i + 1]
+			)
+		)
+		select doubleAr
 	)
 )
 
