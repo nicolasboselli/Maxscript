@@ -18,7 +18,7 @@ rollout captureCamRLT "capture cam"
 		l.nodes &camNames
 		delete camNames
 
-		for c in cameras where not (iskindof c Targetobject) do 
+		for c in cameras where not (iskindof c Targetobject)  do 
 		(
 			
 			format "%\n" c.name

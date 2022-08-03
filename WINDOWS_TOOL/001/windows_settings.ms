@@ -63,7 +63,7 @@ rollout windowsSettingsRLT "Windows Properties"
 		sel = selection as array
 		for s in sel do
 		(
-			if iskindof s dummy and isgrouphead s then
+			if iskindof s dummy and isgrouphead s and s.parent == undefined then
 			(
 				setUserProp s "windowsTemplate" "true"
 			)

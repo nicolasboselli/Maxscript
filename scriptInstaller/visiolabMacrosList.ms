@@ -4,7 +4,7 @@
 	global ArmadasScriptModelingUtilitiesPath = @"\MODELING_TOOLS\001\modeling_tools.ms"
 	global ArmadasScriptMaterialsUtilitiesPath = @"\MATERIALS_TOOLS\001\deMultiMat.ms"
 	
-	global pickAndMergePath = @"PICKNMERGE/001/pickandmerge.ms"
+-- 	global pickAndMergePath = @"PICKNMERGE/001/pickandmerge.ms"
 	global objReplacerPath = @"objReplacer/002/obj_replacer.ms"
 	global cellsCreatorPath = @"cellsCreator/005/cellsCreator.ms"
 	global matIdManagerPath = @"MatIDManager/007/matIdManager.ms"
@@ -77,7 +77,7 @@
 	(
 		doscommand ("explorer " + (substituteString maxFilePath "/" "\\"))
 	)
-	
+/* 	
 	macroScript PickAndMerge
 	category: "Visiolab"
 	buttonText: "PickAndMerge"
@@ -85,7 +85,7 @@
 	icon: #("pickandmergeicon",1)
 	(
 		filein ((getroot()) +  pickAndMergePath)
-	)
+	) */
 
 	macroScript objectReplacer
 	category: "Visiolab"

@@ -1,21 +1,36 @@
+/*
+maj:
+- créé les cem name sur selection de cameras
+- créé un bouton pour selectionner les cams names
+- mettre un interface pour changer la couleur des noms
+
+*/
+
 
 try(DestroyDialog captureCamRLT)catch()
 rollout captureCamRLT "capture cam"
 (
 	local camNames = #()
 	local lname = "CAMS_NAMES"
+	local l
 	
 	button createCamNameTextBT "create cams names"
 	spinner resizeSP "text size" range: [200, 10000, 200]
 	button grabViewportBT "grab viewport"
 	button cleanBT "clean"
 	
-	on createCamNameTextBT pressed do
+	
+	fn collectCamNames =
 	(
 		if not iskindof (layermanager.getlayerfromname lname) MixinInterface then l = layermanager.newlayerfromname lname
 		else l = layermanager.getlayerfromname lname
 
 		l.nodes &camNames
+	)
+	
+	on createCamNameTextBT pressed do
+	(
+		collectCamNames()
 		delete camNames
 
 		for c in cameras where not (iskindof c Targetobject) do 
@@ -32,7 +47,8 @@ rollout captureCamRLT "capture cam"
 	
 	on resizeSP changed val do
 	(
-		for cn in camNames do cn.size = val
+		collectCamNames()
+		for cn in camNames where isvalidNode cn do cn.size = val
 	)
 	
 	on grabViewportBT pressed do
@@ -44,10 +60,7 @@ rollout captureCamRLT "capture cam"
 	
 	on cleanBT pressed do
 	(
-		if not iskindof (layermanager.getlayerfromname lname) MixinInterface then l = layermanager.newlayerfromname lname
-		else l = layermanager.getlayerfromname lname
-		
-		l.nodes &camNames
+		collectCamNames()
 		delete camNames
 		LayerManager.deleteLayerByName lname
 	)

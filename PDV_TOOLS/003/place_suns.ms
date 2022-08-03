@@ -25,6 +25,7 @@ rollout placeSun2RLT "place sun 2"
 		button copySunBT "copy sun"
 -- 		button testBT "test sun"
 -- 		button autoSunsBT "AUto Suns"
+		button autoSunsBT "auto suns"
 	)
 	
 	fn initSunNCam =
@@ -35,7 +36,7 @@ rollout placeSun2RLT "place sun 2"
 		-- init sun
 		sunAr = for l in lights where iskindof l vraySun collect l
 -- 		if isvalidnode (getNodeByName "vraysun001") then sun = getNodeByName "vraysun001"
-		if isvalidnode (getNodeByName ( "VraySun_" + cam.name) ) then sun = getNodeByName ( "VraySun_" + cam.name)
+		if isvalidnode cam and isvalidnode (getNodeByName ( "VraySun_" + cam.name) ) then sun = getNodeByName ( "VraySun_" + cam.name)
 		else if isvalidnode (getNodeByName "vraysun001") then sun = getNodeByName "vraysun001"
 		else sun = undefined
 		
@@ -51,27 +52,31 @@ rollout placeSun2RLT "place sun 2"
 	fn placeSun =
 	(
 		initSunNCam()
-				
-		SunVc = sun.transform.row3
 		
-		-- calcul de l'angle de la camera
-		CamVc = cam.transform.row3
-		CamVc.z = 0
-		
-		-- placement du target sun dans l'angle de la camera
-		viewTM = inverse(getViewTM())
-
-		sceenPos = mapScreenToView (getViewSize()*[0.85,0.15]) (-1000)
-		newTm = matrix3 1
-		newTm.pos = sceenPos
+		if isvalidnode cam and isvalidnode sun then
+		(
+			SunVc = sun.transform.row3
 			
-		sun.target.pos =  (newTm*viewTM).pos
-		
-		-- 				
-		multi = 50
-		sun.pos.x =  CamVc.x*multi + sun.target.pos.x
-		sun.pos.y =  CamVc.y*multi + sun.target.pos.y
-		sun.pos.z = multi + sun.target.pos.z
+			-- calcul de l'angle de la camera
+			CamVc = cam.transform.row3
+			CamVc.z = 0
+			
+			-- placement du target sun dans l'angle de la camera
+			viewTM = inverse(getViewTM())
+
+			sceenPos = mapScreenToView (getViewSize()*[0.85,0.15]) (-1000)
+			newTm = matrix3 1
+			newTm.pos = sceenPos
+				
+			sun.target.pos =  (newTm*viewTM).pos
+			
+			-- 				
+			multi = 50
+			sun.pos.x =  CamVc.x*multi + sun.target.pos.x
+			sun.pos.y =  CamVc.y*multi + sun.target.pos.y
+			sun.pos.z = multi + sun.target.pos.z
+		)
+		else (format "cam or sun undefined\n")
 	)
 	
 	fn transposeSun =
@@ -140,9 +145,45 @@ rollout placeSun2RLT "place sun 2"
 		(
 			format "c:%\n" c.name
 		)			
-		
 	)
-	
+
+	on autoSunsBT pressed do
+	(
+		camsAr = for c in cameras where isKindOf c VRayPhysicalCamera collect c
+					
+		for c in camsAr do
+		(
+			local sun
+			local cam = c
+			
+			-- collecte du sun de la camera
+			if isvalidnode (getNodeByName ( "VraySun_" + cam.name) ) then continue
+			else if isvalidnode (getNodeByName "vraysun001") then 
+			(
+				sun = getNodeByName "vraysun001"
+				-- placement du sun
+				CamVc = cam.transform.row3
+				CamVc.z = 0
+				
+				multi = 5000
+				sun.pos.x =  CamVc.x*multi + sun.target.pos.x
+				sun.pos.y =  CamVc.y*multi + sun.target.pos.y
+				sun.pos.z = multi + sun.target.pos.z
+				
+				
+				x1 = sun.pos.x - sun.target.pos.x
+				y1 = sun.pos.y - sun.target.pos.y
+				
+				sun.pos.x = x1*(cos 30) - y1*(sin 30) + sun.target.pos.x
+				sun.pos.y = x1*(sin 30) + y1*(cos 30) + sun.target.pos.y
+				
+				-- copie du sun
+				maxOps.cloneNodes #(sun) cloneType: #copy newNodes:&copySun
+				for s in copysun where not iskindof s Targetobject do s.name = ( "VraySun_" + c.name)
+			)
+			else (format "NO SUN! NO SUN AT ALL!\n")
+		)	
+	)
 )
 createdialog placeSun2RLT
 

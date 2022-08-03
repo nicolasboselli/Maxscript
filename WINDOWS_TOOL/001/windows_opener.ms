@@ -9,6 +9,12 @@ debug;
 	- fermer les battant avant de replacer le pivot de la fenetre
 	- finir le reset fenetres parce que les tirettes marchent à l'envers sur une fenetre flippé
 
+
+newMatrix = ((eulerangles 0 0 -10) as Matrix3) * $.transform
+newMatrix.translation = $.transform.translation
+$.transform = newMatrix
+
+
 */
 
 
@@ -18,6 +24,7 @@ rollout openFenetresRLT "Windows Opener"
 	local windowsSet
 	local winListR
 	local winListL
+	local bakVal = 0
 	
 	group "scenes infos:"
 	(
@@ -95,23 +102,36 @@ rollout openFenetresRLT "Windows Opener"
 			)
 			
 		)
-	)
-	
-	on openAllSL changed val do
-	(
+		
 		for w in winListR do
 		(
-			newMatrix = (eulerangles 0 0 val) as Matrix3
-			newMatrix.translation = w.transform.translation
-			w.transform = newMatrix
+			initMatrix = w.parent.transform
+			initMatrix.translation = w.transform.translation
+			w.transform = (rotateZMatrix openRightSL.value) * initMatrix
 		)
 		
 		for w in winListL do
 		(
-			newMatrix = (eulerangles 0 0 -val) as Matrix3
-			newMatrix.translation = w.transform.translation
-			w.transform = newMatrix
+			initMatrix = w.parent.transform
+			initMatrix.translation = w.transform.translation
+			w.transform = (rotateZMatrix openLeftSL.value) * initMatrix
 		)
+		
+		bakval = openAllSL.value
+	)
+	
+	on openAllSL changed val do
+	(	
+		for w in winListR do
+		(
+			w.transform = (rotateZMatrix (val - bakval)) * w.transform
+		)
+				
+		for w in winListL do
+		(
+			w.transform = (rotateZMatrix ((val - bakval)*-1) ) * w.transform
+		)
+		bakval = val
 	)
 
 	on openRightSL buttondown do
@@ -125,28 +145,47 @@ rollout openFenetresRLT "Windows Opener"
 			try(res = (getUserProp s "pivotFenetre")as booleanClass)catch(res = undefined)
 			if res != undefined and res then append winListR s
 		)
+		
+		for w in winListR do
+		(
+			initMatrix = w.parent.transform
+			initMatrix.translation = w.transform.translation
+			w.transform = (rotateZMatrix openRightSL.value) * initMatrix
+		)
+		
+		bakval = openRightSL.value
 	)
 	
 	on openRightSL changed  val do
 	(		
 		for w in winListR do
 		(
-			newMatrix = (eulerangles 0 0 val) as Matrix3
-			newMatrix.translation = w.transform.translation
-			w.transform = newMatrix
+			w.transform = (rotateZMatrix (val - bakval)) * w.transform
 		)
+		bakval = val
 	)
+
 	
 	on openLeftSL buttondown do
 	(
 		sel = selection as array
 		winListL = #()
+		
 		for s in sel do
 		(
 			local res
 			try(res = (getUserProp s "pivotFenetre")as booleanClass)catch(res = undefined)
 			if res != undefined and not res then append winListL s
 		)
+		
+		for w in winListL do
+		(
+			initMatrix = w.parent.transform
+			initMatrix.translation = w.transform.translation
+			w.transform = (rotateZMatrix openLeftSL.value) * initMatrix
+		)
+		
+		bakval = openLeftSL.value
 	)
 	
 	
@@ -154,10 +193,10 @@ rollout openFenetresRLT "Windows Opener"
 	(
 		for w in winListL do
 		(
-			newMatrix = (eulerangles 0 0 -val) as Matrix3
-			newMatrix.translation = w.transform.translation
-			w.transform = newMatrix
+			w.transform = (rotateZMatrix ((val - bakval)*-1) ) * w.transform
 		)
+		bakval = val
+		
 	)
 
 	on closewindowsBT pressed do

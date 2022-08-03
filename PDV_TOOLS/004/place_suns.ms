@@ -139,7 +139,11 @@ rollout placeSun2RLT "place sun 2"
 		for c in camsAr do
 		(
 			
-			placeSun()
+-- 			placeSun()
+			
+			initSunNCam()
+			
+			format "c:% sun: %\n" c.name sun.name
 			
 			if isvalidnode (getNodeByName ( "VraySun_" + c.name) ) then sun = getNodeByName ( "VraySun_" + c.name)
 			else if isvalidnode (getNodeByName "vraysun001") then sun = getNodeByName "vraysun001"

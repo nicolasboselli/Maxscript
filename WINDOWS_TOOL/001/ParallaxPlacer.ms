@@ -35,7 +35,7 @@ fn createParallax w =
 
 	shift = 50
 	shift2 = 75
-	oneplane = plane width: (ySize + shift2) length: (zSize + shift) widthsegs: 1 lengthsegs:1 position: w.position name: (uniqueName "ParallaxPlane_")
+	oneplane = plane width: (ySize + shift2) length: (zSize + shift) widthsegs: 1 lengthsegs:1 transform: w.transform name: (uniqueName "ParallaxPlane_")
 	oneplane.position = w.center
 	oneplane.scale = [1,1,1]
 	
@@ -56,7 +56,8 @@ fn createParallax w =
 	in coordsys local oneplane.rotation += ((eulerangles 0 90 90 ) as quat )
 	*/
 	
-	oneplane.transform = rotateYMatrix -90 * oneplane.transform 
+-- 	oneplane.transform = rotateYMatrix -90 * oneplane.transform 
+	oneplane.transform = rotateyMatrix -90 * oneplane.transform 
 	oneplane.transform = rotatezMatrix -90 * oneplane.transform 
 	oneplane.transform =  transMatrix (point3 0 0 -50) * oneplane.transform
 	
