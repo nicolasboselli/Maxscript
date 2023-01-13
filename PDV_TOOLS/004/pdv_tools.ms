@@ -90,6 +90,10 @@ rollout camNameRLT "camera name"
 )
 
 try(destroydialog pdv_cam_RLT )catch()
+
+global camsMLBHeight 
+if camsMLBHeight == undefined then camsMLBHeight = 10
+
 rollout pdv_cam_RLT "point de vue companion"
 (
 	local camsAr = #()
@@ -119,7 +123,9 @@ rollout pdv_cam_RLT "point de vue companion"
 	group "Cams List:"
 	(
 		checkbox selCamCB "auto sel cam"
-		multilistbox camsMLB "cams list:" height: 30
+		multilistbox camsMLB "cams list:" height: camsMLBHeight
+		button moreBT "+" across:2
+		button lessBT "-"
 		edittext camNameET "name:"
 		button lockCamBT "lock cam" across: 2
 		button delCamBT "del cam" --enabled: false
@@ -384,6 +390,21 @@ rollout pdv_cam_RLT "point de vue companion"
 		refreshUI()
 	)
 	
+	on moreBT pressed do
+	(
+		camsMLBHeight += 5
+		pdv_cam_RLT.height += 65
+		updateRolloutLayout pdv_cam_RLT forceUpdate: true
+	)
+	
+	on lessBT pressed do
+	(
+		camsMLBHeight -= 5
+		pdv_cam_RLT.height -= 65
+		updateRolloutLayout pdv_cam_RLT forceUpdate: true
+	)
+	
+	
 	on camsMLB doubleClicked val do 
 	(
 		writeRenderSize()
@@ -474,4 +495,4 @@ rollout pdv_cam_RLT "point de vue companion"
 		convertSceneStateToCameras()
 	)
 )
-CreateDialog pdv_cam_RLT width: 200
+CreateDialog pdv_cam_RLT width: 200 -- lockHeight: false autoLayoutOnResize: true

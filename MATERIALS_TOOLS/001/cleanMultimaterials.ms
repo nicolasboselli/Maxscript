@@ -324,7 +324,7 @@ rollout cleanMultiMatRLT "Clean Multimaterial"
 	
 	checkbox respectLayerCB "respect layer" checked: true 
 -- 	button
-	button cleanBT "clean" tooltip:"1 - clean les multi materials\n2 - explose les objets avec Multi mat\n 3 - attach les objets avec le même material"
+	button cleanBT "clean" width: 50 tooltip:"1 - clean les multi materials\n2 - explose les objets avec Multi mat\n 3 - attach les objets avec le même material"
 
 	
 	group "attach options:"

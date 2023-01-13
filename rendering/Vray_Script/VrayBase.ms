@@ -18,7 +18,6 @@ fn findVray  =
 		if matchPattern  (r as string)  pattern: "V_Ray_Adv*" then
 		(
 			goodR = r
-			exit
 		)
 		else if matchPattern  (r as string)  pattern: "V_Ray_Next*" then
 		(
@@ -29,6 +28,10 @@ fn findVray  =
 		(
 			goodR = r
 			exit
+		)
+		else if matchPattern  (r as string)  pattern: "V_Ray_6*" then 
+		(
+			goodR = r
 		)
 		else()
 	)

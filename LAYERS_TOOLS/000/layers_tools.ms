@@ -13,6 +13,7 @@ fn initLayers =
 (
 	if not iskindof (layermanager.getlayerfromname "01_CAM_LIGHT") MixinInterface then layermanager.newlayerfromname "01_CAM_LIGHT"
 	if not iskindof (layermanager.getlayerfromname "02_BAT") MixinInterface then layermanager.newlayerfromname "02_BAT"
+	if not iskindof (layermanager.getlayerfromname "03_MASSE") MixinInterface then layermanager.newlayerfromname "03_MASSE"
 	if not iskindof (layermanager.getlayerfromname "HAB") MixinInterface then layermanager.newlayerfromname "HAB"
 	
 	if not iskindof (layermanager.getlayerfromname "Z_OFF") MixinInterface then layermanager.newlayerfromname "Z_OFF"

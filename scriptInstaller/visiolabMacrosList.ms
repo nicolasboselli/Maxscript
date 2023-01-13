@@ -10,9 +10,11 @@
 	global matIdManagerPath = @"MatIDManager/007/matIdManager.ms"
 	global clientsImageSizePath =  @"visiolab/render_output/000/render_output.ms"
 	global layersToolsPath =  @"LAYERS_TOOLS/000/layers_tools.ms"
-	global pdvToolsPath =  @"PDV_TOOLS/003/pdv_tools_float.ms"
-	global windowsToolsPath = @"WINDOWS_TOOL/000/windows_tools_float.ms"
-	
+	global pdvToolsPath =  @"PDV_TOOLS/004/pdv_tools_float.ms"
+	global windowsToolsPath = @"WINDOWS_TOOL/003/windows_tools_float.ms"
+	global cleanMultiMatPath = @"MATERIALS_TOOLS/001/cleanMultimaterials.ms"
+	global boxArchiPath = @"BOXERIZE_archi/001/boxerize_archi.ms"
+
 	
 	macroScript ScriptLauncher
 	category: "Visiolab"
@@ -56,6 +58,7 @@
 	category: "Visiolab"
 	buttonText: "pdvTools"
 	toolTip:""
+	icon: #("pdvTools",1)
 	(
 		filein ((getroot()) + pdvToolsPath )
 	)
@@ -65,7 +68,7 @@
 	category: "Visiolab"
 	buttonText: "clientsImageSize"
 	toolTip:""
--- 	icon: #("pickandmergeicon",1)
+	icon: #("clientsImageSize",1)
 	(
 		filein ((getroot()) +  clientsImageSizePath)
 	)
@@ -202,6 +205,7 @@
 	category: "Visiolab"
 	buttonText: "matIdManager"
 	toolTip:""
+	icon: #("matIdManager",1)
 	(
 -- 		filein cellsCreatorPath
 		filein ((getroot()) +  matIdManagerPath)
@@ -215,6 +219,26 @@
 	(
 -- 		filein cellsCreatorPath
 		filein ((getroot()) +  windowsToolsPath)
+	)
+	
+	macroscript cleanMultiMatTool
+	category: "Visiolab"
+	buttonText: "CleanMultiMatTool"
+	toolTip:""
+	icon: #("cleanMultiMatTool",1)
+	(
+-- 		filein cellsCreatorPath
+		filein ((getroot()) +  cleanMultiMatPath)
+	)
+	
+	macroScript BoxerizeArchi
+	category: "Visiolab"
+	buttonText: "BoxerizeArchi"
+	toolTip:""
+	icon: #("boxArchi",1)
+	(
+		filein ((getroot()) + boxArchiPath)
+-- 		filein ((getroot()) +  "\scriptsLauncher\001\launcher.ms")
 	)
 
 )

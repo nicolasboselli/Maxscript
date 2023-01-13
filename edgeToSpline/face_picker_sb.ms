@@ -59,7 +59,7 @@ rollout facePickerRLT "face picker" width: 250
 				-- recuperation de la face edit_mesh
 				if iskindof theNearestObj.baseobject editable_poly then
 				(
-/* 					
+	
 					meshModForMatID = edit_mesh name: "meshModForMatID "
 					addmodifier theNearestObj meshModForMatID
 					local impact = intersectRayEx theNearestObj myRay
@@ -69,11 +69,11 @@ rollout facePickerRLT "face picker" width: 250
 -- 					format "verts:%\n" verts
 					
 					deleteModifier theNearestObj meshModForMatID
-					 */
 					
-					local impact = intersectRayEx theNearestObj.mesh myRay
-					local thefaceMesh = impact[2]
-					format "thefaceMesh:%\n" thefaceMesh
+					
+-- 					local impact = intersectRayEx theNearestObj.mesh myRay
+-- 					local thefaceMesh = impact[2]
+-- 					format "thefaceMesh:%\n" thefaceMesh
 					
 				)
 				

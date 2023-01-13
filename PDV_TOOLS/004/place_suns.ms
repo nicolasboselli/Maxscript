@@ -21,7 +21,7 @@ rollout placeSun2RLT "place sun 2"
 		
 -- 		button placeSunBT "place sun"
 		slider sunSL "sun orientation" range: [-90,90,0] ticks: 4
--- 		button transposeBT "transpose sun"
+		button transposeBT "transpose sun"
 		button copySunBT "copy sun"
 -- 		button testBT "test sun"
 		button autoSunsBT "AUto Suns"
@@ -35,6 +35,8 @@ rollout placeSun2RLT "place sun 2"
 		-- init sun
 		sunAr = for l in lights where iskindof l vraySun collect l
 -- 		if isvalidnode (getNodeByName "vraysun001") then sun = getNodeByName "vraysun001"
+		if not isvalidnode cam then return format "no cam"
+		
 		if isvalidnode (getNodeByName ( "VraySun_" + cam.name) ) then sun = getNodeByName ( "VraySun_" + cam.name)
 		else if isvalidnode (getNodeByName "vraysun001") then sun = getNodeByName "vraysun001"
 		else sun = undefined

@@ -88,9 +88,12 @@ global cellRoot = @"M:\Interieur\Cellules\"
 
 global importfolderFEN = "M:\\Interieur\\Cellules\\Modelisation\\Fenetres\\"
 global importfolderPOR = "M:\\Interieur\\Cellules\\Modelisation\\Portes\\"
+
 -- global importfolderCAM = "M:\\Interieur\\Cellules\\Modelisation\\CamLights\\"
 -- global importfolderCAM = @"M:\Elements_batiments\Light\"
-global importfolderCAM = @"M:\Light\"
+-- global importfolderCAM = @"M:\Light\"
+global importfolderCAM = @"M:\Render_Presets\Light\A confirmer utilite\"
+
 global importfolderPST = "M:\\Interieur\\Cellules\\Modelisation\\Presets\\"
 global importfolderVray = "M:\\Interieur\\Cellules\\Modelisation\\Vray\\"
 global importfolderLIB = cellRoot + @"Modelisation\Library\"
@@ -147,6 +150,11 @@ fn findVray  =
 			exit
 		)
 		else if matchPattern  (r as string)  pattern: "V_Ray_5*" then 
+		(
+			goodR = r
+			exit
+		)
+		else if matchPattern  (r as string)  pattern: "V_Ray_6*" then 
 		(
 			goodR = r
 			exit

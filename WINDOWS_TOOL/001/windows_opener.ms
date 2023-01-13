@@ -5,9 +5,13 @@ x-faire l'ouverture des fenetres  avec des tirettes
 - faire fonctionner sur les fenetres coulissantes
 
 debug;
-	- dès qu'on tourne la fenêtre, les battant s'ouvre dans n'importe quel sens, revoir les formules
+	x- dès qu'on tourne la fenêtre, les battant s'ouvre dans n'importe quel sens, revoir les formules
 	- fermer les battant avant de replacer le pivot de la fenetre
 	- finir le reset fenetres parce que les tirettes marchent à l'envers sur une fenetre flippé
+
+- le place windows pivot doit placer le pivot en bas à gche de la fenetres, même quand la fenetre est flippée en y 
+
+au reset de scale inverser le boolean des pivotfenetres
 
 
 newMatrix = ((eulerangles 0 0 -10) as Matrix3) * $.transform
@@ -22,6 +26,7 @@ try(destroydialog openFenetresRLT)catch()
 rollout openFenetresRLT "Windows Opener"
 (
 	local windowsSet
+	local windowsFlipSet
 	local winListR
 	local winListL
 	local bakVal = 0
@@ -30,6 +35,8 @@ rollout openFenetresRLT "Windows Opener"
 	(
 		edittext windowsCountET "windows ready:" readonly: true across: 2
 		button selectAllWIndowsBT "select All"
+		edittext flippedWindowsCountET "flipped windows:" readonly: true across: 2
+		button selectFlipWIndowsBT "select"
 	)
 	
 	group "actions on selection:"
@@ -40,20 +47,16 @@ rollout openFenetresRLT "Windows Opener"
 		slider openRightSL "open right" range:[0,360,0] type: #integer ticks:8
 		
 		button closewindowsBT "close windows" -- across: 2
+		button symWindowsBT "flip windows"
 
 	)
 	
-	group "pivots"
+	group "fixing:"
 	(
-		button placePivot1BT "place ouvrants pivots"
+		button placePivot1BT "place ouvrants pivots" across: 2
 		button placePivot2BT "place windows pivots"
+		button resetWindowsBT "reset windows scale" enabled: true -- voir pivotPlacer_sb.ms
 		
-	)
-	
-	group "symmetry"
-	(
-		button symWindowsBT "flip windows"
-		button resetWindowsBT "reset windows scale" enabled: false -- voir pivotPlacer_sb.ms
 	)
 	
 -- 	function UI dependant
@@ -77,6 +80,9 @@ rollout openFenetresRLT "Windows Opener"
 		findWindows (helpers as array)
 		format "windows count: %\n" windowsSet.count
 		windowsCountET.text = windowsSet.count as string
+		
+		windowsFlipSet = for w in windowsSet where w.scale.y < 0 collect w
+		flippedWindowsCountET.text = windowsFlipSet.count as string
 	)
 	
 	on selectAllWIndowsBT pressed do
@@ -84,10 +90,19 @@ rollout openFenetresRLT "Windows Opener"
 		findWindows helpers 
 		select windowsSet
 	)
+	
+	on selectFlipWIndowsBT pressed do
+	(
+		findWindows helpers
+		windowsFlipSet = for w in windowsSet where w.scale.y < 0 collect w
+		select 	windowsFlipSet
+	)
 
 	
 	on openAllSL buttondown do
 	(
+		format "openAllSL.buttondown openAllSL.value: % \n" openAllSL.value 
+		
 		sel = selection as array
 		winListR = #()
 		winListL = #()
@@ -107,14 +122,14 @@ rollout openFenetresRLT "Windows Opener"
 		(
 			initMatrix = w.parent.transform
 			initMatrix.translation = w.transform.translation
-			w.transform = (rotateZMatrix openRightSL.value) * initMatrix
+			w.transform = inverse(rotateZMatrix  -openAllSL.value) * initMatrix
 		)
 		
 		for w in winListL do
 		(
 			initMatrix = w.parent.transform
 			initMatrix.translation = w.transform.translation
-			w.transform = (rotateZMatrix openLeftSL.value) * initMatrix
+			w.transform = inverse(rotateZMatrix openAllSL.value) * initMatrix
 		)
 		
 		bakval = openAllSL.value
@@ -150,7 +165,7 @@ rollout openFenetresRLT "Windows Opener"
 		(
 			initMatrix = w.parent.transform
 			initMatrix.translation = w.transform.translation
-			w.transform = (rotateZMatrix openRightSL.value) * initMatrix
+			w.transform = inverse(rotateZMatrix openRightSL.value) * initMatrix
 		)
 		
 		bakval = openRightSL.value
@@ -162,12 +177,14 @@ rollout openFenetresRLT "Windows Opener"
 		(
 			w.transform = (rotateZMatrix (val - bakval)) * w.transform
 		)
+		
 		bakval = val
 	)
 
 	
 	on openLeftSL buttondown do
 	(
+-- 		format "openLeftSL.buttondown\n"
 		sel = selection as array
 		winListL = #()
 		
@@ -181,9 +198,15 @@ rollout openFenetresRLT "Windows Opener"
 		for w in winListL do
 		(
 			initMatrix = w.parent.transform
+			
 			initMatrix.translation = w.transform.translation
-			w.transform = (rotateZMatrix openLeftSL.value) * initMatrix
+			w.transform = inverse(rotateZMatrix openLeftSL.value) * initMatrix
+-- 			w.transform = initMatrix * (rotateZMatrix openLeftSL.value)
+			
+-- 			format "openLeftSL.buttondown initMatrix: % openLeftSL.value: % rotateZMatrix: %\n" initMatrix  openLeftSL.value (rotateZMatrix openLeftSL.value)
 		)
+		
+-- 		format "openLeftSL.buttondown openLeftSL.value: % \n" openLeftSL.value 
 		
 		bakval = openLeftSL.value
 	)
@@ -191,6 +214,7 @@ rollout openFenetresRLT "Windows Opener"
 	
 	on openLeftSL changed  val do
 	(
+-- 		format "openLeftSL.changed val: %\n" val
 		for w in winListL do
 		(
 			w.transform = (rotateZMatrix ((val - bakval)*-1) ) * w.transform
@@ -237,6 +261,7 @@ rollout openFenetresRLT "Windows Opener"
 				)
 			)
 		)
+		format "Pivots des ouvrants recalés\n"
 	)
 	
 	on placePivot2BT pressed do
@@ -248,31 +273,131 @@ rollout openFenetresRLT "Windows Opener"
 			try(res = (getUserProp s "windowsTemplate")as booleanClass)catch(res = undefined)
 			if iskindof res booleanClass then
 			(
-				bbVal = nodeGetBoundingBox s s.transform
-				s.pivot = ( transMatrix(point3 (bbVal[2].x) (bbVal[2].y) (bbVal[1].z)) * s.transform).translation
+				if s.scale.y >= 0 then
+				(
+					bbVal = nodeGetBoundingBox s s.transform
+-- 					format "bbVal: %\n" bbVal
+					s.pivot = ( transMatrix(point3 (bbVal[2].x) (bbVal[2].y) (bbVal[1].z)) * s.transform).translation
+				)
+				else if s.scale.y < 0 then
+				(
+					bbVal = nodeGetBoundingBox s (scalematrix (point3 1 -1 1) * s.transform)
+					s.pivot = ( transMatrix(point3 (bbVal[2].x) (bbVal[2].y) (bbVal[1].z)) * (scalematrix (point3 1 -1 1) * s.transform)).translation
+				)
 			)
 			else(format "This is not a windows\n")
 		)
+		format "Pivots des fenêtres recalés\n"
 	)
 	
 	on symWindowsBT pressed do
 	(
 		-- symetrie de la fenetre en Y
-		sel = selection as array
+
+/* 		sel = selection as array
 		for s in sel where iskindof s dummy and isgrouphead s do
 		(
 			try(res = (getUserProp s "windowsTemplate")as booleanClass)catch(res = undefined)
 			if iskindof res booleanClass then
 			(
 				s.pivot = s.center
-				s.transform = scale s.transform (point3 1 -1 1) 
+-- 				s.transform =  (scale s.transform (point3 1 -1 1)) * s.transform 
+				s.transform =  scalematrix (point3 1 -1 1) * s.transform
 			)
 			else(format "This is not a windows\n")
+		) */
+		
+		hlps = findWindows (selection as array)
+		for h in hlps do
+		(
+				h.pivot = h.center
+				h.transform =  scalematrix (point3 1 -1 1) * h.transform
 		)
 		
+		
+-- 		placePivot2BT.pressed()
+		resetWindowsBT.pressed()
+	)
+	
+	
+	on resetWindowsBT pressed do
+	(
+		
+-- 		placePivot1BT.pressed()
 		placePivot2BT.pressed()
+		
+		-- hlps = findWindows helpers
+		local newH
+		hlps = findWindows (selection as array)
+
+		for h in hlps where h.scale.y < 0 do
+		(
+			format "h.name: % h.scale: %\n" h.name h.scale.y
+			local bakName = h.name
+			bakTM = h.transform
+			
+			-- ramene la fenetre au centre du monde flippée en y
+			h.transform = scalematrix (point3 1 -1 1)
+			
+			-- traitement des objets
+			objs = #()
+			parents = #()
+
+			hMembers = #(h)
+			for dad in hMembers do 
+			(
+				for c in dad.children do append hMembers c
+			)
+			format "hMembers: %\n" hMembers
+			
+			explodeGroup h
+				
+			for h in hMembers where isvalidnode h do 
+			(
+				format "h: % parent: %\n" h h.parent
+				append objs h
+				append parents h.parent
+			)
+
+			for o in objs do o.parent = undefined 
+
+			for o in objs do 
+			(
+				resetxform o
+				convertToPoly o
+			)
+-- 			for o in objs do convertToPoly o
+
+			
+			for i = 1 to objs.count do objs[i].parent = parents[i]
+			
+			newH = group objs
+			newH.name = bakName
+			-- tagger comme fenetre
+			setUserProp newH "windowsTemplate" "true"
+			select newH
+			setGroupOpen newH true
+			setGroupOpen newH false
+			
+			-- replacer le pivot en bas à gauche
+			bbVal = nodeGetBoundingBox newH newH.transform
+			format "bbVal: %\n" bbVal
+			newH.pivot = ( transMatrix(point3 (bbVal[2].x) (bbVal[2].y) (bbVal[1].z)) * newH.transform).translation
+				
+			-- inverser la valeur des ouvrants
+			for o in objs do try(setUserProp o "pivotFenetre" (not (getUserProp o "pivotFenetre")))catch()
+				
+			-- replacer le groupe
+			newH.transform = scalematrix (point3 1 -1 1) * bakTM 	
+
+			
+		)	
+		placePivot1BT.pressed()
+		format "Reset done\n"
 	)
 )
 createdialog openFenetresRLT width: 300
+
+
 
 

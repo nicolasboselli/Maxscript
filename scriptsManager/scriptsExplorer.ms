@@ -227,9 +227,15 @@ rollout scriptExplorerRLT "Scripts Explorer"
 		button backFolderBT "parent folder"
 		button copyPathBT "copy path"
 		
-		button editScriptBT "edit script" across: 3
+		button editScriptBT "edit script" across: 2
 		button launchScriptBT "launch script" 
-		button printPathBT "add to favorites"
+
+	)
+	
+	group "favorites:"
+	(
+		button printPathBT "add to favorites" across: 2
+		button addToCoreBT "add to core"
 	)
 		
 -- 	functions
@@ -654,7 +660,7 @@ rollout scriptExplorerRLT "Scripts Explorer"
 		)
 		else
 		(
-			format "un dossier ne peut pas être ajouter aux favoris"
+			format "un dossier ne peut pas être ajouter aux favoris\n"
 		)	
 		
 		
@@ -679,6 +685,36 @@ rollout scriptExplorerRLT "Scripts Explorer"
 	)
 			
 	on copyPathBT pressed do copyPath ()	
+	
+	on addToCoreBT pressed do
+	(
+		
+		local iniCoreFileName = getroot() + "/scriptsManager/scriptListCoreTest.ini"
+		local favAr = #()
+		
+		-- récupérer l'array de scripts du core
+		if hasINISetting iniCoreFileName "coreScriptList" "favScriptAr" then 
+		(
+			favArStr = getINISetting  iniCoreFileName "coreScriptList" "favScriptAr"
+			favAr = execute favArStr 
+		)
+		else favAr = #()
+		
+		-- récupérer les chemins des scripts à écrire
+		if not iskindof toDisplay[scriptsListLB.selection] folderClass then
+		(
+			-- ajout du favori
+			newMs =  substituteString toDisplay[scriptsListLB.selection].path (getroot()) ""  		
+			appendIfUnique favAr newMs
+		)
+		else
+		(
+			format "un dossier ne peut pas être ajouter aux favoris\n"
+		)
+		
+		-- ecrire le nouvel array
+		setINISetting iniCoreFileName "coreScriptList" "favScriptAr" (with printAllElements on favAr as string)
+	)
 	
 )
 createdialog scriptExplorerRLT width: 400

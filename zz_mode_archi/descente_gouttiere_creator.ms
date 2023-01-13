@@ -15,7 +15,7 @@
 -- massePt.z = 0
 
 
-fn createGouttiere l masse =
+fn createGouttiere  l masse Xshift: 50 Yshift1: -10 Yshift2: 10 Zshift1: 10 Zshift2: -10 Zshift3: -20  =
 (
 	local spCount = numSplines l
 	local pointList = #()
@@ -26,15 +26,15 @@ fn createGouttiere l masse =
 	(
 		local knotCount = numKnots l sp
 		
-			-- decalage
-		local Xshift = 50	
-			
-		local Yshift1 = - 10
-		local Yshift2 = 10
-			
-		local Zshift1 = 10
-		local Zshift2 = - 10
-		local Zshift3 = Zshift2 - 10
+		-- decalage
+-- 		local Xshift = 50	
+-- 			
+-- 		local Yshift1 = - 10
+-- 		local Yshift2 =  10
+-- 			
+-- 		local Zshift1 = 10
+-- 		local Zshift2 = - 10
+-- 		local Zshift3 = - 20
 		
 		local Pt1pos = [Xshift, Yshift1, Zshift1]
 		local Pt2pos = [Xshift, Yshift1, Zshift2]
@@ -45,7 +45,7 @@ fn createGouttiere l masse =
 		for k = 1 to (knotCount ) do
 		(	
 			format "sp: % knot: %\n" sp k
-	-- 		local k1 = k
+			-- 	local k1 = k
 			local k2 = k + 1
 			
 			-- sur une spline fermée quand on arrive au dernier point repartir vers 1
@@ -84,11 +84,12 @@ fn createGouttiere l masse =
 	)
 	-- redrawviews()
 	updateshape s
-	tmpSweep = sweep CurrentBuiltInShape: 2 PivotAlignment: 4 
+	tmpSweep = sweep  name: (uniquename "ep_line_")
 	addmodifier s (sweep())
 	redrawViews()
-	s.sweep[#Bar_Section].length = 10
-	s.sweep[#Bar_Section].width = 10
+	
+	s.sweep.CurrentBuiltInShape = 2
+-- 	s.sweep[#Bar_Section].width = 10
 	s.sweep.PivotAlignment = 4
 )
 
@@ -97,8 +98,25 @@ rollout gouttiereRLT "descente gouttiere assistant"
 (
 	global masse
 	
-	button selectMasseBT "select masse"
-	edittext masseNameET "masse:" readonly: true
+	group "masse"
+	(
+		button selectMasseBT "select masse"
+		edittext masseNameET "masse:" readonly: true
+	)
+	
+	group "options"
+	(
+		spinner XshiftSP "Xshift" type: #worldunits range:[-1000,1000,50]
+		
+		spinner Yshift1SP "Yshift1" type: #worldunits range:[-1000,1000,- 10]
+		spinner Yshift2SP "Yshift2" type: #worldunits range:[-1000,1000,10]
+		
+		spinner Zshift1SP "Zshift1" type: #worldunits range:[-1000,1000,10]
+		spinner Zshift2SP "Zshift2" type: #worldunits range:[-1000,1000,- 10]
+		spinner Zshift3SP "Zshift3" type: #worldunits range:[-1000,1000,- 20]
+		
+	)
+	
 	button gouttiereBT "create"
 	
 	fn refreshUI =
@@ -126,7 +144,8 @@ rollout gouttiereRLT "descente gouttiere assistant"
 	on gouttiereBT pressed do
 	(
 		local sel = selection as array
-		for l in sel do createGouttiere l masse
+		for l in sel where isKindOf l SplineShape do createGouttiere l masse \
+		Xshift: XshiftSP.value Yshift1: Yshift1SP.value Yshift2: Yshift2SP.value Zshift1: Zshift1SP.value Zshift2: Zshift2SP.value Zshift3: Zshift3SP.value
 	)
 )
 createdialog gouttiereRLT

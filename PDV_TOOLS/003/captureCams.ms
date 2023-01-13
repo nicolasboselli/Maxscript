@@ -15,7 +15,7 @@ rollout captureCamRLT "capture cam"
 	local l
 	
 	button createCamNameTextBT "create cams names"
-	spinner resizeSP "text size" range: [200, 10000, 200]
+	spinner resizeSP "text size" range: [10, 10000, 200]
 	button grabViewportBT "grab viewport"
 	button cleanBT "clean"
 	

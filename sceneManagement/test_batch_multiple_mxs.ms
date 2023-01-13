@@ -15,14 +15,12 @@
      resetMaxFile #noPrompt --at the end, you can reset
    )--end if */
    
-theFiles = getFiles @"M:\Biblio\VISIOLAB\2-Assets3D\Elements_batiments\Ouvrants\Fenetres\PF_*.max"
 
-for i = 1 to theFiles.count do
+
+
+fn resetposition =
 (
-	f = theFiles[i]
-   loadMaxFile f
-   format "f:%\n" f
-   select helpers
+	select helpers
 	sel = selection as array
 	global val
 	for s in sel where isGroupHead s do
@@ -33,8 +31,42 @@ for i = 1 to theFiles.count do
 	)
 	val.position = point3 0 0 0 
 	val.rotation = EulerAngles 0 0 -90
+)
 
-	renameAsset()
+
+fn renameWindowsMat =
+(
+	for m in scenematerials where m.override_effect_id == on do
+	(
+		if  m.effect_id == 2 then
+		(
+			format "vitrage m:% id:%\n" m m.effect_id
+			m.name = "vitrage"
+
+		)
+		else if  m.effect_id == 4 then
+		(
+			format "huisserie m:% id:%\n" m m.effect_id
+			m.name = "Huisserie"
+			
+		)
+		else()
+	)
+)
+
+
+
+theFiles = getFiles @"M:\Biblio\VISIOLAB\2-Assets3D\Elements_batiments\Ouvrants\Fenetres\F_*.max"
+
+for i = 1 to theFiles.count do
+(
+	f = theFiles[i]
+	loadMaxFile f
+	format "i: %\% f:%\n" i theFiles.count f
+	
+	cleanFile()
+	updateSceneMaterials()
+	renameWindowsMat()
    
 	saveMaxFile f
 )

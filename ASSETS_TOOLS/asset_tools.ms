@@ -118,6 +118,7 @@ fn renameAssetByLayer l =
 	(
 		for g in rc.banode do
 		(
+			if not isvalidnode g then continue
 			if isKindOf g.baseobject editable_poly then continue
 			g.name = uniquename(rc.name + "_guide_")
 			rc.layer.addnode g
@@ -245,17 +246,17 @@ fn copyTextures =
 -- placer les objets au centre de la scene (mettre le pivot à [0,0,0])
 -- supprimer les objets nuls
 --#### RENOMMAGE
-fn renameAsset =
+fn renameAsset daddyName: "02_BAT" dassyCoolName: "00_ELTS_BAT" =
 (
 	local layersToolsRLT
 	assetName = getFilenameFile  maxFileName
 	-- DaddyL
-	daddyName = "02_BAT"
+-- 	daddyName = "02_BAT"
 	if not iskindof (layermanager.getlayerfromname daddyName) MixinInterface then layermanager.newlayerfromname daddyName
 	daddyL = layermanager.getlayerfromname daddyName
 
 	-- daddy cool
-	dassyCoolName = "00_ELTS_BAT"
+-- 	dassyCoolName = "00_ELTS_BAT"
 	if not iskindof (layermanager.getlayerfromname dassyCoolName) MixinInterface then layermanager.newlayerfromname dassyCoolName
 	daddyCool = layermanager.getlayerfromname dassyCoolName
 
@@ -265,6 +266,34 @@ fn renameAsset =
 
 	assetLayer.setParent daddyCool
 	daddyCool.setParent daddyL
+
+	for o in objects do assetLayer.addnode o
+	-- renommage des objets
+-- 	filein @"N:/Ressources_Nico/github/00_wip/Maxscript/LAYERS_TOOLS/000/layers_tools.ms"
+	renameAssetByLayer assetLayer
+-- 	try(destroy layersToolsRLT)catch()
+)
+
+fn renameAsset2 daddyName: "02_BAT"  =
+(
+	local layersToolsRLT
+	assetName = getFilenameFile  maxFileName
+	-- DaddyL
+-- 	daddyName = "02_BAT"
+	if not iskindof (layermanager.getlayerfromname daddyName) MixinInterface then layermanager.newlayerfromname daddyName
+	daddyL = layermanager.getlayerfromname daddyName
+
+	-- daddy cool
+-- 	dassyCoolName = "00_ELTS_BAT"
+-- 	if not iskindof (layermanager.getlayerfromname dassyCoolName) MixinInterface then layermanager.newlayerfromname dassyCoolName
+-- 	daddyCool = layermanager.getlayerfromname dassyCoolName
+
+	-- creation du calque au nom de l'asset
+	if not iskindof (layermanager.getlayerfromname assetName) MixinInterface then layermanager.newlayerfromname assetName
+	assetLayer = layermanager.getlayerfromname assetName
+
+-- 	assetLayer.setParent daddyCool
+	assetLayer.setParent daddyL
 
 	for o in objects do assetLayer.addnode o
 	-- renommage des objets
@@ -308,8 +337,13 @@ rollout assetToolsRLT "asset tools"
 	button convertToVrBmpBT "convert to vrBmp"
 	button convertToGGXBT "convert to GGX"
 	button copyTextBT "copy textures"
+	group "rename asset:"
+	(
+		button renameAssetBT "for \"02_bat\""
+		button renameAssetBT2 "for \"03_masse\""
+		button renameAssetBT3 "for \"HAB\""
+	)
 	
-	button renameAssetBT "rename asset"
 	button renameMatBT "rename mat"
 	
 	on cleanFileBT pressed do
@@ -336,6 +370,22 @@ rollout assetToolsRLT "asset tools"
 	on renameAssetBT pressed do
 	(
 		renameAsset ()
+		deleteEmptyLayer()
+		try(destroy layersToolsRLT)catch()
+	)
+	
+	
+	on renameAssetBT2 pressed do
+	(
+		renameAsset daddyName: "03_MASSE" dassyCoolName: "00_VOIRIE"
+		deleteEmptyLayer()
+		try(destroy layersToolsRLT)catch()
+	)
+	
+		
+	on renameAssetBT3 pressed do
+	(
+		renameAsset2 daddyName: "HAB" 
 		deleteEmptyLayer()
 		try(destroy layersToolsRLT)catch()
 	)

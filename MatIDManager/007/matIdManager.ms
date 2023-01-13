@@ -250,10 +250,11 @@ rollout matIdExplorerRLT "materials id explorer"
 	
 	group "vray effect channel:"
 	(
-		button cleanIdMatBT "clean all id mat"
+		
 		spinner matIdSP "material id" type: #integer
-		button addFreeIdBT "add free id to sel" across:2
+		button addFreeIdBT "add free id to sel" across:3
 		button randomIdBT "random ids on sel" --enabled: false
+		button cleanIdMatBT "clean all id mat"
 	)
 		
 	-- UI
@@ -509,10 +510,16 @@ rollout matIdExplorerRLT "materials id explorer"
 	)
 	
 	on cleanIdMatBT pressed do
-	(
-		cleaneffectsChannel()
-		cleanVrayEffectsChannel()
-		init()
+	(		
+		if (queryBox  "Voulez vous supprimer toutes les vray ids de matériaux ?") then
+		(
+			cleaneffectsChannel()
+			cleanVrayEffectsChannel()
+			init()
+		)
+		else()
+		
+
 	)
 	
 	on typeSelBT changed state do init()
