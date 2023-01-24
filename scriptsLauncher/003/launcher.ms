@@ -1,11 +1,11 @@
 /*
 maj:
 x passer les paths en chemin relatifs
-trier par ordre alphabetique
-ouvrir le fichier ini
+x trier les scripts  par ordre alphabetique
+x ouvrir le fichier ini
 
-creer un launher simple(lecteur)
-ajouter un fonction add to core au script manager
+x creer un launher simple(lecteur)
+x ajouter un fonction add to core au script manager
 
 debug:
 quand on supprime la dernière catagorie, ça plante
@@ -28,7 +28,7 @@ rollout launcherRLT "launcher"
 	dropdownlist catListTargetDPL "categories target:"
 	
 -- 		multilistbox catListMLT "category list:"
-	listbox scriptList2MLT "scripts list:"
+	listbox scriptList2MLT "scripts list:" height: 30
 	button execScriptBT "execute script"
 	button openScriptBT "open script"
 	
@@ -135,4 +135,4 @@ rollout launcherRLT "launcher"
 	
 
 )
-createDialog launcherRLT
+createDialog launcherRLT  width: 300

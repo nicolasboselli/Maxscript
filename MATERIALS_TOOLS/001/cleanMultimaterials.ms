@@ -339,6 +339,7 @@ rollout cleanMultiMatRLT "Clean Multimaterial"
 	(
 		format "###############collapse start\n"
 		oneVisSel = for o in  $* where o.ishidden == false collect o
+		format "oneVisSel: %\n" oneVisSel
 		collapseMultiMatonVisibleObjects oneVisSel
 		format "###############collapse done\n\n"
 	)
@@ -353,6 +354,7 @@ rollout cleanMultiMatRLT "Clean Multimaterial"
 	
 	on cleanBT pressed do
 	(
+		clearSelection()
 		
 		local oneVisSel
 		

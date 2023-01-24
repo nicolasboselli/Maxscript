@@ -11,7 +11,7 @@
 	global clientsImageSizePath =  @"visiolab/render_output/000/render_output.ms"
 	global layersToolsPath =  @"LAYERS_TOOLS/000/layers_tools.ms"
 	global pdvToolsPath =  @"PDV_TOOLS/004/pdv_tools_float.ms"
-	global windowsToolsPath = @"WINDOWS_TOOL/003/windows_tools_float.ms"
+	global windowsToolsPath = @"WINDOWS_TOOL/005/windows_tools_float.ms"
 	global cleanMultiMatPath = @"MATERIALS_TOOLS/001/cleanMultimaterials.ms"
 	global boxArchiPath = @"BOXERIZE_archi/001/boxerize_archi.ms"
 

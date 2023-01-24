@@ -1,8 +1,10 @@
 /*
 maj:
-faire varier un gabarit (box filaire) avant de faire un resize sur le gabarit
+faire varier un gabarit (box filaire) avant de faire un resize sur le gabarit pour accéléere le script (pas necessaire)
+-- créer une box filire pour materialiser le range de selection des points
+
 debug:
-x retrancher la valeur précédente du spinner
+retrancher la valeur précédente du spinner
 */
 
 
@@ -60,12 +62,12 @@ rollout windowsResizerRLT "windows resizer live"
 	
 	group "live resizing:"
 	(
-		spinner moreXSP "+X" range:[-20,20,0] 	type: #worldunits across: 2
-		spinner lessXSP "-X" range:[-20,20,0] 	type: #worldunits
-		spinner moreYSP "+Y" range:[-20,20,0] 	type: #worldunits across: 2
-		spinner lessYSP "-Y" range:[-20,20,0]	type: #worldunits
-		spinner moreZSP "+Z" range:[-20,20,0] 	type: #worldunits across: 2
-		spinner lessZSP "-Z" range:[-20,20,0]	type: #worldunits
+		spinner moreXSP "+X" range:[-100,100,0] 	type: #worldunits across: 2
+		spinner lessXSP "-X" range:[-100,100,0] 	type: #worldunits
+		spinner moreYSP "+Y" range:[-100,100,0] 	type: #worldunits across: 2
+		spinner lessYSP "-Y" range:[-100,100,0]	type: #worldunits
+		spinner moreZSP "+Z" range:[-100,100,0] 	type: #worldunits across: 2
+		spinner lessZSP "-Z" range:[-100,100,0]	type: #worldunits
 	)
 	
 	group "resizing on gabaring:"
@@ -220,6 +222,15 @@ rollout windowsResizerRLT "windows resizer live"
 	
 	on moreXSP buttonup do
 	(
+		crtlZVal = bakval 
+		bakval = 0
+		moveVertAr 1 (crtlZVal * -1)
+		
+		undo on
+		(
+			moveVertAr 1 crtlZVal
+		)
+		
 		moreXSP.value = 0.0
 		resetOuvrantPivot ()
 	) 
@@ -246,6 +257,15 @@ rollout windowsResizerRLT "windows resizer live"
 	
 	on lessXSP buttonup do
 	(
+		crtlZVal = bakval 
+		bakval = 0
+		moveVertAr 1 (crtlZVal * -1)
+		
+		undo on
+		(
+			moveVertAr 1 crtlZVal
+		)
+		
 		lessXSP.value = 0.0
 		resetOuvrantPivot ()
 	)
@@ -264,14 +284,26 @@ rollout windowsResizerRLT "windows resizer live"
 	
 	on moreYSP changed val do
 	(	
-		moveVertAr 2 val 
-		redrawViews()
-		bakval = val
+		undo off
+		(
+			moveVertAr 2 val
+	-- 		format "val:%\n" val
+			redrawViews()
+			bakval = val
+		)
 	)
 	
 	on moreYSP buttonup do
 	(
+		crtlZVal = bakval 
+		bakval = 0
+		moveVertAr 2 (crtlZVal * -1)
 		
+		undo on
+		(
+			moveVertAr 2 crtlZVal
+		)
+				
 		moreYSP.value = 0
 		resetOuvrantPivot ()
 	)
@@ -298,6 +330,15 @@ rollout windowsResizerRLT "windows resizer live"
 	
 	on lessYSP buttonup do
 	(
+		crtlZVal = bakval 
+		bakval = 0
+		moveVertAr 2 (crtlZVal * -1)
+		
+		undo on
+		(
+			moveVertAr 2 crtlZVal
+		)
+		
 		lessYSP.value = 0
 		resetOuvrantPivot ()
 	)
@@ -324,6 +365,15 @@ rollout windowsResizerRLT "windows resizer live"
 	
 	on moreZSP buttonup do
 	(
+		crtlZVal = bakval 
+		bakval = 0
+		moveVertAr 3 (crtlZVal * -1)
+		
+		undo on
+		(
+			moveVertAr 3 crtlZVal
+		)
+		
 		moreZSP.value = 0
 		resetOuvrantPivot ()
 	)
@@ -353,9 +403,17 @@ rollout windowsResizerRLT "windows resizer live"
 	
 	on lessZSP buttonup do
 	(
+		crtlZVal = bakval 
+		bakval = 0
+		moveVertAr 3 (crtlZVal * -1)
+		
+		undo on
+		(
+			moveVertAr 3 crtlZVal
+		)
+		
 		lessZSP.value = 0
 		resetOuvrantPivot ()
-		
 	)
 	
 	-- resize on gabarits

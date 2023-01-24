@@ -251,7 +251,7 @@ rollout matIdExplorerRLT "materials id explorer"
 	group "vray effect channel:"
 	(
 		
-		spinner matIdSP "material id" type: #integer
+		spinner matIdSP "material id" type: #integer range: [0,5000,0]
 		button addFreeIdBT "add free id to sel" across:3
 		button randomIdBT "random ids on sel" --enabled: false
 		button cleanIdMatBT "clean all id mat"

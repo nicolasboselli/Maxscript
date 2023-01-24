@@ -1,14 +1,15 @@
 /*
 maj:
 x passer les paths en chemin relatifs
-trier par ordre alphabetique
-ouvrir le fichier ini
+x trier par ordre alphabetique
+ordonner les catégories
+x ouvrir le fichier ini
 
-creer un launher simple(lecteur)
-ajouter un fonction add to core au script manager
+x creer un launher simple(lecteur)
+x ajouter un fonction add to core au script manager
 
 debug:
-quand on supprime la dernière catagorie, ça plante
+x quand on supprime la dernière catagorie, ça plante
 */
 
 
@@ -36,18 +37,42 @@ rollout renameRLT "rename"
 	)
 )
 
+fn sortByPathname v1 v2 =
+(
+		-- qsort <array> sortbyname
+-- 	vars
+	local d
+	
+	if  (filenameFromPath(toLower v1)) < (filenameFromPath (toLower v2)) then
+		d=-1
+	else
+		d=1
+	
+--compare les numeros entre eux et les classe	
+	case of
+	(
+		(d < 0.): -1
+		(d > 0.): 1
+		default: 0
+	)
+)
+
+qsort coreScriptArray sortByPathname
+
+filenameFromPath coreScriptArray[1]
+
 try( destroydialog superLauncherRLT )catch()
 rollout superLauncherRLT "Super Launcher"
 (
 	local iniCoreFileName
 	
-	local coreCatList 
+	global coreCatList 
 	
 	local coreScriptArray
 	local coreScriptArrayNames
 	
-	local coreScriptArray2
-	local coreScriptArray2Names
+-- 	local coreScriptArray2
+-- 	local coreScriptArray2Names
 	
 	local bufArray
 	
@@ -63,8 +88,8 @@ rollout superLauncherRLT "Super Launcher"
 	(
 -- 		dropdownlist catListDPL "category:" enabled: false
 		listbox catListLB "categories:"
-		button moveUpBT "^" across: 2 enabled: false
-		button moveDwBT "v" enabled: false
+		button moveUpBT "^" across: 2 -- enabled: false
+		button moveDwBT "v" -- enabled: false
 		button addCatBT "new" across: 3 
 		button renameCatBT "rename" -- enabled: false --across: 2 
 		button delCatBT "del"
@@ -94,7 +119,7 @@ rollout superLauncherRLT "Super Launcher"
 		(
 			coreArStr = getINISetting iniCoreFileName  "coreScriptList" oneCat
 			coreArStrTmp = execute coreArStr
-			format "core script list: %\n" coreArStrTmp
+-- 			format "core script list: %\n" coreArStrTmp
 			
 			-- test if file exist
 			for onePath in coreArStrTmp do
@@ -136,25 +161,7 @@ rollout superLauncherRLT "Super Launcher"
 			scriptListMLB.items = coreScriptArrayNames 
 		)
 		else(/* format "catListDPL.selection == 0 or coreScriptArray == undefined\n" */)
-		
-/* 		if catListTargetDPL.selection != 0 and coreScriptArray2 != undefined then 
-		(
-			coreScriptArray2Names = #()
 
-			for ms in coreScriptArray2 do
-			(
-				local oneName
-				local version = getScriptVersion ms
-
-				if version != undefined then oneName = (getFilenameFile ms) + " v."+ (version as string)
-				else oneName = getFilenameFile ms
-				
-				append coreScriptArray2Names oneName
-			)
-			scriptList2MLT.items = coreScriptArray2Names 
-		)
-		else()
-		 */
 	)
 	
 	-- Actions
@@ -179,10 +186,24 @@ rollout superLauncherRLT "Super Launcher"
 		
 	on catListLB selected val do
 	(
-		format "coreCatList[val]: %\n" coreCatList[val]
+-- 		format "coreCatList[val]: %\n" coreCatList[val]
 		coreScriptArray = loadCore2 coreCatList[val]
+		qsort coreScriptArray sortByPathname
 		scriptListMLB.selection = 0
 		refreshUI()
+	)
+	
+	on moveUpBT pressed do
+	(
+		-- déplacer la categorie dans l'array
+		format "i: % < % cat: %\n" catListLB.selection  (catListLB.selection - 1) coreCatList[catListLB.selection]
+		
+		-- déplacer la catégorie dan l'ini
+	)
+	
+	on moveDwBT pressed do
+	(
+		format "i: % > % cat: %\n" catListLB.selection  (catListLB.selection + 1) coreCatList[catListLB.selection]
 	)
 	
 	on addCatBT pressed do
@@ -220,9 +241,11 @@ rollout superLauncherRLT "Super Launcher"
 	(
 		bakId = catListLB.selection
 		
-		delIniSetting iniCoreFileName "coreScriptList"  coreCatList[catListLB.selection]
+		format "del id: %\n" catListLB.selection
+		
+		delIniSetting iniCoreFileName "coreScriptList"  coreCatList[bakId]
 		loadCategories()
-		coreScriptArray = loadCore2 coreCatList[bakId]
+		coreScriptArray = loadCore2 coreCatList[coreCatList.count]
 		refreshUI()
 	)
 	
@@ -244,21 +267,29 @@ rollout superLauncherRLT "Super Launcher"
 		setINISetting iniCoreFileName  "coreScriptList" coreCatList[catListLB.selection] coreData
 		
 		loadCategories()
+		qsort coreScriptArray sortByPathname
 		refreshUI()
 	)
 	
 	on removeScriptBT pressed do
 	(
+		
 		idstodel = scriptListMLB.selection as array
-		for i = idstodel.count to 1 by - 1 do deleteitem coreScriptArray i
+		for i = idstodel.count to 1 by - 1 do 
+		(
+			format "i: % idstodel[i]: % script: %\n" i idstodel[i] coreScriptArray[idstodel[i]]
+			deleteitem coreScriptArray idstodel[i]
+		)
 
 		local coreData = with printAllElements on coreScriptArray as string
 		setINISetting iniCoreFileName  "coreScriptList" coreCatList[catListLB.selection] coreData
+		
+		coreScriptArray = loadCore2 coreCatList[catListLB.selection]
 		
 		refreshUI()
 	)
 
 )
-createdialog superLauncherRLT
+createdialog superLauncherRLT width: 300
 
 
