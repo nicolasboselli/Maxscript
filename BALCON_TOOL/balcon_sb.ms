@@ -4,17 +4,18 @@
 
 maj:
 au lieu de créer des spline, récupérer les objets depuis un selection ou le project manager
+
 prob: taper des faces qui sont supperposés dans un même objet
 */
 
 
-
+-- meshop.getPolysUsingFace newMesh #{impact[2]} ignoreVisEdges: true threshhold: 1.0
 
 -- créer des surfaces plannes et bien orientées sur lesquelles travailler
 	-- duppliquer la selection
 	-- collecter les face orientées vers le haut
 	-- supprimer les autres Faces
-	-- detacher les objets par elements et groupes de Vertex
+	-- detacher les faces
 
 -- travailler les impacts sur chaque objet
 s = $
