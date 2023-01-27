@@ -6,8 +6,8 @@ windowsToolsRF = newRolloutFloater "Windows Tools" 300 650 80 200
 
 filein (getroot() + "BOXERIZE/006/boxerize.ms")
 filein (getroot() + "BOXERIZE_archi/001/boxerize_archi.ms")
-filein (getroot() + "objReplacer/004/resizerTool_live.ms")
-filein (getroot() + "objReplacer/004/obj_replacer.ms")
+filein (getroot() + "objReplacer/005/resizerTool_live.ms")
+filein (getroot() + "objReplacer/005/obj_replacer.ms")
 
 filein "windows_opener.ms"
 filein "ParallaxPlacer.ms"

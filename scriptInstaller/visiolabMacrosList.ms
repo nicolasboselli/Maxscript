@@ -13,7 +13,7 @@
 	global pdvToolsPath =  @"PDV_TOOLS/004/pdv_tools_float.ms"
 	global windowsToolsPath = @"WINDOWS_TOOL/005/windows_tools_float.ms"
 	global cleanMultiMatPath = @"MATERIALS_TOOLS/001/cleanMultimaterials.ms"
-	global boxArchiPath = @"BOXERIZE_archi/001/boxerize_archi.ms"
+-- 	global boxArchiPath = @"BOXERIZE_archi/001/boxerize_archi.ms"
 
 	
 	macroScript ScriptLauncher
@@ -231,7 +231,7 @@
 		filein ((getroot()) +  cleanMultiMatPath)
 	)
 	
-	macroScript BoxerizeArchi
+/* 	macroScript BoxerizeArchi
 	category: "Visiolab"
 	buttonText: "BoxerizeArchi"
 	toolTip:""
@@ -239,6 +239,6 @@
 	(
 		filein ((getroot()) + boxArchiPath)
 -- 		filein ((getroot()) +  "\scriptsLauncher\001\launcher.ms")
-	)
+	) */
 
 )
