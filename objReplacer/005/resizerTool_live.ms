@@ -52,21 +52,27 @@ rollout windowsResizerRLT "windows resizer live"
 	
 	group "vertices selection range:"
 	(
-		spinner xMaxRangeSP "xMaxRange:" range: [ -100, 100, -15 ] type: #worldunits across: 2
-		spinner xMinRangeSP "xMinRange:" range: [ -100, 100, 5 ] type: #worldunits
-		spinner yMaxRangeSP "yMaxRange:" range: [ -100, 100, -15 ] type: #worldunits across: 2
-		spinner yMinRangeSP "yMinRange:" range: [ -100, 100, 15 ] type: #worldunits
-		spinner zMaxRangeSP "zMaxRange:" range: [ -100, 100, -30 ] type: #worldunits across: 2
-		spinner zMinRangeSP "zMinRange:" range: [ -100, 100, 18 ] type: #worldunits
+
 	)
 	
 	group "live resizing:"
 	(
-		spinner moreXSP "+X" range:[-100,100,0] 	type: #worldunits across: 2
+		spinner xMaxRangeSP "xMaxRange:" range: [ -100, 100, -15 ] type: #worldunits across: 2
+		spinner moreXSP "+X" range:[-100,100,0] 	type: #worldunits 
+		
+		spinner xMinRangeSP "xMinRange:" range: [ -100, 100, 5 ] type: #worldunits across: 2
 		spinner lessXSP "-X" range:[-100,100,0] 	type: #worldunits
-		spinner moreYSP "+Y" range:[-100,100,0] 	type: #worldunits across: 2
+		
+		spinner yMaxRangeSP "yMaxRange:" range: [ -100, 100, -15 ] type: #worldunits across: 2
+		spinner moreYSP "+Y" range:[-100,100,0] 	type: #worldunits 
+		
+		spinner yMinRangeSP "yMinRange:" range: [ -100, 100, 15 ] type: #worldunits across: 2
 		spinner lessYSP "-Y" range:[-100,100,0]	type: #worldunits
-		spinner moreZSP "+Z" range:[-100,100,0] 	type: #worldunits across: 2
+		
+		spinner zMaxRangeSP "zMaxRange:" range: [ -100, 100, -30 ] type: #worldunits across: 2
+		spinner moreZSP "+Z" range:[-100,100,0] 	type: #worldunits 
+		
+		spinner zMinRangeSP "zMinRange:" range: [ -100, 100, 18 ] type: #worldunits across: 2
 		spinner lessZSP "-Z" range:[-100,100,0]	type: #worldunits
 	)
 	

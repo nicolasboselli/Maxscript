@@ -1,0 +1,229 @@
+
+
+filein "balcon_sb3.ms"
+try(destroydialog BalconizerRLT)catch()
+
+
+try(destroydialog Balconizer2RLT)catch()
+rollout Balconizer2RLT "Objects Balconizer Alpha"
+(
+	button randomObjBT "Random Objects"
+	button snapObjBT "Snap Objects"
+	
+	on randomObjBT pressed do
+	(
+		sel = selection as array
+		selAr = #()
+
+		ground = sel[sel.count]
+
+		-- dans la selection faire un array par groupe
+		for i = 1 to (sel.count - 1) do
+		(
+			if not isvalidnode sel[i].parent do
+			(
+				append selAr #(sel[i])
+			)
+		)
+
+		for oneSet in selAr do
+		(
+			for o in oneset do
+			(
+				for c in o.children do append oneset c
+			)
+		)
+		selAr.count
+
+		-- calcul des points
+		allImpAr = findImpacts ground shift: 50
+
+		-- tri des impacts entre border et main
+		NewtwoArrays = findBorderImpact2 ground allImpAr shift: 30
+
+		-- mise en groupe guide creation
+		MainGrpImpAr = sortByGroup NewtwoArrays[1]
+
+
+		-- test des distances
+		perfectForDressingAr = distImpact MainGrpImpAr size2: 150
+
+		zMaxAr = #()
+		-- pour chaque objet trouver la position la plus basse
+		for oneSet in selAr do
+		(
+			
+			-- sur chaque groupe calculer le déplacement en z
+			local zmax = point3 0 0 (10^6)
+			local zMin = 10^6
+			for s in oneSet where iskindof s GeometryClass do
+			(
+				-- ajouter edit mesh
+				addModifier s (edit_mesh name: "tmp_EM" )
+
+				-- compter le nombre Vertex
+				vxCount = getnumverts s
+
+				-- collecter la position du Vertex le plus bas
+				vxPosAr = for v = 1 to vxCount collect getVert s v
+
+				for v = 1 to vxCount do
+				(
+					onePos = getVert s v
+					
+					if onePos.z < zmax.z then
+					(
+		-- 				format "v: %  zmax.z: % onePos: %\n" v zmax.z onePos
+						zmax = onePos
+					)
+				)
+				
+				-- suppression du modifier
+				deletemodifier s 1
+			)	
+			append zMaxAr zmax
+		)
+		zMaxAr.count
+
+
+		-- calculer la postion de l'objet par rapport à la position de différence
+		for oneSet in perfectForDressingAr do
+		(
+			for p in oneSet do
+			(
+				local copyHead
+				local copyRef
+				
+				-- l'identité selectionnée
+				local id = random 1 zMaxAr.count
+					
+				-- dupliquer l'objet tiré au sort
+				format "copy id: % obj: %\n" id selAr[id][1].name
+				maxOps.cloneNodes selAr[id][1] cloneType: #instance newNodes:&copyRef
+				for o in copyRef where o.parent == undefined do copyHead =  o
+					
+		-- 		posObj = selAr[id][1].position
+				shift = selAr[id][1].position - zMaxAr[id]
+
+				-- à partir de la postion la plus basse de l'objet (zmax) calculer le saut
+			-- 	(zMaxAr[id] - p)
+				
+				-- déplacer l'objet duppliquer
+				-- pt = point name: (uniquename ("pt_id" + (id as string) + "_")) --position: zMaxAr[id]
+				rotate copyHead (angleaxis (random 0 360) [0,0,1])
+				copyHead.position = p + shift
+			)
+		)
+	)
+	
+	on snapObjBT pressed do
+	(
+		
+	)
+)
+CreateDialog Balconizer2RLT
+
+
+sel = selection as array
+selAr = #()
+
+ground = sel[sel.count]
+
+-- dans la selection faire un array par groupe
+for i = 1 to (sel.count - 1) do
+(
+	if not isvalidnode sel[i].parent do
+	(
+		append selAr #(sel[i])
+	)
+)
+
+for oneSet in selAr do
+(
+	for o in oneset do
+	(
+		for c in o.children do append oneset c
+	)
+)
+selAr.count
+
+-- calcul des points
+allImpAr = findImpacts ground shift: 50
+
+-- tri des impacts entre border et main
+NewtwoArrays = findBorderImpact2 ground allImpAr shift: 30
+
+-- mise en groupe guide creation
+MainGrpImpAr = sortByGroup NewtwoArrays[1]
+
+
+-- test des distances
+perfectForDressingAr = distImpact MainGrpImpAr size2: 150
+
+zMaxAr = #()
+-- pour chaque objet trouver la position la plus basse
+for oneSet in selAr do
+(
+	
+	-- sur chaque groupe calculer le déplacement en z
+	local zmax = point3 0 0 (10^6)
+	local zMin = 10^6
+	for s in oneSet where iskindof s GeometryClass do
+	(
+		-- ajouter edit mesh
+		addModifier s (edit_mesh name: "tmp_EM" )
+
+		-- compter le nombre Vertex
+		vxCount = getnumverts s
+
+		-- collecter la position du Vertex le plus bas
+		vxPosAr = for v = 1 to vxCount collect getVert s v
+
+		for v = 1 to vxCount do
+		(
+			onePos = getVert s v
+			
+			if onePos.z < zmax.z then
+			(
+-- 				format "v: %  zmax.z: % onePos: %\n" v zmax.z onePos
+				zmax = onePos
+			)
+		)
+		
+		-- suppression du modifier
+		deletemodifier s 1
+	)	
+	append zMaxAr zmax
+)
+zMaxAr.count
+
+
+-- calculer la postion de l'objet par rapport à la position de différence
+for oneSet in perfectForDressingAr do
+(
+	for p in oneSet do
+	(
+		local copyHead
+		local copyRef
+		
+		-- l'identité selectionnée
+		local id = random 1 zMaxAr.count
+			
+		-- dupliquer l'objet tiré au sort
+		format "copy id: % obj: %\n" id selAr[id][1].name
+		maxOps.cloneNodes selAr[id][1] cloneType: #instance newNodes:&copyRef
+		for o in copyRef where o.parent == undefined do copyHead =  o
+			
+-- 		posObj = selAr[id][1].position
+		shift = selAr[id][1].position - zMaxAr[id]
+
+		-- à partir de la postion la plus basse de l'objet (zmax) calculer le saut
+	-- 	(zMaxAr[id] - p)
+		
+		-- déplacer l'objet duppliquer
+		-- pt = point name: (uniquename ("pt_id" + (id as string) + "_")) --position: zMaxAr[id]
+		rotate copyHead (angleaxis (random 0 360) [0,0,1])
+		copyHead.position = p + shift
+	)
+)
+

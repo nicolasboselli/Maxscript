@@ -1,0 +1,546 @@
+
+/*
+
+
+maj:
+au lieu de créer des spline, récupérer les objets depuis un selection ou le project manager
+
+prob: taper des faces qui sont supperposés dans un même objet
+*/
+
+
+-- meshop.getPolysUsingFace newMesh #{impact[2]} ignoreVisEdges: true threshhold: 1.0
+
+-- créer des surfaces plannes et bien orientées sur lesquelles travailler
+	-- duppliquer la selection
+	-- collecter les face orientées vers le haut
+	-- supprimer les autres Faces
+	-- detacher les faces
+
+-- travailler les impacts sur chaque objet
+fn findImpacts s shift: 50 = 
+(
+	format "############ IMPACTS s: % ###########\n" s.name
+-- 	shift = 50
+	rayCount = 0
+	impactCount = 0
+	noImpactCount = 0
+
+	shortDistance = 0
+	goodDistance = 0
+	longDistance = 0
+
+	grpImpAr = #()
+	zval = 10000
+
+	local allImpAr = #()
+
+	for xval = (s.min.x - (shift/2)) to (s.max.x + (shift/2)) by shift do
+	(
+		for yval = (s.min.y - (shift/2)) to (s.max.y + (shift/2)) by shift do
+		(
+			for zval = (s.min.z - (shift/2)) to (s.max.z + (shift*2)) by shift do
+			(
+				rayCount += 1
+				oneRay = ray  (point3 xval yval zval) (point3 0 0 -1)
+				res = intersectRay s oneRay
+				
+				-- pour chaque nouvel impact
+				if res != undefined then
+				(
+					impactCount += 1
+					local impactPos = res.position
+					local grpImpID = 0
+					local goodgrpImpID
+					local impID = 0
+					local goodImpID
+					
+					-- si c'est le premier impact, collecter
+					if allImpAr.count == 0 then 
+					(
+						append allImpAr impactPos
+					)
+					else
+					-- sinon 
+					(
+						local minDist = 100000
+						local collected = false 
+						local soFar = false
+						
+						-- pour chaque groupe d'impact deja collecter 
+						for imp in allImpAr do
+						(
+	-- 						grpImpID += 1
+							
+							-- pour chaque impact du groupe d'impact
+
+							impID += 1
+							-- calculer la distance entre le nouvel impact et les impact deja collecter
+							testDist = distance impactPos imp
+							
+							-- conserver la distance minimale
+							if testDist < minDist then 
+							(
+								minDist = testDist
+	-- 							goodgrpImpID = grpImpID
+								goodImpID = impID
+							)
+						)
+						
+						-- si la distance minimalle == 0 ne pas collecter
+						if minDist <= 5 then
+						(
+							shortDistance += 1
+						)
+						else
+						(
+							appendifunique allImpAr impactPos
+						)
+					)
+				)
+				else
+				(
+					noImpactCount += 1
+				)
+			)
+		)
+	)	
+	format "allImpAr :%\n" allImpAr.count
+	format "rayCount: %\n" rayCount
+	format "impactCount :%\n" impactCount
+	format "noImpactCount: %\n" noImpactCount
+	
+	allImpAr
+)
+
+-- trouver des bordu des groupes par distance
+
+
+fn findBorderImpact2 s grpImpAr =
+(
+	format "############ BORDER IMPACTS s: % ###########\n" s.name
+-- 	oneForDressing = #()
+-- 	oneForBorder = #()
+
+	local goodForDressingAr = #()
+	local goodForBorderAr = #()
+
+	size = 60
+
+	for imp in grpImpAr do
+	(
+		(
+	-- 		format "== start test imp: %\n" imp
+			local goodforDessing = false
+			for oneAng = 0 to 360 by 45  do
+			(
+	-- 			size = 80
+				-- oneAng = 
+				shift = point3  (cos oneAng) (sin oneAng) 50
+				shift = shift * [size,size,1]
+				
+	-- 			format "shift: %\n" shift
+				
+				posTest = imp + shift
+
+				oneRay = ray  posTest (point3 0 0 -1)
+	-- 			point position: posTest wirecolor: green
+	-- 			format "oneRay: %\n" oneRay
+				local res = intersectRay s oneRay
+				
+				if res == undefined then 
+				(
+	-- 				format "oneRay: % res: %\n" oneray res
+					goodforDessing = false
+					exit
+				)
+				else 
+				(
+					goodforDessing = true
+	-- 				format "oneRay: % res: %\n" oneray res 
+				)
+			)
+			
+			if goodforDessing then
+			(
+	-- 			format "goodforDessing: %\n" goodforDessing 
+	-- 			point position: imp wirecolor: green
+-- 				append oneForDressing imp
+				append goodForDressingAr imp
+			)
+			else
+			(
+-- 				append oneForBorder imp
+				append goodForBorderAr  imp
+			)
+	-- 		format "== end test imp: %\n\n" imp
+		)
+	)
+	
+	#(goodForDressingAr, goodForBorderAr)
+)
+
+-- classement des impacts dans des groupes par distance
+fn sortByGroup allImpAr shift: 50 =
+(
+	format "############ GROUPE IMPACTS ###########\n"
+	local grpImpAr = #()
+	if grpImpAr.count == 0 then 
+	(
+		append grpImpAr #(allImpAr[1])
+		idToDel = finditem allImpAr grpImpAr[1][1]
+		deleteitem allImpAr idToDel
+	)
+	
+	turn = 0
+	for grpImp in grpImpAr do
+	(
+		turn += 1
+		-- impactCollected = false
+		
+		lastImp2 = undefined
+		for imp in grpImp do
+		(
+			
+			for imp2 in allImpAr do
+			(
+				testDist = distance imp imp2
+				if testDist <= (shift + 1) then
+				(
+					-- ajouter dans le grpimp
+					append grpImp imp2
+					
+					-- enlever de allImpAr
+					idToDel = finditem allImpAr imp2
+					deleteitem allImpAr idToDel
+				)
+			)	
+		)
+		
+		-- si il y a un transfer répéter l'opération
+		-- s'il n'y a plus de collecte 
+		-- création d'un nouveau groupe s'il n'y a pas de nouvelle collecte
+		
+		if allImpAr.count > 0 then append grpImpAr #(allImpAr[1])
+		if turn > 200 then 
+		(
+			format "turn > 200 : exit!\n"
+			exit
+		)
+	)
+	format "grpImpAr.count: %\n" grpImpAr.count
+	grpImpAr
+)
+
+-- dans les positions collectées pour le dressing 
+fn distImpact goodForDressingAr = 
+(
+	format "############ DISTANCES IMPACTS ###########\n"
+	local perfectForDressingAr = #()
+	superTurn = 0
+	size2 = 80
+	multi2 = 2
+
+	for oneForDressing in goodForDressingAr do
+	(
+		superTurn += 1
+-- 		format "\n################ superTurn: % ############\n" superTurn
+		if oneForDressing.count > 0 then 
+		(
+			onePerfectAr = #(oneForDressing[1])
+			deleteitem oneForDressing 1
+		)
+		else
+		(
+-- 			format "oneForDressing: %\n" oneForDressing
+			continue
+		)
+		turn = 0
+		
+		for onePerfect in onePerfectAr do
+		(
+			turn += 1
+			
+-- 			format "################ turn: % ############\n" turn
+			minDist = 10000
+			local nextPerfect = undefined
+			
+			for oneGood in oneForDressing do
+			(		
+	-- 			format "onePerfect: % oneGood: %\n" onePerfect oneGood
+				testDist = distance onePerfect oneGood
+
+				-- suppression des points trop prêts
+				if testDist < (size2*multi2) then
+				(
+					toDel = finditem oneForDressing oneGood
+					deleteitem oneForDressing toDel
+					
+	-- 				format "delete oneGood: %\n" oneGood 
+				)
+				-- collecter le point le plus prêt
+				else if testDist < minDist and  testDist >= (size2*multi2) then
+				(		
+					reallyGood = true
+					nextPerfectCandidat = oneGood
+					for o in onePerfectAr do
+					(
+						testdist2 = distance o nextPerfectCandidat
+						if testdist2 < (size2*multi2) then
+						(		
+							reallyGood = false
+							exit
+						)
+					)
+					
+					if reallyGood then
+					(
+						nextPerfect = oneGood
+						minDist = testDist
+	-- 					format "update nextperfect minDist: % nextPerfect: %\n" minDist nextPerfect
+					)				
+				)
+				else(/*format "ignore oneGood: % \n" oneGood*/)
+			)
+			
+			
+			if iskindof nextPerfect point3 then
+			(
+				append onePerfectAr nextPerfect
+
+				toDel = finditem oneForDressing nextPerfect
+				deleteitem oneForDressing toDel
+-- 				format "Final onePerfectAr: % minDist: % nextPerfect: %\n" onePerfectAr minDist nextPerfect
+			)
+		)
+		append perfectForDressingAr onePerfectAr
+	)
+	perfectForDressingAr
+)
+
+-- déroulé
+
+allImpAr = #()
+twoArrays = #(#(),#())
+-- s = $
+sel = selection as array
+for s in sel do
+(
+	allImpAr += findImpacts s
+	NewtwoArrays = findBorderImpact2 s allImpAr
+	
+	twoArrays[1] += NewtwoArrays[1]
+	twoArrays[2] += NewtwoArrays[2]
+	
+	format "twoArrays[1].count: % twoArrays[2].count: %\n\n" twoArrays[1].count twoArrays[2].count
+)
+
+
+/*
+ctrlPoints = #()
+for one in allImpAr do
+(
+	onept = point position: one 
+	append ctrlPoints onept
+)
+
+ctrlPoints = #()
+for one in twoArrays[2] do
+(
+	onept = point position: one 
+	append ctrlPoints onept
+)
+
+for c in ctrlPoints do delete c
+
+*/
+
+-- main guide creation
+MainGrpImpAr = sortByGroup twoArrays[1]
+MainGrpImpAr.count
+
+/*
+
+ctrlPoints = #()
+for one in MainGrpImpAr do
+(
+	onePt
+	oneColor = color (random 0 255)  (random 0 255)  (random 0 255)
+	for o in one do
+	(
+		onept = point position: o wirecolor: oneColor
+	) 
+	append ctrlPoints onept
+)
+
+for c in ctrlPoints do delete c
+
+*/
+
+
+perfectForDressingAr = distImpact MainGrpImpAr
+/*
+
+ctrlPoints = #()
+for one in perfectForDressingAr do
+(
+	onePt
+	oneColor = color (random 0 255)  (random 0 255)  (random 0 255)
+	for o in one do
+	(
+		onept = point position: o wirecolor: oneColor
+	) 
+	append ctrlPoints onept
+)
+
+for c in ctrlPoints do delete c
+
+for o in perfectForDressingAr do format "o: %\n" o
+
+*/
+
+-- creation de la spline dressing
+newShape = splineShape wirecolor: red name: (Uniquename "balcon_main_FP_guide_")
+for grpImp in perfectForDressingAr do
+(
+	for imp in grpImp do 
+	(
+		num = addNewSpline newShape
+		
+		addKnot newShape num #corner #line imp
+		addKnot newShape num #corner #line (imp + (point3 50 0 0))
+	)
+)
+updateShape newShape
+redrawViews()
+
+-- border guide creation
+BorderGrpImpAr = sortByGroup twoArrays[2]
+BorderGrpImpAr.count
+
+perfectForBorderAr = distImpact BorderGrpImpAr
+
+-- creation de la spline border
+newShapeBorder = splineShape wirecolor: green (Uniquename "balcon_border_FP_guide_")
+for grpImp in perfectForBorderAr do
+(
+	for imp in grpImp do 
+	(
+		num = addNewSpline newShapeBorder
+		
+		addKnot newShapeBorder num #corner #line imp
+		addKnot newShapeBorder num #corner #line (imp + (point3 50 0 0))
+	)
+)
+updateShape newShapeBorder
+redrawViews()
+
+
+
+try(destroydialog BalconizerRLT)catch()
+rollout BalconizerRLT "BalconIzer"
+(
+	local allImpAr = #()
+	local twoArrays = #(#(),#())
+	
+	group "Main:"
+	(
+		spinner mainRadiusSP "Main Density Radius:" type: #worldunits
+		button createMainHelperBT "create Main Guide"
+	)
+	
+	group "Border:"
+	(
+		spinner borderRadiusSP "Border Radius:" type: #worldunits
+		spinner borderDensitySP "Border Density Radius:" type: #worldunits
+		button createBorderHelperBT "create Borders Guide"
+	)
+	
+	on createMainHelperBT pressed do
+	(
+		-- s = $
+		sel = selection as array
+		for s in sel do
+		(
+			-- recherche des impacts
+			allImpAr += findImpacts s
+			
+			-- tri des impacts entre border et main
+			NewtwoArrays = findBorderImpact2 s allImpAr
+			twoArrays[1] += NewtwoArrays[1]
+-- 			twoArrays[2] += NewtwoArrays[2]
+			
+			format "twoArrays[1].count: % twoArrays[2].count: %\n\n" twoArrays[1].count twoArrays[2].count
+		)
+		
+		-- mise en groupe guide creation
+		MainGrpImpAr = sortByGroup twoArrays[1]
+		
+		-- test des distances
+		perfectForDressingAr = distImpact MainGrpImpAr
+		
+		-- creation de la spline dressing
+		newShape = splineShape wirecolor: red name: (Uniquename "balcon_main_FP_guide_")
+		for grpImp in perfectForDressingAr do
+		(
+			for imp in grpImp do 
+			(
+				num = addNewSpline newShape
+				
+				addKnot newShape num #corner #line imp
+				addKnot newShape num #corner #line (imp + (point3 50 0 0))
+			)
+		)
+		updateShape newShape
+		redrawViews()
+		
+	)
+		
+	on createBorderHelperBT pressed do
+	(
+		sel = selection as array
+		for s in sel do
+		(
+			-- recherche des impacts
+			allImpAr += findImpacts s
+			
+			-- tri des impacts entre border et main
+			NewtwoArrays = findBorderImpact2 s allImpAr
+-- 			twoArrays[1] += NewtwoArrays[1]
+			twoArrays[2] += NewtwoArrays[2]
+			
+			format "twoArrays[1].count: % twoArrays[2].count: %\n\n" twoArrays[1].count twoArrays[2].count
+		)
+		
+		BorderGrpImpAr = sortByGroup twoArrays[2]
+		
+		perfectForBorderAr = distImpact BorderGrpImpAr
+		
+		-- creation de la spline border
+		newShapeBorder = splineShape wirecolor: green (Uniquename "balcon_border_FP_guide_")
+		for grpImp in perfectForBorderAr do
+		(
+			for imp in grpImp do 
+			(
+				num = addNewSpline newShapeBorder
+				
+				addKnot newShapeBorder num #corner #line imp
+				addKnot newShapeBorder num #corner #line (imp + (point3 50 0 0))
+			)
+		)
+		updateShape newShapeBorder
+		redrawViews()
+	)
+)
+createdialog BalconizerRLT
+
+-- select newShape
+-- newShape = splineShape ()
+-- addNewSpline newShape
+-- addKnot newShape 1 #corner 
+
+/*
+
+ 
+for c in ctrlPointAr do delete c
+*/

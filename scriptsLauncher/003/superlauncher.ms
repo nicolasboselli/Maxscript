@@ -57,9 +57,9 @@ fn sortByPathname v1 v2 =
 	)
 )
 
-qsort coreScriptArray sortByPathname
+-- qsort coreScriptArray sortByPathname
 
-filenameFromPath coreScriptArray[1]
+-- filenameFromPath coreScriptArray[1]
 
 try( destroydialog superLauncherRLT )catch()
 rollout superLauncherRLT "Super Launcher"

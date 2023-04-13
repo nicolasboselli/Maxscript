@@ -1,4 +1,6 @@
 /*
+debug:
+-- aprés le renommage d'une camera faire suivre la selection dans la listbox sur le nouveau nom de la camera
 maj:
 enregistrer format
 enregistrer calque visible

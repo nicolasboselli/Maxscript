@@ -1,0 +1,15 @@
+fn testBorder s =
+(
+	for oneAng = 0 to 360 by 45  do
+	(
+		-- oneAng = 
+		shift = point3  (cos oneAng) (sin oneAng) 50
+		shift = shift * [120,120,1]
+		
+		posTest = s.position + shift
+
+		oneRay = ray  posTest (point3 0 0 -1)
+-- 		point position: posTest wirecolor: green
+		format "oneRay: %\n" oneRay
+	)
+)

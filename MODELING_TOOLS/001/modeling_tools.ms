@@ -130,11 +130,12 @@ fn clusterAttach objArr =
 			)
 			
 			-- ATTACH
-			if k == 100 then (
-			windows.ProcessPostedMessages()
-			format "rest: % objects. numface [j]: % [j+1]: % \n"  objArr.count objArr[j].numfaces objArr[j+1].numfaces
-			k = 0
-				)
+			if k == 100 then 
+			(
+				windows.ProcessPostedMessages()
+				format "rest: % objects. numface [j]: % [j+1]: % \n"  objArr.count objArr[j].numfaces objArr[j+1].numfaces
+				k = 0
+			)
 			
 			
 			attach objArr[j] objArr[j+1]
@@ -145,10 +146,6 @@ fn clusterAttach objArr =
 			k += 1
 
 			if (j + 1) > objArr.count then j = 1
-			
-			
-
-
 		)
 	)
 	objArr[1]

@@ -49,9 +49,11 @@ fn initArmadasStartupDir =
 )
 initArmadasStartupDir()
 	
-
+-- filein ((getRoot ()) + "scriptInstaller/reroot_message.ms")
 -- load du fichier filein
 filein ((getRoot ()) + "scriptInstaller/startup/armadesFileIn.ms")
+
+
 
 
 

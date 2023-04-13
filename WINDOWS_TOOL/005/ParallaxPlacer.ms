@@ -1,3 +1,7 @@
+/*
+prendre en compte l'ouverture de la fenêtre pour repousser le parallax plus ou moins loin
+*/
+
 fn createParallax w =
 (
 	local onePlane
@@ -46,7 +50,7 @@ fn createParallax w =
 	
 	addmodifier oneplane (Materialmodifier materialID: randID)
 		
-	addmodifier oneplane (uvwmap length: 300 width: 600)
+	addmodifier oneplane (uvwmap length: 300 width: 400)
 	
 	-- décalage de la plane
 	/*

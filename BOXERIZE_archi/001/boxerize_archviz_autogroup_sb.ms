@@ -125,7 +125,22 @@ fn collectWindowsGroup s =
 			) 
 		)
 		
-		if turn > 10 then exit
+		if turn > 10 then 
+		(
+			format "maximum turns done! Force Group\n"
+		
+			-- collecte de la face de la nouvelle fenetre à trouver
+			facesSel = #{(faceBitAr as array)[1]}
+			-- retranchement des vertex du précedent froupe de tous les vertex à tester
+			vxBitAr = vxBitAr - vxSel
+			-- reinitialisation des vertex de la selection
+			vxSel = #{}
+			-- reinitialisation du nombre de tour
+			turn = 0 
+			
+			
+-- 			exit
+		)
 		if grpAr.count >= 500 then 
 		(
 			format "Total Time: %s\n" (((timestamp()) - startingTime) / 1000 as float)

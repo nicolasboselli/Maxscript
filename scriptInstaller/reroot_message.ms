@@ -1,0 +1,1 @@
+messagebox "Salut!\n\nSi tu vois ce message, c'est que ton 3ds max a été correctement redirigé vers le nouveau dossier de script Visiolab.\n\nAlors envoie \" YOUPI! \" à Nico pour lui dire que ça s'est bien passé.\n\nBonne journée.\n"

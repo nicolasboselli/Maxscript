@@ -378,8 +378,13 @@ rollout changeArchVizWindowsRLT "Boxerize Archviz Windows"
 		button reorientGabBT "Reorient Gabarit on selection" enabled: false
 		button fix90normalBT "Fix 90 normal" enabled: false
 		button fix180normalBT "Fix 180 normal" 
-		button resizeGabBT "Resize Gabarit 35 cm"
 		button selectFDCBT "select fenetre_detach_center"
+	)
+	
+	group "Gabarits Size:"
+	(
+		spinner resizeGabSP "Gabarit Size:" type: #worldunits range: [0,100,35]
+		button resizeGabBT "Resize Gabarit"
 	)
 	
 	group "Gabartis Tools:"
@@ -468,7 +473,7 @@ rollout changeArchVizWindowsRLT "Boxerize Archviz Windows"
 		(
 			for s in sel where iskindof s Editable_mesh do
 			(
-				if MatchPattern s.name pattern: "fenetre_detach*" then resizeGabarit s
+				if MatchPattern s.name pattern: "fenetre_detach*" then resizeGabarit s size: resizeGabSP.value
 			)
 			
 			allGab = $fenetre_detach* as array

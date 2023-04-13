@@ -21,8 +21,11 @@ rollout cellsTransferRLT "Cells Transfer"
 		button createCellsBT "create cells"
 	)
 	multilistbox cellsLayerMTL "Cells layers:" height:15
-	button addTargetBT "add target" across: 5
+	
+	button addTargetBT "add target" across: 6
+	button removeTargetBT "remove target" 
 	button clearTargetBT "clear target" 
+	
 	button addSourceBT "add source"
 	button remSrcBT "remove source"
 	button clearSourceBT "source target" 
@@ -79,6 +82,16 @@ rollout cellsTransferRLT "Cells Transfer"
 		(
 			append sourceLayerAr #()
 		)
+		
+		refreshUI()
+	)
+	
+	on removeTargetBT pressed do
+	(
+-- 		targetLayersMTL.selection
+		local selId = targetLayersMTL.selection
+		deleteitem targetLayerAr selId
+		deleteitem sourceLayerAr selId
 		
 		refreshUI()
 	)

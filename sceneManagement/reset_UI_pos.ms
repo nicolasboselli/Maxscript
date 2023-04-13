@@ -19,6 +19,8 @@ try(setDialogPos edgeToShapeOnModRLT [0,0])catch()
 try(setDialogPos layersToolsRLT [0,0])catch()
 try(setDialogPos opaRLT [0,0])catch()
 try(setDialogPos gouttiereRLT [0,0])catch()
+try(setDialogPos gridRLT [0,0])catch()
+
 
 
 	

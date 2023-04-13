@@ -1,23 +1,13 @@
 /*
+
 maj UI
 x-faire l'ouverture des fenetres  avec des tirettes
 - geler la tirette de la fenetre inactive: rendre les tirettes interactives à la selection, necessite un event
 - faire fonctionner sur les fenetres coulissantes
 
-debug;
-	x- dès qu'on tourne la fenêtre, les battant s'ouvre dans n'importe quel sens, revoir les formules
-	x- fermer les battant avant de replacer le pivot de la fenetre
-	x- finir le reset fenetres parce que les tirettes marchent à l'envers sur une fenetre flippé
-
-x - le place windows pivot doit placer le pivot en bas à gche de la fenetres, même quand la fenetre est flippée en y 
-
-x au reset de scale inverser le boolean des pivotfenetres
-
-
-newMatrix = ((eulerangles 0 0 -10) as Matrix3) * $.transform
-newMatrix.translation = $.transform.translation
-$.transform = newMatrix
-
+maj:
+-- aide au remplacement des fenetres, travail sur trois calque, reflechir à une organisation
+-- obj replacer, prévoir le placemenet en fond de box
 
 */
 

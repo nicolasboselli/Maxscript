@@ -1,6 +1,7 @@
 -- oneCat = "VisioLab"
 (
 	global ArmadasScriptLauncherPath = @"\scriptsLauncher\001\launcher.ms"
+	global ArmadasScriptLauncherPath2 = @"\scriptsLauncher\002\launcher.ms"
 	global ArmadasScriptModelingUtilitiesPath = @"\MODELING_TOOLS\001\modeling_tools.ms"
 	global ArmadasScriptMaterialsUtilitiesPath = @"\MATERIALS_TOOLS\001\deMultiMat.ms"
 	
@@ -23,6 +24,16 @@
 	icon: #("armadasScriptsFavorites",1)
 	(
 		filein ((getroot()) + ArmadasScriptLauncherPath)
+-- 		filein ((getroot()) +  "\scriptsLauncher\001\launcher.ms")
+	)
+	
+	macroScript ScriptLauncher2
+	category: "Visiolab"
+	buttonText: "MSXlauncher"
+	toolTip:""
+	icon: #("armadasScriptsFavorites",1)
+	(
+		filein ((getroot()) + ArmadasScriptLauncherPath2)
 -- 		filein ((getroot()) +  "\scriptsLauncher\001\launcher.ms")
 	)
 		

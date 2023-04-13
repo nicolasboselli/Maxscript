@@ -2,6 +2,12 @@
 maj:
 - créer fonction remove empty Layer
 - assigner les id objets selon post IT
+- dissocier ggx de roughness
+- collecter les textures dans un dossier au nom de l'asset, dans la biblio texture, relinké les mapButton
+	-- prendre en charge les vray bitmap
+	
+-- renommer les nodes en plus des vray mtl
+  
 - outil pour assigner des couleur de RAL sur le picker ouvert/sur la diffuse du material selectionné
 
 - outil pour conformer les fenetres: reset xform, position pivot, tag windows template, group orienter en x pour object replacer
@@ -200,14 +206,14 @@ fn convertToGGX =
 	for m in allVr do 
 	(
 		m.brdf_type = 4
-		if m.brdf_useRoughness == false then
+/* 		if m.brdf_useRoughness == false then
 		(
 			m.reflection_IOR = 1.6
 			m.brdf_useRoughness = true
 -- 			m.Reflection = color 255 255 255
 			m.reflection_glossiness = 1.0 - m.reflection_glossiness
 			m.reflection_fresnel = true
-		)
+		) */
 	)
 )
 
@@ -221,9 +227,15 @@ fn copyTextures =
 	ATSOP_paths
 
 	-- créer le dossier texture
-	textDir = @"M:\Biblio\VISIOLAB\1-Textures\Assets3d\Elements_batiments\Maps"
+-- 	textDir = @"M:\Biblio\VISIOLAB\1-Textures\Assets3d\Elements_batiments\Maps"
 	-- textDir = (maxFilePath + (getFilenameFile maxFileName) + "_TEXTURES")
 	-- makeDir textDir
+	
+	assetPref = @"M:\Biblio\VISIOLAB\2-Assets3D"
+	texturePref = @"M:\Biblio\VISIOLAB\1-Textures\Assets3d"
+
+	textDir = (substituteString maxFilePath  assetPref texturePref) + (getFilenameFile maxFileName)
+	makeDir textDir
 
 	-- copier toutes les textures dans un nouveau dossier
 	for i = 2 to ATSOP_paths.count where (doesFileExist ATSOP_paths[i]) do
@@ -246,7 +258,7 @@ fn copyTextures =
 -- placer les objets au centre de la scene (mettre le pivot à [0,0,0])
 -- supprimer les objets nuls
 --#### RENOMMAGE
-fn renameAsset daddyName: "02_BAT" dassyCoolName: "00_ELTS_BAT" =
+fn renameAsset daddyName: "02_BAT" daddyCoolName: "00_ELTS_BAT" renameByLayer: true =
 (
 	local layersToolsRLT
 	assetName = getFilenameFile  maxFileName
@@ -257,8 +269,8 @@ fn renameAsset daddyName: "02_BAT" dassyCoolName: "00_ELTS_BAT" =
 
 	-- daddy cool
 -- 	dassyCoolName = "00_ELTS_BAT"
-	if not iskindof (layermanager.getlayerfromname dassyCoolName) MixinInterface then layermanager.newlayerfromname dassyCoolName
-	daddyCool = layermanager.getlayerfromname dassyCoolName
+	if not iskindof (layermanager.getlayerfromname daddyCoolName) MixinInterface then layermanager.newlayerfromname daddyCoolName
+	daddyCool = layermanager.getlayerfromname daddyCoolName
 
 	-- creation du calque au nom de l'asset
 	if not iskindof (layermanager.getlayerfromname assetName) MixinInterface then layermanager.newlayerfromname assetName
@@ -270,9 +282,39 @@ fn renameAsset daddyName: "02_BAT" dassyCoolName: "00_ELTS_BAT" =
 	for o in objects do assetLayer.addnode o
 	-- renommage des objets
 -- 	filein @"N:/Ressources_Nico/github/00_wip/Maxscript/LAYERS_TOOLS/000/layers_tools.ms"
-	renameAssetByLayer assetLayer
+	if renameByLayer then renameAssetByLayer assetLayer
 -- 	try(destroy layersToolsRLT)catch()
 )
+
+fn renameAsset3 daddyName: "02_BAT" daddyCoolName: "00_ELTS_BAT" renameByLayer: true =
+(
+	local layersToolsRLT
+	assetName = getFilenameFile  maxFileName
+	-- DaddyL
+-- 	daddyName = "02_BAT"
+	if not iskindof (layermanager.getlayerfromname daddyName) MixinInterface then layermanager.newlayerfromname daddyName
+	daddyL = layermanager.getlayerfromname daddyName
+
+	-- daddy cool
+-- 	dassyCoolName = "00_ELTS_BAT"
+	if not iskindof (layermanager.getlayerfromname daddyCoolName) MixinInterface then layermanager.newlayerfromname daddyCoolName
+	daddyCool = layermanager.getlayerfromname daddyCoolName
+
+	-- creation du calque au nom de l'asset
+/* 	if not iskindof (layermanager.getlayerfromname assetName) MixinInterface then layermanager.newlayerfromname assetName
+	assetLayer = layermanager.getlayerfromname assetName */
+
+-- 	assetLayer.setParent daddyCool
+	daddyCool.setParent daddyL
+
+	for o in objects do daddyCool.addnode o
+	-- renommage des objets
+-- 	filein @"N:/Ressources_Nico/github/00_wip/Maxscript/LAYERS_TOOLS/000/layers_tools.ms"
+-- 	if renameByLayer then renameAssetByLayer assetLayer
+-- 	try(destroy layersToolsRLT)catch()
+)
+
+
 
 fn renameAsset2 daddyName: "02_BAT"  =
 (
@@ -327,6 +369,56 @@ fn renameMat =
 		m.name = (assetName + "_VRMLT_" + (k as string))
 		k += 1
 	)
+	
+	vrBmpAr = getClassInstances VRayBitmap target: sceneMaterials
+	for m in vrBmpAr where not MatchPattern m.name pattern: (assetName + "_VRBMP*") do
+	(
+		m.name = (assetName + "_VRBMP_" + (k as string))
+		k += 1
+	)
+	
+	bmpAr = getClassInstances Bitmaptexture target: sceneMaterials
+	for m in bmpAr where not MatchPattern m.name pattern: (assetName + "_BMPTXT*") do
+	(
+		m.name = (assetName + "_BMPTXT_" + (k as string))
+		k += 1
+	)
+	
+	colCorAr = getClassInstances Color_Correction target: sceneMaterials
+	for m in colCorAr where not MatchPattern m.name pattern: (assetName + "_COLCOR*") do
+	(
+		m.name = (assetName + "_COLCOR_" + (k as string))
+		k += 1
+	)
+	
+	outPutAr = getClassInstances output target: sceneMaterials
+	for m in outPutAr where not MatchPattern m.name pattern: (assetName + "_OUTPUT*") do
+	(
+		m.name = (assetName + "_OUTPUT_" + (k as string))
+		k += 1
+	)
+	
+	vrNmAr = getClassInstances VRayNormalMap target: sceneMaterials
+	for m in vrNmAr where not MatchPattern m.name pattern: (assetName + "_VRNORM*") do
+	(
+		m.name = (assetName + "_VRNORM_" + (k as string))
+		k += 1
+	)
+	
+	MixAr = getClassInstances Mix target: sceneMaterials
+	for m in MixAr where not MatchPattern m.name pattern: (assetName + "_MIX*") do
+	(
+		m.name = (assetName + "_MIX_" + (k as string))
+		k += 1
+	)
+	
+	VrColAr = getClassInstances VrayColor target: sceneMaterials
+	for m in VrColAr where not MatchPattern m.name pattern: (assetName + "_VRCOL*") do
+	(
+		m.name = (assetName + "_VRCOL_" + (k as string))
+		k += 1
+	)
+	
 )
 
 try(destroydialog assetToolsRLT)catch()
@@ -345,6 +437,13 @@ rollout assetToolsRLT "asset tools"
 	)
 	
 	button renameMatBT "rename mat"
+	
+	group "MaxTree:"
+	(
+		button MaxTreeBT "Go MaxTrees!" tooltip: "1 - création de la hiérarchie:\nHAB \n   > ARBRES\n     > [nom du fichier]\n     > objects renommés\n
+2 - tous les objets de la scène sont déplacés dans le calque.
+\n3 - Tous les objets sont passés en render properties bay layer et id de gbuffer 55"  
+	)
 	
 	on cleanFileBT pressed do
 	(
@@ -394,8 +493,23 @@ rollout assetToolsRLT "asset tools"
 	(
 		renameMat ()
 	)
+	
+	on MaxTreeBT pressed do
+	(
+		renameAsset3 daddyName: "HAB" daddyCoolName: "ARBRES"
+		deleteEmptyLayer()
+		
+		for o in geometry do 
+		(
+			o.gbufferchannel = 55
+			o.renderByLayer = true
+		)
+	)
 )
 createDialog assetToolsRLT
+
+
+
 
 
 -- #### sanity check

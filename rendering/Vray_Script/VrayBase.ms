@@ -129,6 +129,24 @@ fn vrayBaseSetting =
 )
 -- vrayBaseSetting()
 
+
+fn vrayBaseSetting2 =
+(
+	-- mettre le color mapping en reihnard à 0.35
+	-- activer l'ambiant occlusion
+	-- reprendre les reglages vray quick settings
+	
+ 	(findVray())	imageSampler_type: 3 \
+	filter_on: false \
+	gi_on: true \
+	twoLevel_baseSubdivs: 1 twoLevel_fineSubdivs: 100 \
+	gi_primary_type: 2 \
+	gi_secondary_type: 3  lightcache_subdivs: 875 lightcache_storeDirectLight: 0 lightcache_showCalcPhase: 1 \
+	gi_ao_on: on gi_ao_radius: 50 \
+	colorMapping_type: 0 colorMapping_darkMult: 1.0 colorMapping_brightMult: 1 colorMapping_gamma: 2.2 colorMapping_linearWorkflow: false colorMapping_adaptationOnly: 2
+		--*/
+)
+
 -- renderers.current.colorMapping_adaptationOnly 
 -- showproperties renderers.current
 
@@ -216,6 +234,7 @@ rollout VrayRenderRLT "Init Scene"
 	(
 		button initLayersBT "Init Layers"
 		button vrayBaseSetBT "Vray base settings"
+		button vrayBaseSetBT2 "Vray base settings 2"
 		button vraySunBT "vray sun and sky"
 		button vrayExposureBT "vray exposure"
 		button createVrayGroundBT "vray ground"
@@ -251,6 +270,11 @@ rollout VrayRenderRLT "Init Scene"
 	on vrayBaseSetBT pressed do
 	(
 		renderers.current = vrayBaseSetting ()
+	)
+	
+	on vrayBaseSetBT2 pressed do
+	(
+		renderers.current = vrayBaseSetting2 ()
 	)
 	
 	on vraySunBT pressed do

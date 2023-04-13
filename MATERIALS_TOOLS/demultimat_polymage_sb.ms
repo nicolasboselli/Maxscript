@@ -11,7 +11,7 @@ testMulti.materialList  = reMat.materialList
 newMulti.numsubs = reMat.numsubs
 for m in reMat.numsubs */
 
- for s in sel do
+for s in sel do
 (
 	s.material = multimaterial ()
 	s.material.materialList  = reMat.materialList 
@@ -19,7 +19,7 @@ for m in reMat.numsubs */
 ) 
 
 reMat.materialIDList
-newMulti.materialIDList
+newMulti.materialIDList 
 
 
 /* -- ### collect same multi material
