@@ -24,7 +24,7 @@
 			-- load favorites à l'ouverture
 	
 */
-
+maxFileName 
 
 -- with printAllElements on propArVal as string
 

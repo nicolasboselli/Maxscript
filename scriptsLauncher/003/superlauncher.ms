@@ -196,6 +196,8 @@ rollout superLauncherRLT "Super Launcher"
 	on moveUpBT pressed do
 	(
 		-- déplacer la categorie dans l'array
+		allIni = getINISetting iniCoreFileName
+		format "allIni: %\n" allIni
 		format "i: % < % cat: %\n" catListLB.selection  (catListLB.selection - 1) coreCatList[catListLB.selection]
 		
 		-- déplacer la catégorie dan l'ini

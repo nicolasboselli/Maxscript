@@ -2,8 +2,10 @@
 maj:
 /- plus eloigner le premier main des bords
 x- rendre les settings Editable
--- memoriser les settings modifiés
+x-- memoriser les settings modifiés
 
+-- comparer le bounding box de l'objet avec la taille du balcon, s'il ne rentre pas, ne pas le mettre
+-- n'utiliser qu'une seule fois chaque objet sur une terrasse
 
 -- ajouter une liste de selection d'objets
 	-- remplir automatiquement la liste de selection à l'utilisation du script
@@ -11,6 +13,9 @@ x- rendre les settings Editable
 -- déposer des objets par Picker
 -- snapper des objets sur des surfaces au deplacement
 
+ref:
+M:\Maquette\HAB
+HAB_MOBILIER_TERRASSES
 
 -- random replace
 */
@@ -21,19 +26,26 @@ x- rendre les settings Editable
 try(destroydialog Balconizer2RLT)catch()
 rollout Balconizer2RLT "Objects Balconizer v.alpha"
 (
+	local Params = #("pos", "ImpactShiftSP", "ImpactZShiftSP", "mainExclusionSP", "borderRadiusSP", "mainRadiusSP", "borderDensitySP" )
 	
-	group "settings:" 
+	group "Impact Settings:" 
 	(
-		spinner ImpactShiftSP "Impact Shift:" type: #worldunits range: [0,500,30] 
-		spinner borderRadiusSP "Border Radius:" type: #worldunits range: [0,500,50]
-		spinner mainRadiusSP "Main Density:" type: #worldunits range: [0,500,150]
-		spinner borderDensitySP "Border Density:" type: #worldunits range: [0,500,150]
+		spinner ImpactShiftSP "XY Shift:" type: #worldunits range: [0,500,30] 
+		spinner ImpactZShiftSP "Z Shift:" type: #worldunits range: [0,500,30]
 	)
 	
-	group "place objects:"
+	group "Main (Table):"
 	(
-		button randomObjBT "Main / Tables" height: 30 width: 100  tooltip: "1 - Selectionner les objets à dupliquer\n2 - Selectionner les balcons où dupliquer en dernier\n3 - Appuyer sur le bouton"
-		button borderObjBT "Border / Pots" height:30 width: 100
+		spinner mainExclusionSP "Exclusion:" type: #worldunits range: [0,500,50]
+		spinner mainRadiusSP "Density:" type: #worldunits range: [0,500,150]
+		button randomObjBT "Create Main" height: 30 width: 100  tooltip: "1 - Selectionner les objets à dupliquer\n2 - Selectionner les balcons où dupliquer en dernier\n3 - Appuyer sur le bouton"
+	)
+	
+	group "Border (Pots):"
+	(
+		spinner borderRadiusSP "Radius:" type: #worldunits range: [0,500,50]
+		spinner borderDensitySP "Density:" type: #worldunits range: [0,500,150]
+		button borderObjBT "Create Border" height:30 width: 100
 	)
 	
 	group "Tools:"
@@ -46,6 +58,17 @@ rollout Balconizer2RLT "Objects Balconizer v.alpha"
 		button moreRotZBT "+45° Z"
 		button getInstancesBT "Get Instance"
 		button replaceObjBT "Replace Object" enabled: true
+	)
+	
+		
+	on Balconizer2RLT open do
+	(
+		loadRolloutParams Balconizer2RLT Params
+	)
+	
+	on Balconizer2RLT close do
+	(
+		writeRolloutParams Balconizer2RLT Params
 	)
 	
 	on randomObjBT pressed do
@@ -77,13 +100,13 @@ rollout Balconizer2RLT "Objects Balconizer v.alpha"
 			selAr.count
 
 			-- calcul des points
-			allImpAr = findImpacts ground shift: ImpactShiftSP.value
+			allImpAr = findImpacts ground shift: ImpactShiftSP.value shiftz: ImpactZShiftSP.value 
 
 			-- tri des impacts entre border et main
-			NewtwoArrays = findBorderImpact2 ground allImpAr size: borderRadiusSP.value
+			NewtwoArrays = findBorderImpact2 ground allImpAr size: mainExclusionSP.value
 
 			-- mise en groupe guide creation
-			MainGrpImpAr = sortByGroup NewtwoArrays[1] shift: ImpactShiftSP.value
+			MainGrpImpAr = sortByGroup NewtwoArrays[1] shift: 50
 
 			-- test des distances
 			perfectForDressingAr = distImpact MainGrpImpAr size2: mainRadiusSP.value
@@ -187,13 +210,13 @@ rollout Balconizer2RLT "Objects Balconizer v.alpha"
 			selAr.count
 
 			-- calcul des points
-			allImpAr = findImpacts ground shift: ImpactShiftSP.value
+			allImpAr = findImpacts ground shift: ImpactShiftSP.value shiftz: ImpactZShiftSP.value
 
 			-- tri des impacts entre border et main
 			NewtwoArrays = findBorderImpact2 ground allImpAr size: borderRadiusSP.value
 
 			-- mise en groupe guide creation
-			MainGrpImpAr = sortByGroup NewtwoArrays[2] shift: ImpactShiftSP.value
+			MainGrpImpAr = sortByGroup NewtwoArrays[2] shift: 50
 
 			-- test des distances
 			perfectForDressingAr = distImpact MainGrpImpAr size2: borderDensitySP.value
