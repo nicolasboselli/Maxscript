@@ -609,23 +609,35 @@ rollout matIdExplorerRLT "materials id explorer"
 	
 	on matIdSP changed val do
 	(
--- 		if matListSel.count > 0 then
--- 		(
-			for i in materialListMLB.selection do
--- 			for m in matListSel do
-			(
-				m =  matArToDisp[i]
-				m.override_effect_id = on
-				m.effect_id = val
-			)
--- 		)
+		for i in materialListMLB.selection do
+		(
+			m =  matArToDisp[i]
+			m.override_effect_id = on
+			m.effect_id = val
+		)
 		
--- 		init()
-		
+-- 		format "materialListMLB.selection : %\n" materialListMLB.selection 
+		materialListMLB.selection = #{}
 		sortMatAr()
 		refreshUIList()
 		refreshUI1()
 	)
+	
+	
+/* 	on matIdSP entered do
+	(
+		val = matIdSP.value
+		for i in materialListMLB.selection do
+		(
+			m =  matArToDisp[i]
+			m.override_effect_id = on
+			m.effect_id = val
+		)
+		
+		sortMatAr()
+		refreshUIList()
+		refreshUI1() 
+	) */
 	
 	on addFreeIdBT pressed do
 	(

@@ -22,9 +22,13 @@
 			-- write pref au close
 			-- load favorite manuel
 			-- load favorites à l'ouverture
+			
+-- bug:
+	-- quand on ouvre le launcher, sur le core, qu'on edite le script selectionné, le launcher crache et efface les favoris. quand on loade les favoris et  qu'on passe ensuite sur le core tout fonctionne correctement
+	-- quand on ouvre le launcher sur core et qu'on le ferme immédiatement les favoris sont supprimés
 	
 */
-
+-- maxFileName 
 
 -- with printAllElements on propArVal as string
 
@@ -252,6 +256,11 @@ rollout mxsLaunchRLT "maxscript launcher"
 -- 		format "favScriptAr: %\n" favScriptAr 
 -- 		format "favScriptAr2: %\n" favScriptAr2
 		
+		-- load des favorites au demarrage pour éviter l'effacement des favoris à la fermeture (ecriture d'un array vide)
+		fileClassArray = loadFavorites2()
+-- 		format "fileClassArray: %\n" fileClassArray
+		
+		
 		if startupRB.state == 1 then
 		(
 			loadHardCoresBT.pressed()
@@ -325,7 +334,8 @@ rollout mxsLaunchRLT "maxscript launcher"
 		(
 			displayAr[scriptArrayLB.selection].launch()
 -- 			filein (fileClassArray[scriptArrayLB.selection].path)
-		)catch(format "##########ERROR############ERROR#############ERROR: %\n" (getcurrentexception()) )
+		)
+		catch(format "##########ERROR############ERROR#############ERROR: %\n" (getcurrentexception()) )
 		
 	)
 	
@@ -334,27 +344,38 @@ rollout mxsLaunchRLT "maxscript launcher"
 		displayAr[arg].launch()
 	)
 	
-	on editBT pressed do edit (fileClassArray[scriptArrayLB.selection].path)
+	on editBT pressed do 
+	(
+		edit (displayAr[scriptArrayLB.selection].path)
+	)
 		
 	on deleteBT pressed do
 	(
-		id = scriptArrayLB.selection
-		-- find selection in original array
-		res = finditem fileClassArray displayAr[id] 
+		if startupRB.state == 1 then
+		(
+			format "fonctionne exclusivement en mode Favoris\n"
+		)
+		else if startupRB.state == 2 then
+		(
+			id = scriptArrayLB.selection
+			-- find selection in original array
+			res = finditem fileClassArray displayAr[id] 
 
-		deleteItem fileClassArray res
+			deleteItem fileClassArray res
 
-		favScriptAr2  = for script in fileClassArray collect (substituteString script.path (getroot()) "")
-		-- write array list in ini
-		writeRolloutParams mxsLaunchRLT rltParams
+			favScriptAr2  = for script in fileClassArray collect (substituteString script.path (getroot()) "")
+			-- write array list in ini
+			writeRolloutParams mxsLaunchRLT rltParams
 
-		-- reload list
-		loadRolloutParams mxsLaunchRLT rltParams
-			
-		fileClassArray = loadFavorites2()
-			
-		displayAr = fileClassArray
-		refreshList()
+			-- reload list
+			loadRolloutParams mxsLaunchRLT rltParams
+				
+			fileClassArray = loadFavorites2()
+				
+			displayAr = fileClassArray
+			refreshList()
+		)
+		else()
 	)
 )
 createdialog mxsLaunchRLT width:300 style: #(#style_titlebar, #style_border, #style_sysmenu,#style_minimizebox, #style_maximizebox )

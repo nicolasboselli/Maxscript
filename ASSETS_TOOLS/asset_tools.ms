@@ -1,16 +1,24 @@
 /*
 maj:
-- créer fonction remove empty Layer
+x- créer fonction remove empty Layer
 - assigner les id objets selon post IT
-- dissocier ggx de roughness
-- collecter les textures dans un dossier au nom de l'asset, dans la biblio texture, relinké les mapButton
-	-- prendre en charge les vray bitmap
+x- dissocier ggx de roughness
+x- collecter les textures dans un dossier au nom de l'asset, dans la biblio texture, relinké les mapButton
+	x- prendre en charge les vray bitmap
 	
--- renommer les nodes en plus des vray mtl
+x- renommer les nodes en plus des vray mtl
+
+-- fonction d'auto relink des textures quand les maps sont à côté du max file d'origine
+-- faire marche le go maxtrees uniquement sur une sélection
   
 - outil pour assigner des couleur de RAL sur le picker ouvert/sur la diffuse du material selectionné
 
 - outil pour conformer les fenetres: reset xform, position pivot, tag windows template, group orienter en x pour object replacer
+
+x- importer un personnage
+"M:\Biblio\VISIOLAB\2-Assets3D\Travail_en_cours\Nico\perso_gabarit.max"
+
+
 */
 
 
@@ -148,6 +156,7 @@ fn renameAssetByLayer l =
 
 fn cleanFile =
 (
+	-- delete sun
 	for l in lights where iskindof l vraysun do delete l
 	environmentMap = undefined
 	backgroundColor = color 0 0 0
@@ -155,6 +164,7 @@ fn cleanFile =
 	IDisplayGamma.colorCorrectionMode = #gamma
 
 	-- units
+	format "Configure Units done.\n"
 	units.DisplayType = #metric
 	units.MetricType  = #Centimeters 
 	units.SystemType =  #Centimeters 
@@ -163,6 +173,7 @@ fn cleanFile =
 	-- supprimer les xrefs
 
 	-- clean du medit material
+	format "Clean Material editor.\n"
 	for i = 1 to  24 do meditMaterials[i] = VRayMtl ()
 
 	-- clean du slate editor
@@ -194,8 +205,25 @@ fn convertToVrBitmap =
 
 	for oneBmp in bmpAr where doesFileExist oneBmp.filename do
 	(
-		test = VRayHDRI HDRIMapName: oneBmp.filename
-		replaceInstances oneBmp test
+		vrBmp = VRayBitmap HDRIMapName: oneBmp.filename
+		
+		propNamesAr = #( #mapping , #mapChannel, #mappingType, #UVW_Type, #U_Mirror, 
+			#V_Mirror, #U_Tile, #V_Tile, #showMapOnBack, #Noise_On, 
+			#Noise_Animate, #realWorldScale, #realWorldHeight, 
+			#realWorldWidth, #phase, #U_Offset, #V_Offset, #U_Tiling, #V_Tiling, 
+			#W_angle, #V_Angle, #U_Angle, #Blur_Offset, 
+			#Noise_Amount, #Noise_Size, #Noise_Levels)
+			
+-- 				copie des propriétés de coordonnées ignore: #UVTransform, #blur
+-- 				propNamesAr = getPropNames smeNode.reference.coords
+		for p in propNamesAr do 
+		(
+-- 			format "p: % vrBmp.coords p: % smeNode.reference.coords p: %\n" p (getProperty vrBmp.coords p)  (getProperty oneBmp.coords p)
+			setProperty vrBmp.coords p (getProperty oneBmp.coords p)
+		)
+		
+		
+		replaceInstances oneBmp vrBmp
 	)
 )
 
@@ -243,6 +271,7 @@ fn copyTextures =
 		newFile = (textDir + "\\" +(filenameFromPath (ATSOP_paths[i])))
 		if not doesFileExist newFile then
 		(
+			format "copyFile ATSOP_paths[i]: %  newFile: % \n" ATSOP_paths[i]  newFile
 			copyFile ATSOP_paths[i]  newFile
 		)
 		else(format "still exist: %\n" newFile)
@@ -419,6 +448,14 @@ fn renameMat =
 		k += 1
 	)
 	
+	
+	falAr = getClassInstances falloff target: sceneMaterials
+	for m in falAr where not MatchPattern m.name pattern: (assetName + "_VRCOL*") do
+	(
+		m.name = (assetName + "_FAL_" + (k as string))
+		k += 1
+	)
+	
 )
 
 try(destroydialog assetToolsRLT)catch()
@@ -426,18 +463,23 @@ rollout assetToolsRLT "asset tools"
 (
 	button cleanFileBT "clean file"
 	
+	button importPeopleBT "import people"
+	
 	button convertToVrBmpBT "convert to vrBmp"
 	button convertToGGXBT "convert to GGX"
+	
+	button saveTmpBT "save TMP file"
+	
+	button renameMatBT "rename mat"
 	button copyTextBT "copy textures"
+	
 	group "rename asset:"
 	(
 		button renameAssetBT "for \"02_bat\""
 		button renameAssetBT2 "for \"03_masse\""
 		button renameAssetBT3 "for \"HAB\""
 	)
-	
-	button renameMatBT "rename mat"
-	
+		
 	group "MaxTree:"
 	(
 		button MaxTreeBT "Go MaxTrees!" tooltip: "1 - création de la hiérarchie:\nHAB \n   > ARBRES\n     > [nom du fichier]\n     > objects renommés\n
@@ -449,6 +491,28 @@ rollout assetToolsRLT "asset tools"
 	(
 		cleanFile()
 		deleteEmptyLayer()
+	)
+	
+	on importPeopleBT pressed do
+	(
+		mergeMaxFile @"M:\Biblio\VISIOLAB\2-Assets3D\Travail_en_cours\Nico\perso_gabarit.max"
+	)
+	
+	on saveTmpBT pressed do
+	(
+		local tmpMaxFile = @"M:\Biblio\VISIOLAB\2-Assets3D\Travail_en_cours\Nico\3d_sky\" + "TMP_" + maxFileName 
+-- 		maxFileName
+-- 		maxFilePath 
+ 		local res = saveMaxFile tmpMaxFile
+		if res then
+		(
+			format "save as done: %\n" tmpMaxFile
+		)
+		else
+		(
+			format "save as failed: %\n" tmpMaxFile
+		)
+		
 	)
 	
 	on convertToVrBmpBT pressed do

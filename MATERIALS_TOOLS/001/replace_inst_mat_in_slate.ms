@@ -1,5 +1,5 @@
  try(destroydialog repInstRLT)catch()
- rollout repInstRLT "state tool"
+ rollout repInstRLT "slate tool"
  (
 	local sel
 	local refMat
@@ -69,9 +69,24 @@
 			(
 				bmpFile = smeNode.reference.filename
 				vrBmp = VRayBitmap HDRIMapName: bmpfile
-				test = (sme.getview 1).CreateNode vrBmp [0,0]
+				
+				propNamesAr = #( #mapping , #mapChannel, #mappingType, #UVW_Type, #U_Mirror, 
+					#V_Mirror, #U_Tile, #V_Tile, #showMapOnBack, #Noise_On, 
+					#Noise_Animate, #realWorldScale, #realWorldHeight, 
+					#realWorldWidth, #phase, #U_Offset, #V_Offset, #U_Tiling, #V_Tiling, 
+					#W_angle, #V_Angle, #U_Angle, #Blur_Offset, 
+					#Noise_Amount, #Noise_Size, #Noise_Levels)
+					
+-- 				copie des propriétés de coordonnées ignore: #UVTransform, #blur
+-- 				propNamesAr = getPropNames smeNode.reference.coords
+				for p in propNamesAr do 
+				(
+-- 					format "p: % vrBmp.coords p: % smeNode.reference.coords p: %\n" p (getProperty vrBmp.coords p)  (getProperty smeNode.reference.coords p)
+					setProperty vrBmp.coords p (getProperty smeNode.reference.coords p)
+				)
+				
+-- 				test = (sme.getview 1).CreateNode vrBmp [0,0]
 				replaceinstances smeNode.reference vrBmp
-		-- 		replaceinstances smeNode test
 			)
 		)
 	)

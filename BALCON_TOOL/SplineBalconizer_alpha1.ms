@@ -4,22 +4,50 @@
 maj:
 /- placer le premier main plus au centre du balcon, s'appuer sur les coordonnées border
 -- mettre un seed sur le placement des objets
--- ajouter une zone de bordure à ignorer pour le main, dissocier la valeur border en deux
--- faire un prévisionnel de la durée du findimpact, précalculer le nombre d'impact à trier, mettre à jour le nombre tiré
+x- ajouter une zone de bordure à ignorer pour le main, dissocier la valeur border en deux
+x- faire un prévisionnel de la durée du findimpact, précalculer le nombre d'impact à trier, mettre à jour le nombre tiré
+x- parametrer shift en z
+x- parametrer longueur des splines
+
+-- plantage quand on augmente le border, peut être pas la place de placer les objets
+
 
 */
 
 
 -- meshop.getPolysUsingFace newMesh #{impact[2]} ignoreVisEdges: true threshhold: 1.0
 
-
+fn calculateRays s shift: 50 shiftz: 50 =
+(
+	
+-- 	shift = 50
+	local rayCount = 0
+	for xval = (s.min.x - (shift/2)) to (s.max.x + (shift/2)) by shift do
+	(
+		for yval = (s.min.y - (shift/2)) to (s.max.y + (shift/2)) by shift do
+		(
+			for zval = (s.min.z - (shiftz/2)) to (s.max.z + (shiftz*2)) by shiftz do
+			(
+				rayCount += 1				
+			)
+		)
+	)
+	format "############ PRE CALCUL RAYS s.name: % rayCount: %  shift: % shiftZ: % ###########\n" s.name rayCount shift shiftZ
+-- 	format "s.name: % shift: % shiftz: % \n" s.name rayCount shift shiftz
+	rayCount
+)
+-- calculateRays $Object002
 
 -- travailler les impacts sur chaque objet
-fn findImpacts s shift: 50 = 
+fn findImpacts s shift: 50 shiftz: 50 = 
 (
-	format "############ IMPACTS s: % shift: % ###########\n" s.name shift
+	local rayPreCount = calculateRays s shift: shift shiftz: shiftz
+	
+	format "############ IMPACTS s: % shift: % shiftZ: % ###########\n" s.name shift shiftZ
 -- 	shift = 50
-	rayCount = 0
+	local rayCount = 0
+	local rayCountTmp = 0
+	
 	impactCount = 0
 	noImpactCount = 0
 
@@ -36,9 +64,18 @@ fn findImpacts s shift: 50 =
 	(
 		for yval = (s.min.y - (shift/2)) to (s.max.y + (shift/2)) by shift do
 		(
-			for zval = (s.min.z - (shift/2)) to (s.max.z + (shift*2)) by shift do
+			for zval = (s.min.z - (shiftz/2)) to (s.max.z + (shiftz*2)) by shiftz do
 			(
 				rayCount += 1
+				rayCountTmp += 1
+				
+				if rayCountTmp > 500 then
+				(
+					format "rays done:	% / %\n" rayCount rayPreCount
+					gc()
+					rayCountTmp = 0
+				)
+				
 				oneRay = ray  (point3 xval yval zval) (point3 0 0 -1)
 				res = intersectRay s oneRay
 				
@@ -47,8 +84,8 @@ fn findImpacts s shift: 50 =
 				(
 					impactCount += 1
 					local impactPos = res.position
-					local grpImpID = 0
-					local goodgrpImpID
+-- 					local grpImpID = 0
+-- 					local goodgrpImpID
 					local impID = 0
 					local goodImpID
 					
@@ -102,6 +139,7 @@ fn findImpacts s shift: 50 =
 			)
 		)
 	)	
+
 	format "allImpAr :%\n" allImpAr.count
 	format "rayCount: %\n" rayCount
 	format "impactCount :%\n" impactCount
@@ -110,10 +148,79 @@ fn findImpacts s shift: 50 =
 	allImpAr
 )
 
--- trouver des bordures des groupes par distance
+-- travailler les impacts sur chaque objet
+fn findImpacts2 s shift: 50 shiftz: 50 = 
+(
+-- 	local rayPreCount = calculateRays s shift: shift shiftz: shiftz
+	
+	format "############ IMPACTS s: % shift: % shiftZ: % ###########\n" s.name shift shiftZ
+-- 	shift = 50
+	local rayCount = 0
+	
+	local impactCount = 0
+	local noImpactCount = 0
+		
+-- 	grpImpAr = #()
+	
+	local allImpAr = #()
+
+	for xval = (s.min.x - (shift/2)) to (s.max.x + (shift/2)) by shift do
+	(
+		for yval = (s.min.y - (shift/2)) to (s.max.y + (shift/2)) by shift do
+		(
+			local zval = 10000
+			local testZ = true
+			local testZturn = 0
+			
+			while testZ do
+			(
+				rayCount += 1
+				testZturn += 1
+				
+				Zray = ray (point3 xval yval zval) (point3 0 0 -1)
+				
+				-- s'il y a un point en dessous 
+				resZ = intersectRay s Zray
+				
+				if resZ != undefined then
+				(
+					impactCount += 1
+					zval = resZ.position.z - 100
+					
+-- 					format "rayCount: % resZ: % testZturn: %\n" rayCount resZ testZturn
+					appendifunique allImpAr resZ.position
+				)
+				else
+				(
+					noImpactCount += 1
+					testZ = false
+-- 					format "rayCount: % resZ: % testZturn: %\n" rayCount resZ testZturn
+					exit
+				)
+				
+				-- exit d'urgence
+				if testZturn > 10 then
+				(
+					format "Fail! res: % testZturn: %\n" resZ.position testZturn
+					exit
+				)
+			)
+		)
+	)	
+
+	format "rayCount: %\n" rayCount
+	format "allImpAr :%\n" allImpAr.count
+	
+	format "impactCount :%\n" impactCount
+	format "noImpactCount: %\n" noImpactCount
+	
+	allImpAr
+)
+
+-- trouver des bordu des groupes par distance
 fn findBorderImpact2 s grpImpAr size: 30 =
 (
-	format "############ BORDER IMPACTS s: % size: % ###########\n" s.name size
+	format "############ BORDER IMPACTS s: % ###########\n" s.name
 
 	local goodForDressingAr = #()
 	local goodForBorderAr = #()
@@ -145,12 +252,6 @@ fn findBorderImpact2 s grpImpAr size: 30 =
 					goodforDessing = false
 					exit
 				)
-				else if res.position.z != imp.z then 
-				(
--- 						format "res.position.z: % imp.z: %\n" res.position.z imp.z
-					goodforDessing = false
-					exit
-				) 
 				else 
 				(
 					goodforDessing = true
@@ -168,9 +269,7 @@ fn findBorderImpact2 s grpImpAr size: 30 =
 -- 		)
 	)
 	
--- 	format "goodForDressingAr: %\n" goodForDressingAr
 	#(goodForDressingAr, goodForBorderAr)
-	
 )
 
 -- classement des impacts dans des groupes par distance
@@ -315,48 +414,73 @@ fn distImpact goodForDressingAr size2: 80 multi2: 2 =
 try(destroydialog BalconizerRLT)catch()
 rollout BalconizerRLT "Spline BalconIzer v.alpha"
 (
+	local Params = #("pos", "ImpactShiftSP","ImpactZShiftSP", "borderRadiusSP", "mainRadiusSP", "borderDensitySP" , "mainExclusionSP", "SplineLenghtSP")
+	
+	local allImp2Ar = #()
 	local allImpAr = #()
+	
 	local twoArrays = #(#(),#())
 		
 	local newShape 
 	local newShapeBorder
 	
-	group "settings:" 
+	group "Settings:"
 	(
-		spinner ImpactShiftSP "Impact Shift:" type: #worldunits range: [0,500,30]
-		spinner borderRadiusSP "Border Radius:" type: #worldunits range: [0,500,50]
-		spinner mainRadiusSP "Main Density:" type: #worldunits range: [0,500,150]
-		spinner borderDensitySP "Border Density:" type: #worldunits range: [0,500,150]
+		spinner ImpactShiftSP "Impact XY Shift:" type: #worldunits range: [0,500,30]
+		spinner ImpactZShiftSP "Impact Z Shift:" type: #worldunits range: [0,500,30]
+		spinner SplineLenghtSP "Spline Lenght:" type: #worldunits range: [0,500, 100]
+	)
+	
+	group "Main (Table):" 
+	(
+		spinner mainExclusionSP "Exclusion:" type: #worldunits range: [0,500,50]
+		spinner mainRadiusSP "Density:" type: #worldunits range: [0,500,150]
+		button createMainHelperBT "Create Main"  height: 30 width: 100
 	)
 		
-	group "Create Splines:"
+	group "Border (Pots):"
 	(
-		button createMainHelperBT "Main / Table "
-		button createBorderHelperBT "Borders / Pots"
+		spinner borderRadiusSP "Radius:" type: #worldunits range: [0,500,50]
+		spinner borderDensitySP "Density:" type: #worldunits range: [0,500,150]
+		button createBorderHelperBT "Create Borders"  height: 30 width: 100
 	)
 	
 	group "Merge FP"
 	(
 		button mergeBT "Merge"
 	)
+	
+	on BalconizerRLT open do
+	(
+		loadRolloutParams BalconizerRLT Params
+	)
+	
+	on BalconizerRLT close do
+	(
+		writeRolloutParams BalconizerRLT Params
+	)
 
 	
 	on createMainHelperBT pressed do
 	(
+-- 		format "SplineLenghtSP.value: %\n" SplineLenghtSP.value
 		-- s = $
 		sel = selection as array
-		for s in sel do
+		for s in sel do 
 		(
 			-- recherche des impacts
-			allImpAr += findImpacts s shift: ImpactShiftSP.value
+-- 			calculateRays s shift: ImpactShiftSP.value shiftz: ImpactZShiftSP.value
+-- 			allImp2Ar += findImpacts s shift: ImpactShiftSP.value shiftz: ImpactZShiftSP.value
+			allImp2Ar += findImpacts2 s shift: ImpactShiftSP.value 	
 			
 			-- tri des impacts entre border et main
-			NewtwoArrays = findBorderImpact2 s allImpAr size: borderRadiusSP.value
+			NewtwoArrays = findBorderImpact2 s allImp2Ar size: mainExclusionSP.value
 			twoArrays[1] += NewtwoArrays[1]
 		)
+-- 		pts_to_del = for o in allImpAr collect point position: o wirecolor: blue
 		
 		-- mise en groupe guide creation
-		MainGrpImpAr = sortByGroup twoArrays[1] shift: ImpactShiftSP.value
+		MainGrpImpAr = sortByGroup twoArrays[1] shift: 50
 		
 		-- test des distances
 		perfectForDressingAr = distImpact MainGrpImpAr size2: mainRadiusSP.value
@@ -371,7 +495,7 @@ rollout BalconizerRLT "Spline BalconIzer v.alpha"
 				num = addNewSpline newShape
 				
 				addKnot newShape num #corner #line imp
-				addKnot newShape num #corner #line (imp + (point3 100 0 0))
+				addKnot newShape num #corner #line (imp + (point3 SplineLenghtSP.value 0 0))
 			)
 		)
 		updateShape newShape
@@ -384,14 +508,15 @@ rollout BalconizerRLT "Spline BalconIzer v.alpha"
 		for s in sel do
 		(
 			-- recherche des impacts
+			calculateRays s shift: ImpactShiftSP.value shiftz: ImpactZShiftSP.value
 			allImpAr += findImpacts s shift: ImpactShiftSP.value
 			
 			-- tri des impacts entre border et main
-			NewtwoArrays = findBorderImpact2 s allImpAr size: borderRadiusSP.value
+			NewtwoArrays = findBorderImpact2 s allImpAr size: borderRadiusSP.value shiftz: ImpactZShiftSP.value
 			twoArrays[2] += NewtwoArrays[2]
 		)
 		
-		BorderGrpImpAr = sortByGroup twoArrays[2] shift: ImpactShiftSP.value
+		BorderGrpImpAr = sortByGroup twoArrays[2] shift: 50
 		
 		-- selection des impacts à une certaine distance les uns des autres 
 		perfectForBorderAr = distImpact BorderGrpImpAr size2: borderDensitySP.value
@@ -414,7 +539,7 @@ rollout BalconizerRLT "Spline BalconIzer v.alpha"
 							
 				addKnot newShapeBorder num #corner #line imp
 -- 				addKnot newShapeBorder num #corner #line posTest
-				addKnot newShapeBorder num #corner #line (imp + (point3 100 0 0))
+				addKnot newShapeBorder num #corner #line (imp + (point3 SplineLenghtSP.value 0 0))
 			)
 		)
 		updateShape newShapeBorder
@@ -426,6 +551,6 @@ rollout BalconizerRLT "Spline BalconIzer v.alpha"
 		mergeMAXFile  @"M:\Elements_batiments\Amenagement perspectives\Forest_Tables et pots Aleatoire.max"
 	)
 )
-createdialog BalconizerRLT
+createdialog BalconizerRLT --width: 200
 
 

@@ -2,11 +2,12 @@
 --x - récupérer le nom de la version de vray présente
 --x rectifier les valeurs d IRmap en low, mettre 4000 en memoire
 -- x fileout gamma 2.2
--- resize de l'image 1500*925
+-- xresize de l'image 1500*925
 -- maj vray 5
 	--x mettre en reihnard 0.6
 	--x mettre le sun en improved
--- bouton pour creer des cameras bien settées
+-- x bouton pour creer des cameras bien settées
+-- ajouter passe denoiser
 
 
 fn findVray  =
@@ -139,10 +140,10 @@ fn vrayBaseSetting2 =
  	(findVray())	imageSampler_type: 3 \
 	filter_on: false \
 	gi_on: true \
-	twoLevel_baseSubdivs: 1 twoLevel_fineSubdivs: 100 \
+	twoLevel_baseSubdivs: 1 twoLevel_fineSubdivs: 8 \
 	gi_primary_type: 2 \
 	gi_secondary_type: 3  lightcache_subdivs: 875 lightcache_storeDirectLight: 0 lightcache_showCalcPhase: 1 \
-	gi_ao_on: on gi_ao_radius: 50 \
+	progressive_max_render_time: 3.0 \
 	colorMapping_type: 0 colorMapping_darkMult: 1.0 colorMapping_brightMult: 1 colorMapping_gamma: 2.2 colorMapping_linearWorkflow: false colorMapping_adaptationOnly: 2
 		--*/
 )
@@ -207,25 +208,12 @@ rollout VrayRenderRLT "Init Scene"
 -- 	vars
 	local params = #("pos")
 	local vrayClass = findVray()
-	
-	fn  colorMapTest =
-	(
-		return true
-	)
 
 -- 	local vrayBase = vrayBaseSetting () 
-	/*
-	local vrayBase = vrayClass \
-	imageSampler_type: 1 \
-	filter_on: false \
-	gi_on: true \
-	gi_primary_type: 0 gi_irradmap_showCalcPhase: true  gi_irradmap_showDirectLight: true  gi_irradmap_minRate: -3  gi_irradmap_maxRate: -2 gi_irradmap_subdivs: 30  gi_irradmap_preset: 2\
-	gi_secondary_type: 3  lightcache_subdivs: 400 lightcache_storeDirectLight: 0 lightcache_showCalcPhase: 1 \
-	colorMapping_type: 0 colorMapping_darkMult: 1.0 colorMapping_brightMult: 1.0 colorMapping_gamma: 2.2 colorMapping_linearWorkflow: false --colorMapping_adaptationOnly: (colorMapTest())
-	*/
 
-	local vrayExp = vray_exposure_control shutter: 150 f_number: 9 iso: 100 wb_preset: 1 white_balance: [1,1,1]
-	local PhysExp = Physical_Camera_Exposure_Control use_physical_camera_controls: off global_ev: 14.5 
+
+-- 	local vrayExp = vray_exposure_control shutter: 150 f_number: 9 iso: 100 wb_preset: 1 white_balance: [1,1,1]
+-- 	local PhysExp = Physical_Camera_Exposure_Control use_physical_camera_controls: off global_ev: 14.5 
 	
 -- 	UI
 	button VRScenebaseBT "Init Scene" 
@@ -233,14 +221,20 @@ rollout VrayRenderRLT "Init Scene"
 	group "Create:"
 	(
 		button initLayersBT "Init Layers"
-		button vrayBaseSetBT "Vray base settings"
-		button vrayBaseSetBT2 "Vray base settings 2"
+		button vrayBaseSetBT "Vray base settings" tooltip: "IR/LC - Bucket - Reinhard"
+		button vrayBaseSetBT2 "Vray base settings 2" tooltip: "BF/LC - Prog - Linear"
 		button vraySunBT "vray sun and sky"
 		button vrayExposureBT "vray exposure"
 		button createVrayGroundBT "vray ground"
 		button createVrayCamBT "vray cam from view"
 		button gammaBT "fileoutgamma 2.2"
 		button renderSizeBT "render size"
+	)
+	
+	group "Fix cameras:"
+	( 
+		button fixCam1BT "Fix Cam 1" tooltip: "iso: 50 f_num: 7 sh: 1/350°"
+		button fixCam2BT "Fix Cam 2" tooltip: "iso: 100 f_num: 11 sh: 1/250°"
 	)
 	
 	/*
@@ -255,7 +249,7 @@ rollout VrayRenderRLT "Init Scene"
 -- 	Actions
 	on  VRScenebaseBT pressed do
 	(
-		vrayBaseSetBT.pressed()
+		vrayBaseSetBT2.pressed()
 		vraySunBT.pressed()
 		vrayExposureBT.pressed()
 		initLayersBT.pressed()
@@ -275,6 +269,18 @@ rollout VrayRenderRLT "Init Scene"
 	on vrayBaseSetBT2 pressed do
 	(
 		renderers.current = vrayBaseSetting2 ()
+		
+		-- add denoiser
+		rem =MaxOps.GetCurRenderElementMgr ()
+		
+		eltsNum = rem.NumRenderElements()
+		for i = (eltsNum - 1) to 0 by -1 do
+		(
+			elt = rem.GetRenderElement i
+			if iskindof elt VRayDenoiser then rem.RemoveRenderElement elt
+		)
+		
+		rem.AddRenderElement (VRayDenoiser())	
 	)
 	
 	on vraySunBT pressed do
@@ -284,7 +290,7 @@ rollout VrayRenderRLT "Init Scene"
 	
 	on vrayExposureBT pressed do
 	(
-		sceneExposureControl.exposureControl =  PhysExp
+		sceneExposureControl.exposureControl =  vray_exposure_control shutter: 350 f_number: 7 iso: 50 wb_preset: 1 white_balance: [1,1,1]
 	)
 	
 	on createVrayGroundBT pressed do
@@ -343,6 +349,26 @@ rollout VrayRenderRLT "Init Scene"
 	(
 		sun  = getnodebyname "VRaySun001"
 		delete sun
+	)
+	
+	on fixCam1BT pressed do
+	(
+		for c in cameras where iskindof c VRayPhysicalCamera do
+		(
+			setProperty c #ISO 50
+			setProperty c #f_number 7 
+			setProperty c #shutter_speed 350
+		)
+	)
+	
+	on fixCam2BT pressed do
+	(
+		for c in cameras where iskindof c VRayPhysicalCamera do
+		(
+			setProperty c #ISO 100
+			setProperty c #f_number 11 
+			setProperty c #shutter_speed 150
+		)
 	)
 	
 	on renderThumbBT pressed do

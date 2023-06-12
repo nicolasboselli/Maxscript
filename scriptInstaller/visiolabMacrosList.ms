@@ -1,6 +1,6 @@
 -- oneCat = "VisioLab"
 (
-	global ArmadasScriptLauncherPath = @"\scriptsLauncher\001\launcher.ms"
+	global ArmadasScriptLauncherPath = @"\scriptsLauncher\002\launcher.ms"
 	global ArmadasScriptLauncherPath2 = @"\scriptsLauncher\002\launcher.ms"
 	global ArmadasScriptModelingUtilitiesPath = @"\MODELING_TOOLS\001\modeling_tools.ms"
 	global ArmadasScriptMaterialsUtilitiesPath = @"\MATERIALS_TOOLS\001\deMultiMat.ms"

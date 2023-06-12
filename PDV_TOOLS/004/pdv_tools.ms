@@ -58,13 +58,36 @@ fn setVrayCamera =
 -- 	redrawviews ()
 	newCam.f_number = 11
 	newCam.shutter_speed = 150
+	newCam.iso = 100
 		
 	l = checkLetC()
 	l.addnode newCam
 	l.addnode newCam.target
 		
 	newCam
+)
 
+fn setVrayCamera2 =
+(
+	newCam = vrayCreateVRayPhysicalCamera()
+	newCam.transform = ( inverse(getViewTM()) )
+	newCam.fov = (getViewFOV())
+	newCam.specify_fov = true
+	newCam.targeted = true
+	move newCam.target [1,0,0]
+	move newCam.target [-1,0,0]
+-- 	redrawviews ()
+-- 	newCam.targeted = true
+-- 	redrawviews ()
+	newCam.f_number = 7
+	newCam.shutter_speed = 350
+	newCam.iso = 50
+		
+	l = checkLetC()
+	l.addnode newCam
+	l.addnode newCam.target
+		
+	newCam
 )
 
 pdv_cam_RLT
@@ -204,7 +227,7 @@ rollout pdv_cam_RLT "point de vue companion"
 	(
 		newCamName == undefined
 		
-		tmpCam = setVrayCamera ()
+		tmpCam = setVrayCamera2 ()
 		tmpCam.targeted = true
 		in coordsys tmpCam tmpCam.target.position = (point3 0 0 -500)
 		

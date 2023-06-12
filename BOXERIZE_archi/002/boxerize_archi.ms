@@ -26,15 +26,23 @@ l'outil pourrait etre un picker au pick on designe la direction en x et l'elemen
 102. ajouter les fonction de wirecolor par taille
 
 11. x une fonction qui oriente les gabarits par rapport à un helper.
-	le helper est créé au premier emploi
+	x le helper est créé au premier emploi
 	
 12. x une fonction rapide pour transformer une selection des fenetres en fenetres
 	x utiliser le script objetc replacer par script
+
+13. x detacher la mesh de la fenetre selectionnée, 
+	x au changement de fenetre (quick replacer) seelctionner la mesh de fenetre ave le gabarit pour une suppression plus facile(freeze de la fenetre)
+	
+14. au replace placer le gabarit dans un sous calque
+
+21. mettre en banque des fenetres sans appuis de fenetres
 
 20. faire les gabarit en creant vertex et poly dans edit mesh
 
 31. faire fonctionner la focnction classique de parallax placer
 32. faire converger la méthode de creation des box avec le boxerize v1
+33. faire un quick replacer qui fonctionne sur la selection de face d'edit mesh
 
 88. optimiser le code pour accélérer l'opération
 
@@ -45,6 +53,8 @@ x- réfléchier à un outil qui fasse ressortir les normales inversée
 x conformer l'épaisseur des gabarit
 
 debug:
+- revoir la table des wirecolor en fonction de l'orientation, mettre plus de couleure pour ne pas tomber en rade
+	- editer le treshold pour comparer les orientations
 - decrasher le script sur les edit Poly
 - decrasher le script sans selection de sous objets
 - decrasher le reorientGabarits sur une selection 
@@ -78,7 +88,7 @@ fn wirecolorByOrientation sel =
 		(color 135 59 8),(color 135 59 8),(color 135 59 8),(color 135 59 8),(color 135 59 8),
 		(color 135 59 8),(color 135 59 8),(color 135 59 8),(color 135 59 8),(color 135 59 8),
 		(color 135 59 8),(color 135 59 8),(color 135 59 8),(color 135 59 8),(color 135 59 8),
-		(color 135 59 8))
+		(color 135 59 8),(color 135 59 8),(color 135 59 8),(color 135 59 8),(color 135 59 8))
 
 	normalsCollected = #()
 
@@ -98,7 +108,7 @@ fn wirecolorByOrientation sel =
 		for i = 1 to normalsCollected.count do
 		(
 			test = minAngle = ((((acos(dot s.transform.row1 normalsCollected[i]))*100)as integer)as float)/100
-			if test <= 1 then 
+			if test <= 5 then 
 			(
 				
 				alreadycollectd = true
@@ -120,9 +130,28 @@ fn wirecolorByOrientation sel =
 		
 -- 		format "done s: %\n" s.name
 		
+
+		
 	)
 	format "wirecolor by orientation done \n" 
+	
+	for s in sel do
+	(
+		-- mettre la bonne couleur sur l'origine
+		local testOrigin = getNodeByName (s.name + "_origin")
+		format "s.name: % testOrigin: %\n" s.name testOrigin
+		
+		if isValidNode testOrigin then 
+		(
+			
+			testOrigin.wirecolor = s.wirecolor
+		)
+	)
+	
+	format "wirecolor origine meshes done \n" 	
 )
+
+
 
 fn flipX s =
 (
@@ -279,6 +308,8 @@ fn fix180normalOnPoint sel =
 
 	for s in sel do
 	(
+		if MatchPattern s.name pattern: "fenetre_detach*origin" then continue
+			
 		centerPos = in coordsys s ptfdc.position
 -- 		format "centerPos: %\n" centerPos
 		
@@ -377,6 +408,8 @@ rollout changeArchVizWindowsRLT "Boxerize Archviz Windows"
 	
 -- 	button createGabBT "Create Gabarit on Selection" -- across: 2
 	button autoGabaritBT "Auto Create Gabarits" -- across: 2
+	checkbox detachMeshCB "Detach Origin Mesh" checked: true
+	checkbox deleteMeshCB "Delete Origin Mesh" checked: false
 	
 	group "Fixing orientation:"
 	(
@@ -401,8 +434,21 @@ rollout changeArchVizWindowsRLT "Boxerize Archviz Windows"
 		button quickReplaceBT "Quick Replace"
 	)
 
-	-- Actions
+	-- 
+	fn collectFenDetachOnly =
+	(
+		local FDAr = #()
+		local testGab = $fenetre_detach* as array
+		for o in testGab do
+		(
+			if MatchPattern o.name pattern: "fenetre_detach*origin" then continue
+			if MatchPattern o.name pattern: "fenetre_detach_center" then continue
+			else append FDAr o
+		)
+		FDAr
+	)
 	
+	-- Actions
 	on changeArchVizWindowsRLT open do
 	(
 		filein "boxerize_archviz_autogroup_sb.ms"
@@ -420,10 +466,12 @@ rollout changeArchVizWindowsRLT "Boxerize Archviz Windows"
 				createLayer s
 				
 				collectWindowsGroup s
-				local newGab = createGabarits s
+				local newGab = createGabarits s forceClone: detachMeshCB.checked forceDelete: deleteMeshCB.checked
 				for g in newGab do fix90Normal g
 				fix180normalonPoint newGab
 				wirecolorByOrientation newGab
+				
+				if detachMeshCB.checked then detachOriginMeshes s forceDelete: deleteMeshCB.checked 
 			)
 			else (format "sélectionnez un sous element\n")
 		)
@@ -432,7 +480,7 @@ rollout changeArchVizWindowsRLT "Boxerize Archviz Windows"
 	
 	on wirecolorByOrientationBT pressed do
 	(
-		allGab = $fenetre_detach* as array
+		allGab = collectFenDetachOnly()
 		wirecolorByOrientation allGab
 	)
 	
@@ -460,7 +508,7 @@ rollout changeArchVizWindowsRLT "Boxerize Archviz Windows"
 		sel = selection as Array
 		for s in sel do fix90Normal s
 			
-		allGab = $fenetre_detach* as array
+		allGab = collectFenDetachOnly()
 		wirecolorByOrientation allGab
 	)
 	
@@ -469,7 +517,7 @@ rollout changeArchVizWindowsRLT "Boxerize Archviz Windows"
 		sel = selection as Array
 		fix180normalonPoint sel
 		
-		allGab = $fenetre_detach* as array
+		allGab = collectFenDetachOnly()
 		wirecolorByOrientation allGab
 	)
 	
@@ -480,10 +528,12 @@ rollout changeArchVizWindowsRLT "Boxerize Archviz Windows"
 		(
 			for s in sel where iskindof s Editable_mesh do
 			(
-				if MatchPattern s.name pattern: "fenetre_detach*" then resizeGabarit s size: resizeGabSP.value
+				if MatchPattern s.name pattern: "fenetre_detach*origin" then continue
+				else if MatchPattern s.name pattern: "fenetre_detach*" then resizeGabarit s size: resizeGabSP.value
+				else()
 			)
 			
-			allGab = $fenetre_detach* as array
+			allGab = collectFenDetachOnly()
 			wirecolorByOrientation allGab
 		)
 		else(format "ne fonctionne pas, faites un e selection.\n")
