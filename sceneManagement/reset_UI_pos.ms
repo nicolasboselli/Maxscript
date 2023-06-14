@@ -20,7 +20,7 @@ try(setDialogPos layersToolsRLT [0,0])catch()
 try(setDialogPos opaRLT [0,0])catch()
 try(setDialogPos gouttiereRLT [0,0])catch()
 try(setDialogPos gridRLT [0,0])catch()
-
+try(setDialogPos VrayRenderRLT [0,0])catch()
 
 
 	

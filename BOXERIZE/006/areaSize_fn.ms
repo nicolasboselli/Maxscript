@@ -13,7 +13,7 @@ struct boxStr (size, obj)
 
 -- colorAr = #(yellow, blue, red, orange, green, brown, gray)
 
-fn compareFN v1 v2 =
+fn compareFN2 v1 v2 =
 (
 	local d = (v1.size) - (v2.size)
 	case of
@@ -39,7 +39,7 @@ fn wirecolorByBoxSize sel tres:3 =
 		append boxesAr oneboxStr
 	)
 	-- classer les structure par taille
-	qsort boxesAr compareFN
+	qsort boxesAr compareFN2
 	
 	
 	-- calcul de la couleur en random

@@ -28,7 +28,11 @@
 	-- quand on ouvre le launcher sur core et qu'on le ferme immédiatement les favoris sont supprimés
 	
 */
+
 -- maxFileName 
+
+maxFileName 
+
 
 -- with printAllElements on propArVal as string
 

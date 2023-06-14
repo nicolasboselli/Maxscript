@@ -6,10 +6,7 @@ x- dissocier ggx de roughness
 x- collecter les textures dans un dossier au nom de l'asset, dans la biblio texture, relinké les mapButton
 	x- prendre en charge les vray bitmap
 	
-x- renommer les nodes en plus des vray mtl
-
--- fonction d'auto relink des textures quand les maps sont à côté du max file d'origine
--- faire marche le go maxtrees uniquement sur une sélection
+/- renommer les nodes en plus des vray mtl
   
 - outil pour assigner des couleur de RAL sur le picker ouvert/sur la diffuse du material selectionné
 
@@ -17,8 +14,6 @@ x- renommer les nodes en plus des vray mtl
 
 x- importer un personnage
 "M:\Biblio\VISIOLAB\2-Assets3D\Travail_en_cours\Nico\perso_gabarit.max"
-
-
 */
 
 
@@ -445,14 +440,6 @@ fn renameMat =
 	for m in VrColAr where not MatchPattern m.name pattern: (assetName + "_VRCOL*") do
 	(
 		m.name = (assetName + "_VRCOL_" + (k as string))
-		k += 1
-	)
-	
-	
-	falAr = getClassInstances falloff target: sceneMaterials
-	for m in falAr where not MatchPattern m.name pattern: (assetName + "_VRCOL*") do
-	(
-		m.name = (assetName + "_FAL_" + (k as string))
 		k += 1
 	)
 	

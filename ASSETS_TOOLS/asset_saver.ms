@@ -3,9 +3,14 @@ asset saver
 
 	-- ajouter un historique
 	-- option collapse name
+
 	x-- champs de recherche pour trier les noms
 	x-- sauver temporaire
 	-- fonction pour ouvrir le dossier de texture de l'asset
+
+	-- champs de recherche pour trier les noms
+	-- sauver temporaire
+
 */
 try(destroydialog assetSaverRLT )catch()
 rollout assetSaverRLT "Asset Saver"
@@ -21,7 +26,9 @@ rollout assetSaverRLT "Asset Saver"
 	button openExpBT "Open in Explorer"
 	
 	checkbox collapseNameCB "collapse name"
+
 	edittext searchET "search:"
+
 	
 	listbox basenamesLB "basenames:"
 	
@@ -29,6 +36,7 @@ rollout assetSaverRLT "Asset Saver"
 	edittext fileNameET "Filename:"
 	button saveBT "save"
 	button saveSelBT "save selected"
+
 	
 	fn refreshUI = 
 	(
@@ -38,14 +46,10 @@ rollout assetSaverRLT "Asset Saver"
 			
 		if collapseNameCB.checked then format "collapseNameCB: %\n" true
 		else format "collapseNameCB: %\n" false
-		
-		
 		sort namesToDisplay
 		basenamesLB.items = namesToDisplay
 	)
-	
 
-	
 	on assetSaverRLT open do
 	(
 		if selFolder == undefined then selFolder = coreDir
@@ -67,6 +71,15 @@ rollout assetSaverRLT "Asset Saver"
  			filesAr = getfiles (selFolder + "\\*.max")
  		)
 		refreshUI() 
+	)
+
+	on collapseNameCB changed val do 
+	(
+		format "state: %\n" val
+		if val then
+		(
+			
+		)
 	)
 	
 	on selectFolderBT pressed do
@@ -93,6 +106,7 @@ rollout assetSaverRLT "Asset Saver"
 			
 			refreshUI()
 		)
+
 	)
 	
 	on openExpBT pressed do
@@ -146,6 +160,11 @@ rollout assetSaverRLT "Asset Saver"
 	
 )
 createdialog assetSaverRLT width: 800
+
+		
+		
+
+
 
 
 -- getfiles @"M:\Biblio\VISIOLAB\2-Assets3D\Pers-Films\Objets\Amenagement\Interieur\Sejour\*"

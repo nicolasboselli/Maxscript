@@ -367,7 +367,11 @@ rollout VrayRenderRLT "Init Scene"
 		(
 			setProperty c #ISO 100
 			setProperty c #f_number 11 
+
 			setProperty c #shutter_speed 150
+
+			setProperty c #shutter_speed 250
+
 		)
 	)
 	

@@ -179,8 +179,6 @@ rollout superLauncherRLT "Super Launcher"
 		refreshUI()
 	)
 	
- 
-	
 	on openINIBT pressed do
 	(
 		edit iniCoreFileName
@@ -197,81 +195,12 @@ rollout superLauncherRLT "Super Launcher"
 	
 	on moveUpBT pressed do
 	(
-		local sectionAr = #()
-		local catAr = #()
-		local keyAr = #()
+		-- déplacer la categorie dans l'array
+		allIni = getINISetting iniCoreFileName
+		format "allIni: %\n" allIni
+		format "i: % < % cat: %\n" catListLB.selection  (catListLB.selection - 1) coreCatList[catListLB.selection]
 		
-		-- collecte de l'ini sous la forme de trois arrays
-		sectionAr = getINISetting iniCoreFileName
-		format "sectionAr: %\n" sectionAr
-		
-		for sect in sectionAr do
-		(
-			oneCatAr =  getINISetting iniCoreFileName sect
--- 			format "oneCatAr: %\n" oneCatAr
-			local oneCatKeysAr = #()
-			
-			for oneCat in oneCatAr do
-			(				
-				onKeyAr = getINISetting iniCoreFileName sect oneCat
-				append oneCatKeysAr  onKeyAr
-			)
-			
-			append catAr oneCatAr
-			append keyAr oneCatKeysAr
-			
-		)
-		format "catAr: %\n" catAr
-		format "keyAr: %\n" keyAr
-		
-		-- déplacer les catégories dans les trois array
-		format "cat: % from % to %\n" coreCatList[catListLB.selection] catListLB.selection   (catListLB.selection - 1) 
-		format  "catAr: %\n" catAr[1]
-		format  "keyAr: %\n" keyAr[1]
-		
-		-- copier la catégorie par insertitem à la place -1
-		insertitem catAr[1][catListLB.selection] catAr[1] (catListLB.selection - 1)
-		insertitem keyAr[1][catListLB.selection] keyAr[1] (catListLB.selection - 1)
-		
-		-- suppression de la catégorie à la place +1
-		deleteitem catAr[1] (catListLB.selection + 1)
-		deleteitem keyAr[1] (catListLB.selection + 1)
-		
-		format  "catAr: %\n" catAr[1]
-		format  "keyAr: %\n" keyAr[1]
-		format "sectionAr: %\n" sectionAr
-		
-		-- effacement de l'ini et 
-		j = 0 
-		for sect in sectionAr do
-		(
-			j += 1
-			for oneCat in catAr[j] do
-			(
-				-- delecte section
-				delIniSetting iniCoreFileName sect oneCat
-			)
-		)
-		
-		-- réécriture des arrays sous forme d'ini
-		j = 0 
-		for sect in sectionAr do
-		(
-			j += 1
-			k = 0
-			for k = 1 to catAr[j].count do
-			(
--- 				k += 1
-				-- create section
-				local coreData = with printAllElements on keyAr[j][k] as string
-				setINISetting iniCoreFileName sect catAr[j][k] coreData
-			)
-		)
-		
-		-- rafraichissement de l'interface
-		loadCategories()
-		refreshUI()
-
+		-- déplacer la catégorie dan l'ini
 	)
 	
 	on moveDwBT pressed do
