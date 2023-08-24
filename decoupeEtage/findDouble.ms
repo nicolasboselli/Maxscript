@@ -7,9 +7,9 @@ for i = 0 to (lCount - 1)  do
 	res = matchpattern l.name pattern: "Cells_*"
 	if res then
 	(
-		format "%\n" l.name
+-- 		format "%\n" l.name
 		 l.nodes &nodes
-		format "nodes: %\n" nodes
+-- 		format "nodes: %\n" nodes
 		for n in nodes do append allCellNames n
 	)
 )
@@ -27,4 +27,5 @@ for i = 1 to (allCellNames.count - 1) do
 		append doubleAr allCellNames[i + 1]
 	)
 )
+format "doubleAr: %\n" doubleAr
 select doubleAr

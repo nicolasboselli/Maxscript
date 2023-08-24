@@ -20,7 +20,7 @@ rollout placeSun2RLT "place sun 2"
 		edittext sunNameET readonly: true 
 		
 -- 		button placeSunBT "place sun"
-		slider sunSL "sun orientation" range: [-90,90,0] ticks: 4
+		slider sunSL "sun orientation" range: [-180,180,0] ticks: 4
 		button transposeBT "transpose sun"
 		button copySunBT "copy sun"
 -- 		button testBT "test sun"
@@ -32,14 +32,26 @@ rollout placeSun2RLT "place sun 2"
 		-- init cam
 		if isValidNode (getActiveCamera()) then cam = getActiveCamera()
 		
-		-- init sun
-		sunAr = for l in lights where iskindof l vraySun collect l
+
 -- 		if isvalidnode (getNodeByName "vraysun001") then sun = getNodeByName "vraysun001"
 		if not isvalidnode cam then return format "no cam"
 		
 		if isvalidnode (getNodeByName ( "VraySun_" + cam.name) ) then sun = getNodeByName ( "VraySun_" + cam.name)
 		else if isvalidnode (getNodeByName "vraysun001") then sun = getNodeByName "vraysun001"
-		else sun = undefined
+-- 		else sun = undefined
+		else
+		(
+			dummy_target = Targetobject wirecolor: yellow name:"VRaySun001.target"
+			sun = VRaySun name:"VRaySun001" pos:(point3 2000 2000 2000) isSelected:on size_multiplier: 1 enabled:on turbidity: 2.5 ozone: 0.35 sky_model: 4 target: dummy_target
+			format "sun created\n"
+		)
+		
+		-- init sun
+		sunAr = for l in lights where iskindof l vraySun collect l
+		
+		-- extinction des suns
+		for s in sunAr do s.enabled = false
+		-- allumage du bon sun
 		
 		if isvalidnode sun then 
 		(

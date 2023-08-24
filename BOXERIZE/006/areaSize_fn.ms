@@ -28,7 +28,8 @@ fn wirecolorByBoxSize sel tres:3 =
 (
 	-- memo:
 		-- tres(float): seuil entre deux distance qui provoque le changement de couleur
-	
+	if sel.count <= 1 then return (format "selectionner au moins deux objets\n")
+
 	-- collect box size as structure
 	boxesAr = #()
 	for s in sel do

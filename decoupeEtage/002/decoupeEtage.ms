@@ -1104,11 +1104,12 @@ rollout decoupEtageRLT "découpe etage"
 
 rollout sliceToolsRLT "slice tools"
 (
-	button cellCreatorBT "cell creator" across: 2 --enabled: false 
+	button cellCreatorBT "cell creator" across: 3 --enabled: false 
 	button wallCreatorBT "wall creator" --enabled: false
-	button duplicateFloorBT "duplicate cells" across: 3 --enabled: false
-	button rLayersCreatorBT "R layers creator"
+	button duplicateFloorBT "duplicate cells"  --enabled: false
+	button rLayersCreatorBT "R layers creator" across: 3
 	button findDoublesBT "find double Cells"
+	button transferCellBT "transfer cells"
 	
 	on cellCreatorBT pressed do
 	(
@@ -1163,6 +1164,11 @@ rollout sliceToolsRLT "slice tools"
 			)
 		)
 		select doubleAr
+	)
+	
+	on transferCellBT pressed do
+	(
+		filein "transfer_cells.ms"
 	)
 )
 

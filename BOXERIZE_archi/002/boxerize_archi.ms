@@ -33,8 +33,13 @@ l'outil pourrait etre un picker au pick on designe la direction en x et l'elemen
 
 13. x detacher la mesh de la fenetre selectionnée, 
 	x au changement de fenetre (quick replacer) seelctionner la mesh de fenetre ave le gabarit pour une suppression plus facile(freeze de la fenetre)
+	x retester le freeze de la fenetre en plus du Lock
+	x placer les origines dans un calque différents
+	/restreindre le fix 180 aux gabarits
+	x au fix 180 deparenter les fenetre avant de faire la rotation
+	faire des sous calques en focntion de la taille des gabarits(revoir la fonction de color by size)
 	
-14. au replace placer le gabarit dans un sous calque
+14. x au replace placer le gabarit dans un sous calque: ajouter une option replace dans le calque active
 
 21. mettre en banque des fenetres sans appuis de fenetres
 
@@ -53,6 +58,7 @@ x- réfléchier à un outil qui fasse ressortir les normales inversée
 x conformer l'épaisseur des gabarit
 
 debug:
+x- voir pourquoi à la création des gabarits, le script comme les boites deux fois
 - revoir la table des wirecolor en fonction de l'orientation, mettre plus de couleure pour ne pas tomber en rade
 	- editer le treshold pour comparer les orientations
 - decrasher le script sur les edit Poly
@@ -63,17 +69,36 @@ debug:
 
 fn createLayer s = 
 (
-	Lname = s.name + "_fenetre_detach"
-	-- Lname = "toto"
+	-- création du layer de base la fenêtre
+	Lbase = s.name + "_base"
 	daddyL = s.layer
+	
+	if not iskindof (layermanager.getlayerfromname Lbase) MixinInterface then layermanager.newlayerfromname Lbase
+	LB = layermanager.getlayerfromname Lbase
+	
+	LB.setParent daddyL
+	
+	-- placement de la selection dans le layer fenêtre
+	LB.addnode s 
+	
+	-- creation du layer pour les gabarits
+	Lname = s.name + "_fenetre_detach"
 
-	-- daddyName
 	if not iskindof (layermanager.getlayerfromname Lname) MixinInterface then layermanager.newlayerfromname Lname
 	L = layermanager.getlayerfromname Lname
 
-	L.setParent daddyL
-	L.current = true
-	L.on = true
+	L.setParent LB
+
+	-- creation du layer pour les nouvelle fenêtres
+	LNname = s.name + "_fenetre_nouvelles"
+	
+	if not iskindof (layermanager.getlayerfromname LNname) MixinInterface then layermanager.newlayerfromname LNname
+	LN = layermanager.getlayerfromname LNname
+	
+	LN.setParent LB
+	
+	LN.current = true
+	LN.on = true
 )
 
 fn wirecolorByOrientation sel = 
@@ -150,8 +175,6 @@ fn wirecolorByOrientation sel =
 	
 	format "wirecolor origine meshes done \n" 	
 )
-
-
 
 fn flipX s =
 (
@@ -308,7 +331,12 @@ fn fix180normalOnPoint sel =
 
 	for s in sel do
 	(
+
+		-- ignorer les fenetre d'origines
 		if MatchPattern s.name pattern: "fenetre_detach*origin" then continue
+			
+		-- ignorer tout ce qui n'est ps fenetre detach
+-- 		if not MatchPattern s.name pattern: "fenetre_detach*" then continue
 			
 		centerPos = in coordsys s ptfdc.position
 -- 		format "centerPos: %\n" centerPos
@@ -324,8 +352,17 @@ fn fix180normalOnPoint sel =
 	shiftRot = 180.0
 	for s in negSel do
 	(
+		-- collecter les enfants
+		local childsAr = for c in s.children collect c
+			
+		-- deparent des enfants
+		for c in childsAr do c.parent = undefined
+		
 		s.transform = prerotate s.transform (EulerAngles 0 0 shiftRot)
 		s.objectOffsetRot *= (EulerAngles 0 0 shiftRot)
+		
+		-- reparent enfants
+		for c in childsAr do c.parent = s
 	)
 	format "fix 180 done\n"
 )
@@ -466,12 +503,15 @@ rollout changeArchVizWindowsRLT "Boxerize Archviz Windows"
 				createLayer s
 				
 				collectWindowsGroup s
-				local newGab = createGabarits s forceClone: detachMeshCB.checked forceDelete: deleteMeshCB.checked
+				local newGab = createGabarits s -- forceClone: detachMeshCB.checked forceDelete: deleteMeshCB.checked
 				for g in newGab do fix90Normal g
 				fix180normalonPoint newGab
 				wirecolorByOrientation newGab
 				
-				if detachMeshCB.checked then detachOriginMeshes s forceDelete: deleteMeshCB.checked 
+				if detachMeshCB.checked then
+				(
+					detachOriginMeshes s forceDelete: deleteMeshCB.checked
+				)					
 			)
 			else (format "sélectionnez un sous element\n")
 		)

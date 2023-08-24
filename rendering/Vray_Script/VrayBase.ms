@@ -235,6 +235,7 @@ rollout VrayRenderRLT "Init Scene"
 	( 
 		button fixCam1BT "Fix Cam 1" tooltip: "iso: 50 f_num: 7 sh: 1/350°"
 		button fixCam2BT "Fix Cam 2" tooltip: "iso: 100 f_num: 11 sh: 1/250°"
+		button fixCam3BT "Fix Cam 3" tooltip: "iso: 100 f_num: 8 sh: 1/200°"
 	)
 	
 	/*
@@ -370,7 +371,22 @@ rollout VrayRenderRLT "Init Scene"
 
 			setProperty c #shutter_speed 150
 
-			setProperty c #shutter_speed 250
+-- 			setProperty c #shutter_speed 250
+
+		)
+	)
+	
+	on fixCam3BT pressed do
+	(
+-- 		sel = selection as array
+		for c in cameras where iskindof c VRayPhysicalCamera do
+		(
+			setProperty c #ISO 100
+			setProperty c #f_number 8 
+
+			setProperty c #shutter_speed 200
+
+-- 			setProperty c #shutter_speed 250
 
 		)
 	)

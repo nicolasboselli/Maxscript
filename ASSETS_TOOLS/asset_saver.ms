@@ -1,21 +1,27 @@
 /*
 asset saver
 
-	-- ajouter un historique
+	-- ajouter un historique, ajouter à l'historique les dossier où l'on fait un enregistrement
 	-- option collapse name
 
 	x-- champs de recherche pour trier les noms
 	x-- sauver temporaire
 	-- fonction pour ouvrir le dossier de texture de l'asset
 
-	-- champs de recherche pour trier les noms
-	-- sauver temporaire
+	x- champs de recherche pour trier les noms
+	x- sauver temporaire
+	
+	-- warning dialog pour écraser un fichier à l'enregistrement
+	-- utiliser la lisstbox comme un explorateur
+	-- prévoir un fonction d'ouverture d'asset(?)
 
 */
 try(destroydialog assetSaverRLT )catch()
 rollout assetSaverRLT "Asset Saver"
 (
 	local coreDir =  @"M:\Biblio\VISIOLAB\2-Assets3D\Pers-Films"
+	local coreTextDir =  @"M:\Biblio\VISIOLAB\1-Textures\Assets3d\Pers-Films"
+	
 	global selFolder 
 	local filesAr = #()
 	local namesToDisplay
@@ -34,8 +40,9 @@ rollout assetSaverRLT "Asset Saver"
 	
 	edittext newNameET "newName:"
 	edittext fileNameET "Filename:"
-	button saveBT "save"
+	button saveBT "save" across: 2
 	button saveSelBT "save selected"
+	edittext textureFolderET "Texture Folder:"
 
 	
 	fn refreshUI = 
@@ -137,25 +144,32 @@ rollout assetSaverRLT "Asset Saver"
 	(
 		newNameET.text = namesToDisplay[nameID]
 		fileNameET.text = selFolder + "\\" + namesToDisplay[nameID] + ".max"
+-- 		textureFolderET.text = (substitutestring selFolder coreDir coreTextDir) + "\\" + newName
 	)
 	
 	on newNameET changed newName do
 	(
 		fileNameET.text = selFolder + "\\" + newName + ".max"
+-- 		textureFolderET.text = (substitutestring selFolder coreDir coreTextDir) + "\\" + newName
 	)
 	
 	on saveBT pressed do
 	(
-		if not doesFileExist fileNameET.text then saveMaxFile fileNameET.text else (format "le fichier % existe déjà." fileNameET.text )
+		if not doesFileExist fileNameET.text then saveMaxFile fileNameET.text else (format "le fichier % existe déjà.\n" fileNameET.text )
 		filesAr = getfiles (selFolder + "\\*.max")
 		refreshUI()
 	)
 	
 	on saveSelBT pressed do
 	(
-		if not doesFileExist fileNameET.text then saveNodes selection fileNameET.text else (format "le fichier % existe déjà." fileNameET.text )
-		filesAr = getfiles (selFolder + "\\*.max")
-		refreshUI()
+		sel = selection as array
+		if not sel.count == 0 then
+		(
+			if not doesFileExist fileNameET.text then saveNodes selection fileNameET.text else (format "le fichier % existe déjà.\n" fileNameET.text )
+			filesAr = getfiles (selFolder + "\\*.max")
+			refreshUI()
+		)
+		else(format "Faites une selection avant de sauvegarder.\n")
 	)
 	
 )

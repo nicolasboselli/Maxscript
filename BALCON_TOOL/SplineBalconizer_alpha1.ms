@@ -217,6 +217,68 @@ fn findImpacts2 s shift: 50 shiftz: 50 =
 	allImpAr
 )
 
+-- find main impact
+fn findMainImpact s grpImp Size: 30 =
+(
+	local goodForDressingAr = #()
+	
+	for imp in grpImp do
+	(
+-- 		(
+	-- 		format "== start test imp: %\n" imp
+			local goodforDessing = false
+			local res
+			local posTest
+		
+			for oneAng = 0 to 360 by 45  do
+			(
+				-- oneAng = 
+				shift = point3  (cos oneAng) (sin oneAng) 1
+				shift = shift * ( point3 (size*2) (size*2) 50)
+			
+				posTest = imp + shift
+
+				oneRay = ray  posTest (point3 0 0 -1)
+
+				local res = intersectRay s oneRay
+				
+				if res == undefined then 
+				(
+	-- 				format "oneRay: % res: %\n" oneray res
+					goodforDessing = false
+					exit
+				)
+				else 
+				(
+					local zDist = distance (point3 0 0 imp.z) (point3 0 0  res.pos.z )
+					if zDist < 1 then 
+					(
+-- 						format "imp.z: % res.pos.z: % \n" imp.z  res.pos.z -- tester si on tape sur un balcon en dessous
+						goodforDessing = true
+					)
+					else
+					(
+						goodforDessing = false
+						exit
+					)
+				)
+			)
+			
+			if goodforDessing then
+			(
+				append goodForDressingAr imp
+			)
+			else
+			(
+-- 				append goodForBorderAr  imp
+			)
+-- 		)
+	)
+	
+	goodForDressingAr
+	
+)
+
 -- trouver des bordu des groupes par distance
 fn findBorderImpact2 s grpImpAr size: 30 =
 (
@@ -436,6 +498,7 @@ rollout BalconizerRLT "Spline BalconIzer v.alpha"
 		spinner mainExclusionSP "Exclusion:" type: #worldunits range: [0,500,50]
 		spinner mainRadiusSP "Density:" type: #worldunits range: [0,500,150]
 		button createMainHelperBT "Create Main"  height: 30 width: 100
+		button createMainHelper2BT "Create Main 2"  height: 30 width: 100
 	)
 		
 	group "Border (Pots):"
@@ -502,14 +565,70 @@ rollout BalconizerRLT "Spline BalconIzer v.alpha"
 		redrawViews()
 	)
 		
+	on createMainHelper2BT pressed do
+	(
+		sel = selection as array
+		for s in sel do 
+		(
+			-- recherche des impacts
+			allImp2Ar += findImpacts2 s shift: ImpactShiftSP.value 
+			
+			oneMainGroup = findMainImpact s allImp2Ar Size: ( mainExclusionSP.value + mainRadiusSP.value )
+			twoArrays[1] += oneMainGroup
+			
+		)
+		
+		MainGrpImpAr = sortByGroup twoArrays[1] shift: 50
+		-- test des distances
+		perfectForDressingAr = distImpact MainGrpImpAr size2: mainRadiusSP.value
+		
+		-- creation de Circle
+		local makeCircle = true
+		
+		if makeCircle then
+		(
+			for grpImp in perfectForDressingAr do
+			(
+				for imp in grpImp do 
+				(
+					circle pos: imp radius: mainRadiusSP.value
+				)
+			)
+		)
+		
+		
+		-- creation de la spline dressing
+		local MakeSpline = false
+		
+		if makeSpline then 
+		(
+			try(delete newShape)catch()
+			newShape = splineShape wirecolor: red name: (Uniquename "balcon_main_FP_guide_")
+			for grpImp in perfectForDressingAr do
+			(
+				for imp in grpImp do 
+				(
+					num = addNewSpline newShape
+					
+					addKnot newShape num #corner #line imp
+					addKnot newShape num #corner #line (imp + (point3 SplineLenghtSP.value 0 0))
+				)
+			)
+			
+			updateShape newShape
+			redrawViews()
+		)
+
+	)
+	
 	on createBorderHelperBT pressed do
 	(
 		sel = selection as array
 		for s in sel do
 		(
 			-- recherche des impacts
-			calculateRays s shift: ImpactShiftSP.value shiftz: ImpactZShiftSP.value
-			allImpAr += findImpacts s shift: ImpactShiftSP.value
+-- 			calculateRays s shift: ImpactShiftSP.value shiftz: ImpactZShiftSP.value
+			allImpAr += findImpacts2 s shift: ImpactShiftSP.value
 			
 			-- tri des impacts entre border et main
 			NewtwoArrays = findBorderImpact2 s allImpAr size: borderRadiusSP.value shiftz: ImpactZShiftSP.value

@@ -161,7 +161,7 @@ fn createGabarits s =
 	startGabaritTime = timestamp()
 	
 	angleTresh = 1.0
-	groupNum = 1
+	groupNum = 0
 
 	for faceSel in grpAr do
 	(
@@ -308,20 +308,17 @@ fn createGabarits s =
 		gabarit.renderable = false
 		converttomesh gabarit
 		
+		-- add properties
+		setUserPropVal gabarit "isGabarit" true
+		
 		append gabaritAr gabarit
 		
 			groupNum += 1
 -- 		
-		format "gabarit % / % done, facesel: %\n" (groupNum += 1) grpAr.count facesel
-	)
+		format "gabarit % / % done, facesel: %\n" (groupNum) grpAr.count facesel
 		
--- 	if forceDelete then
--- 	(
--- 		local facesToDel = #{}
--- 		for g in grpAr do facesToDel += g
--- 			
--- 		meshop.deleteFaces s facesToDel delIsoVerts: true
--- 	)
+		
+	)
 	
 	format "Gabarit Time: %s\n" (((timestamp()) - startGabaritTime) / 1000 as float)
 	format "Total Time: %s \n " (((timestamp()) - startingTime) / 1000 as float)
@@ -334,6 +331,19 @@ fn detachOriginMeshes s forceDelete: false =
 	local id = 0
 	
 	startOrigineTime = timestamp()
+	
+	-- creation du Layer
+	Lname = s.name + "_fenetre_detach_origin"
+	-- Lname = "toto"
+	daddyL = s.layer
+
+	-- daddyName
+	if not iskindof (layermanager.getlayerfromname Lname) MixinInterface then layermanager.newlayerfromname Lname
+	L = layermanager.getlayerfromname Lname
+
+	L.setParent daddyL
+	L.current = true
+	L.on = true
 	
 	for faceSel in grpAr do
 	(
@@ -359,6 +369,9 @@ fn detachOriginMeshes s forceDelete: false =
 		emesh.name = gabaritAr[id].name + "_origin"
 		emesh.renderable = false
 		setTransformLockFlags emesh #all
+		
+		emesh.showFrozenInGray
+-- 		freeze emesh
 		
 		gabaritAr[id].visibility = bezier_float()
 		gabaritAr[id].visibility.controller.value = 0.5

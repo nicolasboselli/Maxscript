@@ -7,6 +7,7 @@
 	group "instance vrmatl"
 	 (
 		button selBT "sel node"
+		checkbox keepNameCB "Keep Name:" checked: true
 		edittext smeNodeET "mat name:"
 		button applyBT "instance"
 	 )
@@ -35,13 +36,22 @@
 	
 	on applyBT pressed do
 	(
+		format "keepNameCB.checked: %\n" keepNameCB.checked
+		
 		oneView = sme.GetView (sme.activeView)
 		sel = oneView.GetSelectedNodes()
 		
 		for s in sel do
 		(
 			replaceInstances  s.reference refMat.reference
-			s.name =  s.reference.name
+			if keepNameCB.checked then 
+			(
+				s.reference.name = s.name
+			)
+			else 
+			(
+				s.name =  s.reference.name
+			)
 		)
 -- 		format "s:%\n" s
 		oneView.SelectNone()

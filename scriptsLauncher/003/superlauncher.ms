@@ -113,7 +113,7 @@ rollout superLauncherRLT "Super Launcher"
 	fn loadCore2 oneCat = 
 	(		
 		local coreScriptArray = #()
-	
+		
 		-- collect clean list
 		if doesfileexist iniCoreFileName then
 		(
@@ -161,6 +161,11 @@ rollout superLauncherRLT "Super Launcher"
 			scriptListMLB.items = coreScriptArrayNames 
 		)
 		else(/* format "catListDPL.selection == 0 or coreScriptArray == undefined\n" */)
+		
+		if doesFileExist iniCoreFileName then
+		(
+			pathINIET.text = iniCoreFileName
+		)
 
 	)
 	
@@ -172,11 +177,28 @@ rollout superLauncherRLT "Super Launcher"
 		
 		catListLB.selection = 1
 		coreScriptArray = loadCore2 coreCatList[1]
-/* 		
-		catListTargetDPL.selection = 1
-		coreScriptArray2 = loadCore2 coreCatList[1] */
 		
 		refreshUI()
+	)
+	
+	on selectPathBT pressed do
+	(
+-- 		format "youhou\n"
+		local testINI = getOpenFileName caption: "select file .INI" filename: ((getroot()) + "scriptsManager\\" ) types: "*.INI|*.ini"
+		
+		if doesFileExist testINI then 
+		(
+			iniCoreFileName = testINI
+			loadCategories()
+		
+			catListLB.selection = 1
+			coreScriptArray = loadCore2 coreCatList[1]
+		
+			refreshUI()
+		)
+-- 		local basePathIni = @"M:\Biblio\VISIOLAB\8-Scripts\Production\Maxscript\scriptsManager"
+		
+
 	)
 	
 	on openINIBT pressed do
@@ -195,17 +217,90 @@ rollout superLauncherRLT "Super Launcher"
 	
 	on moveUpBT pressed do
 	(
-		-- déplacer la categorie dans l'array
-		allIni = getINISetting iniCoreFileName
-		format "allIni: %\n" allIni
-		format "i: % < % cat: %\n" catListLB.selection  (catListLB.selection - 1) coreCatList[catListLB.selection]
+	-- déplacer la catégorie dans l'ini
+-- 		local catList = #()
+		local catScriptList = #()
 		
-		-- déplacer la catégorie dan l'ini
+		format "cat % down to %: %\n" catListLB.selection  (catListLB.selection - 2) coreCatList[catListLB.selection]
+		
+-- 		loadCategories()
+		for cat in  coreCatList do
+		( 
+			append catScriptList (getINISetting iniCoreFileName "coreScriptList" cat)
+		)
+		
+		-- backup de la selection
+		local id = catListLB.selection
+		local bakCat = coreCatList[id]
+		local bakCatList = catScriptList[id]
+		
+		-- supprimer la categorie selectionner
+		deleteItem coreCatList id
+		deleteItem catScriptList id
+		
+		-- insérer la categorie selectionnée en i - 2
+		insertItem  bakCat coreCatList (id - 1)
+		insertItem  bakCatList catScriptList (id - 1)
+		
+		-- deplacer la selection en i - 1
+		catListLB.selection = id - 1
+		
+		-- supprimer l'ini
+		delIniSetting iniCoreFileName  "coreScriptList"
+		
+		-- 	réécrire toutes les catégories dans l'ini
+		for i = 1 to coreCatList.count do
+		(
+			local coreData = with printAllElements on catScriptList[i] as string
+			setINISetting iniCoreFileName  "coreScriptList" coreCatList[i] coreData
+		)
+		
+		loadCategories()
+		refreshUI()
 	)
 	
 	on moveDwBT pressed do
 	(
-		format "i: % > % cat: %\n" catListLB.selection  (catListLB.selection + 1) coreCatList[catListLB.selection]
+		
+		local catScriptList = #()
+		
+		format "cat % up to %: %\n" catListLB.selection  (catListLB.selection + 1) coreCatList[catListLB.selection]
+		
+-- 		loadCategories()
+		for cat in  coreCatList do
+		( 
+			append catScriptList (getINISetting iniCoreFileName "coreScriptList" cat)
+		)
+		
+		-- backup de la selection
+		local id = catListLB.selection
+		local bakCat = coreCatList[id]
+		local bakCatList = catScriptList[id]
+		
+		-- supprimer la categorie selectionner
+		deleteItem coreCatList id
+		deleteItem catScriptList id
+		
+		-- insérer la categorie selectionnée en i - 2
+		insertItem  bakCat coreCatList (id + 1)
+		insertItem  bakCatList catScriptList (id + 1)
+		
+		-- deplacer la selection en i - 1
+		catListLB.selection = id + 1
+		
+		-- supprimer l'ini
+		delIniSetting iniCoreFileName  "coreScriptList"
+		
+		-- 	réécrire toutes les catégories dans l'ini
+		for i = 1 to coreCatList.count do
+		(
+			local coreData = with printAllElements on catScriptList[i] as string
+			setINISetting iniCoreFileName  "coreScriptList" coreCatList[i] coreData
+		)
+		
+		loadCategories()
+		refreshUI()
+		
 	)
 	
 	on addCatBT pressed do

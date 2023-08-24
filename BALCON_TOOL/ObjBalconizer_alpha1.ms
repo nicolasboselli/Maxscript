@@ -354,7 +354,7 @@ rollout Balconizer2RLT "Objects Balconizer v.alpha"
 				deletemodifier s 1
 
 				-- tirer un rayon depuis le z le plus bas
-				zMinRay = ray (zmax + (point3 0 0 200)) (point3 0 0 -1)
+				zMinRay = ray (zmax + (point3 0 0 2000)) (point3 0 0 -1)
 -- 				zMinRay = ray zmax (point3 0 0 -1)
 
 		-- 		format "ground: % zMinRay: %\n" ground.name zMinRay
@@ -394,11 +394,14 @@ rollout Balconizer2RLT "Objects Balconizer v.alpha"
 		)
 		format "selAr: %\n" selAr
 		
-		for oneSet in SelAr do
+		undo on
 		(
-			local copyHead
-			for o in oneSet where o.parent == undefined do copyHead =  o
-			rotate copyHead (angleaxis (random 0 360) [0,0,1])
+			for oneSet in SelAr do
+			(
+				local copyHead
+				for o in oneSet where o.parent == undefined do copyHead =  o
+				rotate copyHead (angleaxis (random 0 360) [0,0,1])
+			)
 		)
 	)
 	

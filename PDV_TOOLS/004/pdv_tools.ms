@@ -90,9 +90,9 @@ fn setVrayCamera2 =
 	newCam
 )
 
-pdv_cam_RLT
-camNameRLT
-placeSun2RLT
+global pdv_cam_RLT
+global camNameRLT
+global placeSun2RLT
 
 rollout camNameRLT "camera name"
 (
@@ -124,26 +124,44 @@ rollout pdv_cam_RLT "point de vue companion"
 	local camsAr = #()
 	local newCamName
 	local oneCamSel
+	local bakAltSpVal
 	
 	group "Active view:"
 	(
 		button newcamBT "create new Cam" height: 50
 		button duplicateBT "duplicate camera" height: 50 --enabled:false
 -- 		button lockBT "lock/unlock"
+		
+		label lab2 "-------------------"
 		checkbutton lockCB "locked"
+		
+		label lab3 "-------------------"
 -- 		label fovET "focal:" 
 		spinner fovSP "focal length (mm):" 
 		button fov24BT "24" across: 4
 		button fov30BT "30"
 		button fov35BT "35"
 		button fov50BT "50"
+		
 		button vertCamBT "vertical cam"
 		button selTargetBT "select target" enabled: true
+		
+		label lab0 "-------------------"
 		
 		label imageSizeLB "image size:"
 		spinner widthSP "width:" type: #integer range: [0, 10000, 0] across: 2
 		spinner heightSP "height:" type: #integer range: [0, 10000, 0]
+		
+		label lab1 "-------------------"
+		
+		button pingBT "ping distance au sol" -- across: 2
+		spinner altSP "dist sol: "type: #worldunits range: [-10000,10000, 0]
 	)
+	
+-- 	group "Altitude:"
+-- 	(
+
+-- 	)
 	
 	group "Cams List:"
 	(
@@ -332,7 +350,7 @@ rollout pdv_cam_RLT "point de vue companion"
 
 	on fov35BT pressed do
 	(
-		local cam = getActiveCamera()
+		local cam = getActiveCamera() 
 		if iskindof cam VRayPhysicalCamera then
 		(
 			cam.specify_fov = off
@@ -398,6 +416,59 @@ rollout pdv_cam_RLT "point de vue companion"
 		writeRenderSize()
 	)
 	
+	on pingBT pressed do
+	(
+		local shiftZ = 0
+		local cam = getActiveCamera() 
+		local dist
+		local sel = selection as array
+		(
+			format "sel[1]: % oneCamSel: %\n" sel[1] oneCamSel
+			if isValidNode cam and isvalidnode sel[1] then
+			(
+-- 				format "oneCamSel: %\n" oneCamSel
+				res = intersectRay sel[1] (ray cam.pos [0,0,-1])
+				shiftZ = res.pos.z
+				
+				if res != undefined then
+				(
+					format "res.pos: %\n" res.pos
+					dist = distance res.pos cam.pos
+					altSP.value = dist
+					format "distance au sol % : % cm\n" cam.name dist
+				)
+				else(format "Distance Fail!\n")				
+			)
+			else(format "Fail!\n")
+		)
+	)
+	
+	on altSP buttondown do
+	(
+		
+		local cam = getActiveCamera() 
+-- 		format "cam.pos.z: % altSP.value: % \n" cam.pos.z altSP.value
+		
+		bakAltSpVal = altSP.value
+		
+	)
+	
+	on altSP changed val do
+	(
+		
+		local cam = getActiveCamera() 
+		
+-- 		format "bakAltSpVal: % val: % \n" bakAltSpVal val
+		
+		local res = val - bakAltSpVal
+		
+		cam.pos.z += res
+		cam.target.pos.z += res
+		bakAltSpVal = val
+-- 		format "bakValTarget: % bakVal: % val: % res: %\n" bakValTarget bakVal val res
+		
+	)
+	
 	on camsMLB selectionend do
 	(
 		camsSel = camsMLB.selection as array
@@ -440,7 +511,6 @@ rollout pdv_cam_RLT "point de vue companion"
 		placeSun2RLT.initSunNCam()
 		
 		loadRenderSize()
-
 	)
 	
 	on camNameET entered val do

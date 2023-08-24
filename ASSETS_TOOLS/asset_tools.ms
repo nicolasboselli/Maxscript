@@ -151,6 +151,11 @@ fn renameAssetByLayer l =
 
 fn cleanFile =
 (
+	
+	
+	-- remove missing dll
+	filein (getroot() + @"sceneManagement/removeMissingDll.ms")
+	
 	-- delete sun
 	for l in lights where iskindof l vraysun do delete l
 	environmentMap = undefined
@@ -172,6 +177,8 @@ fn cleanFile =
 	for i = 1 to  24 do meditMaterials[i] = VRayMtl ()
 
 	-- clean du slate editor
+	while sme.GetNumViews() > 0 do sme.DeleteView 1 off
+	sme.CreateView "View1"
 
 	-- clean du batch render
 	batchCount = batchRenderMgr.numViews
@@ -339,7 +346,6 @@ fn renameAsset3 daddyName: "02_BAT" daddyCoolName: "00_ELTS_BAT" renameByLayer: 
 )
 
 
-
 fn renameAsset2 daddyName: "02_BAT"  =
 (
 	local layersToolsRLT
@@ -443,22 +449,35 @@ fn renameMat =
 		k += 1
 	)
 	
+	FalAr = getClassInstances Falloff target: sceneMaterials
+	for m in FalAr where not MatchPattern m.name pattern: (assetName + "_FAL*") do
+	(
+		m.name = (assetName + "_FAL" + (k as string))
+		k += 1
+	)
+	
 )
 
 try(destroydialog assetToolsRLT)catch()
 rollout assetToolsRLT "asset tools"
 (
-	button cleanFileBT "clean file"
+	local coreTextDir =  @"M:\Biblio\VISIOLAB\1-Textures\Assets3d\Pers-Films"
 	
-	button importPeopleBT "import people"
+	group "pre saved functions:"
+	(
+		button cleanFileBT "clean file"
+		button importPeopleBT "import people"
+	)
+	button saveTmpBT "open saver"
 	
-	button convertToVrBmpBT "convert to vrBmp"
-	button convertToGGXBT "convert to GGX"
-	
-	button saveTmpBT "save TMP file"
-	
-	button renameMatBT "rename mat"
-	button copyTextBT "copy textures"
+	group "post saved functions:"
+	(
+		button convertToVrBmpBT "convert to vrBmp"
+		button convertToGGXBT "convert to GGX"	
+		
+		button renameMatBT "rename mat"
+		button copyTextBT "copy textures"
+	)
 	
 	group "rename asset:"
 	(
@@ -487,6 +506,9 @@ rollout assetToolsRLT "asset tools"
 	
 	on saveTmpBT pressed do
 	(
+		filein "asset_saver.ms"
+		
+		/*
 		local tmpMaxFile = @"M:\Biblio\VISIOLAB\2-Assets3D\Travail_en_cours\Nico\3d_sky\" + "TMP_" + maxFileName 
 -- 		maxFileName
 -- 		maxFilePath 
@@ -499,6 +521,7 @@ rollout assetToolsRLT "asset tools"
 		(
 			format "save as failed: %\n" tmpMaxFile
 		)
+		*/
 		
 	)
 	

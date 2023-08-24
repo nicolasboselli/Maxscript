@@ -32,6 +32,13 @@ debug:
 	 x- faire fonctionner le rename de dossier avec le meme rollout que pour les scripts
 	 -- revoir le tri des fchiers: bakuper changer le onlyMxs en ignoreBak
 	 x- passer la selection folder ou script mode à l ouverture du rollout rename ET PAS pas des methodes init: dans les methodes init à cause du modal
+	 
+	 
+memo:
+	-- ajout de favoris au launcher 2: core to fav, ajout de favoris depuis scriptExp, fav to core
+	-- ajout de favoris au superlauncher: add to core > ajout du favori ds le favScriptAr, déplacement dans le super launcher
+
+	 
 */
 
 
@@ -235,8 +242,8 @@ rollout scriptExplorerRLT "Scripts Explorer"
 	group "favorites:"
 	(
 		button printPathBT "add to favorites" across: 2
-		button addToCoreBT "add to core"
-	)
+		button addToCoreBT "add to core" tooltip: "add to favScriptAr in superlauncher"
+		)
 		
 -- 	functions
 	
