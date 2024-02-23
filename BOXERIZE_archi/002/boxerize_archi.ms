@@ -1,4 +1,8 @@
 /*
+memo session concours empalot:
+
+
+
 reflexion sur l'outil:
 l'outil pourrait etre un picker au pick on designe la direction en x et l'element à transformer
 - nescessite une fonction pour selectionner tout un element à partir d'une FaceSelection
@@ -40,6 +44,17 @@ l'outil pourrait etre un picker au pick on designe la direction en x et l'elemen
 	faire des sous calques en focntion de la taille des gabarits(revoir la fonction de color by size)
 	
 14. x au replace placer le gabarit dans un sous calque: ajouter une option replace dans le calque active
+	x decrash pour donner de l'épaisseur au boite plate, changer la méthode pour augmenter la taille des boites, tenir compte de la taille de la boite
+
+15. debug des mesh origin
+	- ne pas faire un colorbyorient systematique aprés un resize gabarit ou un reorient?la couleur de la mesh origine ne suit pas
+	- au wirecolor by size, appliquer la couleur sur la fenetre origine tout en ignorant la fenetre origine. et appliquer la couleur à la fenetre origine
+	- quand on fait une rotation du pivot à 90° la mesh fenetre origine tourne aussi 
+	- freeze des fenetres origine? ou du calque
+
+16. decrash du acos(-1.0) = error avec condition if dot value < -1.0 then dot value == -1
+
+17. wirebyorient : utiliser les valeur de la normale multiplier par 255 pour obtenir une couleur
 
 21. mettre en banque des fenetres sans appuis de fenetres
 
@@ -97,12 +112,14 @@ fn createLayer s =
 	
 	LN.setParent LB
 	
-	LN.current = true
-	LN.on = true
+	L.current = true
+	L.on = true
 )
 
 fn wirecolorByOrientation sel = 
 (
+	/*utiliser les valeur de la normale multiplier par 255 pour obtenir une couleur*/
+	
 	colors = #(red, green, blue, yellow, brown, orange, \
 		(color 225 88 199), (color 88 177 27), (color 141 7 58), (color 87 225 198),\
 		(color 27 177 27),(color 225 88 199), (color 28 149 177), (color 224 86 86),
@@ -164,7 +181,7 @@ fn wirecolorByOrientation sel =
 	(
 		-- mettre la bonne couleur sur l'origine
 		local testOrigin = getNodeByName (s.name + "_origin")
-		format "s.name: % testOrigin: %\n" s.name testOrigin
+-- 		format "s.name: % testOrigin: %\n" s.name testOrigin
 		
 		if isValidNode testOrigin then 
 		(
@@ -217,6 +234,83 @@ fn resizeGabarit s size: 35 =
 	)
 	redrawViews()
 )
+
+fn resizeGabarit2 s size: 35 =
+(
+	convertToMesh s
+	facesCount = meshop.getNumfaces s
+	refNormal= s.transform.row1
+	goodBitAr = #{}
+	for i = 1 to facesCount do
+	(
+		oneNormal = meshop.getFaceRNormals s i
+-- 		format "refNormal: %  oneNormal: %\n" refNormal oneNormal[1]
+		local testAngle
+		
+		if (meshop.getFaceArea s i) < 1 then
+		(
+-- 			format "i: % s.facearea: %\n"  i (meshop.getFaceArea s i)
+			testAngle = 0
+		)
+		else if ((dot oneNormal[1] refNormal) < -1.0) then
+		(
+-- 			format "i: % dot oneNormal[1] refNormal = %\n" i (dot oneNormal[1] refNormal)
+			testAngle = 180.0
+-- 			format "testAngle: %\n" testAngle
+		)
+		else
+		(
+			testAngle = ((((acos(dot oneNormal[1] refNormal))*100)as integer)as float)/100
+-- 			format "i: % testAngle: %\n" i testAngle
+		)
+	 		
+	 	
+		if testAngle > 179 and testAngle < 181 then append goodBitAr i
+-- 		format "goodBitAr: %\n" goodBitAr
+	)
+	
+	vxBitAr = meshop.getVertsUsingFace  s goodBitAr
+-- 	format "vxBitAr: % \n" vxBitAr 
+			
+	-- calcul du decalage à appliquer
+	vertsCount = meshop.getNumVerts s
+	vertsList = (for i = 1 to vertsCount collect i)as bitarray
+
+	xmax = -1000
+	xmin = 1000
+-- 	size = 35
+	for v in vertsList do
+	(
+		oneVMat = copy s.transform
+		oneVMat.translation = meshop.getVert s v 
+		localPos = (oneVMat * inverse s.transform)
+		if localPos.translation.x < xmin then xmin = localPos.translation.x
+		if localPos.translation.x > xmax then xmax = localPos.translation.x
+	)
+-- 	format "xmax: % xmin: %\n" xmax xmin 
+	res35 = distance (point3 xmax 0 0) (point3 xmin 0 0)
+	shift = res35 - size
+	
+-- 	format "vxBitAr: % shift: %\n" vxBitAr shift
+	
+-- 	move s.faces[goodBitAr]  [5,0,0]
+	
+	for v in vxBitAr do
+	(
+		
+		oneVMat = copy s.transform
+		oneVMat.translation = meshop.getVert s v 
+		localPos = (oneVMat * inverse s.transform)
+
+		localPos.translation.x = localPos.translation.x + shift
+		newPos = localPos * s.transform
+		meshop.setVert s v newPos.translation
+		
+-- 		format "v:% newPos.translation: %\n" v newPos.translation
+	)
+	redrawViews()
+)	
+
 
 fn reorientGabarits sel = 
 (
@@ -511,11 +605,18 @@ rollout changeArchVizWindowsRLT "Boxerize Archviz Windows"
 				if detachMeshCB.checked then
 				(
 					detachOriginMeshes s forceDelete: deleteMeshCB.checked
-				)					
+				)	
 			)
 			else (format "sélectionnez un sous element\n")
 		)
 		else(format "convertissez l'objet en editable_mesh\n")
+		
+		LNname = s.name + "_fenetre_nouvelles"
+		LN = layermanager.getlayerfromname LNname
+		
+		LN.current = true
+		LN.on = true
+		
 	)
 	
 	on wirecolorByOrientationBT pressed do
@@ -569,8 +670,8 @@ rollout changeArchVizWindowsRLT "Boxerize Archviz Windows"
 			for s in sel where iskindof s Editable_mesh do
 			(
 				if MatchPattern s.name pattern: "fenetre_detach*origin" then continue
-				else if MatchPattern s.name pattern: "fenetre_detach*" then resizeGabarit s size: resizeGabSP.value
-				else()
+				else if MatchPattern s.name pattern: "fenetre_detach*" then resizeGabarit2 s size: resizeGabSP.value
+				else(format "ne fonctionne pas.\n")
 			)
 			
 			allGab = collectFenDetachOnly()

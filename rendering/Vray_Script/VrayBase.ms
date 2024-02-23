@@ -114,38 +114,36 @@ fn createVraySun =
 
 fn vrayBaseSetting =
 (
-	-- mettre le color mapping en reihnard à 0.35
-	-- activer l'ambiant occlusion
-	-- reprendre les reglages vray quick settings
+	-- vray bucket render
 	
  	(findVray())	imageSampler_type: 1 \
 	filter_on: false \
 	gi_on: true \
-	twoLevel_baseSubdivs: 1 twoLevel_fineSubdivs: 8 \
-	gi_primary_type: 0 gi_irradmap_showCalcPhase: true  gi_irradmap_showDirectLight: true  gi_irradmap_minRate: -4  gi_irradmap_maxRate: -3 gi_irradmap_subdivs: 37  gi_irradmap_preset: 2 \
+	twoLevel_baseSubdivs: 1 twoLevel_fineSubdivs: 8 \	
+	gi_primary_type: 2 \
 	gi_secondary_type: 3  lightcache_subdivs: 875 lightcache_storeDirectLight: 0 lightcache_showCalcPhase: 1 \
-	gi_ao_on: on gi_ao_radius: 50 \
+	gi_ao_on: off  \
 	colorMapping_type: 6 colorMapping_darkMult: 1.0 colorMapping_brightMult: 0.65 colorMapping_gamma: 2.2 colorMapping_linearWorkflow: false colorMapping_adaptationOnly: 2
+		
+		
+	-- 	gi_primary_type: 0 gi_irradmap_showCalcPhase: true  gi_irradmap_showDirectLight: true  gi_irradmap_minRate: -4  gi_irradmap_maxRate: -3 gi_irradmap_subdivs: 37  gi_irradmap_preset: 2 \
 		--*/
 )
--- vrayBaseSetting()
 
 
 fn vrayBaseSetting2 =
 (
-	-- mettre le color mapping en reihnard à 0.35
-	-- activer l'ambiant occlusion
-	-- reprendre les reglages vray quick settings
+	-- VRAY progressive render
 	
  	(findVray())	imageSampler_type: 3 \
 	filter_on: false \
 	gi_on: true \
 	twoLevel_baseSubdivs: 1 twoLevel_fineSubdivs: 8 \
+	progressive_max_render_time: 3.0 \
 	gi_primary_type: 2 \
 	gi_secondary_type: 3  lightcache_subdivs: 875 lightcache_storeDirectLight: 0 lightcache_showCalcPhase: 1 \
-	progressive_max_render_time: 3.0 \
+	gi_ao_on: off \
 	colorMapping_type: 0 colorMapping_darkMult: 1.0 colorMapping_brightMult: 1 colorMapping_gamma: 2.2 colorMapping_linearWorkflow: false colorMapping_adaptationOnly: 2
-		--*/
 )
 
 -- renderers.current.colorMapping_adaptationOnly 
@@ -180,15 +178,15 @@ onePath = getroot() + @"LAYERS_TOOLS/000/layers_tools.ms"
 filein onepath
 DestroyDialog layersToolsRLT
 
-/*
+
 fn initLayers =
 (
 		if not iskindof (layermanager.getlayerfromname "01_CAM_LIGHT") MixinInterface then layermanager.newlayerfromname "01_CAM_LIGHT"
 		if not iskindof (layermanager.getlayerfromname "02_BAT") MixinInterface then layermanager.newlayerfromname "02_BAT"
 		if not iskindof (layermanager.getlayerfromname "HAB") MixinInterface then layermanager.newlayerfromname "HAB"
 		
-		if not iskindof (layermanager.getlayerfromname "OFF") MixinInterface then layermanager.newlayerfromname "OFF"
-		daddy = layermanager.getlayerfromname "OFF"
+		if not iskindof (layermanager.getlayerfromname "Z_OFF") MixinInterface then layermanager.newlayerfromname "Z_OFF"
+		daddy = layermanager.getlayerfromname "Z_OFF"
 		
 		if not iskindof (layermanager.getlayerfromname "CORBEILLE") MixinInterface then layermanager.newlayerfromname "CORBEILLE"
 		corbeilleL = layermanager.getlayerfromname "CORBEILLE"
@@ -198,11 +196,11 @@ fn initLayers =
 		planL = layermanager.getlayerfromname "PLANS"
 		planL.setParent daddy		
 )
-*/
+
 
 -- rollout
 try(destroydialog VrayRenderRLT)catch()
-rollout VrayRenderRLT "Init Scene"
+rollout VrayRenderRLT "Vray Render Tools"
 (
 
 -- 	vars
@@ -211,64 +209,59 @@ rollout VrayRenderRLT "Init Scene"
 
 -- 	local vrayBase = vrayBaseSetting () 
 
-
 -- 	local vrayExp = vray_exposure_control shutter: 150 f_number: 9 iso: 100 wb_preset: 1 white_balance: [1,1,1]
 -- 	local PhysExp = Physical_Camera_Exposure_Control use_physical_camera_controls: off global_ev: 14.5 
 	
 -- 	UI
 	button VRScenebaseBT "Init Scene" 
 	
-	group "Create:"
+	group "Init:"
 	(
 		button initLayersBT "Init Layers"
-		button vrayBaseSetBT "Vray base settings" tooltip: "IR/LC - Bucket - Reinhard"
-		button vrayBaseSetBT2 "Vray base settings 2" tooltip: "BF/LC - Prog - Linear"
+
 		button vraySunBT "vray sun and sky"
 		button vrayExposureBT "vray exposure"
 		button createVrayGroundBT "vray ground"
-		button createVrayCamBT "vray cam from view"
+-- 		button createVrayCamBT "vray cam from view"
 		button gammaBT "fileoutgamma 2.2"
 		button renderSizeBT "render size"
+		
+		button vrayBaseSetBT "Vray render settings 1" tooltip: "IR/LC - Bucket - Reinhard"
+		button vrayBaseSetBT2 "Vray render settings 2" tooltip: "BF/LC - Prog - Linear"
 	)
 	
-	group "Fix cameras:"
-	( 
-		button fixCam1BT "Fix Cam 1" tooltip: "iso: 50 f_num: 7 sh: 1/350°"
-		button fixCam2BT "Fix Cam 2" tooltip: "iso: 100 f_num: 11 sh: 1/250°"
-		button fixCam3BT "Fix Cam 3" tooltip: "iso: 100 f_num: 8 sh: 1/200°"
-	)
-	
-	/*
-	group "render thumbnail"
+	group "Render mode settings:"
 	(
-		button renderBT "render"
-		button delSunBT "delete sun"
+		button progBT "PROGRESSIVE"
+		button bucketBT "BUCKET"
 	)
 	
-	button renderThumbBT "render thumbnail"
-*/
+	group "Cameras settings:"
+	( 
+		button fixCam1BT "M1" tooltip: "iso: 50 f_num: 7 sh: 1/350°" across: 3
+		button fixCam2BT "M2" tooltip: "iso: 100 f_num: 11 sh: 1/250°"
+		button fixCam3BT "M3" tooltip: "iso: 100 f_num: 8 sh: 1/200°"
+		
+		spinner isoSP "iso" range: [0,20000,100]
+		spinner f_numSP "f-number" range: [0,100,8]
+		spinner shutSpeedSP "shuter Speed (s^-1):" range: [0,10000,200]		
+		
+		checkbox allCamsCB "all cams" -- across: 2
+		button applyCamSetBT "apply"
+	)
+	
+	group "Color map settings"
+	(
+		dropdownList colMapTypeDDL "color mapping type" items: #("Linear Multiply","Exponential","HSV exponential","Intensity exponential", "Gamma correction", "Intensity Gamma", "Reinhard")
+		spinner burnValSP "burn value" range: [0,1,1]
+		button applyColMapSetBT "apply"
+	)
+
 -- 	Actions
 	on  VRScenebaseBT pressed do
 	(
-		vrayBaseSetBT2.pressed()
-		vraySunBT.pressed()
-		vrayExposureBT.pressed()
-		initLayersBT.pressed()
-		renderSizeBT.pressed()
-	)
-	
-	on initLayersBT pressed do
-	(
-		initLayers()
-	)
-	
-	on vrayBaseSetBT pressed do
-	(
-		renderers.current = vrayBaseSetting ()
-	)
-	
-	on vrayBaseSetBT2 pressed do
-	(
+-- 		vrayBaseSetBT2.pressed()
+		-- progressive rendering
 		renderers.current = vrayBaseSetting2 ()
 		
 		-- add denoiser
@@ -282,7 +275,23 @@ rollout VrayRenderRLT "Init Scene"
 		)
 		
 		rem.AddRenderElement (VRayDenoiser())	
+		
+		-- color mapping reihnard
+		colMapTypeDDL.selection = 7
+		burnValSP.value = 0.35
+		applyColMapSetBT.pressed()
+		
+		vraySunBT.pressed()
+		vrayExposureBT.pressed()
+		initLayersBT.pressed()
+		renderSizeBT.pressed()
 	)
+	
+	on initLayersBT pressed do
+	(
+		initLayers()
+	)
+	
 	
 	on vraySunBT pressed do
 	(
@@ -320,93 +329,132 @@ rollout VrayRenderRLT "Init Scene"
 		renderSceneDialog.open()
 	)
 	
-	on renderBT pressed do
+	
+	on vrayBaseSetBT pressed do
 	(
--- 		vrayBaseSetBT.pressed()
--- 		vraySunBT.pressed()
--- 		vrayExposureBT.pressed()
+		renderers.current = vrayBaseSetting ()
 		
-		renderSceneDialog.close()
-		
-		renderWidth = 1500
-		renderHeight = 1500
-		
--- 		max quick render -- netrender: false
-		
-		img = render netrender: false
-		
-		-- Get the last Rendered image
--- 		img = getlastrenderedimage()
-		
-		-- Assign a filename
-		img.filename = maxFilePath + (getFilenameFile maxfilename) + ".jpg"
-		
-		-- Save it
-		save img gamma: 2.2
-		
+		colMapTypeDDL.selection = 7
+		burnValSP.value = 0.35
+		applyColMapSetBT.pressed()
 	)
 	
-	on delSunBT pressed  do
+	on vrayBaseSetBT2 pressed do
 	(
-		sun  = getnodebyname "VRaySun001"
-		delete sun
+		renderers.current = vrayBaseSetting2 ()
+		
+		colMapTypeDDL.selection = 1
+		burnValSP.value = 1.0
+		applyColMapSetBT.pressed()
+		
+		-- add denoiser
+		rem =MaxOps.GetCurRenderElementMgr ()
+		
+		eltsNum = rem.NumRenderElements()
+		for i = (eltsNum - 1) to 0 by -1 do
+		(
+			elt = rem.GetRenderElement i
+			if iskindof elt VRayDenoiser then rem.RemoveRenderElement elt
+		)
+		
+		rem.AddRenderElement (VRayDenoiser())	
 	)
 	
+	on progBT pressed do
+	(
+		renderers.current.imageSampler_type = 3 
+		renderers.current.twoLevel_baseSubdivs = 1
+		renderers.current.twoLevel_fineSubdivs = 8
+		renderers.current.progressive_max_render_time = 3.0
+	)
+	
+	on bucketBT pressed do
+	(
+		renderers.current.imageSampler_type = 1
+		renderers.current.twoLevel_baseSubdivs = 1
+		renderers.current.twoLevel_fineSubdivs = 16
+-- 		renderers.current.progressive_max_render_time = 3.0
+	)
+		
 	on fixCam1BT pressed do
 	(
-		for c in cameras where iskindof c VRayPhysicalCamera do
-		(
-			setProperty c #ISO 50
-			setProperty c #f_number 7 
-			setProperty c #shutter_speed 350
-		)
+		isoSP.value = 50
+		f_numSP.value = 7
+		shutSpeedSP.value = 350
+		
+		colMapTypeDDL.selection = 1
+		burnValSP.value = 1.0
 	)
 	
 	on fixCam2BT pressed do
 	(
-		for c in cameras where iskindof c VRayPhysicalCamera do
-		(
-			setProperty c #ISO 100
-			setProperty c #f_number 11 
-
-			setProperty c #shutter_speed 150
-
--- 			setProperty c #shutter_speed 250
-
-		)
+		isoSP.value = 100
+		f_numSP.value = 11
+		shutSpeedSP.value = 150
+		
+		colMapTypeDDL.selection = 1
+		burnValSP.value = 1.0
 	)
 	
 	on fixCam3BT pressed do
 	(
--- 		sel = selection as array
-		for c in cameras where iskindof c VRayPhysicalCamera do
-		(
-			setProperty c #ISO 100
-			setProperty c #f_number 8 
-
-			setProperty c #shutter_speed 200
-
--- 			setProperty c #shutter_speed 250
-
-		)
+		isoSP.value = 100
+		f_numSP.value = 8
+		shutSpeedSP.value = 200
+		
+		colMapTypeDDL.selection = 7
+		burnValSP.value = 0.35
 	)
 	
-	on renderThumbBT pressed do
+	on selAllCamsBT pressed do
 	(
-		vrayBaseSetBT.pressed()
-		vraySunBT.pressed()
-		vrayExposureBT.pressed()
-		renderBT.pressed()
-		delSunBT.pressed()
+		select cameras
+		
+		for s in selection do format "%\n" s.name
 		
 	)
 	
+	on applyCamSetBT pressed do
+	(
+		local sel
+		
+		if allCamsCB.checked then
+		(
+			sel = cameras as array
+		)
+		else
+		(
+			sel = selection as Array
+		)
+		
+		for s in sel where iskindof s VRayPhysicalCamera do
+		(
+			setProperty s #ISO isoSP.value
+			setProperty s #f_number f_numSP.value 
+			setProperty s #shutter_speed shutSpeedSP.value
+		)
+	)
+	
+	on applyColMapSetBT pressed do
+	(
+		format "%\n" colMapTypeDDL.selection
+		renderers.current.colorMapping_type = colMapTypeDDL.selection - 1 
+		renderers.current.colorMapping_brightMult = burnValSP.value
+	)
 )
 createdialog VrayRenderRLT 
 
 
 
+/* 
+renderers.current.colorMapping_type = 0
 
-
+"Linear Multiply" = 0
+"Exponential" = 1
+"HSV exponential" = 2
+"Intensity exponential" = 3
+"Gamma correction" = 4
+"Intensity Gamma" = 5
+"Reinhard" = 6 */
 
 

@@ -1,8 +1,10 @@
 -- maj:
 	-- x ajouter outil pour rajouter un uvw map cubique
-	-- importer la methode pour exploser les mesh avec multi material
-	-- importer la méthode pour fusionner les multimateriaux identiques dans la scene
 	-- faire fonctionner le wirecolor sur une selection d'objet
+	
+	-- créer un custom convert physical mat to vray
+	-- créer un custom ressource collector ?
+	-- créer un custom clean multi mat
 	
 /*	
 for s in $* where s.material == undefined do selectmore s
@@ -11,6 +13,9 @@ for s in $* where s.material == undefined do selectmore s
 filein "uvwsquare.ms"
 filein "replace_inst_mat_in_slate.ms"
 try(destroydialog repInstRLT)catch()
+
+
+fn removeReflection = for m in sceneMaterials where iskindof m vraymtl do m.reflection = color 0 0 0
 
 fn sortMatbyname v1 v2 =
 (
@@ -604,8 +609,20 @@ fn convertToVrMatDef mat =
 		else if  matchpattern (getPropNames mat)[1] pattern: "Stone_Image" then
 		(
 			if hasProperty mat "Stone_Image" do vrMat.texmap_diffuse = mat.Stone_Image
--- 			converted = true
+			converted = true
 		)
+		else if matchpattern (getPropNames mat)[1] pattern: "Parameters_Color" then
+		(
+			if hasProperty mat "Generic_Color" do vrMat.diffuse = mat.Generic_Color
+			converted = true
+		)
+		else if matchpattern (getPropNames mat)[1] pattern: "Parameters_Color_Option" then
+		(
+			if hasProperty mat "Parameters_Color" do vrMat.diffuse = mat.Parameters_Color
+			if hasProperty mat "Parameters_Color_Map" do vrMat.texmap_diffuse = mat.Parameters_Color_Map
+			converted = true
+		)
+		
 		
 		else
 		(
@@ -642,6 +659,11 @@ fn convertToVrMatDef mat =
 	)
 	else()
 )
+
+-- showproperties meditMaterials[activeMeditSlot]
+
+-- convertToVrMatDef meditMaterials[activeMeditSlot]
+
 -- classof meditMaterials[activeMeditSlot]
 --  meditMaterials[activeMeditSlot].Metal_Color
 -- matchpattern (getPropNames meditMaterials[activeMeditSlot])[1] pattern: "Generic_*"
@@ -689,8 +711,6 @@ fn splitSmthGrpDef s =
 	)
 )
 -- splitSmthGrpDef $
-
-
 
 -- ### collect same multi material
 fn collectSameMultiMat3 matRef matSet=
@@ -824,6 +844,9 @@ rollout deMultiMatRLT "Materials Tools"
 		button convertAllMatToVrBT "convert All standards to vray mat" -- across:2
 		button convertAutodeskToVrBT "convert Autodesk Materials to vray mat" -- across:2
 		button convertAllMatToGGXBT "convert All Vray mat to GGX" -- across:2
+		
+		button removeReflectionBT "remove reflection"
+		
 -- 		button showBT "show properties"
 
 -- 		button collectVrMtlBT "collect material"
@@ -1189,6 +1212,11 @@ rollout deMultiMatRLT "Materials Tools"
 	on convertAllMatToGGXBT pressed do
 	(
 		convertToGGX()
+	)
+	
+	on removeReflectionBT pressed do
+	(
+		removeReflection()
 	)
 	
 	on okConvertBT pressed do

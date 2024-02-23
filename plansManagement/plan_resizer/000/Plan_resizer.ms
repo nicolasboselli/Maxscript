@@ -229,7 +229,7 @@ rollout planResizerRLT "blueprint resizer" width: 250
 	
 	group "Numeric:"
 	(
-		spinner size_sp "real size:" range: [0,100000,0]  type: #worldunits 
+		spinner size_sp "real size:" range: [0,1000000,0]  type: #worldunits 
 		-- display size reference	
 	)
 	

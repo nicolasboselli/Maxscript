@@ -7,15 +7,64 @@ x- collecter les textures dans un dossier au nom de l'asset, dans la biblio text
 	x- prendre en charge les vray bitmap
 	
 /- renommer les nodes en plus des vray mtl
-  
-- outil pour assigner des couleur de RAL sur le picker ouvert/sur la diffuse du material selectionné
 
-- outil pour conformer les fenetres: reset xform, position pivot, tag windows template, group orienter en x pour object replacer
+---pour asset forest pack
+- outil pour collecter les vrmeshes
+x- laisser les sources fp dans un calque
+- faire un refresh aprés un renommage
 
 x- importer un personnage
 "M:\Biblio\VISIOLAB\2-Assets3D\Travail_en_cours\Nico\perso_gabarit.max"
 */
+fn clusterAttach objArr =
+(
+	j = 1
+	k = 0
+	count = objArr.count
 
+	undo off
+	(
+		while objArr.count > 1 do
+		(
+			
+			
+			if classof objArr[j].baseobject != editable_Mesh then converttoMesh objArr[j]
+				
+			-- DESINSTANCE
+			
+			if (InstanceMgr.CanMakeObjectsUnique objArr[j]) then
+			(
+-- 				format "desinstance: %\n" objArr[j].name
+				InstanceMgr.MakeObjectsUnique objArr[j] #prompt
+			)
+			
+			if (InstanceMgr.CanMakeObjectsUnique objArr[j+1]) then
+			(
+-- 				format "desinstance: %\n" objArr[j+1].name
+				InstanceMgr.MakeObjectsUnique objArr[j+1] #prompt
+			)
+			
+			-- ATTACH
+			if k == 100 then 
+			(
+				windows.ProcessPostedMessages()
+				format "rest: % objects. numface [j]: % [j+1]: % \n"  objArr.count objArr[j].numfaces objArr[j+1].numfaces
+				k = 0
+			)
+			
+			
+			attach objArr[j] objArr[j+1]
+			
+			deleteItem objArr (j+1)
+
+			j += 1
+			k += 1
+
+			if (j + 1) > objArr.count then j = 1
+		)
+	)
+	objArr[1]
+)
 
 fn deleteEmptyLayer = 
 (
@@ -37,8 +86,6 @@ fn deleteEmptyLayer =
 	)
 )	
 -- deleteEmptyLayer()
-
-	
 
 fn renameAssetByLayer l =
 (
@@ -151,8 +198,7 @@ fn renameAssetByLayer l =
 
 fn cleanFile =
 (
-	
-	
+		
 	-- remove missing dll
 	filein (getroot() + @"sceneManagement/removeMissingDll.ms")
 	
@@ -194,6 +240,10 @@ fn cleanFile =
 	getRenderType ()
 	-- clean render path
 	rendOutputFilename = ""
+	
+	vr = renderers.current
+	vr.output_splitfilename = ""
+	
 )
 
 
@@ -268,27 +318,99 @@ fn copyTextures =
 	makeDir textDir
 
 	-- copier toutes les textures dans un nouveau dossier
-	for i = 2 to ATSOP_paths.count where (doesFileExist ATSOP_paths[i]) do
+	for i = 2 to ATSOP_paths.count where not (matchpattern ATSOP_paths[i] pattern: "*.vrmesh") do
 	(
-		newFile = (textDir + "\\" +(filenameFromPath (ATSOP_paths[i])))
-		if not doesFileExist newFile then
+		if not (doesFileExist ATSOP_paths[i]) then
 		(
-			format "copyFile ATSOP_paths[i]: %  newFile: % \n" ATSOP_paths[i]  newFile
-			copyFile ATSOP_paths[i]  newFile
+			format "% : File does not exist: %\n" i ATSOP_paths[i]
 		)
-		else(format "still exist: %\n" newFile)
-		
-		-- rediriger les textures
-		ATSOps.SelectFiles ATSOP_paths[i]
-		ATSOps.SetPathOnSelection textDir
+		else if matchpattern ATSOP_paths[i] pattern: (texturePref+"*") then
+		(	
+			format "	% : Already good path: %\n" i ATSOP_paths[i]
+		)
+		else
+		(
+-- 			format "% : copy path: %\n" i ATSOP_paths[i]
+			
+			newFile = (textDir + "\\" +(filenameFromPath (ATSOP_paths[i])))
+			if not doesFileExist newFile then
+			(
+				format "copyFile ATSOP_paths[i]: %  newFile: % \n" ATSOP_paths[i]  newFile
+				copyFile ATSOP_paths[i]  newFile
+			)
+			else(format "still exist: %\n" newFile)
+			
+			-- rediriger les textures
+			ATSOps.SelectFiles ATSOP_paths[i]
+			ATSOps.SetPathOnSelection textDir 
+		)
+
 	)
 )
+
+
+fn copyVrmeshes = 
+(
+		-- collecter tous les chemin de textures
+	ATSOps.Refresh() 
+	ATSOP_paths_count = ATSOps.NumFiles() 
+	ATSOps.GetFiles &ATSOP_paths
+	ATSOP_paths
+
+	-- créer le dossier texture
+-- 	textDir = @"M:\Biblio\VISIOLAB\1-Textures\Assets3d\Elements_batiments\Maps"
+	-- textDir = (maxFilePath + (getFilenameFile maxFileName) + "_TEXTURES")
+	-- makeDir textDir
+	
+	assetPref = @"M:\Biblio\VISIOLAB\2-Assets3D"
+	texturePref = @"M:\Biblio\VISIOLAB\1-Textures\Assets3d"
+
+	textDir = (substituteString maxFilePath  assetPref texturePref) + (getFilenameFile maxFileName)
+	makeDir textDir
+
+	-- copier toutes les textures dans un nouveau dossier
+	for i = 2 to ATSOP_paths.count where (matchpattern ATSOP_paths[i] pattern: "*.vrmesh") do
+	(
+		if not (doesFileExist ATSOP_paths[i]) then
+		(
+			format "% : File does not exist: %\n" i ATSOP_paths[i]
+		)
+		else if matchpattern ATSOP_paths[i] pattern: (texturePref+"*") or matchpattern ATSOP_paths[i] pattern: (assetPref+"*") then
+		(
+			format "	% : Already good path: %\n" i ATSOP_paths[i]
+		)
+		else 
+		(
+			-- 			format "% : copy path: %\n" i ATSOP_paths[i]
+			
+			newFile = (textDir + "\\" +(filenameFromPath (ATSOP_paths[i])))
+			if not doesFileExist newFile then
+			(
+				format "copyFile ATSOP_paths[i]: %  newFile: % \n" ATSOP_paths[i]  newFile
+				copyFile ATSOP_paths[i]  newFile
+			)
+			else(format "still exist: %\n" newFile)
+			
+			-- rediriger les textures
+			ATSOps.SelectFiles ATSOP_paths[i]
+			ATSOps.SetPathOnSelection textDir 
+		)
+	)
+)	
+copyVrmeshes()
 
 -- ### geometry
 -- reset xform sur les objets
 -- placer les objets au centre de la scene (mettre le pivot à [0,0,0])
 -- supprimer les objets nuls
 --#### RENOMMAGE
+fn createLayer layerName =
+(
+	if not iskindof (layermanager.getlayerfromname layerName) MixinInterface then layermanager.newlayerfromname layerName
+	local l = layermanager.getlayerfromname layerName
+	l
+)	
+
 fn renameAsset daddyName: "02_BAT" daddyCoolName: "00_ELTS_BAT" renameByLayer: true =
 (
 	local layersToolsRLT
@@ -467,6 +589,11 @@ rollout assetToolsRLT "asset tools"
 	(
 		button cleanFileBT "clean file"
 		button importPeopleBT "import people"
+		
+		button delModBT "del modifiers" enabled: false
+		button resetXformBT "resetXform" enabled: false
+		button scale1BT "scale1" enabled: false
+		button pivotToOriginBT "pivot to zero"
 	)
 	button saveTmpBT "open saver"
 	
@@ -484,13 +611,20 @@ rollout assetToolsRLT "asset tools"
 		button renameAssetBT "for \"02_bat\""
 		button renameAssetBT2 "for \"03_masse\""
 		button renameAssetBT3 "for \"HAB\""
+		button renameAssetBT4 "for Forest Pack id 45"
+	)
+	
+	group "proxy:"
+	(
+		button createProxyBT "create proxy" tooltip: "crée le proxy avec le mat, à la façon du project manager, sans les erreurs d'idMat"
+		button createProxy2BT "create proxy v2" tooltip: "à utiliser quand le bouton au dessus a mal focntionné"
 	)
 		
 	group "MaxTree:"
 	(
 		button MaxTreeBT "Go MaxTrees!" tooltip: "1 - création de la hiérarchie:\nHAB \n   > ARBRES\n     > [nom du fichier]\n     > objects renommés\n
 2 - tous les objets de la scène sont déplacés dans le calque.
-\n3 - Tous les objets sont passés en render properties bay layer et id de gbuffer 55"  
+\n3 - Tous les objets sont passés en render properties bay layer et id de gbuffer 55"  enabled: false
 	)
 	
 	on cleanFileBT pressed do
@@ -504,25 +638,16 @@ rollout assetToolsRLT "asset tools"
 		mergeMaxFile @"M:\Biblio\VISIOLAB\2-Assets3D\Travail_en_cours\Nico\perso_gabarit.max"
 	)
 	
+	on pivotToOriginBT pressed do
+	(
+		sel = selection as array
+		for s in sel where isGroupHead s do s.pivot = point3 0 0 0
+	)
+	
+	
 	on saveTmpBT pressed do
 	(
 		filein "asset_saver.ms"
-		
-		/*
-		local tmpMaxFile = @"M:\Biblio\VISIOLAB\2-Assets3D\Travail_en_cours\Nico\3d_sky\" + "TMP_" + maxFileName 
--- 		maxFileName
--- 		maxFilePath 
- 		local res = saveMaxFile tmpMaxFile
-		if res then
-		(
-			format "save as done: %\n" tmpMaxFile
-		)
-		else
-		(
-			format "save as failed: %\n" tmpMaxFile
-		)
-		*/
-		
 	)
 	
 	on convertToVrBmpBT pressed do
@@ -550,7 +675,7 @@ rollout assetToolsRLT "asset tools"
 	
 	on renameAssetBT2 pressed do
 	(
-		renameAsset daddyName: "03_MASSE" dassyCoolName: "00_VOIRIE"
+		renameAsset daddyName: "03_MASSE" daddyCoolName: "00_VOIRIE"
 		deleteEmptyLayer()
 		try(destroy layersToolsRLT)catch()
 	)
@@ -563,10 +688,100 @@ rollout assetToolsRLT "asset tools"
 		try(destroy layersToolsRLT)catch()
 	)
 	
+	on renameAssetBT4 pressed do
+	(	
+
+		objID = 45
+		-- création du layer de l'asset
+		daddyL = createLayer "HAB"
+		assetLayer = createLayer ((getFilenameFile  maxFileName) + "_id" + (objID as string))
+		assetLayer.setParent daddyL
+		
+		for o in objects do assetLayer.addnode o
+		
+		-- création du layer des template de forest
+		zLayer = createLayer "Z_OFF"
+		fpLayer =  createLayer "Forest_Template"
+		fpLayer.setParent zLayer
+		
+		for o in geometry where iskindof o Forest_Pro do
+		(
+			-- application de l'id object 45
+			o.gbufferchannel = objID
+			
+			fpNodesListNames = o.conamelist
+			fpNodesList = #()
+
+			for n in fpNodesListNames do
+			(
+				nodeRC = getnodebyname n
+-- 				format "nodeRC: %\n" nodeRC
+				if isValidNode nodeRC then 
+				(
+					fpLayer.addnode nodeRC
+					
+					-- freeze du forest template 
+					nodeRC.isFrozen = true
+					
+					-- rename des vrproxies par rapport au nom de l'asset
+					testName = (matchPattern  nodeRC.name pattern: (o.name + "*"))
+-- 					format "nodeRC.name: % res: %\n" nodeRC.name testName
+					if not testName then nodeRC.name = o.name + "_" + nodeRC.name
+					
+				)
+			) 
+		)
+
+		-- vray id 45 sur les materiaux
+		
+		deleteEmptyLayer()
+		try(destroy layersToolsRLT)catch()
+		
+	)
+	
 	on renameMatBT pressed do
 	(
 		renameMat ()
 	)
+	
+	on createProxyBT pressed do
+	(
+		sel = selection as Array
+		maxOps.CloneNodes sel cloneType: #copy  newNodes: &copySel
+		select copySel
+		 
+		meshFileName = maxFilePath  + (getFilenameFile maxFileName )
+		vrayProxies = vrayMeshExport meshFile:meshFileName autoCreateProxies: true exportMultiple: false createMultiMtl: true condenseMultiMtl: true
+
+		vrPoxyMat = materialLibrary  vrayProxies[1].material
+		saveTempMaterialLibrary vrPoxyMat (meshFileName + ".vrmesh.mat")
+
+		select vrayProxies
+	)
+	
+	on createProxy2BT pressed do
+	(
+		sel = selection as Array
+		maxOps.CloneNodes sel cloneType: #copy  newNodes: &copySel
+		-- select copySel
+
+		explodeGroup copySel
+		copySel = for s in copySel where isValidNode s collect s
+		meshToproxy = clusterAttach copySel
+
+		meshToproxy.pivot = point3 0 0 0
+		ResetXForm meshToProxy
+		converttopoly meshToProxy
+
+		meshFileName = maxFilePath  + (getFilenameFile maxFileName )
+		vrayProxies = vrayMeshExport nodes: meshToProxy  meshFile:meshFileName autoCreateProxies: true -- exportMultiple: false -- createMultiMtl: true condenseMultiMtl: true
+
+		vrPoxyMat = materialLibrary  meshToProxy.material
+		saveTempMaterialLibrary vrPoxyMat (meshFileName + ".vrmesh.mat")
+
+		select meshToProxy
+	)
+	
 	
 	on MaxTreeBT pressed do
 	(

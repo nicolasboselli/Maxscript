@@ -2,15 +2,15 @@
 /*
 
 maj:
-/- placer le premier main plus au centre du balcon, s'appuer sur les coordonnées border
+/- placer le premier main plus au centre du balcon, s'appuer sur les coordonnï¿½es border
 -- mettre un seed sur le placement des objets
-x- ajouter une zone de bordure à ignorer pour le main, dissocier la valeur border en deux
-x- faire un prévisionnel de la durée du findimpact, précalculer le nombre d'impact à trier, mettre à jour le nombre tiré
+x- ajouter une zone de bordure ï¿½ ignorer pour le main, dissocier la valeur border en deux
+x- faire un prï¿½visionnel de la durï¿½e du findimpact, prï¿½calculer le nombre d'impact ï¿½ trier, mettre ï¿½ jour le nombre tirï¿½
 x- parametrer shift en z
 x- parametrer longueur des splines
 
--- plantage quand on augmente le border, peut être pas la place de placer les objets
-
+-- plantage quand on augmente le border, peut ï¿½tre pas la place de placer les objets
+23/08/30: le main commence ï¿½ marcher, rï¿½glage plus intuitif. par contre il faut trouver une solution pour que le border ne soit pas trop au bord
 
 */
 
@@ -234,7 +234,8 @@ fn findMainImpact s grpImp Size: 30 =
 			(
 				-- oneAng = 
 				shift = point3  (cos oneAng) (sin oneAng) 1
-				shift = shift * ( point3 (size*2) (size*2) 50)
+-- 				shift = shift * ( point3 (size*2) (size*2) 50)
+				shift = shift * ( point3 size size 50)
 			
 				posTest = imp + shift
 
@@ -279,7 +280,7 @@ fn findMainImpact s grpImp Size: 30 =
 	
 )
 
--- trouver des bordu des groupes par distance
+-- trouver des bordures des groupes par distance
 fn findBorderImpact2 s grpImpAr size: 30 =
 (
 	format "############ BORDER IMPACTS s: % ###########\n" s.name
@@ -300,7 +301,7 @@ fn findBorderImpact2 s grpImpAr size: 30 =
 			(
 				-- oneAng = 
 				shift = point3  (cos oneAng) (sin oneAng) 1
-				shift = shift * ( point3 (size*2) (size*2) 50)
+				shift = shift * ( point3 (size) (size) 50)
 			
 				posTest = imp + shift
 
@@ -316,7 +317,86 @@ fn findBorderImpact2 s grpImpAr size: 30 =
 				)
 				else 
 				(
-					goodforDessing = true
+					local zDist = distance (point3 0 0 imp.z) (point3 0 0  res.pos.z )
+					if zDist < 1 then 
+					(
+-- 						format "imp.z: % res.pos.z: % \n" imp.z  res.pos.z -- tester si on tape sur un balcon en dessous
+						goodforDessing = true
+					)
+					else
+					(
+						goodforDessing = false
+						exit
+					)
+					
+-- 					goodforDessing = true
+				)
+			)
+			
+			if goodforDessing then
+			(
+				append goodForDressingAr imp
+			)
+			else
+			(
+				append goodForBorderAr  imp
+			)
+-- 		)
+	)
+	
+	#(goodForDressingAr, goodForBorderAr)
+)
+
+-- trouver des bordures des groupes par distance
+fn findBorderImpact3 s grpImpAr size: 30 =
+(
+	format "############ BORDER IMPACTS s: % ###########\n" s.name
+
+	local goodForDressingAr = #()
+	local goodForBorderAr = #()
+-- 	local goodForBorderAr2 = #()
+
+	for imp in grpImpAr do
+	(
+-- 		(
+	-- 		format "== start test imp: %\n" imp
+			local goodforDessing = false
+			local res
+			local posTest
+		
+			for oneAng = 0 to 360 by 45  do
+			(
+				-- oneAng = 
+				shift = point3  (cos oneAng) (sin oneAng) 1
+				shift = shift * ( point3 (size) (size) 50)
+			
+				posTest = imp + shift
+
+				oneRay = ray  posTest (point3 0 0 -1)
+
+				local res = intersectRay s oneRay
+				
+				if res == undefined then 
+				(
+	-- 				format "oneRay: % res: %\n" oneray res
+					goodforDessing = false
+					exit
+				)
+				else 
+				(
+					local zDist = distance (point3 0 0 imp.z) (point3 0 0  res.pos.z )
+					if zDist < 1 then 
+					(
+-- 						format "imp.z: % res.pos.z: % \n" imp.z  res.pos.z -- tester si on tape sur un balcon en dessous
+						goodforDessing = true
+					)
+					else
+					(
+						goodforDessing = false
+						exit
+					)
+					
+-- 					goodforDessing = true
 				)
 			)
 			
@@ -371,9 +451,9 @@ fn sortByGroup allImpAr shift: 50 =
 			)	
 		)
 		
-		-- si il y a un transfer répéter l'opération
+		-- si il y a un transfer rï¿½pï¿½ter l'opï¿½ration
 		-- s'il n'y a plus de collecte 
-		-- création d'un nouveau groupe s'il n'y a pas de nouvelle collecte
+		-- crï¿½ation d'un nouveau groupe s'il n'y a pas de nouvelle collecte
 		
 		if allImpAr.count > 0 then append grpImpAr #(allImpAr[1])
 		if turn > 200 then 
@@ -386,7 +466,7 @@ fn sortByGroup allImpAr shift: 50 =
 	grpImpAr
 )
 
--- dans les positions collectées pour le dressing 
+-- dans les positions collectï¿½es pour le dressing 
 fn distImpact goodForDressingAr size2: 80 multi2: 2 = 
 (
 	format "############ DISTANCES IMPACTS ###########\n"
@@ -424,7 +504,7 @@ fn distImpact goodForDressingAr size2: 80 multi2: 2 =
 	-- 			format "onePerfect: % oneGood: %\n" onePerfect oneGood
 				testDist = distance onePerfect oneGood
 
-				-- suppression des points trop prêts
+				-- suppression des points trop prï¿½ts
 				if testDist < (size2*multi2) then
 				(
 					toDel = finditem oneForDressing oneGood
@@ -432,7 +512,7 @@ fn distImpact goodForDressingAr size2: 80 multi2: 2 =
 					
 	-- 				format "delete oneGood: %\n" oneGood 
 				)
-				-- collecter le point le plus prêt
+				-- collecter le point le plus prï¿½t
 				else if testDist < minDist and  testDist >= (size2*multi2) then
 				(		
 					reallyGood = true
@@ -472,7 +552,7 @@ fn distImpact goodForDressingAr size2: 80 multi2: 2 =
 	perfectForDressingAr
 )
 
--- déroulé
+-- dï¿½roulï¿½
 try(destroydialog BalconizerRLT)catch()
 rollout BalconizerRLT "Spline BalconIzer v.alpha"
 (
@@ -496,15 +576,15 @@ rollout BalconizerRLT "Spline BalconIzer v.alpha"
 	group "Main (Table):" 
 	(
 		spinner mainExclusionSP "Exclusion:" type: #worldunits range: [0,500,50]
-		spinner mainRadiusSP "Density:" type: #worldunits range: [0,500,150]
-		button createMainHelperBT "Create Main"  height: 30 width: 100
+		spinner mainRadiusSP "Object radius:" type: #worldunits range: [0,500,150]
+		button createMainHelperBT "Create Main"  height: 30 width: 100 enabled: false
 		button createMainHelper2BT "Create Main 2"  height: 30 width: 100
 	)
 		
 	group "Border (Pots):"
 	(
-		spinner borderRadiusSP "Radius:" type: #worldunits range: [0,500,50]
-		spinner borderDensitySP "Density:" type: #worldunits range: [0,500,150]
+		spinner borderRadiusSP "Inclusion:" type: #worldunits range: [0,500,50]
+		spinner borderDensitySP "Object radius:" type: #worldunits range: [0,500,150]
 		button createBorderHelperBT "Create Borders"  height: 30 width: 100
 	)
 	
@@ -522,7 +602,6 @@ rollout BalconizerRLT "Spline BalconIzer v.alpha"
 	(
 		writeRolloutParams BalconizerRLT Params
 	)
-
 	
 	on createMainHelperBT pressed do
 	(
@@ -571,52 +650,57 @@ rollout BalconizerRLT "Spline BalconIzer v.alpha"
 		for s in sel do 
 		(
 			-- recherche des impacts
-			allImp2Ar += findImpacts2 s shift: ImpactShiftSP.value 
+			allImp2Ar = findImpacts2 s shift: ImpactShiftSP.value 
 			
 			oneMainGroup = findMainImpact s allImp2Ar Size: ( mainExclusionSP.value + mainRadiusSP.value )
 			twoArrays[1] += oneMainGroup
 			
 		)
+		format "twoArrays[1]: %\n" twoArrays[1]
 		
-		MainGrpImpAr = sortByGroup twoArrays[1] shift: 50
-		-- test des distances
-		perfectForDressingAr = distImpact MainGrpImpAr size2: mainRadiusSP.value
-		
-		-- creation de Circle
-		local makeCircle = true
-		
-		if makeCircle then
+		if twoArrays[1].count == 0 then()
+		else
 		(
-			for grpImp in perfectForDressingAr do
+			MainGrpImpAr = sortByGroup twoArrays[1] shift: 50
+			
+			-- test des distances
+			perfectForDressingAr = distImpact MainGrpImpAr size2: mainRadiusSP.value
+			
+			-- creation de Circle
+			local makeCircle = false
+			
+			if makeCircle then
 			(
-				for imp in grpImp do 
+				for grpImp in perfectForDressingAr do
 				(
-					circle pos: imp radius: mainRadiusSP.value
-				)
-			)
-		)
-		
-		
-		-- creation de la spline dressing
-		local MakeSpline = false
-		
-		if makeSpline then 
-		(
-			try(delete newShape)catch()
-			newShape = splineShape wirecolor: red name: (Uniquename "balcon_main_FP_guide_")
-			for grpImp in perfectForDressingAr do
-			(
-				for imp in grpImp do 
-				(
-					num = addNewSpline newShape
-					
-					addKnot newShape num #corner #line imp
-					addKnot newShape num #corner #line (imp + (point3 SplineLenghtSP.value 0 0))
+					for imp in grpImp do 
+					(
+						circle pos: imp radius: mainRadiusSP.value
+					)
 				)
 			)
 			
-			updateShape newShape
-			redrawViews()
+			-- creation de la spline dressing
+			local MakeSpline = true
+			
+			if makeSpline then 
+			(
+				try(delete newShape)catch()
+				newShape = splineShape wirecolor: red name: (Uniquename "balcon_main_FP_guide_")
+				for grpImp in perfectForDressingAr do
+				(
+					for imp in grpImp do 
+					(
+						num = addNewSpline newShape
+						
+						addKnot newShape num #corner #line imp
+						addKnot newShape num #corner #line (imp + (point3 SplineLenghtSP.value 0 0))
+					)
+				)
+				
+				updateShape newShape
+				redrawViews()
+			)
 		)
 
 	)
@@ -624,6 +708,7 @@ rollout BalconizerRLT "Spline BalconIzer v.alpha"
 	on createBorderHelperBT pressed do
 	(
 		sel = selection as array
+		
 		for s in sel do
 		(
 			-- recherche des impacts
@@ -637,7 +722,7 @@ rollout BalconizerRLT "Spline BalconIzer v.alpha"
 		
 		BorderGrpImpAr = sortByGroup twoArrays[2] shift: 50
 		
-		-- selection des impacts à une certaine distance les uns des autres 
+		-- selection des impacts ï¿½ une certaine distance les uns des autres 
 		perfectForBorderAr = distImpact BorderGrpImpAr size2: borderDensitySP.value
 		
 		-- creation de la spline border

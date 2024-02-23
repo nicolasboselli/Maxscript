@@ -58,8 +58,8 @@ for sp = 1 to ( numsplines s)do
 	v1 = normalize (p1 - p2)
 	v2 = normalize (p4 - p3)
 
-	r2 = ray p2 v1
-	r1 = ray p3 v2
+	r1 = ray p2 v1
+	r2 = ray p3 v2
 
 	impact1 = intersectRay t r1
 	impact2 = intersectRay t r2
@@ -69,15 +69,17 @@ for sp = 1 to ( numsplines s)do
 	(	
 -- 		format "impact1.pos:%\n" = impact1.count
 -- 		format "impact start sp:  % node: % pos: %\n"  sp impact1.pos (impact1[impact1.count][2].pos + [2,2,2] * v1)
-		point pos: (impact1.pos) name: "impact start"
+		point pos: (impact1.pos) name: "impact start" wirecolor: orange
+-- 		setKnotPoint s sp 1 (impact1.pos)
 	)
-	else(format "% no impact1\n" sp)
+	else(format "no impact1 on sp: %\n" sp)
 -- 	
 	if not impact2 == undefined then
 	(
 -- 		format "impact2.count:%\n" = impact2.count
 -- 		format "impact end sp: % node: % pos: %\n" sp impact2[impact2.count][1] (impact2[impact2.count][2].pos + [2,2,2] * v2)
-		point pos:  (impact2.pos) name: "impact end"
+		point pos:  (impact2.pos) name: "impact end" wirecolor: blue
+-- 		setKnotPoint s sp (numKnots s sp) (impact2.pos)
 	)
-	else(format "% no impact2\n" sp)
+	else(format "no impact2 on sp: %\n" sp)
 )

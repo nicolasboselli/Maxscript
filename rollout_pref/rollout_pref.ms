@@ -36,8 +36,9 @@ fn writeRolloutParams rlt params =
 		(
 			
 			p = getProperty  rlt n
+			-- memo: ne fonctionne pas avec des variables global
 			format "n: %, p: %, classof p: %\n" n p (classof p)
-			
+				
 			-- collect rollout control
 			if superclassof p == RolloutControl then
 			(
@@ -67,6 +68,7 @@ fn writeRolloutParams rlt params =
 			-- collect variable
 			else if classof p == Array then
 			(
+				
 				local completeArray = with printAllElements on p as string
 				setINISetting armadasScriptsIni cat n completeArray
 			)
@@ -190,6 +192,7 @@ fn loadRolloutParams rlt params =
 			)
 			else if classof p == Array then
 			(
+				-- memo: initialiser l'array dans les variables du rollout pour qu'il soit reconnu par la fonction var = #()
 				local val = getINISetting armadasScriptsIni cat n
 				if val.count > 1 then
 				(

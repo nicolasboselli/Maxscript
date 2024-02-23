@@ -79,9 +79,9 @@ fn setVrayCamera2 =
 -- 	redrawviews ()
 -- 	newCam.targeted = true
 -- 	redrawviews ()
-	newCam.f_number = 7
-	newCam.shutter_speed = 350
-	newCam.iso = 50
+	newCam.f_number = 8
+	newCam.shutter_speed = 200
+	newCam.iso = 100
 		
 	l = checkLetC()
 	l.addnode newCam

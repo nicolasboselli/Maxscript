@@ -1,3 +1,3 @@
 classof meditMaterials[1].texmap_diffuse
 
-getclassinstances Autodesk_Map
+getclassinstances Autodesk_Map 

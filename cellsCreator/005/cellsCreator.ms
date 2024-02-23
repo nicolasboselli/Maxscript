@@ -310,6 +310,12 @@ rollout addPlan "Preparation du plan" width:350 height:230
 			myBitmap = onePlane.material.diffusemap.bitmap
 			onePlane.name = ("plane_" + (getFilenameFile (onePlane.material.diffusemap.filename))) 
 		)
+		else if isKindOf  onePlane.material vraymtl then
+		(
+			myBitmap = onePlane.material.texmap_diffuse.bitmap
+			onePlane.name = ("plane_" + (getFilenameFile (onePlane.material.texmap_diffuse.filename))) 
+			format "VrayMtl myBitmap:%\n" myBitmap
+		)
 		else(format "iskindof:%\n" onePlane.material)
 		
 		bitHeight = myBitmap.height
@@ -344,7 +350,6 @@ rollout addPlan "Preparation du plan" width:350 height:230
 			ajustUVWmap sel[1]
 			
 -- 			sel[1].name = ("plane_" + (getFilenameFile (sel[1].material.diffuseMap.filename))) 
-				
 				
 			local LM = layermanager
 			local lay 

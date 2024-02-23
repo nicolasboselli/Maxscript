@@ -38,8 +38,10 @@ basePath = getDirectories  ((getFilenamepath ATSOP_paths[1])+ "*") recurse: true
 -- ATSOps.GetFiles &ATSOP_paths
 -- autodeskPaths = getDirectories @"C:\Program Files (x86)\Common Files\Autodesk Shared\Materials\textures\*" recurse: true
 -- for o in autodeskPaths do format "%\n" o
-
-ATSOps.GetDependentFiles (maxfilepath + maxFileName) false &ATSOP_paths IncludeOutputFiles: false
+ATSOP_paths
+-- ATSOps.GetDependentFiles (maxfilepath + maxFileName) false &ATSOP_paths IncludeOutputFiles: false
+ATSOps.GetDependentFiles (maxfilepath + maxFileName) false &ATSOP_paths
+-- ATSOps.GetFiles &ATSOP_paths
 
 -- collecte des chemins à tester
 -- chemin du fichier max
@@ -63,7 +65,7 @@ for op in ATSOP_paths do
 	if (doesFileExist  op) then
 	(
 		goodBmpFile = op
-		format "goodBmpFile: %\n" goodBmpFile
+		format "i: % goodBmpFile: %\n" i goodBmpFile
 	)	
 	-- si le chemin du fichier n'existe pas, tester la présense du fichier sur une liste de dossier
 	else if not  (doesFileExist  op) then
@@ -99,47 +101,60 @@ for op in ATSOP_paths do
 
 -- maxfilename
 -- maxfilepath
+-- filenameFromPath maxFileName 
 
 -- copie des fichiers qui ne sont ni sur x ni sur m et relink
-/*
-textPath = @"X:\Eliasun\Aulnay_sous_bois_1023\Perspective\Perspective\Textures\"
-ATSOps.GetDependentFiles (maxfilepath + maxFileName) false &ATSOP_paths IncludeOutputFiles: false
 
--- custom ressource collector dans le dossier texture su projet
-	-- si le fichier existe sur C et M
-		-- relinker sur M
-	-- si le fichier existe sur C et pas sur M
-		-- copier fichier et linker sur M
-	-- si le fichier existe pas sur C mais sur M
-		-- relinker sur M
-	-- si le fichier existe ni sur C, ni sur M
-		-- pas de solutions
-for op in ATSOP_paths do
+collectMaps = true
+
+if collectMaps then
 (
-	if doesFileExist op then
+-- 	textPath = @"X:\Green City_Immo\_Depot PC\Scionzier_1123\Perspective\textures"
+-- 	textPath =  @"W:\TAM Architecture\Lons_0124\Perspective\Textures"
+	textPath = @"W:\Green City_Immo\_Depot_PC\RisOrangis_0224\Perspective\textures"
+-- 	textPath = @"X:\Eliasun\Aulnay_sous_bois_1023\Perspective\Perspective\Textures\"
+	
+	ATSOps.GetDependentFiles (maxfilepath + maxFileName) false &ATSOP_paths IncludeOutputFiles: false
+
+	for op in ATSOP_paths do
 	(
-		if matchpattern op pattern: "M:*" or matchpattern op pattern: "X:*" then
+-- 		format "op: %\n" op
+		if doesFileExist op then
 		(
-			format "ok filename: %\n" op
+			if matchpattern op pattern: "M:*" or matchpattern op pattern: "X:*" or matchpattern op pattern: "W:*" then
+			(
+				format "ok filename: %\n" op
+			)
+			else
+			(
+				format "copy: % to % \n" op (textPath + "\\" + (filenameFromPath op))
+				
+				res = copyfile op (textPath + "\\" + (filenameFromPath op))
+				
+				format "res: %\n" res
+/* 				if res then
+				(
+					format "copy done: % to % \n" op (textPath + (filenameFromPath op))
+					ATSOps.SelectFiles op
+					ATSOps.SetPathOnSelection textPath	
+				) */
+				
+-- 				format "(textPath + (filenameFromPath op)): %\n" (textPath + "\\"+(filenameFromPath op))
+-- 				format "doesFileExist (textPath + (filenameFromPath op)): %\n" (doesFileExist (textPath + (filenameFromPath op)))
+				if doesFileExist (textPath + "\\"+(filenameFromPath op)) then
+				(
+					ATSOps.SelectFiles op
+					ATSOps.SetPathOnSelection textPath	
+				)
+			)
 		)
 		else
 		(
--- 			format "copy: % to % \n" op (textPath + (filenameFromPath op))
-		
-			res = copyfile op (textPath + (filenameFromPath op))
-			if res then
-			(
-				format "copy done: % to % \n" op (textPath + (filenameFromPath op))
-				ATSOps.SelectFiles op
-				ATSOps.SetPathOnSelection textPath	
-			)
+			format "file does not exist:%\n" op
 		)
 	)
-	else
-	(
-		format "file does not exist:%\n" op
-	)
 )
-*/
+
+
 
 

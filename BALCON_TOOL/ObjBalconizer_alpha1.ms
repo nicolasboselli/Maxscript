@@ -2,15 +2,15 @@
 maj:
 /- plus eloigner le premier main des bords
 x- rendre les settings Editable
-x-- memoriser les settings modifiés
+x-- memoriser les settings modifiï¿½s
 
 -- comparer le bounding box de l'objet avec la taille du balcon, s'il ne rentre pas, ne pas le mettre
 -- n'utiliser qu'une seule fois chaque objet sur une terrasse
 
 -- ajouter une liste de selection d'objets
-	-- remplir automatiquement la liste de selection à l'utilisation du script
+	-- remplir automatiquement la liste de selection ï¿½ l'utilisation du script
 -- mettre un pourcentage de distribution par objet au random
--- déposer des objets par Picker
+-- dï¿½poser des objets par Picker
 -- snapper des objets sur des surfaces au deplacement
 
 ref:
@@ -23,7 +23,7 @@ HAB_MOBILIER_TERRASSES
 -- filein "balcon_sb3.ms"
 -- try(destroydialog BalconizerRLT)catch()
 
-try(destroydialog Balconizer2RLT)catch()
+try (destroydialog Balconizer2RLT) catch ()
 rollout Balconizer2RLT "Objects Balconizer v.alpha"
 (
 	local Params = #("pos", "ImpactShiftSP", "ImpactZShiftSP", "mainExclusionSP", "borderRadiusSP", "mainRadiusSP", "borderDensitySP" )
@@ -38,7 +38,7 @@ rollout Balconizer2RLT "Objects Balconizer v.alpha"
 	(
 		spinner mainExclusionSP "Exclusion:" type: #worldunits range: [0,500,50]
 		spinner mainRadiusSP "Density:" type: #worldunits range: [0,500,150]
-		button randomObjBT "Create Main" height: 30 width: 100  tooltip: "1 - Selectionner les objets à dupliquer\n2 - Selectionner les balcons où dupliquer en dernier\n3 - Appuyer sur le bouton"
+		button randomObjBT "Create Main" height: 30 width: 100  tooltip: "1 - Selectionner les objets ï¿½ dupliquer\n2 - Selectionner les balcons oï¿½ dupliquer en dernier\n3 - Appuyer sur le bouton"
 	)
 	
 	group "Border (Pots):"
@@ -53,9 +53,9 @@ rollout Balconizer2RLT "Objects Balconizer v.alpha"
 		button snapObjBT "Snap Objects"
 -- 		button gravityBT "Gravity" enabled: false
 		button randRotZBT "Random Z"
-		button lessRotZBT "-45° Z"  across: 3
-		button zeroRotZBT "0° Z"
-		button moreRotZBT "+45° Z"
+		button lessRotZBT "-45ï¿½ Z"  across: 3
+		button zeroRotZBT "0ï¿½ Z"
+		button moreRotZBT "+45ï¿½ Z"
 		button getInstancesBT "Get Instance"
 		button replaceObjBT "Replace Object" enabled: true
 	)
@@ -116,7 +116,7 @@ rollout Balconizer2RLT "Objects Balconizer v.alpha"
 			for oneSet in selAr do
 			(
 				
-				-- sur chaque groupe calculer le déplacement en z
+				-- sur chaque groupe calculer le dï¿½placement en z
 				local zmax = point3 0 0 (10^6)
 				local zMin = 10^6
 				for s in oneSet where iskindof s GeometryClass do
@@ -149,7 +149,7 @@ rollout Balconizer2RLT "Objects Balconizer v.alpha"
 			zMaxAr.count
 
 
-			-- calculer la postion de l'objet par rapport à la position de différence
+			-- calculer la postion de l'objet par rapport ï¿½ la position de diffï¿½rence
 			for oneSet in perfectForDressingAr do
 			(
 				for p in oneSet do
@@ -157,10 +157,10 @@ rollout Balconizer2RLT "Objects Balconizer v.alpha"
 					local copyHead
 					local copyRef
 					
-					-- l'identité selectionnée
+					-- l'identitï¿½ selectionnï¿½e
 					local id = random 1 zMaxAr.count
 						
-					-- dupliquer l'objet tiré au sort
+					-- dupliquer l'objet tirï¿½ au sort
 					format "copy id: % obj: %\n" id selAr[id][1].name
 					maxOps.cloneNodes selAr[id][1] cloneType: #instance newNodes:&copyRef
 					for o in copyRef where o.parent == undefined do copyHead =  o
@@ -168,10 +168,10 @@ rollout Balconizer2RLT "Objects Balconizer v.alpha"
 			-- 		posObj = selAr[id][1].position
 					shift = selAr[id][1].position - zMaxAr[id]
 
-					-- à partir de la postion la plus basse de l'objet (zmax) calculer le saut
+					-- ï¿½ partir de la postion la plus basse de l'objet (zmax) calculer le saut
 				-- 	(zMaxAr[id] - p)
 					
-					-- déplacer l'objet duppliquer
+					-- dï¿½placer l'objet duppliquer
 					-- pt = point name: (uniquename ("pt_id" + (id as string) + "_")) --position: zMaxAr[id]
 -- 					rotate copyHead (angleaxis (random 0 360) [0,0,1])
 					copyHead.position = p + shift
@@ -226,7 +226,7 @@ rollout Balconizer2RLT "Objects Balconizer v.alpha"
 			for oneSet in selAr do
 			(
 				
-				-- sur chaque groupe calculer le déplacement en z
+				-- sur chaque groupe calculer le dï¿½placement en z
 				local zmax = point3 0 0 (10^6)
 				local zMin = 10^6
 				for s in oneSet where iskindof s GeometryClass do
@@ -259,7 +259,7 @@ rollout Balconizer2RLT "Objects Balconizer v.alpha"
 			zMaxAr.count
 
 
-			-- calculer la postion de l'objet par rapport à la position de différence
+			-- calculer la postion de l'objet par rapport ï¿½ la position de diffï¿½rence
 			for oneSet in perfectForDressingAr do
 			(
 				for p in oneSet do
@@ -267,10 +267,10 @@ rollout Balconizer2RLT "Objects Balconizer v.alpha"
 					local copyHead
 					local copyRef
 					
-					-- l'identité selectionnée
+					-- l'identitï¿½ selectionnï¿½e
 					local id = random 1 zMaxAr.count
 						
-					-- dupliquer l'objet tiré au sort
+					-- dupliquer l'objet tirï¿½ au sort
 					format "copy id: % obj: %\n" id selAr[id][1].name
 					maxOps.cloneNodes selAr[id][1] cloneType: #instance newNodes:&copyRef
 					for o in copyRef where o.parent == undefined do copyHead =  o
@@ -278,10 +278,10 @@ rollout Balconizer2RLT "Objects Balconizer v.alpha"
 			-- 		posObj = selAr[id][1].position
 					shift = selAr[id][1].position - zMaxAr[id]
 
-					-- à partir de la postion la plus basse de l'objet (zmax) calculer le saut
+					-- ï¿½ partir de la postion la plus basse de l'objet (zmax) calculer le saut
 				-- 	(zMaxAr[id] - p)
 					
-					-- déplacer l'objet duppliquer
+					-- dï¿½placer l'objet duppliquer
 					-- pt = point name: (uniquename ("pt_id" + (id as string) + "_")) --position: zMaxAr[id]
 -- 					rotate copyHead (angleaxis (random 0 360) [0,0,1])
 					copyHead.position = p + shift
@@ -323,7 +323,7 @@ rollout Balconizer2RLT "Objects Balconizer v.alpha"
 		for oneSet in selAr do
 		(
 			
-			-- sur chaque groupe calculer le déplacement en z
+			-- sur chaque groupe calculer le dï¿½placement en z
 			local zmax = point3 0 0 (10^6)
 			local zMin = 10^6
 			for s in oneSet where iskindof s GeometryClass do
@@ -570,7 +570,7 @@ rollout Balconizer2RLT "Objects Balconizer v.alpha"
 		)
 		selAr
 		
-		-- trouver le numero de groupe de la source à duppliquer
+		-- trouver le numero de groupe de la source ï¿½ duppliquer
 		for i = 1 to selAr.count do
 		(
 			res = finditem selAr[i] source
@@ -585,10 +585,10 @@ rollout Balconizer2RLT "Objects Balconizer v.alpha"
 		-- pour chaque autre GroupE
 		for i = 1 to selAr.count do
 		(
-			-- éviter de duppliquer le groupe source sur luimême
+			-- ï¿½viter de duppliquer le groupe source sur luimï¿½me
 			if i == SelArId then continue
 				
-			-- trouver la tête de groupe
+			-- trouver la tï¿½te de groupe
 			local groupHead
 			for o in selAr[i] where o.parent == undefined do groupHead =  o
 -- 			format "groupHead: %\n" groupHead

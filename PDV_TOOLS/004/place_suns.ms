@@ -42,7 +42,7 @@ rollout placeSun2RLT "place sun 2"
 		else
 		(
 			dummy_target = Targetobject wirecolor: yellow name:"VRaySun001.target"
-			sun = VRaySun name:"VRaySun001" pos:(point3 2000 2000 2000) isSelected:on size_multiplier: 1 enabled:on turbidity: 2.5 ozone: 0.35 sky_model: 4 target: dummy_target
+			sun = VRaySun name:"VRaySun001" pos:(point3 2000 2000 1000) isSelected:on size_multiplier: 1 enabled:on turbidity: 2.5 ozone: 0.35 sky_model: 4 target: dummy_target
 			format "sun created\n"
 		)
 		

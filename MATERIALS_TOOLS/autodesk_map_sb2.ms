@@ -1,6 +1,16 @@
-classof meditmaterials[activeMeditSlot]
-
 autodesk_map_ar = getClassInstances Autodesk_Map
+
+-- autodesk_map_ar[1].Parameters_Source.filename
+for am in autodesk_map_ar do
+(
+	
+	vrBmp = VRayBitmap HDRIMapName: am.Parameters_Source.filename
+	replaceInstances am vrBmp
+	
+)
+
+/*
+classof meditmaterials[activeMeditSlot]
 showproperties autodesk_map_ar[1]
 autodesk_map_ar[1].Parameters_Source
 
@@ -15,3 +25,4 @@ for c in cameras do
 	
 
 -- classof cameras[1].target
+*/

@@ -16,6 +16,9 @@ asset saver
 	-- prévoir un fonction d'ouverture d'asset(?)
 
 */
+
+-- getProperty assetSaverRLT "selFolderAr"
+
 try(destroydialog assetSaverRLT )catch()
 rollout assetSaverRLT "Asset Saver"
 (
@@ -26,23 +29,29 @@ rollout assetSaverRLT "Asset Saver"
 	local filesAr = #()
 	local namesToDisplay
 	
+	local makeSearch = false
+	
+	local selFolderAr= #()
+	local params = #("pos","selFolderAr")
+	
 	dropdownList historyDPL "Historic"
 	edittext folderET "Selected Folder:" 
 	button selectFolderBT "..." across: 2
 	button openExpBT "Open in Explorer"
 	
-	checkbox collapseNameCB "collapse name"
+	checkbox recursiveSearchCB "search in sub-folders" enabled: false
+	
+	checkbox collapseNameCB "collapse name (sow only last increment)" enabled: false
 
 	edittext searchET "search:"
 
-	
 	listbox basenamesLB "basenames:"
 	
 	edittext newNameET "newName:"
 	edittext fileNameET "Filename:"
 	button saveBT "save" across: 2
 	button saveSelBT "save selected"
-	edittext textureFolderET "Texture Folder:"
+	edittext textureFolderET "Texture Folder:" enabled: false
 
 	
 	fn refreshUI = 
@@ -51,23 +60,50 @@ rollout assetSaverRLT "Asset Saver"
 		
 		namesToDisplay = for f in filesAr collect getFilenameFile f
 			
-		if collapseNameCB.checked then format "collapseNameCB: %\n" true
-		else format "collapseNameCB: %\n" false
+-- 		if collapseNameCB.checked then format "collapseNameCB: %\n" true
+-- 		else format "collapseNameCB: %\n" false
+		
+		-- prise en compte du filtre dans la recherche
+		if makeSearch and searchET.text.count > 0 then
+		(
+			namesToDisplay = for oneName in namesToDisplay where matchpattern oneName pattern: ("*"+ searchET.text +"*") collect oneName
+			makeSearch = false
+		)
+		
+		-- classement des fichiers par ordre alphabétique
 		sort namesToDisplay
+		
 		basenamesLB.items = namesToDisplay
+		historyDPL.items = selFolderAr
 	)
 
 	on assetSaverRLT open do
 	(
+		loadRolloutParams assetSaverRLT Params
+		
+		format "selFolderAr: % count: % class: %\n" selFolderAr selFolderAr.count (classof selFolderAr)
+		
 		if selFolder == undefined then selFolder = coreDir
 		if not isDirectoryWriteable selFolder then selFolder = coreDir
-			
+		if selFolderAr == undefined then selFolderAr = #()
+		
 		filesAr = getfiles (selFolder + "\\*.max")
 		sort filesAr
 				
 		refreshUI()
 	)
 	
+	on assetSaverRLT close do
+	(
+		writeRolloutParams assetSaverRLT Params
+	)
+	
+	on historyDPL selected val do
+	(
+		filesAr = getfiles ( selFolderAr[val] + "\\*.max")
+		
+		refreshUI()
+	)
 
 	on folderET entered val do
 	(
@@ -80,14 +116,7 @@ rollout assetSaverRLT "Asset Saver"
 		refreshUI() 
 	)
 
-	on collapseNameCB changed val do 
-	(
-		format "state: %\n" val
-		if val then
-		(
-			
-		)
-	)
+
 	
 	on selectFolderBT pressed do
 	(
@@ -109,6 +138,11 @@ rollout assetSaverRLT "Asset Saver"
 			if isDirectoryWriteable selFolder then
 			(
 				filesAr = getfiles (selFolder + "\\*.max")
+				
+				if selFolderAr.count >= 5 then deleteitem selFolderAr 1
+				appendifunique selFolderAr selFolder
+				for i = 1 to  selFolderAr.count do format "f[%]: %\n" i selFolderAr[i]
+				
 			)
 			
 			refreshUI()
@@ -132,12 +166,10 @@ rollout assetSaverRLT "Asset Saver"
 	
 	
 	on searchET changed val do
-	(
-		namesToDisplay = for f in filesAr collect getFilenameFile f
--- 		format "val: %\n" val
-		namesToDisplay = for oneName in namesToDisplay where matchpattern oneName pattern: ("*"+ val +"*") collect oneName
-		sort namesToDisplay
-		basenamesLB.items = namesToDisplay
+	(	
+		makeSearch = true
+		refreshUI()
+-- 		makeSearch = false
 	)
 	
 	on basenamesLB selected nameID do
@@ -155,9 +187,14 @@ rollout assetSaverRLT "Asset Saver"
 	
 	on saveBT pressed do
 	(
-		if not doesFileExist fileNameET.text then saveMaxFile fileNameET.text else (format "le fichier % existe déjà.\n" fileNameET.text )
-		filesAr = getfiles (selFolder + "\\*.max")
-		refreshUI()
+		if not doesFileExist fileNameET.text then 
+		(
+			saveMaxFile fileNameET.text 
+			filesAr = getfiles (selFolder + "\\*.max")
+			makeSearch = true
+			refreshUI()
+		)
+		else (format "le fichier % existe déjà.\n" fileNameET.text )
 	)
 	
 	on saveSelBT pressed do
@@ -165,9 +202,15 @@ rollout assetSaverRLT "Asset Saver"
 		sel = selection as array
 		if not sel.count == 0 then
 		(
-			if not doesFileExist fileNameET.text then saveNodes selection fileNameET.text else (format "le fichier % existe déjà.\n" fileNameET.text )
-			filesAr = getfiles (selFolder + "\\*.max")
-			refreshUI()
+			if not doesFileExist fileNameET.text then 
+			(
+				saveNodes selection fileNameET.text
+				filesAr = getfiles (selFolder + "\\*.max")
+				makeSearch = true
+				refreshUI()
+			)
+			else (format "le fichier % existe déjà.\n" fileNameET.text )
+
 		)
 		else(format "Faites une selection avant de sauvegarder.\n")
 	)

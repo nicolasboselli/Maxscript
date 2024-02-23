@@ -7,7 +7,6 @@ maj:
 
 fn collectGrid =
 (
-	
 	local gridAr = for o in $* where  iskindof o grid collect o
 	gridAr
 )

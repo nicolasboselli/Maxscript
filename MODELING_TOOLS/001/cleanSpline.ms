@@ -1,9 +1,9 @@
-fn cleanspline s =
+fn cleanspline s tres: 0.1  =
 (
-	spCount = numSplines   s
+	spCount = numSplines s
 
 	-- getKnotPoint  $ 1 1
-	tres = 0.1
+-- 	tres = 0.1
 
 	for sp = 1 to spCount do
 	(
@@ -129,6 +129,12 @@ fn cleanspline s =
 	format "spline clean done: %\n" s.name
 )
 
+-- sel = selection as array
+/* undo on
+(
+	sel = selection as array
+	for s in sel do cleanspline s tres: 5.0
+) */
 -- sel = selection as array
 -- for s in sel do cleanspline s
 

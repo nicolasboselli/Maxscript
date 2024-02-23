@@ -141,7 +141,7 @@ fn collectWindowsGroup s =
 			
 -- 			exit
 		)
-		if grpAr.count >= 500 then 
+		if grpAr.count >= 1000 then 
 		(
 			format "Total Time: %s\n" (((timestamp()) - startingTime) / 1000 as float)
 			exit
