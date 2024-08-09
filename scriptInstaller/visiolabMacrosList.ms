@@ -15,7 +15,7 @@
 	global windowsToolsPath = @"WINDOWS_TOOL/005/windows_tools_float.ms"
 	global cleanMultiMatPath = @"MATERIALS_TOOLS/001/cleanMultimaterials.ms"
 -- 	global boxArchiPath = @"BOXERIZE_archi/001/boxerize_archi.ms"
-
+	global objIDToolPath = @"MATERIALS_TOOLS/objectIDTool.ms"
 	
 	macroScript ScriptLauncher
 	category: "Visiolab"
@@ -241,6 +241,16 @@
 -- 		filein cellsCreatorPath
 		filein ((getroot()) +  cleanMultiMatPath)
 	)
+	
+	macroscript  objIDTool
+	category: "Visiolab"
+	buttonText: " objectIDTool"
+	toolTip:""
+	icon: #("objIDTool",1)
+	(
+		filein ((getroot()) +  objIDToolPath)
+	)
+	
 	
 /* 	macroScript BoxerizeArchi
 	category: "Visiolab"

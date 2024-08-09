@@ -15,7 +15,15 @@ filein "replace_inst_mat_in_slate.ms"
 try(destroydialog repInstRLT)catch()
 
 
-fn removeReflection = for m in sceneMaterials where iskindof m vraymtl do m.reflection = color 0 0 0
+fn removeReflection = 
+(
+	vrMtlAr = getClassInstances vraymtl
+	for m in vrMtlAr do 
+	(
+		format "m: % m.reflection: % \n" m.name m.reflection
+		m.reflection = color 0 0 0
+	)
+)
 
 fn sortMatbyname v1 v2 =
 (
@@ -645,6 +653,13 @@ fn convertToVrMatDef mat =
 		format "mat: % class: % \n" mat.name (classof mat) 
 		vrMat = VRayMtl diffuse: mat.diffuse name: mat.name texmap_diffuse: mat.diffuseMap -- texmap_opacity: mat.opacityMap
 	)
+	else if iskindof mat PhysicalMaterial then 
+	(
+		format "	base_color: %\n" mat.base_color
+		format "	base_color_map: %\n" mat.base_color_map
+		vrMat = VRayMtl diffuse: mat.base_color name: mat.name texmap_diffuse: mat.base_color_map -- texmap_opacity: mat.opacityMap
+		converted = true
+	)
 	else (format "UNKNOW mat: % class: % \n" mat.name (classof mat) )
 	
 	if converted then 
@@ -844,6 +859,8 @@ rollout deMultiMatRLT "Materials Tools"
 		button convertAllMatToVrBT "convert All standards to vray mat" -- across:2
 		button convertAutodeskToVrBT "convert Autodesk Materials to vray mat" -- across:2
 		button convertAllMatToGGXBT "convert All Vray mat to GGX" -- across:2
+		button convertPhysicalToVrmatXBT "convert All physical mat to VrMat" -- across:2
+		
 		
 		button removeReflectionBT "remove reflection"
 		
@@ -1209,6 +1226,17 @@ rollout deMultiMatRLT "Materials Tools"
 		)
 	)
 	
+	on convertPhysicalToVrmatXBT pressed do
+	(
+		local matAr = getclassinstances PhysicalMaterial target: scenematerials
+		
+		for m in matAr do
+		(
+			format "\nstart convert physical mat: %\n" m
+			convertToVrMatDef m
+		)
+	)
+		
 	on convertAllMatToGGXBT pressed do
 	(
 		convertToGGX()

@@ -10,6 +10,7 @@ try(destroydialog cellsTransferRLT)catch()
 rollout cellsTransferRLT "Cells Transfer"
 (
 	local cellsLayersAr = #()
+	global freeLayersAr
 	global sourceLayerAr -- = #()
 	global targetLayerAr -- = #()
 
@@ -20,38 +21,58 @@ rollout cellsTransferRLT "Cells Transfer"
 		spinner endSP "end:" type: #integer range: [0,100,5]
 		button createCellsBT "create cells"
 	)
+	
+	button resetBT "reset"
 	multilistbox cellsLayerMTL "Cells layers:" height:15
 	
-	button addTargetBT "add target" across: 6
+	button addTargetBT "add target" across: 5
 	button removeTargetBT "remove target" 
-	button clearTargetBT "clear target" 
+
 	
 	button addSourceBT "add source"
 	button remSrcBT "remove source"
-	button clearSourceBT "source target" 
+-- 	button clearSourceBT "source target" 
 	
-	
+	button clearTargetBT "clear all" 
+		
 	listbox targetLayersMTL "targets:" height:15 across: 2
 	multilistbox sourceLayersMTL "sources:" height:15 
 	
-	button transferBT "TRANSFER !!!" width: 200 height: 50
+	button transferBT "TRANSFER SELECTED"  across: 2 --width: 200 height: 50
+	button transferAllBT "TRANSFER ALL!!!" width: 200 height: 50
 	
 	
 	fn refreshUI =
 	(
-		cellsLayerMTL.items = cellsLayersAr
+		cellsLayerMTL.items = freeLayersAr
 		targetLayersMTL.items = targetLayerAr
+		
 		try(sourceLayersMTL.items = sourceLayerAr[targetLayersMTL.selection])catch(sourceLayersMTL.items= #())
 	)
 	
 	on cellsTransferRLT open do
 	(
+		cellsLayersAr = for i = 0 to (LayerManager.count - 1) where  matchpattern (LayerManager.getLayer i).name pattern: "Cells*" collect (LayerManager.getLayer i).name
+		sort cellsLayersAr
+		
+		if freeLayersAr == undefined then freeLayersAr = for l in cellsLayersAr collect l
 		if sourceLayerAr == undefined then sourceLayerAr = #()
 		if targetLayerAr == undefined then targetLayerAr = #()
-		cellsLayersAr = for i = 0 to (LayerManager.count - 1) where  matchpattern (LayerManager.getLayer i).name pattern: "Cells*" collect (LayerManager.getLayer i).name
+			
 		refreshUI()
 	)
 	
+	on resetBT pressed do
+	(
+		cellsLayersAr = for i = 0 to (LayerManager.count - 1) where  matchpattern (LayerManager.getLayer i).name pattern: "Cells*" collect (LayerManager.getLayer i).name
+		sort cellsLayersAr
+		
+		freeLayersAr = for l in cellsLayersAr collect l
+		sourceLayerAr = #()
+		targetLayerAr = #()
+		
+		refreshUI()
+	)
 	
 	on createCellsBT pressed do
 	(
@@ -78,22 +99,34 @@ rollout cellsTransferRLT "Cells Transfer"
 	
 	on addTargetBT pressed do
 	(
-		local tmpAr = for i in (cellsLayerMTL.selection as array) collect cellsLayersAr[i]
+		-- ajout des layer au target Array
+		local tmpAr = for i in (cellsLayerMTL.selection as array) collect freeLayersAr[i]
 		for o in tmpAr do appendifunique targetLayerAr o
--- 		format "sel: %\n" 
 		
-		for l in targetLayerAr do
+		-- suppression des target de l'array freelayer
+		selAr = cellsLayerMTL.selection as array
+		for i= selAr.count to 1 by -1 do deleteitem freeLayersAr selAr[i]
+		
+		-- initialisation des array de sources
+		-- maj: empecher de rajouter toujours plus d'array
+ 		for l in targetLayerAr do
 		(
 			append sourceLayerAr #()
 		)
+		format "sourceLayerAr: %\n" sourceLayerAr
 		
 		refreshUI()
 	)
+	
+	
 	
 	on removeTargetBT pressed do
 	(
 -- 		targetLayersMTL.selection
 		local selId = targetLayersMTL.selection
+		append freeLayersAr targetLayerAr[selId]
+		sort freeLayersAr
+		
 		deleteitem targetLayerAr selId
 		deleteitem sourceLayerAr selId
 		
@@ -102,6 +135,7 @@ rollout cellsTransferRLT "Cells Transfer"
 	
 	on clearTargetBT pressed do
 	(
+		freeLayersAr = for l in cellsLayersAr collect l
 		targetLayerAr = #()
 		sourceLayerAr = #()
 		refreshUI()
@@ -109,27 +143,32 @@ rollout cellsTransferRLT "Cells Transfer"
 	
 	on addSourceBT pressed do
 	(
-		local tmpAr = for i in (cellsLayerMTL.selection as array) collect cellsLayersAr[i]
-		format "sel: %\n" targetLayersMTL.selection
-		
-		if sourceLayerAr[targetLayersMTL.selection] == undefined then sourceLayerAr[ targetLayersMTL.selection] = #()
-		for l in tmpAr do
-		(
-			appendifunique sourceLayerAr[targetLayersMTL.selection] l
-		)
-		format "sourceLayerAr: %\n" sourceLayerAr
+		-- ajout des layer au source Array
+		local tmpAr = for i in (cellsLayerMTL.selection as array) collect freeLayersAr[i]
+		if sourceLayerAr[targetLayersMTL.selection] == undefined then sourceLayerAr[targetLayersMTL.selection] = #()
+		for l in tmpAr do appendifunique sourceLayerAr[targetLayersMTL.selection] l
+			
+		-- -- suppression des sources de l'array freelayer
+		selAr = cellsLayerMTL.selection as array
+		for i= selAr.count to 1 by -1 do deleteitem freeLayersAr selAr[i]
+			
+
 		
 		refreshUI()
 	)
 	
 	on remSrcBT pressed do
 	(		
--- 		format "sourceLayersMTL.selection:%\n"  
 		idar = sourceLayersMTL.selection as array
-		format "idar:%\n"  idar
-		format "sourceLayerAr:%\n"  sourceLayerAr
-		for i = idar.count to 1 by -1 do deleteitem sourceLayerAr[targetLayersMTL.selection] idar[i]
-		format "sourceLayerAr:%\n"  sourceLayerAr
+
+		for i = idar.count to 1 by -1 do
+		(
+			append freeLayersAr sourceLayerAr[targetLayersMTL.selection][idar[i]]
+			deleteitem sourceLayerAr[targetLayersMTL.selection] idar[i]
+		)
+		
+		sort freeLayersAr
+
 		refreshui() 
 	)
 	
@@ -152,6 +191,24 @@ rollout cellsTransferRLT "Cells Transfer"
 			for c in tmpCells do targetLayer.addnode c
 		)
 
+	)
+	
+	on transferAllBT pressed do
+	(
+		for i = 1 to targetLayerAr.count do
+		(
+			local targetLayer = layermanager.getLayerFromName  targetLayerAr[i]
+-- 			format "targetLayer: %\n" targetLayer.name
+			
+			for Ar in sourceLayerAr[i] do
+			(
+				local l = layermanager.getLayerFromName  ar
+-- 				format "l:%\n" l.name
+				l.nodes &tmpCells
+				format "% to % ;tmpCells:%\n" l.name targetLayer.name  tmpCells
+				for c in tmpCells do targetLayer.addnode c
+			)
+		)
 	)
 )
 createdialog cellsTransferRLT width: 600 --height: 1500

@@ -4,17 +4,19 @@
 	local sel
 	local refMat
 	
-	group "instance vrmatl"
+	group "instance vrmtl"
 	 (
 		button selBT "sel node"
 		checkbox keepNameCB "Keep Name:" checked: true
-		edittext smeNodeET "mat name:"
-		button applyBT "instance"
+		edittext smeNodeET "mat name:" readonly: true
+		button applyBT "instance" across: 2
+		button copyMatBT "copy"
 	 )
 	
 	group "convert to vrbmp"
 	 (
-		 button convertToVrBmpBT "convert to vraybmp"
+		button convertToVrBmpBT "bmp > vraybmp"
+		button autodeskBmpToVrBmpBT "autodeskBmp > vraybmp"
 	 )
 	 
 	group "convert to ggx/roughtness"
@@ -55,6 +57,39 @@
 		)
 -- 		format "s:%\n" s
 		oneView.SelectNone()
+	)
+	
+	on copyMatBT pressed do
+	(
+		format "keepNameCB.checked: %\n" keepNameCB.checked
+		
+		oneView = sme.GetView (sme.activeView)
+		sel = oneView.GetSelectedNodes()
+		
+		format "check1\n" 
+		
+		for s in sel do
+		(
+			format "check11\n" 
+			format "refMat.reference: %\n" refMat.reference
+-- 			local copyMat = copy refMat.reference
+			format "check12\n" 
+			replaceInstances   s.reference  (copy refMat.reference)
+			format "check15\n" 
+			if keepNameCB.checked then 
+			(
+				s.reference.name = s.name
+			)
+			else 
+			(
+				s.name =  s.reference.name
+			)
+		)
+
+		format "check2\n" 
+		
+		oneView.SelectNone()
+		format "check3\n" 
 	)
 	
 	on convertToGGXBT pressed do
@@ -101,6 +136,27 @@
 		)
 	)
 
+	on autodeskBmpToVrBmpBT pressed do
+	(
+				smeAr = ((sme.getview 1).GetSelectedNodes())
+
+		for smeNode in smeAr do
+		(
+			if iskindof smeNode.reference Autodesk_Map then 
+			(
+				bmpFile = smeNode.reference.Parameters_Source.filename
+				vrBmp = VRayBitmap HDRIMapName: bmpfile
+				
+				replaceinstances smeNode.reference vrBmp
+			)
+		)
+	)
  )
  createdialog repInstRLT
+ 
+ 
+--  vrRAL = VRayColor color: blue
+--  showproperties vrRAL
+-- (sme.getview 1).CreateNode  vrRAL (point2 100 100)
+
  

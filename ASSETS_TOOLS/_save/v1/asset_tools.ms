@@ -1,9 +1,9 @@
 /*
 maj:
-x- crï¿½er fonction remove empty Layer
+x- créer fonction remove empty Layer
 - assigner les id objets selon post IT
 x- dissocier ggx de roughness
-x- collecter les textures dans un dossier au nom de l'asset, dans la biblio texture, relinkï¿½ les mapButton
+x- collecter les textures dans un dossier au nom de l'asset, dans la biblio texture, relinké les mapButton
 	x- prendre en charge les vray bitmap
 	
 /- renommer les nodes en plus des vray mtl
@@ -11,7 +11,7 @@ x- collecter les textures dans un dossier au nom de l'asset, dans la biblio text
 ---pour asset forest pack
 - outil pour collecter les vrmeshes
 x- laisser les sources fp dans un calque
-- faire un refresh aprï¿½s un renommage
+- faire un refresh aprés un renommage
 
 x- importer un personnage
 "M:\Biblio\VISIOLAB\2-Assets3D\Travail_en_cours\Nico\perso_gabarit.max"
@@ -96,7 +96,7 @@ fn renameAssetByLayer l =
 	l = LayerManager.getLayerFromName sel[1].name
 	*/
 	
-	-- collecte des calques enfants des calques selectionnï¿½s
+	-- collecte des calques enfants des calques selectionnés
 	j = 0
 	lAr = #(l)
 	for l in lAr do
@@ -266,7 +266,7 @@ fn convertToVrBitmap =
 			#W_angle, #V_Angle, #U_Angle, #Blur_Offset, 
 			#Noise_Amount, #Noise_Size, #Noise_Levels)
 			
--- 				copie des propriï¿½tï¿½s de coordonnï¿½es ignore: #UVTransform, #blur
+-- 				copie des propriétés de coordonnées ignore: #UVTransform, #blur
 -- 				propNamesAr = getPropNames smeNode.reference.coords
 		for p in propNamesAr do 
 		(
@@ -306,7 +306,7 @@ fn copyTextures =
 	ATSOps.GetFiles &ATSOP_paths
 	ATSOP_paths
 
-	-- crï¿½er le dossier texture
+	-- créer le dossier texture
 -- 	textDir = @"M:\Biblio\VISIOLAB\1-Textures\Assets3d\Elements_batiments\Maps"
 	-- textDir = (maxFilePath + (getFilenameFile maxFileName) + "_TEXTURES")
 	-- makeDir textDir
@@ -357,7 +357,7 @@ fn copyVrmeshes =
 	ATSOps.GetFiles &ATSOP_paths
 	ATSOP_paths
 
-	-- crï¿½er le dossier texture
+	-- créer le dossier texture
 -- 	textDir = @"M:\Biblio\VISIOLAB\1-Textures\Assets3d\Elements_batiments\Maps"
 	-- textDir = (maxFilePath + (getFilenameFile maxFileName) + "_TEXTURES")
 	-- makeDir textDir
@@ -397,11 +397,11 @@ fn copyVrmeshes =
 		)
 	)
 )	
--- copyVrmeshes()
+copyVrmeshes()
 
 -- ### geometry
 -- reset xform sur les objets
--- placer les objets au centre de la scene (mettre le pivot ï¿½ [0,0,0])
+-- placer les objets au centre de la scene (mettre le pivot à [0,0,0])
 -- supprimer les objets nuls
 --#### RENOMMAGE
 fn createLayer layerName =
@@ -500,223 +500,83 @@ fn renameAsset2 daddyName: "02_BAT"  =
 fn renameMat =
 (
 	assetName = getFilenameFile  maxFileName
-	
-	
-	multimaterialArray = getClassInstances Multimaterial target: sceneMaterials
 	k = 1
-	for m in multimaterialArray do
+	for m in scenematerials do
+	(
+		m.name = uniqueName (assetName + "_MTL_")
+		k += 1
+	)
+
+	-- classof $
+	multiAr = getClassInstances Multimaterial target: sceneMaterials
+	for m in multiAr where not MatchPattern m.name pattern: (assetName + "_MULTI*") do
 	(
 		m.name = (assetName + "_MULTI_" + (k as string))
 		k += 1
 	)
-	
-	vrBlendMtlArray = getClassInstances VRayBlendMtl target: sceneMaterials
-	k = 1
-	for m in vrBlendMtlArray do
-	(
-		m.name = (assetName + "_VRBLENDMTL_" + (k as string))
-		k += 1
-	)
 
-	vrMtlArray = getClassInstances VRayMtl target: sceneMaterials
-	k = 1
-	for m in vrMtlArray do
+	vrMatAr = getClassInstances VRayMtl target: sceneMaterials
+	for m in vrMatAr where not MatchPattern m.name pattern: (assetName + "_VRMLT*") do
 	(
 		m.name = (assetName + "_VRMLT_" + (k as string))
 		k += 1
 	)
 	
-	vrBitmapArray = getClassInstances VRayBitmap target: sceneMaterials
-	k = 1
-	for m in vrBitmapArray do
+	vrBmpAr = getClassInstances VRayBitmap target: sceneMaterials
+	for m in vrBmpAr where not MatchPattern m.name pattern: (assetName + "_VRBMP*") do
 	(
 		m.name = (assetName + "_VRBMP_" + (k as string))
 		k += 1
 	)
 	
-	bitmapTextureArray = getClassInstances Bitmaptexture target: sceneMaterials
-	k = 1
-	for m in bitmapTextureArray do
+	bmpAr = getClassInstances Bitmaptexture target: sceneMaterials
+	for m in bmpAr where not MatchPattern m.name pattern: (assetName + "_BMPTXT*") do
 	(
 		m.name = (assetName + "_BMPTXT_" + (k as string))
 		k += 1
 	)
 	
-	colorCorrectionArray = getClassInstances Color_Correction target: sceneMaterials
-	k = 1
-	for m in colorCorrectionArray do
+	colCorAr = getClassInstances Color_Correction target: sceneMaterials
+	for m in colCorAr where not MatchPattern m.name pattern: (assetName + "_COLCOR*") do
 	(
 		m.name = (assetName + "_COLCOR_" + (k as string))
 		k += 1
 	)
 	
-	outputArray = getClassInstances output target: sceneMaterials
-	k = 1
-	for m in outputArray do
+	outPutAr = getClassInstances output target: sceneMaterials
+	for m in outPutAr where not MatchPattern m.name pattern: (assetName + "_OUTPUT*") do
 	(
 		m.name = (assetName + "_OUTPUT_" + (k as string))
 		k += 1
 	)
 	
-	vrNormalMapArray = getClassInstances VRayNormalMap target: sceneMaterials
-	k = 1
-	for m in vrNormalMapArray do
+	vrNmAr = getClassInstances VRayNormalMap target: sceneMaterials
+	for m in vrNmAr where not MatchPattern m.name pattern: (assetName + "_VRNORM*") do
 	(
-		m.name = (assetName + "_VRNORMALMAP_" + (k as string))
+		m.name = (assetName + "_VRNORM_" + (k as string))
 		k += 1
 	)
 	
-	mixArray = getClassInstances Mix target: sceneMaterials
-	k = 1
-	for m in mixArray do
+	MixAr = getClassInstances Mix target: sceneMaterials
+	for m in MixAr where not MatchPattern m.name pattern: (assetName + "_MIX*") do
 	(
 		m.name = (assetName + "_MIX_" + (k as string))
 		k += 1
 	)
 	
-	vrColorArray = getClassInstances VrayColor target: sceneMaterials
-	k = 1
-	for m in vrColorArray do
+	VrColAr = getClassInstances VrayColor target: sceneMaterials
+	for m in VrColAr where not MatchPattern m.name pattern: (assetName + "_VRCOL*") do
 	(
-		m.name = (assetName + "_VRCOLOR_" + (k as string))
+		m.name = (assetName + "_VRCOL_" + (k as string))
 		k += 1
 	)
 	
-	fallOffArray = getClassInstances Falloff target: sceneMaterials
-	k = 1
-	for m in fallOffArray do
+	FalAr = getClassInstances Falloff target: sceneMaterials
+	for m in FalAr where not MatchPattern m.name pattern: (assetName + "_FAL*") do
 	(
-		m.name = (assetName + "_FALLOFF_" + (k as string))
+		m.name = (assetName + "_FAL" + (k as string))
 		k += 1
 	)
-	
-	vrDirtArray = getClassInstances VRayDirt target: sceneMaterials
-	k = 1
-	for m in vrDirtArray do
-	(
-		m.name = (assetName + "_VRDIRT_" + (k as string))
-		k += 1
-	)
-	
-	cellularArray = getClassInstances Cellular target: sceneMaterials
-	k = 1
-	for m in cellularArray do
-	(
-		m.name = (assetName + "_CELLULARS_" + (k as string))
-		k += 1
-	)
-	
-	compositeArray = getClassInstances CompositeTexturemap target: sceneMaterials
-	k = 1
-	for m in compositeArray do
-	(
-		m.name = (assetName + "_COMPOSITE_" + (k as string))
-		k += 1
-	)
-	
-	vrCompTexArray = getClassInstances VRayCompTex target: sceneMaterials
-	k = 1
-	for m in vrCompTexArray do
-	(
-		m.name = (assetName + "_COMPTEX_" + (k as string))
-		k += 1
-	)
-	
-	vrEdgesTex = getClassInstances VRayEdgesTex target: sceneMaterials
-	k = 1
-	for m in vrEdgesTex do
-	(
-		m.name = (assetName + "_VREDGESTEX_" + (k as string))
-		k += 1
-	)
-	
-	gradientRamp = getClassInstances Gradient_Ramp target: sceneMaterials
-	k = 1
-	for m in gradientRamp do
-	(
-		m.name = (assetName + "_GRADIENTRAMP_" + (k as string))
-		k += 1
-	)
-	
-	gradients = getClassInstances Gradient target: sceneMaterials
-	k = 1
-	for m in gradients do
-	(
-		m.name = (assetName + "_GRADIENT_" + (k as string))
-		k += 1
-	)
-	
-	vr2SidedMtl = getClassInstances VRay2SidedMtl target: sceneMaterials
-	k = 1
-	for m in vr2SidedMtl do
-	(
-		m.name = (assetName + "_VR2SIDEDMTL_" + (k as string))
-		k += 1
-	)
-	
-	vrLightMtl = getClassInstances VRayLightMtl target: sceneMaterials
-	k = 1
-	for m in vrLightMtl do
-	(
-		m.name = (assetName + "_VRLIGHTMTL_" + (k as string))
-		k += 1
-	)
-	
-	noises = getClassInstances Noise target: sceneMaterials
-	k = 1
-	for m in noises do
-	(
-		m.name = (assetName + "_NOISE_" + (k as string))
-		k += 1
-	)
-	
-	vrFastSSS2 = getClassInstances VRayFastSSS2 target: sceneMaterials
-	k = 1
-	for m in vrFastSSS2 do
-	(
-		m.name = (assetName + "_VRFASTSSS2_" + (k as string))
-		k += 1
-	)
-	
-	vrTriplanarTex = getClassInstances VRayTriplanarTex target: sceneMaterials
-	k = 1
-	for m in vrTriplanarTex do
-	(
-		m.name = (assetName + "_VRTRIPLANARTEX_" + (k as string))
-		k += 1
-	)
-
-	vrCarPaintMtl = getClassInstances VRayCarPaintMtl target: sceneMaterials
-	k = 1
-	for m in vrCarPaintMtl do
-	(
-		m.name = (assetName + "_VRCARPAINTMTL_" + (k as string))
-		k += 1
-	)
-	
-	vertexColor = getClassInstances Vertex_Color target: sceneMaterials
-	k = 1
-	for m in vertexColor do
-	(
-		m.name = (assetName + "_VERTEXCOLOR_" + (k as string))
-		k += 1
-	)
-	
-	vrUVWRandomizer = getClassInstances VrayUVWRandomizer target: sceneMaterials
-	k = 1
-	for m in vrUVWRandomizer do
-	(
-		m.name = (assetName + "_VRUVWRANDOMIZER_" + (k as string))
-		k += 1
-	)
-	
-	-- multiSubObjects = getClassInstances Multi_Sub_Object target: sceneMaterials
-	-- k = 1
-	-- for m in multiSubObjects do
-	-- (
-	-- 	m.name = (assetName + "_MULTISUBOBJECT_" + (k as string))
-	-- 	k += 1
-	-- )
 	
 )
 
@@ -756,15 +616,15 @@ rollout assetToolsRLT "asset tools"
 	
 	group "proxy:"
 	(
-		button createProxyBT "create proxy" tooltip: "crï¿½e le proxy avec le mat, ï¿½ la faï¿½on du project manager, sans les erreurs d'idMat"
-		button createProxy2BT "create proxy v2" tooltip: "ï¿½ utiliser quand le bouton au dessus a mal focntionnï¿½"
+		button createProxyBT "create proxy" tooltip: "crée le proxy avec le mat, à la façon du project manager, sans les erreurs d'idMat"
+		button createProxy2BT "create proxy v2" tooltip: "à utiliser quand le bouton au dessus a mal focntionné"
 	)
 		
 	group "MaxTree:"
 	(
-		button MaxTreeBT "Go MaxTrees!" tooltip: "1 - crï¿½ation de la hiï¿½rarchie:\nHAB \n   > ARBRES\n     > [nom du fichier]\n     > objects renommï¿½s\n
-2 - tous les objets de la scï¿½ne sont dï¿½placï¿½s dans le calque.
-\n3 - Tous les objets sont passï¿½s en render properties bay layer et id de gbuffer 55"  enabled: false
+		button MaxTreeBT "Go MaxTrees!" tooltip: "1 - création de la hiérarchie:\nHAB \n   > ARBRES\n     > [nom du fichier]\n     > objects renommés\n
+2 - tous les objets de la scène sont déplacés dans le calque.
+\n3 - Tous les objets sont passés en render properties bay layer et id de gbuffer 55"  enabled: false
 	)
 	
 	on cleanFileBT pressed do
@@ -832,14 +692,14 @@ rollout assetToolsRLT "asset tools"
 	(	
 
 		objID = 45
-		-- crï¿½ation du layer de l'asset
+		-- création du layer de l'asset
 		daddyL = createLayer "HAB"
 		assetLayer = createLayer ((getFilenameFile  maxFileName) + "_id" + (objID as string))
 		assetLayer.setParent daddyL
 		
 		for o in objects do assetLayer.addnode o
 		
-		-- crï¿½ation du layer des template de forest
+		-- création du layer des template de forest
 		zLayer = createLayer "Z_OFF"
 		fpLayer =  createLayer "Forest_Template"
 		fpLayer.setParent zLayer
@@ -943,7 +803,7 @@ createDialog assetToolsRLT
 
 -- #### sanity check
 -- supprimer les calques vides
--- vï¿½rifier que tous les objets suivent la nommenclature du nom du fichier
--- vï¿½rifier que tous les bitmaps ont ï¿½tï¿½ remplacï¿½ par des vray bitmap
--- vï¿½rifier que les textures pointent bien vers elements batiments
--- vï¿½rifier les noms de materiaux
+-- vérifier que tous les objets suivent la nommenclature du nom du fichier
+-- vérifier que tous les bitmaps ont été remplacé par des vray bitmap
+-- vérifier que les textures pointent bien vers elements batiments
+-- vérifier les noms de materiaux

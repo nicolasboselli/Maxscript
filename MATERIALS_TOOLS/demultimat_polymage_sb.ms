@@ -16,10 +16,10 @@ afficher les materiaux de la selection d'objets dans le mat editor
 -- copie d'un multimat unique à chaque objet
 sel = selection as Array
 
-for s in sel do
-(
-	format "s.name: % s.class: %\n" s.name (classof s)
-)
+-- for s in sel do
+-- (
+-- 	format "s.name: % s.class: %\n" s.name (classof s)
+-- )
 
 reMat = sel[1].material
 
@@ -29,23 +29,22 @@ materialIDListBak = sel[1].material.materialIDList
 
 for s in sel do
 (
+	if iskindof s dummy do continue
+		
 	s.material = multimaterial ()
 	s.material.materialList  = reMat.materialList 
 	s.material.materialIDList  = materialIDListBak
 	s.material.name = s.name + "_Multi_Mat"
 )
 
--- nettoyage su multimat
--- s = $
--- $.GetFaceMaterial 1
-/* 
-addmodifier $ (edit_mesh())
-	getFaceMatID $ 1
-deletemodifier $ 1 */
 
+-- nettoyage su multimat
 sel = selection as Array
 for s in sel do
 (
+	if iskindof s dummy do continue
+		
+-- 	format "\ns: %\n" s.name
 	addmodifier s (edit_mesh())
 		
 	idsUsed = #()
@@ -54,14 +53,25 @@ for s in sel do
 -- 	for i = 1 to facesCount do appendifunique idsUsed (s.getFaceMaterial i)
 
 	matUsed = #()
-	for id in idsUsed do append matUsed s.material.materialList[id]
-
+-- 	mmIDs = #()
+		
+	for id in idsUsed do
+	(
+		local oneID = findItem s.material.materialIDList id
+-- 		format "	id: % oneID: %\n" id oneID
+		try(append 	matUsed s.material.materialList[oneID])catch(format "fail!: id: % oneID: % s: %\n" id oneID s)
+	)
+	
+		
+-- 	for id in idsUsed do append matUsed s.material.materialList[id]
+	
+-- 	format "	idsUsed: % matUsed: % \n" idsUsed matUsed
+	
 	s.material.materialList = matUsed
 	s.material.materialIDList  = idsUsed
 	
 	deletemodifier s 1
 )
-
 
 
 fn collapseMultiMatonVisibleObjects visSel=
@@ -101,16 +111,17 @@ fn collapseMultiMatonVisibleObjects visSel=
 		)
 	)
 )
--- collapse des multimats
+-- collapse des multimats / replaceinstance des multi mat identiques
 collapseMultiMatonVisibleObjects sel
 
--- copie des ids uniques
+-- copie des ids uniques / replace insatnce des multis à id unique par des materiaux simple
 sel = selection as Array
 for s in sel where iskindof s.material Multimaterial do
 (
 	if s.material.materialList.count == 1 then
 	(
-		print "youhou"
+		format "s: % s.mat: % mat: %\n" s.name s.material.name s.material.materialList[1]
+-- 		print "youhou"
 		replaceInstances s.material s.material.materialList[1]
 	)
 )

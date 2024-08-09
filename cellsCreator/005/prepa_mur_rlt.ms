@@ -238,7 +238,7 @@ rollout prepaMursRLT "preparation murs v2" -- width:350
 		(
 			murSel = undefined
 		)
-
+		format "murSel: %\n" murSel
 		refreshUI()
 	)	
 

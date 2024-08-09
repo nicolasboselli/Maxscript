@@ -23,9 +23,11 @@ rollout gridRLT "Grids Manager"
 	button homeGridBT "HOME GRID"
 	listbox gridsLB "Grids List :" height: 20
 	
+	edittext gridnameET	
 	button sortBT "sort"
 	button refrListBT "refresh list"
 	button gridViewBT "grid view"
+	button createGridBT "create grid"
 	
 -- 	fn	
 	fn refreshUI =
@@ -89,7 +91,24 @@ rollout gridRLT "Grids Manager"
 		
 		refreshUI()
 	)
+	
+	on createGridBT pressed do 
+	(
+		objCount = (helpers as array).count
+		
+		startObjectCreation grid returnNewNodes: true
+		
+		newobjCount = (helpers as array).count
+		
+		newGrids = for i = objCount to newobjCount collect  helpers[i]
+		StopCreating()
+		format "newGrid: %\n" newGrids
+
+		refrListBT.pressed ()
+	)
 )
+
+max sel ?
 
 createdialog gridRLT
 

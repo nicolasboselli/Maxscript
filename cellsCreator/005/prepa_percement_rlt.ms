@@ -255,7 +255,7 @@ rollout prepaPercementRLT "preparation percement v2"
 			drilSel = undefined
 		)
 		
--- 		format "drilSel: %\n" drilSel
+		format "drilSel: %\n" drilSel
 		refreshUI()
 		
 		-- todo chager les parametres d'une structure
