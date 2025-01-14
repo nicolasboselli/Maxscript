@@ -14,7 +14,6 @@ for  i = 1 to ATSOP_paths.count do
 
 
 -- collecte des vraybitmap manquant
-
 vrbmpAr = getclassinstances VRayBitmap target: scenematerials
 vrbmpAr.count
 vrbmpAr[1].filename
@@ -51,6 +50,8 @@ for b in vrbmpAr do
 	)
 )
 
+
+
 -- collecte des bitmap manquants 
 bmpAr = getclassinstances Bitmaptexture target: scenematerials
 bmpAr.count
@@ -81,6 +82,61 @@ for i =  1 to missingBmpMAtAr.count do
 	meditMaterials[i] = missingBmpMAtAr[i]
 )
 
+-- collecte des autodesk map manquants 
+autoBmpAr = getclassinstances Autodesk_Map target: scenematerials
+autoBmpAr.count
+missingAutoBmpMAtAr = #()
+
+-- bmpAr[1].filename
+for i = 1 to autoBmpAr.count do
+(
+	bmpExist = true
+	try(format "%\n" autoBmpAr[i].Parameters_Source)catch(bmpExist = false)
+	if not bmpExist then
+	(
+		format "i: % missing filename: % \n" i autoBmpAr[i] 
+		depAr = refs.dependents autoBmpAr[i] -- immediateOnly: true
+		for d in depAr do
+		(
+			if iskindof d vraymtl then
+			(
+				format "	d: % d.class: %\n" d (classof d)
+				append missingAutoBmpMAtAr d
+			)
+		)
+		format "\n\n"
+	)
+)
+missingAutoBmpMAtAr.count
+
+for i =  1 to missingAutoBmpMAtAr.count do
+(
+	if i > 24 then exit
+	meditMaterials[i] = missingAutoBmpMAtAr[i]
+)
+
+-- convertir les autodesk map en vrbitmap
+autoBmpAr = getclassinstances Autodesk_Map target: scenematerials
+autoBmpAr.count
+missingAutoBmpMAtAr = #()
+-- autoBmpAr[1].Parameters_Source.filename
+
+-- bmpAr[1].filename
+for i = 1 to autoBmpAr.count do
+(
+	bmpExist = true
+	try(format "%\n" autoBmpAr[i].Parameters_Source)catch(bmpExist = false)
+	if  bmpExist then
+	(
+-- 		bmpFile = autoBmpAr[i].Parameters_Source
+		vrBmp = VRayBitmap HDRIMapName: autoBmpAr[i].Parameters_Source.filename
+		
+		replaceinstances autoBmpAr[i] vrBmp
+	)
+)
+-- missingAutoBmpMAtAr.count
+
+
 
 -- collecte des proxys manquants
 vrProxAr = getclassinstances VRayProxy --target: scenematerials
@@ -90,7 +146,7 @@ for i = 1 to vrProxAr.count do
 	if not doesfileexist vrProxAr[i].filename then
 	(
 		format "i: % missing filename: % vrProxAr[i]: % \n" i vrProxAr[i].filename vrProxAr[i]
-		depAr = refs.dependents bmpAr[i] -- immediateOnly: true
+		depAr = refs.dependents vrProxAr[i] -- immediateOnly: true
 		for d in depAr do
 		(
 			if iskindof d VRayProxy then
@@ -104,4 +160,5 @@ for i = 1 to vrProxAr.count do
 )
 select missingVrProxyAr
 
--- autodesk_map_ar = getClassInstances Autodesk_Map target: scenematerials 
+
+

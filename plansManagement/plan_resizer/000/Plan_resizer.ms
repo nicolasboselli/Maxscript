@@ -215,7 +215,7 @@ rollout planResizerRLT "blueprint resizer" width: 250
 	group "realSize:"
 	(
 		button realSizeBT "Real Size Map" across: 3
-		spinner scaleSP "X" type: #integer range: [0,1000,1]
+		spinner scaleSP "X" type: #integer range: [0,2000,1]
 		button scaleBT "scale"
 -- 		button scale100BT "x100"
 -- 		button scale200BT "x200"

@@ -27,6 +27,7 @@ rgbVal = splitL[2]
 hexVal = splitL[3]
 */
 
+
 function RGBtoLinear oneColor =
 (
 	
@@ -51,17 +52,22 @@ rollout RALvalueRLT "RAL Value"
 	local ralNameArray = #()
 	
 	-- UI
-	edittext RALsearch "RAL:"
+	edittext RALsearch "search:"
 -- 	spinner RALsp "RAL:" type: #integer
 	listBox RALListLB
 	
+	edittext RALREF "" readonly: true
 	edittext RGBVal "RGB:" readonly: true
 	edittext HEXVal "Hex:" readonly: true
 	
 	colorpicker RALcolorCP "RAL:" fieldWidth:110
 	
 	button createVrayColorBT "create vray color" -- enabled: false
-	 
+	group "help"
+	(
+		button helpBT "help" 
+	)
+	
 	-- actions
 	on RALvalueRLT open do
 	(
@@ -77,21 +83,46 @@ rollout RALvalueRLT "RAL Value"
 		multiLSplitedToShow = for l in multiLSplited collect l
 		ralNameArray = for l in multiLSplitedToShow collect l[1]
 		RALListLB.items = ralNameArray
+		
+		RALListLB.selection = 1
+		RALREF.text = multiLSplitedToShow[1][1]
+		HEXVal.text = multiLSplitedToShow[1][3]
+		RGBVal.text = multiLSplitedToShow[1][2]
+		
+		RGBArray = filterString multiLSplitedToShow[1][2] "-"
+		
+		RALcolor = color (RGBArray[1] as integer) (RGBArray[2] as integer) (RGBArray[3] as integer)
+		RALcolorCP.color = RGBtoLinear RALcolor
 	)
 	
 	on RALListLB selected val do
 	(
+		RALREF.text = multiLSplitedToShow[val][1]
 		HEXVal.text = multiLSplitedToShow[val][3]
 		RGBVal.text = multiLSplitedToShow[val][2]
 		
 		RGBArray = filterString multiLSplitedToShow[val][2] "-"
 
 		RALcolor = color (RGBArray[1] as integer) (RGBArray[2] as integer) (RGBArray[3] as integer)
-		format "RALcolor: %\n" RALcolor
+-- 		format "RALcolor: %\n" RALcolor
 		
 		RALcolorCP.color = RGBtoLinear RALcolor
 		
 -- 		colorPickerDlg RALcolor "Pick A Better Color:" alpha:true pos:[100,100]
+	)
+	
+	on RALsearch entered val do
+	(
+		format "multiLSplitedToShow: %\n" multiLSplitedToShow
+		RALListLB.selection = 1
+		RALREF.text = multiLSplitedToShow[1][1]
+		HEXVal.text = multiLSplitedToShow[1][3]
+		RGBVal.text = multiLSplitedToShow[1][2]
+		
+		RGBArray = filterString multiLSplitedToShow[1][2] "-"
+		
+		RALcolor = color (RGBArray[1] as integer) (RGBArray[2] as integer) (RGBArray[3] as integer)
+		RALcolorCP.color = RGBtoLinear RALcolor
 	)
 	
 	on RALsearch changed val do
@@ -126,8 +157,22 @@ rollout RALvalueRLT "RAL Value"
 		 
 		 vrRAL = VRayColor color: (RGBtoLinear RALcolor)
 		--  showproperties vrRAL
-		(sme.getview 1).CreateNode  vrRAL (point2 100 100)
+		try((sme.getview 1).CreateNode  vrRAL (point2 100 100))catch()
 
+	)
+	
+	on helpBT pressed do
+	(
+		try(closeRolloutFloater  theHelpFloater)catch()
+		theHelpFloater = newRolloutFloater "RAL Value Tool Help" 950 800 lockWidth: false
+
+		try(destroydialog test_bitmaps)catch()
+		rollout test_bitmaps "RAL Value Tool Help"
+		(
+			bitmap the_bmp fileName: @"M:\Biblio\VISIOLAB\8-Scripts\Production\Maxscript\MATERIALS_TOOLS\load_ral.jpg" 
+		)
+		-- createDialog test_bitmaps -- style: #(#style_border, #style_titlebar, #style_toolwindow, #style_resizing, #style_minimizebox, #style_maximizebox, #style_sysmenu)
+		addRollout test_bitmaps theHelpFloater
 	)
 )
 CreateDialog RALvalueRLT

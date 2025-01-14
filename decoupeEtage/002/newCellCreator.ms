@@ -232,6 +232,7 @@ rollout newCellCreatorRLT "new Cell Creator"
 				(
 					addmodifier newCell (edit_poly ())
 					createdialog renameCellRLT modal: true
+-- 					setFocus renameCellRLT.cellNameET
 -- 					init()
 					newCell = undefined
 				)
@@ -316,6 +317,7 @@ rollout renameCellRLT "rename"
 		basename = cellNameET.text
 -- 		format "basename 2: %\n" basename
 		newCellCreatorRLT.baseNameET.text = basename
+		setfocus newCellCreatorRLT.baseNameET
 		destroydialog renameCellRLT
 	)
 	
@@ -329,6 +331,8 @@ rollout renameCellRLT "rename"
 			newCell.name = basename
 		)
 		else()
+		
+		setFocus renameCellRLT.cellNameET
 	)
 	
 	on uniqueNameBT pressed do

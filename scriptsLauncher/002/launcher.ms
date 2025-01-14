@@ -51,7 +51,7 @@ fn sortbyname v1 v2 =
 )
 
 try(destroyDialog mxsLaunchRLT)catch()
-
+-- showsource getScriptVersion
 struct favFileClass
 (
 	path,

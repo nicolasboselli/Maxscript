@@ -101,7 +101,7 @@ rollout assetSaverRLT "Asset Saver"
 	on historyDPL selected val do
 	(
 		filesAr = getfiles ( selFolderAr[val] + "\\*.max")
-		
+		selFolder = selFolderAr[val]
 		refreshUI()
 	)
 

@@ -162,10 +162,13 @@ try(destroydialog visioRelinkRLT)catch()
 
 rollout visioRelinkRLT "Visio Relink and collect"
 (
-	button relinkBT "relink"
+	button relinkBT "try to relink"
 	
-	edittext pathET
-	button collectBT "collect"
+	group "collect"
+	(
+		edittext pathET
+		button collectBT "collect and relink"
+	)
 	
 	on relinkBT pressed do
 	(

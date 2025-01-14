@@ -1163,6 +1163,7 @@ rollout sliceToolsRLT "slice tools"
 				append doubleAr allCellNames[i + 1]
 			)
 		)
+		format "doubleAr: %\n" doubleAr
 		select doubleAr
 	)
 	

@@ -47,62 +47,10 @@ fn setVrayAlpha =
 )
 -- setVrayAlpha()
 
-
-global vrayClass -- = findVray()
-
--- 	button VRScenebaseBT "Vray Sun Scene Creator" 
-global AutoIllumMat = vraylightmtl twoSided: true name: (uniquename "autoIllum")
-global re = maxOps.GetCurRenderElementMgr ()
-
-global vrayBak --= renderers.current
-global sunBak
-global environBak = useEnvironmentMap 
-global expBak = sceneExposureControl.exposureControl
-global RenderEltsStateBak
-
-global occluMap = vraydirt()
-global occluMat = vraylightmtl texmap: occluMap twoSided: true
-
-
-fn makeAutoIllumMat = vraylightmtl twoSided: true name: (uniquename "autoIllum")
--- makeAutoIllumMat()
-
-
-fn backupRenderDef =
-(
-	vrayBak = copy renderers.current
-	environBak = useEnvironmentMap
-	expBak = sceneExposureControl.exposureControl
-	RenderEltsStateBak = re.getElementsActive ()
-)
-
--- applications des params de rendus alpha
-fn setVrayNight =
-(
-	-- applications des params de rendus alpha
--- 		renderers.current = copy VrayAlphaPreset
-	renderers.current =  setVrayAlpha()
-	useEnvironmentMap = false
-	sceneExposureControl.exposureControl = undefined 
-	re.setElementsActive false
-	VrayCamExpStateFN false	
-)
-
-fn restoreRenderDef =
-(
-	-- recup des preset de rendu
-	renderers.current = copy vrayBak
-	useEnvironmentMap = environBak
-	sceneExposureControl.exposureControl = expBak 
-	re.setElementsActive RenderEltsStateBak
-	VrayCamExpStateFN true
-)
-
 try(destroydialog VrayAlphaMaskRLT)catch()
 -- rollout
 rollout VrayAlphaMaskRLT "Vray passes render"
 (
-	/*
 	local vrayClass -- = findVray()
 	
 -- 	button VRScenebaseBT "Vray Sun Scene Creator" 
@@ -117,10 +65,33 @@ rollout VrayAlphaMaskRLT "Vray passes render"
 	
 	local occluMap = vraydirt()
 	local occluMat = vraylightmtl texmap: occluMap twoSided: true
-*/
-	
--- functions vars dependant
 	/*
+	local VrayAlphaPreset = vrayClass \
+	imageSampler_type: 1 \
+	filter_on: false \
+	options_maps: true \
+	gi_on: false \
+	options_lights: false options_defaultLights: 0 \
+	colorMapping_type: 0 colorMapping_darkMult: 1 colorMapping_brightMult: 1 colorMapping_gamma: 1  \
+
+	options_reflectionRefraction: false options_overrideMtl_on: false \
+
+	system_raycaster_memLimit: 0 system_region_x: 16 system_region_y: 16
+	*/
+	-- set color mapping 
+	/*
+	try
+	(
+		VrayAlphaPreset.colorMapping_linearWorkflow =  false
+	)
+	catch
+	(
+		VrayAlphaPreset.colorMapping_linearWorkflow =  0
+	)
+	*/
+	
+-- 	/*
+-- functions vars dependant
 	-- backup des parametres de rendu
 	fn backupRenderDef =
 	(
@@ -151,7 +122,7 @@ rollout VrayAlphaMaskRLT "Vray passes render"
 		re.setElementsActive RenderEltsStateBak
 		VrayCamExpStateFN true
 	)
-	*/
+-- 	*/
 	
 -- UI
 
@@ -170,7 +141,13 @@ rollout VrayAlphaMaskRLT "Vray passes render"
 -- 		button BatchAlphaSelRenderBT "On Selected BatchRender"
 	)
 -- 	*/
-
+	/*
+	group "render occlu:"
+	(
+		button OccluRenderBT "Set Render"
+		button CleanRenderBT "Clean Render"
+	)
+	*/
 	on VrayAlphaMaskRLT open do
 	(
 		backupRenderDef()
@@ -262,6 +239,37 @@ rollout VrayAlphaMaskRLT "Vray passes render"
 		)
 	)
 	
+	/*
+	on OccluRenderBT pressed do
+	(
+		vr=renderers.current
+
+		MatMaqDirt = VRayDirt radius: 100 
+		autoIllumMtl = VRayLightMtl texmap: MatMaqDirt name: "occluMat" twoSided: true
+
+		backgroundColor = color 255 255 255
+		renderers.current.options_overrideMtl_mtl = autoIllumMtl
+		renderers.current.options_overrideMtl_on = true
+	)
+	
+	on CleanRenderBT pressed do
+	(
+		vr=renderers.current
+		
+		backgroundColor = color 0 0 0
+		renderers.current.options_overrideMtl_mtl = undefined
+		renderers.current.options_overrideMtl_on = false
+	)
+	
+	on VrayAlphaMaskRLT close do
+	(
+		if VRAlphaPresetCB.state == true do
+		(
+			print "restore parameters"
+			restoreRenderDef()
+		)
+	)
+	*/
 )
 
 -- createdialog VrayAlphaMaskRLT

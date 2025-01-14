@@ -1,3 +1,6 @@
+ 
+ 
+ 
  try(destroydialog repInstRLT)catch()
  rollout repInstRLT "state tool"
  (
@@ -19,6 +22,11 @@
 	group "convert to ggx/roughtness"
 	 (
 		 button convertToGGXBT "convert to GGX"
+	 )
+	 
+	 group "create materials"
+	 (
+		 button createMultiMatBT "create Multi Material"
 	 )
 	
 	on selBT pressed do
@@ -56,6 +64,12 @@
 		(
 			try(s.reference.brdf_type = 4)catch(format "ggx fail: %\n" s.reference.name )
 		)
+	)
+	
+	on createMultiMatBT pressed do
+	(
+		multiMatNode = Multimaterial numsubs: 2
+		test = (sme.getview 1).CreateNode multiMatNode [0,0]
 	)
 	
 	on convertToVrBmpBT pressed do

@@ -1,4 +1,4 @@
-d/*
+/*
 maj:
 
 x- enregistrer le chemin d'accés au plan dans les file property
@@ -191,9 +191,10 @@ rollout createPlaneRLT "create plane"
 		
 	listbox jpgListBox "jpg list:"
 	
-	button bmpFitBT "Bitmap Fit" pos:[ 20  , lastLine] across: 3
-	button createPlaneBT "create"  pos:[ 100 , lastLine]
-	button injectMapBT "inject" pos:[170,lastLine]
+	button displayBmpBT "Display Bitmap" pos:[ 20  , lastLine] across: 4
+	button bmpFitBT "Bitmap Fit" pos:[ 120  , lastLine] -- across: 3
+	button createPlaneBT "create"  pos:[ 190 , lastLine]
+	button injectMapBT "inject" pos:[260,lastLine]
 	
 -- 	button createA4BT "createA4" pos:[ 20 , lastLine]
 
@@ -263,7 +264,6 @@ rollout createPlaneRLT "create plane"
 		name: ("plane_" + (getFilenameFile oneJpg)) \
 		backfacecull: on renderable: off
 		
-
 		-- 	assign material on plane
 		tmpPlane.material = tmpMaterial
 		tmpPlane
@@ -414,6 +414,17 @@ rollout createPlaneRLT "create plane"
 		select mapPlane
 	)
 	
+	on displayBmpBT pressed do
+	(
+		intSel = jpgListBox.selection 
+		jpgSel = planObjList[intSel]
+		
+		local bmptmp = openBitMap jpgSel.path 
+		display bmptmp
+		
+		format "jpgSel: %\n" jpgSel
+	)
+	
 	on createA4BT pressed do
 	(
 		intSel = jpgListBox.selection 
@@ -541,9 +552,10 @@ rollout createPlaneRLT "create plane"
 	(
 		local sub = 30
 		jpgListBox.height = createPlaneRLT.height - 120
-		bmpFitBT.pos = [20, createPlaneRLT.height - sub]
-		createPlaneBT.pos = [ 100 , createPlaneRLT.height - sub]
-		injectMapBT.pos = [170, createPlaneRLT.height - sub]
+		displayBmpBT.pos = [20, createPlaneRLT.height - sub]
+		bmpFitBT.pos = [120, createPlaneRLT.height - sub]
+		createPlaneBT.pos = [ 190 , createPlaneRLT.height - sub]
+		injectMapBT.pos = [260, createPlaneRLT.height - sub]
 		
 -- 		changeMapBT.pos = [250, createPlaneRLT.height - sub]
 -- 		transferMapBT.pos = [350, createPlaneRLT.height - sub]
@@ -557,7 +569,6 @@ rollout createPlaneRLT "create plane"
 		copyPlan sel
 	)
 )
-
 
 createDialog createPlaneRLT width: 550 style: #(#style_resizing,#style_titlebar, #style_border, #style_sysmenu,#style_minimizebox, #style_maximizebox )
 

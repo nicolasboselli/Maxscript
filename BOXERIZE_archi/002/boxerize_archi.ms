@@ -2,6 +2,18 @@
 memo session concours empalot:
 
 
+rebuild:
+remplacer la formule alambiquée acos par ça:
+
+	local dotRes = dot goodNorms[j] faceNorm
+
+	if dotRes > 1.0 then  dotRes = 1.0
+	else if dotRes < -1.0 then dotRes = -1.0
+	else()
+	
+	minAngle = acos dotRes
+
+
 
 reflexion sur l'outil:
 l'outil pourrait etre un picker au pick on designe la direction en x et l'element à transformer
@@ -149,6 +161,7 @@ fn wirecolorByOrientation sel =
 		
 		for i = 1 to normalsCollected.count do
 		(
+			
 			test = minAngle = ((((acos(dot s.transform.row1 normalsCollected[i]))*100)as integer)as float)/100
 			if test <= 5 then 
 			(

@@ -1,3 +1,25 @@
+ fn collectObjsByMat =
+(
+	-- collecte objets par materiaux et sous multi mat
+	smeAr = ((sme.getview 1).GetSelectedNodes())
+	smeNode = smeAr[1]
+	depAr = refs.dependents smeNode.reference
+
+	objsByMat = #()
+	for d in depAr do
+	(
+	-- 	format "d:%\n" d
+		if iskindof d GeometryClass then
+		(
+-- 			format "	d: % d.class: %\n" d (classof d)
+			append objsByMat d
+		) 
+	)
+	format "Collect done\n\n"
+	select objsByMat
+)
+-- collectObjsByMat()
+ 
  try(destroydialog repInstRLT)catch()
  rollout repInstRLT "slate tool"
  (
@@ -10,7 +32,8 @@
 		checkbox keepNameCB "Keep Name:" checked: true
 		edittext smeNodeET "mat name:" readonly: true
 		button applyBT "instance" across: 2
-		button copyMatBT "copy"
+		button copyMatBT2 "copy copy"
+		button copyMatBT "copy"  enabled: false
 	 )
 	
 	group "convert to vrbmp"
@@ -23,6 +46,16 @@
 	 (
 		 button convertToGGXBT "convert to GGX"
 	 )
+	 
+	group "collect by material"
+	 (
+		button collectObjsByMatBT "collect by material" 
+	 )
+	 
+	group "create materials"
+	(
+		button createMultiMatBT "create Multi Material"
+	)
 	
 	on selBT pressed do
 	(
@@ -30,8 +63,9 @@
 		sel = oneView.GetSelectedNodes()
 		if sel.count == 1 then 
 		(
-			refMat = sel[1]
-			smeNodeET.text = refMat.reference.name
+			refNode = sel[1]
+			refMat = refNode.reference
+			smeNodeET.text = refMat.name
 		)
 		else()
 	)
@@ -45,7 +79,7 @@
 		
 		for s in sel do
 		(
-			replaceInstances  s.reference refMat.reference
+			replaceInstances  s.reference refMat
 			if keepNameCB.checked then 
 			(
 				s.reference.name = s.name
@@ -63,31 +97,75 @@
 	(
 		format "keepNameCB.checked: %\n" keepNameCB.checked
 		
+		
+		
 		oneView = sme.GetView (sme.activeView)
 		sel = oneView.GetSelectedNodes()
+		matToReplaceAr = for s in sel collect s.reference
 		
 		format "check1\n" 
 		
-		for s in sel do
+		for m in matToReplaceAr do
 		(
 			format "check11\n" 
-			format "refMat.reference: %\n" refMat.reference
+			format "refMat.reference: %\n" refMat.name
 -- 			local copyMat = copy refMat.reference
 			format "check12\n" 
-			replaceInstances   s.reference  (copy refMat.reference)
-			format "check15\n" 
+			replaceInstances   m (copy refMat)
+			
 			if keepNameCB.checked then 
 			(
-				s.reference.name = s.name
+				m.name = s.name
 			)
 			else 
 			(
-				s.name =  s.reference.name
+				s.name =  s.m
 			)
 		)
 
 		format "check2\n" 
 		
+		oneView.SelectNone()
+		format "check3\n" 
+	)
+	
+	on copyMatBT2 pressed do
+	(
+		duplicateMat = copy refMat
+		assignNewName duplicateMat
+		local copyMat = (sme.getview 1).CreateNode (copy refMat) [0,0]
+		
+		
+		oneView = sme.GetView (sme.activeView)
+		sel = oneView.GetSelectedNodes()
+		matToReplaceAr = for s in sel collect s.reference
+		
+		format "check1\n" 
+		
+		for m in matToReplaceAr do
+		(
+			local bakname = m.name
+			format "check11\n" 
+			format "refMat.reference: %\n" refMat.name
+-- 			local copyMat = copy refMat.reference
+			format "check12\n" 
+			replaceInstances   m copyMat.reference
+			
+			if keepNameCB.checked then 
+			(
+				m.name = bakname
+			)
+			else 
+			(
+				m.name = refMat.name
+				--copyMat.reference.name =  s.m
+			)
+		)
+
+		format "check2\n" 
+		
+-- 		oneView.SetSelectedNodes copyMat
+-- 		oneview.DeleteSelection() 
 		oneView.SelectNone()
 		format "check3\n" 
 	)
@@ -150,6 +228,36 @@
 				replaceinstances smeNode.reference vrBmp
 			)
 		)
+	)
+	
+	on collectObjsByMatBT pressed do
+	(
+				-- collecte objets par materiaux et sous multi mat
+		smeAr = ((sme.getview 1).GetSelectedNodes())
+		smeNode = smeAr[1]
+		depAr = refs.dependents smeNode.reference
+
+		objsByMat = #()
+		for d in depAr do
+		(
+		-- 	format "d:%\n" d
+			if iskindof d GeometryClass then
+			(
+				if isvalidnode d then append objsByMat d
+	-- 			format "	d: % d.class: %\n" d (classof d)
+				
+			) 
+		)
+		format "Collect done:% \n\n" objsByMat
+-- 		for o in objsByMat do print o
+		
+		select objsByMat
+	)
+	
+	on createMultiMatBT pressed do
+	(
+		multiMatNode = Multimaterial numsubs: 2
+		test = (sme.getview 1).CreateNode multiMatNode [0,0]
 	)
  )
  createdialog repInstRLT
