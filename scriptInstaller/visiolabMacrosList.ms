@@ -3,7 +3,7 @@
 	global ArmadasScriptLauncherPath = @"\scriptsLauncher\002\launcher.ms"
 	global ArmadasScriptLauncherPath2 = @"\scriptsLauncher\002\launcher.ms"
 	global ArmadasScriptModelingUtilitiesPath = @"\MODELING_TOOLS\001\modeling_tools.ms"
-	global ArmadasScriptMaterialsUtilitiesPath = @"\MATERIALS_TOOLS\001\deMultiMat.ms"
+	global ArmadasScriptMaterialsUtilitiesPath = @"\MATERIALS_TOOLS\002\deMultiMat.ms"
 	
 -- 	global pickAndMergePath = @"PICKNMERGE/001/pickandmerge.ms"
 	global objReplacerPath = @"objReplacer/002/obj_replacer.ms"
@@ -21,6 +21,8 @@
 -- 	global boxArchiPath = @"BOXERIZE_archi/001/boxerize_archi.ms"
 	global objIDToolPath = @"MATERIALS_TOOLS/objectIDTool.ms"
 	global ralValToolPath = @"MATERIALS_TOOLS/Load_ral.ms"
+	global fixForestIvyMapsPath = @"visiolab/fixForestIvyMaps.ms"
+	
 	
 	
 	macroScript ScriptLauncher
@@ -288,13 +290,96 @@
 		filein ((getroot()) +  ralValToolPath)
 	)
 	
+	macroscript fixForestIvy
+	category: "Visiolab"
+	buttonText: "Fix ForestIvy Maps"
+	toolTip:"Fix ForestIvy Maps"
+	icon: #("fixForestIvy",1)
+	(
+		filein ((getroot()) + fixForestIvyMapsPath)
+	)
 	
-
+	macroscript displayTextureOn
+	category: "Visiolab"
+	buttonText: "Display Texture On"
+	toolTip:""
+	icon: #("displayTextureOn",1)
+	(
+		--- agit sur la visibilité des material avec showTextureMap
+		sel = selection as Array
+		for s in sel do
+		(
+			matAr = getClassInstances vraymtl  target: s
+			for vr in matAr do showTextureMap vr true
+				
+			v2sAr = getClassInstances VRay2SidedMtl  target: s
+			format "v2sAr: %\n" v2sAr
+			for v2s in v2sAr do showTextureMap v2s v2s.frontMtl.texmap_diffuse  true
+		)
+	)
+	
+		
+	macroscript displayTextureOff
+	category: "Visiolab"
+	buttonText: "Display Texture Off"
+	toolTip:""
+	icon: #("displayTextureOff",1)
+	(
+		--- agit sur la visibilité des material avec showTextureMap
+		sel = selection as Array
+		for s in sel do
+		(
+			matAr = getClassInstances vraymtl  target: s
+			for vr in matAr do showTextureMap vr false
+				
+			v2sAr = getClassInstances VRay2SidedMtl  target: s
+			format "v2sAr: %\n" v2sAr
+			for v2s in v2sAr do showTextureMap v2s v2s.frontMtl.texmap_diffuse  false
+		)
+	)
+	
+	macroscript UV200
+	category: "Visiolab"
+	buttonText: "UV 200"
+	toolTip:""
+-- 	icon: #("displayTextureOff",1)
+	(
+		local sel = selection as array
+		local uvwMissingAr = #()
+		
+		-- 
+		for s in sel do
+		(
+			try
+			(
+				-- traite les objets avec modifiers
+				s.uvwmap.maptype = 4
+				s.uvwmap.length = sizeSp.value
+				s.uvwmap.width = sizeSp.value
+				s.uvwmap.height = sizeSp.value
+			)
+			catch
+			(
+				-- collecte les objets sans modifiers 
+				append uvwMissingAr s
+			)
+		)
+		
+		format "uvwMissingAr : %\n" uvwMissingAr
+		-- traite les objets sans modifiers
+		if uvwMissingAr.count > 0 then
+		(
+			local UvwSquare = Uvwmap  maptype: 4 length: 200 width: 200  height: 200  -- axis: axis
+			select uvwMissingAr 
+			modPanel.addModToSelection UvwSquare ui:on
+			select sel
+		)
+	)
 	
 /* 	macroScript BoxerizeArchi
 	category: "Visiolab"
 	buttonText: "BoxerizeArchi"
-	toolTip:""
+	toolTip:""poiso
 	icon: #("boxArchi",1)
 	(
 		filein ((getroot()) + boxArchiPath)

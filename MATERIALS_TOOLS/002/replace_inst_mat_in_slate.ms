@@ -219,7 +219,7 @@
 
 	on autodeskBmpToVrBmpBT pressed do
 	(
-				smeAr = ((sme.getview 1).GetSelectedNodes())
+		smeAr = ((sme.getview 1).GetSelectedNodes())
 
 		for smeNode in smeAr do
 		(

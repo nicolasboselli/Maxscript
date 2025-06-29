@@ -49,6 +49,10 @@ fn findVray  =
 		(
 			goodR = r
 		)
+		else if matchPattern  (r as string)  pattern: "V_Ray_7*" then 
+		(
+			goodR = r
+		)
 		else()
 	)
 -- 	format "good r: %\n" goodR

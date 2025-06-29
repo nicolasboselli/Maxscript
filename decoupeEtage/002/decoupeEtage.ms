@@ -401,7 +401,7 @@ fn checkCellsTagGrid g =
 fn unHideLayerHierarchy oneLayer =
 (
 	local lar = #(oneLayer)
-
+	format "lar: %\n" lar
 	for l in lar do
 	(
 		dad = l.getparent()

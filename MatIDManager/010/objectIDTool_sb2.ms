@@ -10,19 +10,38 @@ maj:
 	
 
 	
-	-- ajouter possibilité de créer de nouvelles ids temporaire 
-		x-- changer l'id d'un label
-		x-- créer un nouveau label
--- 		x-- renommer le label
-		x- stocker le label dans une variable globale
-			x- récupérer le nom des lables à partir des passes créées
-			x- utiliser le render element pour stocker les valeurs en temps réels
-		x- debug id obj dans la liste qui disparait quand on change l'id dans le spinner
+	-- interface render elements
+	-- interface scene
+		-- ajouter possibilité de créer de nouvelles ids temporaire 
+			x-- changer l'id d'un label
+			x-- créer un nouveau label
+	-- 		x-- renommer le label
+			x- stocker le label dans une variable globale
+				x- récupérer le nom des lables à partir des passes créées
+				x- utiliser le render element pour stocker les valeurs en temps réels
+			x- debug id obj dans la liste qui disparait quand on change l'id dans le spinner
+	
+	-- interface visiolab ids
+		x- éditer les ids visiolab dans l'interface
+			x- bug: le renommage ne fonctionne pas
+			x- bug: le changement d'id ne focntionne pas
+			x- ajouter une fonction delete
+			x- création de la passe dans les render elements à la création de la passe
+			
+		x- stockés les id dans un fichier Ini et rendre le fichier editable
+	
+	
+	-- à l'ouverture collecte des ids et des labels, création systematique des render elements ?
+	
+	-- debug: erreur au sort avec les doublons de label, interroger au renommage, empecher le double emploi de label, auto rename
+	
+	-- ne pas créer la passe 0 dans les render elements
 	
 	-- mettre un mode auto select id, sur selection objet en checkbox
 	
-	-- stockés les id dans un fichier Ini et rendre le fichier editable
-	-- éditer les ids visiolab
+	-- faire une checkbox ignore id Zero?
+	-- faire une checkbox used id only?
+
 	
 	
 */
@@ -93,6 +112,9 @@ rollout gbufferChannelRLT ("Objects IDs Manager v." + ( getScriptVersion (getThi
 	local VisioIdsAr = #()
 	local VisioLabelsAr = #()
 	
+	local REidsAr = #()
+	local RElabelsAr = #()
+	
 	
 -- 	local VisioIdsAr = #(0,2,4,6,8,10,45,50,55)
 -- 	local VisioLabelsAr = #("none", "Vitres", "Menuiserie" , "Cloture", "GC", "Haies", "Habillage", "Herbe", "Arbres")
@@ -123,9 +145,10 @@ rollout gbufferChannelRLT ("Objects IDs Manager v." + ( getScriptVersion (getThi
 		
 		edittext objsIDNameET "ID label:" readonly: true 
 		
-		spinner idsSp "id" type: #integer range: [0,5000,0] across: 3
+		spinner idsSp "id" type: #integer range: [0,5000,0] across: 4
 		button addLaberBT "add label"
-		button delLabelBT "del label" enabled: false
+		button openIniBT "open labels ini"
+		button delLabelBT "del label" --enabled: false
 		button applyBT "apply objects ID to selection" height: 50
 		editText objectCountET "objects count:" readonly: true across: 2
 		button selectBT "select objets by ID"
@@ -163,39 +186,42 @@ rollout gbufferChannelRLT ("Objects IDs Manager v." + ( getScriptVersion (getThi
 	
 	fn init =
 	(
+		-- collecte des ids et les labels dans render elements
+		local res = collectIDfromRenderElements()
+		REidsAr = res[1]
+		RElabelsAr = res[2] 
+		
+		-- collecte des ids et les labels visiolab
+		loadVisiolabIDs()
 
 		if typeSelBT.state == 1 then
 		(
 			-- collecte des noms id et des ids d'objets dans les render elements
-			local res = collectIDfromRenderElements()
-			
-			idsAr = res[1]
-			labelsAr = res[2] 
-			format "idsAr: % labelsAr: %\n" idsAr labelsAr
+			idsAr = for o in REidsAr collect o
+			labelsAr =  for o in RElabelsAr collect o
+-- 			format "idsAr: % labelsAr: %\n" idsAr labelsAr
 		)
 		if typeSelBT.state == 2 then
 		(
--- 			labelsArBak = for l in labelsAr collect l
--- 			idsArBak = for l in idsAr collect l	
-
 			-- collecte des id d'objets dans la scène
 			idsAr = collectIDobjectsFromScene()
-			format "idsAr: %\nlabelsAr: %\n" idsAr labelsAr
+-- 			format "idsAr: %\nlabelsAr: %\n" idsAr labelsAr
 			labelsAr = #()
 			
 			for i = 1 to idsAr.count do
 			(
 				-- prévoir l'erreur si on ne trouve pas de correpondance dans les label visiolab
--- 				visioLabelID = finditem VisioIdsAr idsAr[i]
+				-- tester l'id sur les visiolab ids
 				if (finditem VisioIdsAr idsAr[i]) > 0 then
 				(
 					visioLabelID = finditem VisioIdsAr idsAr[i]
 					labelsAr[i] = VisioLabelsAr[visioLabelID]
 				)
-				else if (finditem idsArBak idsAr[i]) > 0 then
+				-- tester l'id sur les render elements
+				else if (finditem REidsAr idsAr[i]) > 0 then
 				(
-					oneID = finditem idsArBak idsAr[i]
-					if labelsArBak[oneID] != undefined then labelsAr[i] = labelsArBak[oneID] 
+					oneID = finditem REidsAr idsAr[i]
+					if RElabelsAr[oneID] != undefined then labelsAr[i] = RElabelsAr[oneID] 
 					else labelsAr[i] = "label_id" + (idsAr[i] as string)
 				)
 				else
@@ -204,12 +230,9 @@ rollout gbufferChannelRLT ("Objects IDs Manager v." + ( getScriptVersion (getThi
 				) 
 			)
 		)
-		else if typeSelBT.state == 3 then
+		else if typeSelBT.state == 3 then 
 		(
 			loadVisiolabIDs()
-			idsArBak = for l in idsAr collect l	
-			labelsArBak = for l in labelsAr collect l
-			
 			idsAr = for o in VisioIdsAr collect o
 			labelsAr =  for o in VisioLabelsAr collect o
 		)
@@ -251,6 +274,7 @@ rollout gbufferChannelRLT ("Objects IDs Manager v." + ( getScriptVersion (getThi
 			-- classement des ids par label
 			for i = 1 to labelsArTmp.count do
 			(
+				
 				newPlace = finditem labelsArTmp labelsAr[i]
 				idsArTmp[newPlace] = idsAr[i]
 			)
@@ -262,8 +286,9 @@ rollout gbufferChannelRLT ("Objects IDs Manager v." + ( getScriptVersion (getThi
 			(
 				append labelsToDisp ( labelsAr[i] + "  [" +  (idsAr[i] as string) + "]")
 			)
--- 				format "labelsAr2: % idsAr2: %\n" labelsAr idsAr
 		)
+		
+
 		-- sort by ids
 		else if sortSelBT.state == 2 then
 		(
@@ -368,6 +393,7 @@ rollout gbufferChannelRLT ("Objects IDs Manager v." + ( getScriptVersion (getThi
 	
 	on idsSp entered do
 	(
+		local bakVal = idsAr[idObjectsLB.selection]
 		applyChange = true
 -- 		format "enter: True!\n"
 		objsById = for o in geometry where o.gbufferChannel == idsAr[idObjectsLB.selection] collect o
@@ -397,7 +423,11 @@ rollout gbufferChannelRLT ("Objects IDs Manager v." + ( getScriptVersion (getThi
 
 			refreshUIList() 
 		)
-		else(format "cette id est déja utilisé\n")
+		else
+		(
+			idsSp.value = bakVal
+			format "cette id est déja utilisé\n"
+		)
 
 		-- cas particulier de change d'id Visiolab
 		if typeSelBT.state == 3 then 
@@ -435,7 +465,59 @@ rollout gbufferChannelRLT ("Objects IDs Manager v." + ( getScriptVersion (getThi
 		
 		refreshUIList()
 	)  
-	 
+	
+	on openIniBT pressed do
+	(
+		local visioIDsIni = getFilenamePath (getThisScriptFilename()) + "visiolabIDs.ini"
+		doscommand ("explorer " + visioIDsIni)
+	)
+	
+	on delLabelBT pressed do
+	(
+		local idSel = idObjectsLB.selection
+		
+		if typeSelBT.state == 1 or typeSelBT.state == 2 then
+		(
+			-- suppression de l'id des objets
+			for o in geometry where o.gbufferChannel == idsAr[idSel] do o.gbufferChannel = 0
+				
+			-- suppression de id de la liste de travail 
+			deleteitem idsAr idSel
+			deleteitem labelsAr idSel
+			
+			-- suppressions de l'id de la liste des render Element
+			refreshUIList()
+			addMultiMatByObjBT.pressed()
+		)
+		else if typeSelBT.state == 3 then
+		(
+			-- suppression de l'id des objets
+			for o in geometry where o.gbufferChannel == idsAr[idSel] do o.gbufferChannel = 0
+				
+			-- suppression de id de la liste de travail 
+			deleteitem idsAr idSel
+			deleteitem labelsAr idSel
+			
+			
+			VisioIdsAr = for id in idsAr collect id
+			VisioLabelsAr = for label in labelsAr collect label
+				
+			writeVisiolabIDs()
+			init()
+			refreshUIList()
+			
+			-- suppressions de l'id de la liste des render Element
+			addMultiMatByObjBT.pressed()
+			
+			-- suppressions de l'id de la liste des render Element
+			-- suppression de l'id des objets
+			-- suppression de l'id des visiolab id
+		)
+-- 		refreshUIList()
+		
+-- 		addMultiMatByObjBT.pressed()
+	)
+	
 	on selectBT pressed do
 	(
 		objsById = for o in geometry where o.gbufferChannel == idsAr[idObjectsLB.selection] collect o
@@ -482,6 +564,9 @@ rollout gbufferChannelRLT ("Objects IDs Manager v." + ( getScriptVersion (getThi
 				rem.AddRenderElement matSel
 			)
 		)
+		
+-- 		init()
+-- 		refreshUIList()
 	)
 	
 	on removeMultiMatByObjBT pressed do
@@ -498,6 +583,9 @@ rollout gbufferChannelRLT ("Objects IDs Manager v." + ( getScriptVersion (getThi
 				if not elt.MatID then rem.RemoveRenderElement elt
 			)
 		)
+		
+-- 		init()
+-- 		refreshUIList()
 	)
 	
 	on objIdMaskBT pressed do
@@ -594,4 +682,4 @@ rollout gbufferChannelRLT ("Objects IDs Manager v." + ( getScriptVersion (getThi
 	
 	
 )
-createdialog gbufferChannelRLT width: 500
+-- createdialog gbufferChannelRLT width: 500

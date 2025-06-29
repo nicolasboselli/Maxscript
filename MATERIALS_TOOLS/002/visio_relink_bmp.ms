@@ -182,4 +182,4 @@ rollout visioRelinkRLT "Visio Relink and collect"
 	)
 
 )
-createdialog visioRelinkRLT
+-- createdialog visioRelinkRLT

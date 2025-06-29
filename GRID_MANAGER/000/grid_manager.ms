@@ -271,9 +271,9 @@ rollout gridRLT "Grids Manager"
 
 	group "STATES SETS:"
 	(
-		listbox statesLB "Sets :" 
+		listbox statesLB "Sets :" height: 5
 		edittext setNameET "name:"
-		button addStateBT "add Set"
+		button addStateBT "add Set" across: 2
 		button delStateBT "delet Set"
 	)
 	
@@ -288,24 +288,24 @@ rollout gridRLT "Grids Manager"
 		listbox gridsLB "Grids List :" --height: 20
 		
 		edittext gridnameET	
-		button sortBT "sort" across: 2
+		button sortBT "sort" across: 3
 		button refrListBT "refresh list"
-		button gridViewBT "grid view" across: 2
-		button selectGridBT "select grid"
-		button deleteGridBT "delete grid"
+		button gridViewBT "grid view" -- across: 2
+		button selectGridBT "select grid" across: 3
 		button createGridBT "create grid" 
-		button createGridBT2 "grid from plane"
+		button deleteGridBT "delete grid"
+		button createGridBT2 "grid from plane" 
 	)
 	
 	group "PLANS:"
-	(
-		button addPlanBT "add plan"
+	( 
+		button addPlanBT "add plan" across: 2
 		button cleanPlanBT "clean plan"
 -- 		listbox listPlanLB "list plan:" height: 5 readonly: true
 		multilistbox listPlanLB "list plan:" height: 5 readonly: true
 		
 		button showPlanBT "show/hide toggle"
-		checkbox autoToggleCB "Auto Toggle" checked: false
+		checkbox autoToggleCB "Auto Toggle" checked: false across: 3
 		checkbox autoAlignCB "Auto Align" checked: false
 		checkbox hiddeOtherCB "Hide Others Plans" checked: false
 	)
@@ -313,11 +313,11 @@ rollout gridRLT "Grids Manager"
 	group "LAYERS STATE:"
 	(
 		edittext stateET 
-		checkBox autoLoadCB "autoload state" checked: true
+		checkBox autoLoadCB "autoload state" checked: true across: 3
 		button saveBT "save state" 
 		button loadBT "load state"
 		
-		button copyBT "test state"
+		button copyBT "test state" across: 3
 		button pasteBT "paste state"
 		button deleteBT "delete state"
 	)
@@ -651,5 +651,5 @@ rollout gridRLT "Grids Manager"
 
 -- max autogrid ?
 
-createdialog gridRLT
+createdialog gridRLT width: 400
 
