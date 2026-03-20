@@ -97,6 +97,7 @@ fn clusterAttach objArr =
 			
 			if j == 500 then 
 			(
+				format "objects to attach left: %\n" objArr.count
 				windows.ProcessPostedMessages()
 				gc()
 			)
@@ -104,7 +105,8 @@ fn clusterAttach objArr =
 			if (j + 1) > objArr.count then
 			(
 				j = 1
--- 				format "numFaces %: %  numFaces %: %\n" j objArr[j].numFaces (j+1) objArr[j+1].numFaces
+				format "objects to attach left: %\n" objArr.count
+-- 				format "numFaces %: %  numFaces %: % last: % \n" j objArr[j].numFaces (j+1) objArr[j+1].numFaces objArr.count
 				windows.ProcessPostedMessages()
 				gc()
 			)
@@ -113,6 +115,9 @@ fn clusterAttach objArr =
 	)
 	objArr[1]
 )
+-- clusterAttach (selection as array)
+
+
 
 fn getFacesID s =
 (
@@ -259,7 +264,8 @@ fn attachVisiblesObjectsByMonoMat visSel maxSel: 50 =
 	meditMonoMatList = #()
 	for s in visSel where s.material != undefined and classof s.material != multimaterial do appendifunique meditMonoMatList s.material 
 	format "meditMonoMatList count: %\n" meditMonoMatList.count
-
+	
+	local exitloop = false
 
 	for m in meditMonoMatList do
 	(
@@ -272,7 +278,7 @@ fn attachVisiblesObjectsByMonoMat visSel maxSel: 50 =
 			select sel
 			format "attachement manuel\n" 
 			messageBox "Attention!\n\nVeuillez attacher vos objets manuellement afin d'éviter tout désagrément.\n\nMerci pour votre attention.\n\nBonne journée.\n\nEt bon courage" title:"Attachement Manuel" beep:true
-			exit
+			exitloop = true
 		)
 		else if sel.count == 1 then
 		(
@@ -292,18 +298,26 @@ fn attachVisiblesObjectsByMonoMat visSel maxSel: 50 =
 		
 		windows.ProcessPostedMessages()
 		gc()
+		
+		if exitloop then exit
 	)
+	
+	return (not exitloop)
 	
 )
 
 fn removeVerts sel =
 (
+	j = 0
 	for s in sel do
 	(
+		j += 1
 		if classof s.baseobject == Editable_mesh then
 		(
 			meshop.deleteIsoVerts s
 			s.pivot = s.center
+			
+			format "remove verts: % / %\n" j sel.count
 		)
 	)
 )
@@ -367,7 +381,10 @@ rollout cleanMultiMatRLT "Clean Multimaterial"
 		oneVisSel = for o in  $* where o.ishidden == false collect o
 		explodeVisibleObjectsByMultiMat oneVisSel
 		format "############### explose by material done\n\n"
-			
+		
+		
+		
+		local attachementCompleted = false
 		if not respectLayerCB.checked then
 		(
 			
@@ -393,7 +410,10 @@ rollout cleanMultiMatRLT "Clean Multimaterial"
 												
 					format "############### attach start\n"
 					l.nodes &oneLayerSel
-					if oneVisSel.count > 0 then	attachVisiblesObjectsByMonoMat oneLayerSel maxSel: 5000
+					if oneVisSel.count > 0 then	
+					(
+						attachementCompleted = attachVisiblesObjectsByMonoMat oneLayerSel maxSel: 5000
+					)
 					format "############### attach done\n\n"
 					
 				)
@@ -401,13 +421,28 @@ rollout cleanMultiMatRLT "Clean Multimaterial"
 				(
 					format "ignore %: % is hidden: %\n" i l.name l.ishidden
 				)
+				if not attachementCompleted then exit
 			)
 		)
 		
-		format "############### remove isolated vertices start\n"
-		oneVisSel = for o in  $* where o.ishidden == false collect o
-		removeVerts oneVisSel
-		format "############### remove isolated vertices done\n"
+		format "attachementCompleted: %\n" attachementCompleted
+		if attachementCompleted then
+		(
+			format "############### remove isolated vertices start\n"
+	 		oneVisSel = for o in  $* where o.ishidden == false collect o
+	 		removeVerts oneVisSel
+			format "############### remove isolated vertices done\n"
+			
+			format "\n\n####################################################\n"
+			format "############# MISSION COMPLETED !###################\n"
+			format "####################################################\n"
+		)
+		else
+		(
+			format "\n\n####################################################\n"
+			format "############# MISSION ABORTED !###################\n"
+			format "####################################################\n"
+		)
 	)		
 	
 	on attachBT pressed do

@@ -156,6 +156,12 @@ fn loadRolloutParams rlt params =
 			)
 			setProperty  rlt n val
 		)
+/* 		else if n == "open" then
+		(
+				local val = getINISetting armadasScriptsIni cat n
+				try(val as booleanclass)catch(val = true)
+				setProperty  rlt n (val as booleanclass)
+		) */	
 		else
 		(
 			-- load controls properties

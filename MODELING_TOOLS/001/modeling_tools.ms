@@ -494,4 +494,7 @@ rollout miscRLT "Modeling Tools"
 addRollout miscRLT modToolRF --rolledUp:false
 -- extractFacesRLT
 filein "extractFaces.ms"
+filein "edgeToSweepOnMod.ms"
+
 addRollout extractFacesRLT modToolRF
+addRollout edgeToShapeOnModRLT modToolRF

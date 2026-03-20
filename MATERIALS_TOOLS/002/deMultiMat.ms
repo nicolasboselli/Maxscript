@@ -660,6 +660,13 @@ fn convertToVrMatDef mat =
 		vrMat = VRayMtl diffuse: mat.base_color name: mat.name texmap_diffuse: mat.base_color_map -- texmap_opacity: mat.opacityMap
 		converted = true
 	)
+	else if iskindof mat OpenPBR_Material then
+	(
+		format "	base_color: %\n" mat.base_color
+		format "	base_color_map: %\n" mat.base_color_map
+		vrMat = VRayMtl diffuse: mat.base_color name: mat.name texmap_diffuse: mat.base_color_map -- texmap_opacity: mat.opacityMap
+		converted = true
+	)
 	else (format "UNKNOW mat: % class: % \n" mat.name (classof mat) )
 	
 	if converted then 
@@ -868,6 +875,7 @@ rollout deMultiMatRLT "Materials Tools"
 		button convertAutodeskToVrBT "convert Autodesk Materials to vray mat" -- across:2
 		button convertAllMatToGGXBT "convert All Vray mat to GGX" -- across:2
 		button convertPhysicalToVrmatXBT "convert All physical mat to VrMat" -- across:2
+		button convertOpenPBRToVrmatXBT "convert All Open PBR mat to VrMat"
 		
 		button randomVrayColorBT "randomize vrayMtl diffuse"
 		button removeReflectionBT "remove reflection"
@@ -1245,9 +1253,21 @@ rollout deMultiMatRLT "Materials Tools"
 		)
 	)
 	
+	on convertOpenPBRToVrmatXBT pressed do
+	(
+		local matAr = getclassinstances OpenPBR_Material target: scenematerials
+-- 		showProperties matAr[1]
+		for m in matAr do
+		(
+			format "\nstart convert OpenPBR_Material mat: %\n" m
+			convertToVrMatDef m
+		)
+	)
+	
 	on randomVrayColorBT pressed do
 	(
-		randomVrayColorBT()
+		vrMtlAr =  getClassInstances VRayMtl 
+		for m in vrMtlAr do m.diffuse = color (random 0 255) (random 0 255) (random 0 255)
 	)
 		
 	on convertAllMatToGGXBT pressed do

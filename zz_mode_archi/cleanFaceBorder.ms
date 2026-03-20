@@ -1,9 +1,12 @@
 fn cleanFaceBorder s facesel tres: 0.1 = 
 (
--- 	local faceSel  = polyop.getFaceSelection s
-
+	local faceSel -- = polyop.getFaceSelection s
+	local faceCount = faceCount = polyop.getNumFaces s
+	
 	for f in facesel do
 	(
+		if f >= faceCount then exit
+			
 		vertTodel = #()
 		vertSel  = polyop.getFaceVerts s f
 -- 		format "face: %, vert sel:%\n" f vertSel
@@ -44,11 +47,23 @@ fn cleanFaceBorder s facesel tres: 0.1 =
 			)
 		)
 		
-		format "vert to del # i: %\n" vertTodel
 		polyop.setVertSelection  s vertTodel
 		s.editablePoly.remove  selLevel: #vertex
+		
+		faceCount = polyop.getNumFaces s
+		facesel = (for i = 1 to faceCount collect i) as BitArray
+		
+		format "\nfaceSel = %\n " facesel
+			
+		format "f: % / % faceCount: % vert to del # i: %\n" f facesel.count ( polyop.getNumFaces s ) vertTodel
+-- 		
 	)
 )
-cleanFaceBorder $ (polyop.getFaceSelection $)
+
+
+faceCount = polyop.getNumFaces $
+faceAr = (for i = 1 to faceCount collect i) as BitArray
+
+cleanFaceBorder $ faceAr tres: 2
 
 -- polyop.deleteVerts s vertTodel

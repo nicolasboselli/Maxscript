@@ -299,8 +299,11 @@ rollout gridRLT "Grids Manager"
 	
 	group "PLANS:"
 	( 
-		button addPlanBT "add plan" across: 2
+		button addPlanBT "add plan" across: 3
 		button cleanPlanBT "clean plan"
+		button alignGridToPlanBT "realign grid"
+		button unhideAllPlansBT "unhide All" across: 2
+		button unhideSetPlansBT "unhide Set Plans"
 -- 		listbox listPlanLB "list plan:" height: 5 readonly: true
 		multilistbox listPlanLB "list plan:" height: 5 readonly: true
 		
@@ -606,6 +609,41 @@ rollout gridRLT "Grids Manager"
 		refreshUI()
 	)
 	
+	on alignGridToPlanBT pressed do
+	(
+		local onegrid = gridListToDisp[selectedGridID]
+		local onePlan = (checkTagGrid gridListToDisp[selectedGridID])[1]
+		
+		
+		if isvalidnode onegrid and isvalidnode onePlan then		
+		(
+			onegrid.rotation = onePlan.rotation
+			onegrid.position = onePlan.position
+			gridViewBT.pressed()
+		)
+		else(format "plan: % grid: %\n" onePlan onegrid)
+	)
+	
+	
+	on unhideAllPlansBT pressed do
+	(
+		for p in $plane_* do p.ishidden = false
+	)
+	
+	on unhideSetPlansBT pressed do
+	(
+		local plansToUnhide = #()
+-- 		format "gridListToDisp: %\n" gridListToDisp
+		for g in gridListToDisp do 
+		(
+			plansTmp = checkTagGrid g
+-- 			format "g: % plansTmp: %\n" g plansTmp
+			for p in plansTmp do append plansToUnhide p
+		)
+-- 		format "plansToUnhide: %\n" plansToUnhide
+		for p in plansToUnhide do p.ishidden = false
+	)
+	
 	on showPlanBT pressed do
 	(
 		for p in plansAr do 
@@ -651,5 +689,5 @@ rollout gridRLT "Grids Manager"
 
 -- max autogrid ?
 
-createdialog gridRLT width: 400
+createdialog gridRLT width: 400 style: #(#style_resizing,#style_titlebar, #style_border, #style_sysmenu,#style_minimizebox, #style_maximizebox )
 

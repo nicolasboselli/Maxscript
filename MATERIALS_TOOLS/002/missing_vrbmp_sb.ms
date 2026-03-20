@@ -9,6 +9,7 @@ rollout missing_map_RLT "Missing Maps Tools"
 	button convertAutodeskBmpBT "Convert Autodesk Bmp" across: 2
 	button collectMissingVrProxyBT "collect Missing Vr Proxies"
 	button randomDiffuseColorBT "Random Diffuse Color"
+	button bmpToVrBmpBT "Bitmap to VRayBitmap"
 
 	on missingAssetsBT pressed do
 	(
@@ -208,5 +209,60 @@ rollout missing_map_RLT "Missing Maps Tools"
 		format "#### random diffuse done\n\n"
 	)
 	
+	on  bmpToVrBmpBT pressed do
+	(
+		BmpAr = getclassinstances Bitmaptexture target: scenematerials
+		BmpAr.count
+
+		missingAutoBmpMAtAr = #()
+		-- autoBmpAr[1].Parameters_Source.filename
+
+		-- bmpAr[1].filename
+		for i = 1 to BmpAr.count do
+		(
+			bmpExist = true
+		-- 	format "doesFileExist: %\n" (doesFileExist autoBmpAr[i].Parameters_Source)
+			try(format "i: % Bmp: %\n" i BmpAr[i].filename)catch(bmpExist = false)
+		-- 	if autoBmpAr[i].Parameters_Source == undefined then bmpExist = false
+			
+			if  bmpExist then
+			(
+		-- 		bmpFile = autoBmpAr[i].Parameters_Source
+				vrBmp = VRayBitmap filename: BmpAr[i].filename
+				
+				replaceinstances BmpAr[i] vrBmp
+			)  
+		)
+	)
+	
 )
 -- createdialog missing_map_RLT
+
+-- fonction pour transformer les bmps en vrbmps
+
+		-- convertir les autodesk map en vrbitmap
+/*
+BmpAr = getclassinstances Bitmaptexture target: scenematerials
+BmpAr.count
+
+missingAutoBmpMAtAr = #()
+-- autoBmpAr[1].Parameters_Source.filename
+
+-- bmpAr[1].filename
+for i = 1 to BmpAr.count do
+(
+	bmpExist = true
+-- 	format "doesFileExist: %\n" (doesFileExist autoBmpAr[i].Parameters_Source)
+	try(format "i: % Bmp: %\n" i BmpAr[i].filename)catch(bmpExist = false)
+-- 	if autoBmpAr[i].Parameters_Source == undefined then bmpExist = false
+	
+	if  bmpExist then
+	(
+-- 		bmpFile = autoBmpAr[i].Parameters_Source
+		vrBmp = VRayBitmap filename: BmpAr[i].filename
+		
+		replaceinstances BmpAr[i] vrBmp
+	)  
+)
+*/
+

@@ -321,6 +321,12 @@ rollout addPlan "Preparation du plan" width:350 height:230
 			onePlane.name = ("plane_" + (getFilenameFile (onePlane.material.texmap_diffuse.filename))) 
 			format "VrayMtl myBitmap:%\n" myBitmap
 		)
+		else if isKindOf  onePlane.material OpenPBR_Material then
+		(
+			myBitmap = onePlane.material.base_color_map.bitmap
+			onePlane.name = ("plane_" + (getFilenameFile (onePlane.material.base_color_map.filename))) 
+			format "VrayMtl myBitmap:%\n" myBitmap
+		)
 		else(format "iskindof:%\n" onePlane.material)
 		
 		bitHeight = myBitmap.height

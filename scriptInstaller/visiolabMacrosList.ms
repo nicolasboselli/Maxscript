@@ -10,21 +10,27 @@
 	global cellsCreatorPath = @"cellsCreator/005/cellsCreator.ms"
 	
 	global matIdManagerPath = @"MatIDManager/007/matIdManager.ms"
-	global renderIdManagerPath = @"MatIDManager/009/matIdManager.ms"
-	global renderIdManagerPath10 = @"MatIDManager/010/matIdManager.ms"
+	global renderIdManagerPath = @"MatIDManager/011/matIdManager.ms"
+	global renderIdManagerPath10 = @"MatIDManager/012/matIdManager.ms"
 	
 	global clientsImageSizePath =  @"visiolab/render_output/000/render_output.ms"
 	global layersToolsPath =  @"LAYERS_TOOLS/000/layers_tools.ms"
 	global pdvToolsPath =  @"PDV_TOOLS/004/pdv_tools_float.ms"
 	global windowsToolsPath = @"WINDOWS_TOOL/005/windows_tools_float.ms"
-	global cleanMultiMatPath = @"MATERIALS_TOOLS/001/cleanMultimaterials.ms"
+	-- global cleanMultiMatPath = @"MATERIALS_TOOLS/002/cleanMultimaterials.ms"
+	global cleanMultiMatPath = @"CLEAN_ARCHVIZ_FILE/000/cleanMultiMaterials.ms"
+	
 -- 	global boxArchiPath = @"BOXERIZE_archi/001/boxerize_archi.ms"
 	global objIDToolPath = @"MATERIALS_TOOLS/objectIDTool.ms"
 	global ralValToolPath = @"MATERIALS_TOOLS/Load_ral.ms"
 	global fixForestIvyMapsPath = @"visiolab/fixForestIvyMaps.ms"
+	global gridManagerPath = @"GRID_MANAGER/000/grid_manager.ms"
 	
+	global plansManagerToolPath = @"plansManagement/000/plansManagementTool.ms"
 	
-	
+	global resetUIToolPath = @"sceneManagement/reset_UI_pos.ms"
+
+
 	macroScript ScriptLauncher
 	category: "Visiolab"
 	buttonText: "MSXlauncher"
@@ -47,7 +53,7 @@
 		
 	macroScript ModelingUtilities
 	category: "Visiolab"
-	buttonText: "modelingUtilities"
+	buttonText: "Modeling Tools"
 	toolTip:""
 	icon: #("ArmadasScriptModelingUtilities",1)
 	(
@@ -57,7 +63,7 @@
 
 	macroScript MaterialsUtilities
 	category: "Visiolab"
-	buttonText: "materialsUtilities"
+	buttonText: "Materials Tools"
 	toolTip:""
 	icon: #("ArmadasScriptMaterialsUtilities",1)
 	(
@@ -385,5 +391,68 @@
 		filein ((getroot()) + boxArchiPath)
 -- 		filein ((getroot()) +  "\scriptsLauncher\001\launcher.ms")
 	) */
+	
+	macroScript BGgradient
+	category:"Visiolab"
+	buttonText: "BG Grey"
+	toolTip:""
+	(
+		actionMan.executeAction 0 "617"
+	)
+	
+	macroScript gridManager
+	category:"Visiolab"
+	buttonText: "Grid Manager"
+	toolTip:""
+	icon: #("GridManager",1)
+	(
+		filein ((getroot()) +  gridManagerPath)
+	)
+
+	
+	macroScript planManager
+	category:"Visiolab"
+	buttonText: "Plans Manager"
+	toolTip:""
+	icon: #("PlansManagement",1)
+	(
+		filein ((getroot()) +  plansManagerToolPath)
+	)
+		
+	macroScript ResetUI
+	category:"Visiolab"
+	buttonText: "Reset UI"
+	toolTip:""
+-- 	icon: #("PlansManagement",1)
+	(
+		filein ((getroot()) +  resetUIToolPath)
+/*		-- reset rollout pos
+		try(sliceFloater.pos = [0,0])catch()
+		try(theNewMaterialToolFloater.pos = [0,0])catch()
+		try(modToolRF.pos = [0,0])catch()
+		try(matIdExplorerRF.pos = [0,0])catch()
+
+		-- reset dialog box pos
+		try(setDialogPos scriptExplorerRLT [0,0])catch()
+		try(setDialogPos createPlaneRLT [0,0])catch()
+		try(setDialogPos boxerizeRLT  [0,0])catch()
+		try(setDialogPos mxsLaunchRLT [0,0])catch()
+		try(setDialogPos transferChildrenRLT [0,0])catch()
+		try(setDialogPos Pt2vue_renderer_UI [0,0])catch()
+		try(setDialogPos pdv_cam_RLT [0,0])catch()
+		try(setDialogPos clientRenderOutputRLT [0,0])catch()
+		try(setDialogPos objReplacerRLT [0,0])catch()
+		try(setDialogPos transferChildrenRLT [0,0])catch()
+		try(setDialogPos edgeToShapeOnModRLT [0,0])catch()
+		try(setDialogPos layersToolsRLT [0,0])catch()
+		try(setDialogPos opaRLT [0,0])catch()
+		try(setDialogPos gouttiereRLT [0,0])catch()
+		try(setDialogPos gridRLT [0,0])catch()
+		try(setDialogPos VrayRenderRLT [0,0])catch()*/
+
+	)
+	
+	
+	
 
 )

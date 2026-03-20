@@ -1,0 +1,289 @@
+ocio_profile_version: 2
+
+environment:
+  {}
+search_path: ""
+strictparsing: true
+luma: [0.2126, 0.7152, 0.0722]
+name: 3ds_Max_2024_ocio_default_config
+description: 3ds Max 2024 OCIO mode default config
+
+roles:
+  aces_interchange: ACES2065-1
+  cie_xyz_d65_interchange: CIE-XYZ D65
+  color_timing: ACEScct
+  compositing_log: ACEScct
+  data: Raw
+  default: sRGB
+  scene_linear: ACEScg
+
+file_rules:
+  - !<Rule> {name: ACEScg, colorspace: ACEScg, pattern: "*ACEScg", extension: "*"}
+  - !<Rule> {name: jpg, colorspace: sRGB, pattern: "*", extension: jpg}
+  - !<Rule> {name: jpeg, colorspace: sRGB, pattern: "*", extension: jpeg}
+  - !<Rule> {name: png, colorspace: sRGB, pattern: "*", extension: png}
+  - !<Rule> {name: tif, colorspace: sRGB, pattern: "*", extension: tif}
+  - !<Rule> {name: tiff, colorspace: sRGB, pattern: "*", extension: tiff}
+  - !<Rule> {name: tx, colorspace: scene-linear Rec.709-sRGB, pattern: "*", extension: tx}
+  - !<Rule> {name: hdr, colorspace: scene-linear Rec.709-sRGB, pattern: "*", extension: hdr}
+  - !<Rule> {name: exr, colorspace: scene-linear Rec.709-sRGB, pattern: "*", extension: exr}
+  - !<Rule> {name: Default, colorspace: default}
+
+viewing_rules:
+  - !<Rule> {name: log-or-linear, encodings: [log, scene-linear]}
+
+shared_views:
+  - !<View> {name: ACES 1.0 SDR-video, view_transform: ACES 1.0 SDR-video, display_colorspace: <USE_DISPLAY_NAME>, rule: log-or-linear}
+  - !<View> {name: Un-tone-mapped, view_transform: Un-tone-mapped, display_colorspace: <USE_DISPLAY_NAME>}
+  - !<View> {name: Log, colorspace: ACEScct, rule: log-or-linear}
+  - !<View> {name: Raw, colorspace: Raw}
+
+displays:
+  sRGB:
+    - !<Views> [ACES 1.0 SDR-video, Un-tone-mapped, Log, Raw]
+  Gamma 2.2 / Rec.709:
+    - !<Views> [ACES 1.0 SDR-video, Un-tone-mapped, Log, Raw]
+  Rec.1886 / Rec.709 video:
+    - !<Views> [ACES 1.0 SDR-video, Un-tone-mapped, Log, Raw]
+  AdobeRGB:
+    - !<Views> [ACES 1.0 SDR-video, Un-tone-mapped, Log, Raw]
+  DCI-P3 D65:
+    - !<Views> [ACES 1.0 SDR-video, Un-tone-mapped, Log, Raw]
+
+virtual_display:
+  - !<Views> [ACES 1.0 SDR-video, Un-tone-mapped, Log, Raw]
+
+active_displays: []
+active_views: []
+inactive_colorspaces: [CIE-XYZ D65]
+
+view_transforms:
+  - !<ViewTransform>
+    name: Un-tone-mapped
+    from_scene_reference: !<MatrixTransform> {matrix: [0.938279849277, -0.004451445812, 0.016627523587, 0, 0.337368890788, 0.72952156669, -0.066890457478, 0, 0.00117395085, -0.003710706402, 1.091594506312, 0, 0, 0, 0, 1]}
+
+  - !<ViewTransform>
+    name: ACES 1.0 SDR-video
+    from_scene_reference: !<BuiltinTransform> {style: ACES-OUTPUT - ACES2065-1_to_CIE-XYZ-D65 - SDR-VIDEO_1.0}
+
+display_colorspaces:
+  - !<ColorSpace>
+    name: CIE-XYZ D65
+    family: ""
+    equalitygroup: ""
+    bitdepth: unknown
+    description: Display connection space, CIE XYZ with D65 adopted white point
+    isdata: false
+    encoding: display-linear
+    allocation: uniform
+
+  - !<ColorSpace>
+    name: sRGB
+    family: Display
+    equalitygroup: ""
+    bitdepth: unknown
+    description: sRGB monitor (piecewise EOTF)
+    isdata: false
+    categories: [file-io]
+    encoding: sdr-video
+    allocation: uniform
+    from_display_reference: !<GroupTransform>
+      children:
+        - !<MatrixTransform> {matrix: [3.240969941905, -1.53738317757, -0.498610760293, 0, -0.969243636281, 1.875967501508, 0.041555057407, 0, 0.055630079697, -0.203976958889, 1.056971514243, 0, 0, 0, 0, 1]}
+        - !<ExponentWithLinearTransform> {gamma: 2.4, offset: 0.055, direction: inverse}
+        - !<RangeTransform> {min_in_value: 0, max_in_value: 1, min_out_value: 0, max_out_value: 1}
+
+  - !<ColorSpace>
+    name: Gamma 2.2 / Rec.709
+    family: Display
+    equalitygroup: ""
+    bitdepth: unknown
+    description: Gamma 2.2 monitor with Rec.709 or sRGB primaries
+    isdata: false
+    categories: [file-io]
+    encoding: sdr-video
+    allocation: uniform
+    from_display_reference: !<GroupTransform>
+      children:
+        - !<MatrixTransform> {matrix: [3.240969941905, -1.53738317757, -0.498610760293, 0, -0.969243636281, 1.875967501508, 0.041555057407, 0, 0.055630079697, -0.203976958889, 1.056971514243, 0, 0, 0, 0, 1]}
+        - !<ExponentTransform> {value: 2.2, direction: inverse}
+        - !<RangeTransform> {min_in_value: 0, max_in_value: 1, min_out_value: 0, max_out_value: 1}
+
+  - !<ColorSpace>
+    name: Rec.1886 / Rec.709 video
+    family: Display
+    equalitygroup: ""
+    bitdepth: unknown
+    description: Rec.709 broadcast monitor with Rec.1886 EOTF (2.4 gamma)
+    isdata: false
+    categories: [file-io]
+    encoding: sdr-video
+    allocation: uniform
+    from_display_reference: !<GroupTransform>
+      children:
+        - !<MatrixTransform> {matrix: [3.240969941905, -1.53738317757, -0.498610760293, 0, -0.969243636281, 1.875967501508, 0.041555057407, 0, 0.055630079697, -0.203976958889, 1.056971514243, 0, 0, 0, 0, 1]}
+        - !<ExponentTransform> {value: 2.4, direction: inverse}
+        - !<RangeTransform> {min_in_value: 0, max_in_value: 1, min_out_value: 0, max_out_value: 1}
+
+  - !<ColorSpace>
+    name: AdobeRGB
+    family: Display
+    equalitygroup: ""
+    bitdepth: unknown
+    description: AdobeRGB
+    isdata: false
+    categories: [file-io]
+    encoding: sdr-video
+    allocation: uniform
+    from_display_reference: !<GroupTransform>
+      children:
+        - !<MatrixTransform> {matrix: [2.041587903811, -0.565006974279, -0.344731350778, 0, -0.969243636281, 1.875967501508, 0.041555057407, 0, 0.013444280632, -0.118362392231, 1.015174994391, 0, 0, 0, 0, 1]}
+        - !<ExponentTransform> {value: 2.19921875, direction: inverse}
+        - !<RangeTransform> {min_in_value: 0, max_in_value: 1, min_out_value: 0, max_out_value: 1}
+
+  - !<ColorSpace>
+    name: DCI-P3 D65
+    family: Display
+    equalitygroup: ""
+    bitdepth: unknown
+    description: DCI-P3 monitor with D65 white point and 2.6 gamma
+    isdata: false
+    categories: [file-io]
+    encoding: sdr-video
+    allocation: uniform
+    from_display_reference: !<GroupTransform>
+      children:
+        - !<MatrixTransform> {matrix: [2.493496911941, -0.931383617919, -0.402710784451, 0, -0.829488969562, 1.762664060318, 0.023624685842, 0, 0.035845830244, -0.076172389268, 0.956884524008, 0, 0, 0, 0, 1]}
+        - !<ExponentTransform> {value: 2.6, direction: inverse}
+        - !<RangeTransform> {min_in_value: 0, max_in_value: 1, min_out_value: 0, max_out_value: 1}
+
+colorspaces:
+  - !<ColorSpace>
+    name: ACEScg
+    family: Scene-linear
+    equalitygroup: ""
+    bitdepth: 32f
+    description: ACEScg (ACES scene-linear working space with AP1 primaries)
+    isdata: false
+    categories: [file-io, working-space]
+    encoding: scene-linear
+    allocation: uniform
+    to_scene_reference: !<MatrixTransform> {matrix: [0.695452241357, 0.14067869647, 0.163869062172, 0, 0.044794563372, 0.859671118456, 0.095534318172, 0, -0.005525882558, 0.004025210306, 1.001500672252, 0, 0, 0, 0, 1]}
+
+  - !<ColorSpace>
+    name: ACES2065-1
+    family: Scene-linear
+    equalitygroup: ""
+    bitdepth: 32f
+    description: The Academy Color Encoding System reference color space
+    isdata: false
+    categories: [file-io]
+    encoding: scene-linear
+    allocation: uniform
+
+  - !<ColorSpace>
+    name: scene-linear Rec.709-sRGB
+    family: Scene-linear
+    equalitygroup: ""
+    bitdepth: 32f
+    description: Scene-linear color space with Rec.709 or sRGB primaries
+    isdata: false
+    categories: [file-io, working-space]
+    encoding: scene-linear
+    allocation: uniform
+    to_scene_reference: !<MatrixTransform> {matrix: [0.439632981919, 0.382988698152, 0.177378319929, 0, 0.089776442959, 0.813439428749, 0.096784128292, 0, 0.017541170383, 0.111546553302, 0.870912276314, 0, 0, 0, 0, 1]}
+
+  - !<ColorSpace>
+    name: scene-linear DCI-P3 D65
+    family: Scene-linear
+    equalitygroup: ""
+    bitdepth: 32f
+    description: Scene-linear color space with P3 primaries (D65 whitepoint)
+    isdata: false
+    categories: [file-io, working-space]
+    encoding: scene-linear
+    allocation: uniform
+    to_scene_reference: !<MatrixTransform> {matrix: [0.518933487598, 0.286256586387, 0.194809926015, 0, 0.073859383047, 0.819845163937, 0.106295453016, 0, -0.000307011368, 0.043807050254, 0.956499961115, 0, 0, 0, 0, 1]}
+
+  - !<ColorSpace>
+    name: scene-linear Rec.2020
+    family: Scene-linear
+    equalitygroup: ""
+    bitdepth: 32f
+    description: Scene-linear color space with Rec.2020/UHDTV primaries
+    isdata: false
+    categories: [file-io, working-space]
+    encoding: scene-linear
+    allocation: uniform
+    to_scene_reference: !<MatrixTransform> {matrix: [0.679085634707, 0.157700914643, 0.16321345065, 0, 0.04600200308, 0.859054673003, 0.094943323917, 0, -0.000573943188, 0.028467768408, 0.97210617478, 0, 0, 0, 0, 1]}
+
+  - !<ColorSpace>
+    name: Raw
+    family: Utility
+    equalitygroup: ""
+    bitdepth: 32f
+    description: Raw (no color processing)
+    isdata: true
+    categories: [file-io]
+    encoding: data
+    allocation: uniform
+
+  - !<ColorSpace>
+    name: ACEScct
+    family: Log
+    equalitygroup: ""
+    bitdepth: unknown
+    description: ACEScct (ACES log working space with AP1 primaries)
+    isdata: false
+    categories: [file-io]
+    encoding: log
+    allocation: uniform
+    to_scene_reference: !<BuiltinTransform> {style: ACEScct_to_ACES2065-1}
+
+  - !<ColorSpace>
+    name: ARRI LogC (v3-EI800) / AlexaWideGamut
+    family: Log
+    equalitygroup: ""
+    bitdepth: unknown
+    description: ARRI Alexa LogC v3 EI 800 with Alexa Wide Gamut primaries (ARRI SUP v3 color science)
+    isdata: false
+    categories: [file-io]
+    encoding: log
+    allocation: uniform
+    to_scene_reference: !<BuiltinTransform> {style: ARRI_ALEXA-LOGC-EI800-AWG_to_ACES2065-1}
+
+  - !<ColorSpace>
+    name: RED Log3G10 / REDWideGamutRGB
+    family: Log
+    equalitygroup: ""
+    bitdepth: unknown
+    description: RED Log3G10 with REDWideGamutRGB primaries
+    isdata: false
+    categories: [file-io]
+    encoding: log
+    allocation: uniform
+    to_scene_reference: !<BuiltinTransform> {style: RED_LOG3G10-RWG_to_ACES2065-1}
+
+  - !<ColorSpace>
+    name: Sony SLog3 / SGamut3
+    family: Log
+    equalitygroup: ""
+    bitdepth: unknown
+    description: Sony SLog3 with SGamut3 primaries
+    isdata: false
+    categories: [file-io]
+    encoding: log
+    allocation: uniform
+    to_scene_reference: !<BuiltinTransform> {style: SONY_SLOG3-SGAMUT3_to_ACES2065-1}
+
+  - !<ColorSpace>
+    name: Log film scan (ADX10)
+    family: Log
+    equalitygroup: ""
+    bitdepth: unknown
+    description: ADX10 (ACES Academy Density Encoding for logarithmic film scans)
+    isdata: false
+    categories: [file-io]
+    encoding: log
+    allocation: uniform
+    to_scene_reference: !<BuiltinTransform> {style: ADX10_to_ACES2065-1}

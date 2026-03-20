@@ -85,6 +85,7 @@ rollout parallaxplacerRLT "parallax Placer"
 	(
 		button placeBT "parallax sur selection" across:2
 		button placeAllBT "parallax partout"
+		button forceOnGabaritBT "Force on Gabarit"
 	)
 	
 	group "NUIT"
@@ -92,7 +93,8 @@ rollout parallaxplacerRLT "parallax Placer"
 		button placeNuitBT "parallax sur selection" across:2
 		button placeAllNuitBT "parallax partout"
 	)
-
+	
+	
 	
 	fn createLayer =
 	(
@@ -119,6 +121,22 @@ rollout parallaxplacerRLT "parallax Placer"
 			if res then append windowsSet h
 		)
 		windowsSet
+	)
+	
+	fn findGabarit oneArray = 
+	(
+		windowsSet = #()
+		for h in oneArray where iskindof h Editable_mesh do 
+		(
+			
+			local res
+			try(res = (getUserProp h "isGabarit" )as booleanClass)catch(res = false) 
+			if res then 
+			(
+				format "h: %\n" h
+				append windowsSet h
+			)
+		)
 	)
 	
 	on placeBT pressed do
@@ -161,6 +179,22 @@ rollout parallaxplacerRLT "parallax Placer"
 			oneplane.material = wPRoomsMat
 		)
 
+	)
+	
+	on forceOnGabaritBT pressed do
+	(
+		createLayer()
+		loadMaterial()
+-- 		sceneWindows = #()
+		findGabarit (geometry as array)
+-- 		format "windowsSet: %\n" windowsSet
+		for w in windowsSet do
+		(
+			onePlane = createParallax w
+			
+			pL.addnode oneplane
+			oneplane.material = wPRoomsMat
+		)
 	)
 	
 	on placeNuitBT pressed do

@@ -1,9 +1,16 @@
 /*
+
+
 debug:
 -- aprés le renommage d'une camera faire suivre la selection dans la listbox sur le nouveau nom de la camera
 maj:
-enregistrer format
-enregistrer calque visible
+-- enregistrer calque visible ?
+-- raccourci format carré, 4/3, vertical ...
+	-- tagger les cameras 
+-- rajouter raccourci focale 27
+-- bouton clear vertical camera
+-- avec le select target passer le gizmo en view screen
+
 */
 
 fn convertSceneStateToCameras =
@@ -145,6 +152,7 @@ rollout pdv_cam_RLT "point de vue companion"
 		
 		button vertCamBT "vertical cam"
 		button selTargetBT "select target" enabled: true
+		button displayGridBT "grid toggle"
 		
 		label lab0 "-------------------"
 		
@@ -172,6 +180,7 @@ rollout pdv_cam_RLT "point de vue companion"
 		edittext camNameET "name:"
 		button lockCamBT "lock cam" across: 2
 		button delCamBT "del cam" --enabled: false
+		button selCamBT "sel cam" across: 2 --enabled: false 
 		button interCamBT "inbetween cam"
 	)
 		
@@ -383,6 +392,8 @@ rollout pdv_cam_RLT "point de vue companion"
 		try(select (getActiveCamera()).target )catch(format "no target\n")
 	)
 	
+
+	
 	on vertCamBT pressed do
 	(
 		local cam = getActiveCamera()
@@ -402,6 +413,15 @@ rollout pdv_cam_RLT "point de vue companion"
 			else()
 		)
 		else()
+	)
+	
+	on displayGridBT pressed do
+	(
+		local cam = getActiveCamera()
+		if cam != undefined and iskindof cam VRayPhysicalCamera then
+		(
+			cam.prop_custom = not cam.prop_custom
+		)
 	)
 	
 	on widthSP changed val do
@@ -559,6 +579,14 @@ rollout pdv_cam_RLT "point de vue companion"
 		)	
 		initCams()
 		refreshUI forceUI: true
+	)
+	
+	on selCamBT pressed do
+	(
+		camsSel = camsMLB.selection as array
+		format "camSel:%\n" camsSel
+		clearselection()
+		for id in camsSel do selectmore camsAr[id]
 	)
 	
 	on interCamBT pressed do

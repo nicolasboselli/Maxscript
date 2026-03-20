@@ -207,7 +207,8 @@ fn cleanFile =
 	environmentMap = undefined
 	backgroundColor = color 0 0 0
 	fileOutGamma = 2.2
-	IDisplayGamma.colorCorrectionMode = #gamma
+-- 	IDisplayGamma.colorCorrectionMode = #gamma
+	ColorPipelineMgr.Mode = #gamma
 
 	-- units
 	format "Configure Units done.\n"
