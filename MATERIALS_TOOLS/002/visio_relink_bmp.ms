@@ -50,8 +50,12 @@ fn visioRelink =
 	maxPathsAr = getDirectories (maxfilepath + "*") recurse: true
 	for o in maxPathsAr do append basePaths o
 
-	-- chemin autodesk
-	autodeskPaths = getDirectories @"C:\Program Files (x86)\Common Files\Autodesk Shared\Materials\textures\*" recurse: true
+-- 	-- chemin autodesk
+-- 	testPath = @"C:\Users\nicolas\Documents\3ds Max 2026\*"
+-- 	testPath = @"C:\Program Files\Autodesk\3ds Max 2026\maps\*"
+	testPath = @"C:\Program Files\Common Files\Autodesk Shared\Materials\textures\*"
+	autodeskPaths = getDirectories testPath recurse: true
+	
 	for o in autodeskPaths do append basePaths o
 		
 	-- collecte des chemins sur le dossier skp
