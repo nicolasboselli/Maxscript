@@ -61,11 +61,11 @@ fn createBoxOrient2 s =
 
 fn createBoxOrientOnMod s =
 (
-	s.edit_poly.GetSelection  #face
 	fSel = (s.edit_poly.GetSelection  #face) as array
 	
-	-- recup�ration des id de points 
-	pts = for i = 1 to 3 collect s.edit_poly.GetFaceVertex  fSel[1] i
+	-- recuperation des id de points (fonctionne sur tris et quads)
+	local faceVertCount = s.edit_poly.GetFaceVertex fSel[1] 0
+	pts = for i = 1 to faceVertCount collect s.edit_poly.GetFaceVertex fSel[1] i
 		
 	-- recuperation des position de points
 	ptsPos = for p in pts collect s.edit_poly.getVertex p 
@@ -108,23 +108,11 @@ fn removeEdgeAndVerticesFN sel =
 (
 	sel.EditablePoly.ConvertSelection #Edge #Vertex
 	sel.EditablePoly.Remove selLevel: #Edge
-		-- check vertex
-	-- get vertex selection 
+	-- construction directe du bitarray, sans array intermédiaire ni cast final
 	local vertBitAr = sel.GetSelection #vertex
-	local vertAr = vertBitAr as array
-	-- for each vertex
-		-- if vertex edge num <= 3 collect vertex
-	local vertToDel = #()
-	for id in vertAr do
-	(
-		num = sel.GetVertexEdgeCount  id
-		if num <=2 then
-		(
-			append vertToDel id
-		)
-	)
-	vertToDelBit = vertToDel as bitarray
-	-- set vertex selection with good vertex
+	local vertToDelBit = #{}
+	for id in (vertBitAr as array) do
+		if (sel.GetVertexEdgeCount id) <= 2 do vertToDelBit[id] = true
 	sel.setSelection #vertex vertToDelBit
 	sel.EditablePoly.Remove selLevel: #Vertex
 )
@@ -198,26 +186,29 @@ rollout edgeToShapeOnModRLT "edge to shape"
 		undo on
 		(
 -- 				local goNext = true
+			-- cache l'appel UI coûteux une seule fois pour tout le bloc
+			local curObj = modPanel.getCurrentObject()
+			
 			format "traitement start: %\n" s.name
 -- 				select s
 			-- ignore les objets avec des modifier edit_poly sans selection de face
-			if classof (modPanel.getCurrentObject()) == Editable_Poly and  (polyop.getfaceselection s.baseobject).count > 0 then
+			if classof curObj == Editable_Poly and  (polyop.getfaceselection s.baseobject).count > 0 then
 			(
 				format "faces selection on editable_poly: %\n" s.name
-				bakSel = modPanel.getCurrentObject()
+				bakSel = curObj
 				ep = s
 			)
-			else if classof (modPanel.getCurrentObject()) == Edit_Poly and ((s.edit_poly.GetSelection  #face) as array).count > 0 then
+			else if classof curObj == Edit_Poly and ((s.edit_poly.GetSelection  #face) as array).count > 0 then
 			(
 				format "faces selection on edit_poly modifier: %\n" s.name
-				bakSel = modPanel.getCurrentObject()
+				bakSel = curObj
 -- 				bakSelId = modPanel.getModifierIndex s bakSel
 				ep = s.edit_poly
 			)
-			else if classof (modPanel.getCurrentObject()) == Edit_Poly and ((s.edit_poly.GetSelection  #edge) as array).count > 0 then
+			else if classof curObj == Edit_Poly and ((s.edit_poly.GetSelection  #edge) as array).count > 0 then
 			(
 				format "edges selection on edit_poly modifier: %\n" s.name
-				bakSel = modPanel.getCurrentObject()
+				bakSel = curObj
 -- 				bakSelId = modPanel.getModifierIndex s bakSel
 				ep = s.edit_poly
 			)
@@ -228,57 +219,37 @@ rollout edgeToShapeOnModRLT "edge to shape"
 			)
 											
 			-- create box orient sur une selection de face
+			-- ep == s  =>  Editable_Poly  |  ep == s.edit_poly  =>  Edit_Poly
 			if createBoxOrientCB.state == true and subobjectLevel == 4 then
 			(
-				if classof (modPanel.getCurrentObject()) == Editable_Poly and  (polyop.getfaceselection s).count > 0 then
-				(
+				if ep == s then
 					boxorient = createBoxOrient2 s
-				)
-				else if classof (modPanel.getCurrentObject()) == Edit_Poly and ((s.edit_poly.GetSelection  #face) as array).count > 0 then
-				(
+				else if ep == s.edit_poly then
 					boxorient = createBoxOrientOnMod s
-				)
-				else(boxorient = undefined)
-			)else  (format "select faces\n")
-				
-			-- convert face selection en sdge selection si necessaire
+				else
+					boxorient = undefined
+			) else (format "select faces\n")
+
+			-- convert face selection en edge selection si necessaire
 			if subObjectLevel == 4 then
 			(
-				/*
-				if classof (modPanel.getCurrentObject()) == Editable_Poly then
-				(
-					s.ConvertSelectionToBorder #Face #Edge
-					selLev = 4
-				)
-				else if classof (modPanel.getCurrentObject()) == Edit_Poly then
-				(
-					s.modifiers[#Edit_Poly].ConvertSelectionToBorder #Face #Edge
-					selLev = 4
-				)
-				else(boxorient = undefined)
-				*/
-				
 				ep.ConvertSelectionToBorder #Face #Edge
 				selLev = 4
 			) else (selLev = 2)
 			
 			-- create shape
-			objSCount = objects.count
+			-- snapshot des handles avant creation : diff robuste meme si la scene bouge
+			local handlesBefore = for o in objects collect getHandleByAnim o
 			newName = uniqueName (s.name + "_shape")
 			
-			if classof (modPanel.getCurrentObject()) == Editable_Poly then
-			(
-				s.createShape  newName  false s
-			)
-			else if classof (modPanel.getCurrentObject()) == Edit_Poly then
-			(
-				s.Edit_Poly.CreateShape newName 
-			)
-			else(boxorient = undefined)
+			if ep == s then
+				s.createShape newName false s
+			else
+				ep.CreateShape newName
 			
-			-- collecte les nouvelles spline
-			newShapes = for i = objSCount + 1  to objects.count collect objects[i]
-			if newShapes.count > 0 then for s in newShapes do updateshape s
+			-- collecte les nouvelles splines : nodes dont le handle n'existait pas avant
+			newShapes = for o in objects where (findItem handlesBefore (getHandleByAnim o)) == 0 collect o
+			if newShapes.count > 0 then for o in newShapes do updateshape o
 			format "newShapes:%\n" newShapes
 
 			
@@ -333,22 +304,18 @@ rollout edgeToShapeOnModRLT "edge to shape"
 			-- option: add sweep
 			if addSweepCB.state == true and newShapes.count > 0 do
 			(
-				
 				mySweep = Sweep CurrentBuiltInShape: 2 PivotAlignment:8 SmoothPath: false
 				mySmooth = Smooth name: "my_Smooth" autosmooth: on
 				
--- 				addmodifier newShape mySweep
 				for ns in newShapes do
 				(
 					addmodifier ns mySweep
-						
-					redrawViews()
-					
-					newSweep = getnodebyname ns.name
-
+					-- ns est déjà le node, getnodebyname ns.name était inutile
 					ns.Sweep[4].length = 20
 					ns.Sweep[4].width = 20
 				)
+				-- redraw une seule fois après la boucle
+				redrawViews()
 			)
 			
 			-- option keep selection
