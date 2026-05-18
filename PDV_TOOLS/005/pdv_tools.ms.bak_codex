@@ -134,7 +134,6 @@ rollout pdv_cam_RLT "point de vue companion"
 	local bakAltSpVal
 	local copiedRenderWidth = undefined
 	local copiedRenderHeight = undefined
-	local params = #("selCamCB")
 	
 	group "Active view:"
 	(
@@ -218,7 +217,7 @@ rollout pdv_cam_RLT "point de vue companion"
 	
 	fn RefreshOtherUI =
 	(
-		try(placeSun2RLT.initSunNCam())catch(format "PDV refresh other UI failed: %\n" (getCurrentException()))
+		placeSun2RLT.initSunNCam()
 	)
 	
 	fn loadRenderSize =
@@ -254,16 +253,10 @@ rollout pdv_cam_RLT "point de vue companion"
 	
 	on pdv_cam_RLT open do
 	(
-		try(PDV_loadRolloutParams pdv_cam_RLT params)catch(format "PDV pref load failed: %\n" (getCurrentException()))
 		initCams()
 		refreshUI()
 		
 		loadRenderSize()
-	)
-	
-	on pdv_cam_RLT close do
-	(
-		try(PDV_writeRolloutParams pdv_cam_RLT params)catch(format "PDV pref write failed: %\n" (getCurrentException()))
 	)
 		
 	on newcamBT pressed do
@@ -530,7 +523,7 @@ rollout pdv_cam_RLT "point de vue companion"
 		viewport.setCamera camsAr[val]
 		initCams()
 		refreshUI()
-		try(placeSun2RLT.initSunNCam())catch(format "PDV place sun refresh failed: %\n" (getCurrentException()))
+		placeSun2RLT.initSunNCam()
 		
 		loadRenderSize()
 	)

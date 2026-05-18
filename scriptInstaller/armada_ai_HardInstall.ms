@@ -1,0 +1,1 @@
+filein @"D:\MaxscriptIA\Maxscript\scriptInstaller\armadasScriptInstall.ms"

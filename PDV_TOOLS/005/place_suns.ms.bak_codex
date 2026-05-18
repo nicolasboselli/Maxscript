@@ -15,7 +15,6 @@ rollout placeSun2RLT "place sun 2"
 	local x1
 	local y1
 	local z1
-	local params = #("autoSunOffsetSP")
 		
 	group "sun"
 	(
@@ -117,17 +116,7 @@ rollout placeSun2RLT "place sun 2"
 	)
 	
 	-- action
-	
-	on placeSun2RLT open do
-	(
-		try(PDV_loadRolloutParams placeSun2RLT params)catch(format "PDV sun pref load failed: %\n" (getCurrentException()))
-	)
-	
-	on placeSun2RLT close do
-	(
-		try(PDV_writeRolloutParams placeSun2RLT params)catch(format "PDV sun pref write failed: %\n" (getCurrentException()))
-	)
-		on sunSL buttondown do
+	on sunSL buttondown do
 	(
 		placeSun()
 		

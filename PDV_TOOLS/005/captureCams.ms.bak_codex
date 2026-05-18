@@ -13,7 +13,6 @@ rollout captureCamRLT "capture cam"
 	local camNames = #()
 	local lname = "CAMS_NAMES"
 	local l
-	local params = #("resizeSP")
 	
 	button createCamNameTextBT "create cams names"
 	spinner resizeSP "text size" range: [10, 10000, 200]
@@ -27,16 +26,6 @@ rollout captureCamRLT "capture cam"
 		else l = layermanager.getlayerfromname lname
 
 		l.nodes &camNames
-	)
-	
-	on captureCamRLT open do
-	(
-		try(PDV_loadRolloutParams captureCamRLT params)catch(format "PDV capture pref load failed: %\n" (getCurrentException()))
-	)
-	
-	on captureCamRLT close do
-	(
-		try(PDV_writeRolloutParams captureCamRLT params)catch(format "PDV capture pref write failed: %\n" (getCurrentException()))
 	)
 	
 	on createCamNameTextBT pressed do
